@@ -27,7 +27,7 @@ This is an unofficial, non-commercial fan project. It is not affiliated with, en
 Michael Madsen (BirdieSoft) created the original POKéMON Simulator. This port reimplements it so it keeps running on modern systems.
 
 - **Source code:** licensed under the [GNU Affero General Public License v3.0 only](LICENSE).
-- **Assets:** POKéMON names, sprites and icons, and the original game's data, texts and manual. They are **not** covered by the AGPL and remain the property of their owners. As the copyright holders of the code, we allow the program's binaries to be distributed with these assets embedded (an additional permission under section 7 of the AGPL).
+- **Assets:** POKéMON names, sprites and icons, and the original game's data, texts, manual and window layouts. They are **not** covered by the AGPL and remain the property of their owners. [assets/README.md](assets/README.md) lists where each one comes from and who owns it. As the copyright holders of the code, we allow the program's binaries to be distributed with these assets embedded (an additional permission under section 7 of the AGPL).
 - **No monetisation:** the project will never include ads, sales or paid features.
 
 If you hold rights to any of this material and want it removed, please open an issue on this repository.
