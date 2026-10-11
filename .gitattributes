@@ -1,2 +1,4 @@
 # The original data file is embedded byte for byte: never convert its CRLF line endings.
 assets/pokegame.dat -text
+# Pages written by the original, in cp1252 with CRLF line endings.
+internal/export/testdata/*.htm -text
