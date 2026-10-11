@@ -1,0 +1,2 @@
+# The original data file is embedded byte for byte: never convert its CRLF line endings.
+assets/pokegame.dat -text
