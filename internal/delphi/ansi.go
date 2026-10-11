@@ -23,6 +23,30 @@ func DecodeANSI(b []byte) string {
 	return sb.String()
 }
 
+// EncodeANSI converts UTF-8 to cp1252, the inverse of DecodeANSI. Characters
+// cp1252 can't hold become "?", as Windows' conversion does.
+func EncodeANSI(s string) []byte {
+	b := make([]byte, 0, len(s))
+	for _, r := range s {
+		switch {
+		case r < 0x80 || r >= 0xA0 && r <= 0xFF:
+			b = append(b, byte(r))
+		case r >= 0x80 && r < 0xA0 && cp1252High[r-0x80] == 0:
+			b = append(b, byte(r)) // the undefined bytes decode to themselves
+		default:
+			c := byte('?')
+			for i, h := range cp1252High {
+				if h == r {
+					c = byte(0x80 + i)
+					break
+				}
+			}
+			b = append(b, c)
+		}
+	}
+	return b
+}
+
 // cp1252High maps bytes 0x80–0x9F, where cp1252 differs from Latin-1.
 // Zero entries are undefined in cp1252 and fall back to Latin-1.
 var cp1252High = [32]rune{
