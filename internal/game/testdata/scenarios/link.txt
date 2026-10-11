@@ -1,0 +1,89 @@
+# Link, the author ("Me", BattleType 10), after Ash: Mew L.10, and the
+# Mewtwo and Hoenn leaders unlock. Tyranitar's Bite is super effective
+# against Mew.
+badges 16
+flags 1 1 0 0 0
+Money 0
+party 248 100
+> start
+> seed 16
+> menu Actions > Fight a Trainer > Me
+log Link wants to fight!
+log Link sent out Mew!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> fight 1
+rand 10 = 5
+rand 20 = 6
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 222 points of damage to enemy Mew.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 13
+log Enemy Mew used Psychic!
+log It doesn't affect Tyranitar!
+log Enemy Mew did 0 points of damage to Tyranitar.
+rand 10 = 0
+rand 20 = 16
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 242 points of damage to enemy Mew.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 18
+log Enemy Mew used Thunder!
+log Enemy Mew did 198 points of damage to Tyranitar.
+rand 10 = 3
+rand 20 = 0
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 210 points of damage to enemy Mew.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 15
+log Enemy Mew used Psychic!
+log It doesn't affect Tyranitar!
+log Enemy Mew did 0 points of damage to Tyranitar.
+rand 10 = 2
+rand 20 = 2
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 214 points of damage to enemy Mew.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 4
+log Enemy Mew used Metronome!
+log It's not very effective...
+log Enemy Mew did 59 points of damage to Tyranitar.
+rand 10 = 0
+rand 20 = 16
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 242 points of damage to enemy Mew.
+log Enemy Mew fainted!
+log Tyranitar gained 29701 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "You beat me! You can now battle and/or catch Mewtwo! You can also fight the Hoenn Gym Leaders! And as if that wasn't enough, you also get a Mew at L.10!" -> OK
+log Mew has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=10 own=1 hp=743 enemy=151 level=100 hp=0 levels=2-100
+state player badges=16 Money=1500 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink
+state dex 151,248
+state party 1:248/L100/1000000 2:151/L10/1000
+> quit
+exit 0
+save line 5: "FALSE" -> "TRUE"
+save line 9: "0" -> "1500"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 170: "FALSE" -> "TRUE"
+save line 409: "0" -> "151"
+save line 410: "0" -> "10"
+save line 411: "0" -> "1000"

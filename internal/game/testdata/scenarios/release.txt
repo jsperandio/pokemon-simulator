@@ -1,0 +1,45 @@
+# Release Mode: the second of three members is released and the party is
+# compacted; with one member left the game refuses.
+party 1 10
+party 4 11
+party 7 12
+> start
+> menu Actions > Release a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to release it. Once you have doubleclicked on a POKéMON, Release Mode will be disabled." -> OK
+> answer yes
+> choose 2
+dialog information "# 004 Charmander, L.11, XP:1331, XP to next level:397" -> OK
+dialog confirmation "Once released, Charmander will not come back. Release Charmander?" -> Yes
+dialog information "Charmander was released. Bye, Charmander!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,4,7
+state party 1:1/L10/1000 2:7/L12/1728
+> menu Actions > Release a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to release it. Once you have doubleclicked on a POKéMON, Release Mode will be disabled." -> OK
+> answer yes
+> choose 2
+dialog information "# 007 Squirtle, L.12, XP:1728, XP to next level:469" -> OK
+dialog confirmation "Once released, Squirtle will not come back. Release Squirtle?" -> Yes
+dialog information "Squirtle was released. Bye, Squirtle!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,4,7
+state party 1:1/L10/1000
+> menu Actions > Release a POKéMON
+dialog warning "You can't release your last POKéMON!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,4,7
+state party 1:1/L10/1000
+> quit
+exit 0
+save line 409: "4" -> "0"
+save line 410: "11" -> "0"
+save line 411: "1331" -> "0"
+save line 412: "7" -> "0"
+save line 413: "12" -> "0"
+save line 414: "1728" -> "0"

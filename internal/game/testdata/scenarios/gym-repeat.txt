@@ -1,0 +1,47 @@
+# Brock again at 1 badge: an ordinary win (BattleType 2), no badge.
+badges 1
+Money 0
+party 1 20
+> start
+> seed 21
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Brock
+log Brock wants to fight!
+log Brock sent out Geodude!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 001 Bulbasaur, L.20, XP:8000, XP to next level:1261" -> OK
+dialog confirmation "Choose Bulbasaur?" -> Yes
+log Bulbasaur, I choose you!
+> fight 4
+rand 10 = 6
+rand 20 = 9
+log Bulbasaur used Razor Leaf!
+log It's super effective!
+log Bulbasaur did 108 points of damage to enemy Geodude.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 12
+log Enemy Geodude used Tackle!
+log Enemy Geodude did 10 points of damage to Bulbasaur.
+rand 10 = 2
+rand 20 = 0
+log Bulbasaur used Razor Leaf!
+log It's super effective!
+log Bulbasaur did 72 points of damage to enemy Geodude.
+log Enemy Geodude fainted!
+log Bulbasaur gained 397 experience points!
+rand 3 = 1
+log You got 500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=190 enemy=74 level=12 hp=0 levels=2-100
+state player badges=1 Money=500 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1
+state party 1:1/L20/8397
+> quit
+exit 0
+save line 9: "0" -> "500"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 408: "8000" -> "8397"

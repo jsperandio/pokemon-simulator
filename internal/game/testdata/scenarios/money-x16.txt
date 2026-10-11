@@ -1,0 +1,67 @@
+# A win at 5 badges with Mewtwo in the POKéDEX (but not in the party): x2
+# and x8 stack, x16.
+badges 5
+Money 0
+dex 150
+party 6 100
+> start
+> seed 12
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 145
+rand 386 = 381
+rand 386 = 370
+rand 30 = 1
+rand 20 = 1
+rand 30 = 13
+rand 20 = 8
+rand 20 = 13
+rand 10 = 0
+rand 10 = 3
+log Wild Bagon appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 006 Charizard, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Charizard?" -> Yes
+log Charizard, I choose you!
+> fight 4
+rand 10 = 7
+rand 20 = 12
+log Charizard used Fire Blast!
+log It's not very effective...
+log Charizard did 93 points of damage to enemy Bagon.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 17
+log Enemy Bagon used Bite!
+log Enemy Bagon did 33 points of damage to Charizard.
+rand 10 = 7
+rand 20 = 6
+log Charizard used Fire Blast!
+log It's not very effective...
+log Charizard did 90 points of damage to enemy Bagon.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 15
+log Enemy Bagon used Rage!
+log Enemy Bagon did 30 points of damage to Charizard.
+rand 10 = 4
+rand 20 = 6
+log Charizard used Fire Blast!
+log It's not very effective...
+log Charizard did 90 points of damage to enemy Bagon.
+log Enemy Bagon fainted!
+log Charizard gained 1519 experience points!
+rand 3 = 2
+log You got 16000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=937 enemy=371 level=23 hp=0 levels=2-100
+state player badges=5 Money=16000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 6,150
+state party 1:6/L100/1000000
+> quit
+exit 0
+save line 9: "0" -> "16000"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"

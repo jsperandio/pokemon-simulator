@@ -1,0 +1,42 @@
+# Branched evolutions through the EvolveChoice radio group: Eevee into Flareon (item 4),
+# Wurmple into Silcoon (no "from" name in the message), Tyrogue ("Tyrouge")
+# cancelled with "Don't evolve".
+party 133 30
+party 265 7
+party 236 20
+> start
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 1
+dialog information "# 133 Eevee, L.30, XP:27000, XP to next level:2791" -> OK
+dialog information "Please select what you would like to evolve your Eevee to." -> OK
+> radio Form4.EvolveChoice 4
+> click Form4.EvolveButton
+dialog information "Eevee evolved into Flareon!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 2
+dialog information "# 265 Wurmple, L.7, XP:343, XP to next level:169" -> OK
+dialog information "Please select what you would like to evolve your Wurmple to." -> OK
+> radio Form4.EvolveChoice 2
+> click Form4.EvolveButton
+dialog information " evolved into Silcoon!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 3
+dialog information "# 236 Tyrogue, L.20, XP:8000, XP to next level:1261" -> OK
+dialog information "Please select what you would like to evolve your Tyrouge to." -> OK
+> radio Form4.EvolveChoice 1
+> click Form4.EvolveButton
+dialog information "Evolution cancelled." -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 133,136,236,265,266
+state party 1:136/L30/27000 2:266/L7/343 3:236/L20/8000
+> quit
+exit 0
+save line 155: "FALSE" -> "TRUE"
+save line 285: "FALSE" -> "TRUE"
+save line 406: "133" -> "136"
+save line 409: "265" -> "266"

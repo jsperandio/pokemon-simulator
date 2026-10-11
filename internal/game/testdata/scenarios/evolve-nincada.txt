@@ -1,0 +1,39 @@
+# Nincada L.20, twice: "Yes" to its own prompt evolves it into Ninjask and
+# draws Random(4) for Shedinja; "No" falls through to the generic prompt,
+# where "Yes" evolves it without the Shedinja draw.
+party 290 20
+party 290 20
+> start
+> seed 23
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> answer yes
+> choose 1
+dialog information "# 290 Nincada, L.20, XP:8000, XP to next level:1261" -> OK
+dialog confirmation "Your Nincada can evolve into Ninjask. Do you want to evolve it? NOTE: Nincada will evolve into Ninjask AND Shedinja every 3 of 4 times." -> Yes
+dialog information "Nincada evolved into Ninjask!" -> OK
+rand 4 = 2
+dialog information "Nincada also evolved into Shedinja!" -> OK
+log Shedinja has been added to the POKéDEX!
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> answer no yes
+> choose 2
+dialog information "# 290 Nincada, L.20, XP:8000, XP to next level:1261" -> OK
+dialog confirmation "Your Nincada can evolve into Ninjask. Do you want to evolve it? NOTE: Nincada will evolve into Ninjask AND Shedinja every 3 of 4 times." -> No
+dialog confirmation "Your Nincada can evolve into Ninjask. Do you want to evolve it?" -> Yes
+dialog information "Nincada evolved into Ninjask!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 290,291,292
+state party 1:291/L20/8000 2:291/L20/8000 3:292/L20/8000
+> quit
+exit 0
+save line 310: "FALSE" -> "TRUE"
+save line 311: "FALSE" -> "TRUE"
+save line 406: "290" -> "291"
+save line 409: "290" -> "291"
+save line 412: "0" -> "292"
+save line 413: "0" -> "20"
+save line 414: "0" -> "8000"

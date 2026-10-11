@@ -1,0 +1,225 @@
+# The Prime Cup (fee 10000) with every round forced to a one-hit win
+# (EnemyHP set to 1): seed 1536 then draws prize 3, a random POKéMON, and
+# the species draw is Mewtwo (1 in 1158), at L.29.
+Money 10000
+party 150 100
+> start
+> seed 1536
+> menu Actions > Tournaments > Prime Cup (Level 100)
+rand 64 = 12
+rand 64 = 25
+rand 64 = 29
+rand 64 = 15
+rand 64 = 46
+rand 64 = 33
+rand 64 = 20
+rand 64 = 25
+rand 64 = 28
+rand 64 = 35
+rand 64 = 25
+rand 64 = 37
+rand 64 = 14
+rand 64 = 1
+rand 64 = 52
+rand 64 = 47
+rand 386 = 27
+rand 386 = 57
+rand 386 = 225
+rand 386 = 101
+rand 386 = 276
+rand 386 = 7
+rand 386 = 346
+rand 386 = 38
+rand 5 = 2
+rand 5 = 0
+rand 5 = 2
+rand 5 = 3
+rand 5 = 0
+rand 5 = 3
+rand 5 = 3
+rand 5 = 4
+log Ned wants to fight!
+log Ned sent out Nidoqueen!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 1
+rand 20 = 19
+log Mewtwo used Psychic!
+log It's super effective!
+log Mewtwo did 418 points of damage to enemy Nidoqueen.
+log Enemy Nidoqueen fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 1
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Ned! Next up is trainer #2, Jerry with a L.100 Poliwhirl." -> OK
+log Jerry wants to fight!
+log Jerry sent out Poliwhirl!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 16
+log Mewtwo used Thunder!
+log It's super effective!
+log Mewtwo did 392 points of damage to enemy Poliwhirl.
+log Enemy Poliwhirl fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 2
+log You got 8000¥!
+> end
+dialog information "Congratulations! You beat Jerry! Next up is trainer #3, Stefano with a L.100 Houndoom." -> OK
+log Stefano wants to fight!
+log Stefano sent out Houndoom!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 3
+rand 20 = 10
+log Mewtwo used Thunder!
+log Mewtwo did 190 points of damage to enemy Houndoom.
+log Enemy Houndoom fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 2
+log You got 8000¥!
+> end
+dialog information "Congratulations! You beat Stefano! Next up is trainer #4, Carol with a L.100 Marowak." -> OK
+log Carol wants to fight!
+log Carol sent out Marowak!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 9
+rand 20 = 11
+log Mewtwo used Blizzard!
+log Critical hit!
+log It's super effective!
+log Mewtwo did 784 points of damage to enemy Marowak.
+log Enemy Marowak fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 1
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Carol! Next up is trainer #5, Will with a L.100 Ralts." -> OK
+log Will wants to fight!
+log Will sent out Ralts!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 15
+log Mewtwo used Blizzard!
+log Mewtwo did 200 points of damage to enemy Ralts.
+log Enemy Ralts fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 1
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Will! Next up is trainer #6, Jack with a L.100 Metapod." -> OK
+log Jack wants to fight!
+log Jack sent out Metapod!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 7
+rand 20 = 19
+log Mewtwo used Psychic!
+log Mewtwo did 209 points of damage to enemy Metapod.
+log Enemy Metapod fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 1
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Jack! Next up is trainer #7, Jason with a L.100 Milotic." -> OK
+log Jason wants to fight!
+log Jason sent out Milotic!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 17
+log Mewtwo used Thunder!
+log It's super effective!
+log Mewtwo did 394 points of damage to enemy Milotic.
+log Enemy Milotic fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 0
+log You got 2000¥!
+> end
+dialog information "Congratulations! You beat Jason! Next up is trainer #8, Bart with a L.100 Golbat." -> OK
+log Bart wants to fight!
+log Bart sent out Golbat!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 5
+rand 20 = 12
+log Mewtwo used Psychic!
+log It's super effective!
+log Mewtwo did 404 points of damage to enemy Golbat.
+log Enemy Golbat fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 2
+log You got 8000¥!
+> end
+dialog information "Congratulations! You beat Bart! You won the tournament! Now for the unveiling of your prize..." -> OK
+rand 3 = 2
+dialog information "You won a random POKéMON at a random level!" -> OK
+rand 386 = 149
+rand 99 = 27
+dialog information "NOTE: You can only catch one Mewtwo at a time. You must release the one(s) you already have if you want to catch another." -> OK
+dialog information "You won a L.29 Mewtwo!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=68 own=1 hp=1000 enemy=42 level=100 hp=0 levels=2-100
+state player badges=0 Money=42000 Wins=8 Losses=0 Fights=8 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 150
+state party 1:150/L100/1000000 2:150/L29/24389
+> quit
+exit 0
+save line 9: "10000" -> "42000"
+save line 10: "0" -> "8"
+save line 12: "0" -> "8"
+save line 409: "0" -> "150"
+save line 410: "0" -> "29"
+save line 411: "0" -> "24389"

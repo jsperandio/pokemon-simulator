@@ -1,0 +1,46 @@
+# Running from a wild battle: "Got away safely!", BattleType 0. "End Fight"
+# then recomputes every party member's level from its XP: the second
+# member is saved at level 10 with a level-12 amount of XP.
+Money 1000
+party 7 10
+party 1 10 2000
+> start
+> seed 5
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 60
+rand 386 = 69
+rand 386 = 219
+rand 30 = 16
+rand 30 = 7
+rand 20 = 18
+rand 30 = 16
+rand 20 = 4
+rand 20 = 12
+rand 10 = 7
+rand 10 = 0
+rand 19 = 8
+rand 9 = 8
+log Wild Swinub appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 007 Squirtle, L.10, XP:1000, XP to next level:331" -> OK
+dialog confirmation "Choose Squirtle?" -> Yes
+log Squirtle, I choose you!
+> run
+log Got away safely!
+> state
+state battle wild=1 trainer=0 tournament=0 type=0 own=1 hp=100 enemy=220 level=10 hp=100 levels=2-100
+state player badges=0 Money=1000 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,7
+state party 1:7/L10/1000 2:1/L10/2000
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=100 enemy=220 level=10 hp=100 levels=2-100
+state player badges=0 Money=1000 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,7
+state party 1:7/L10/1000 2:1/L12/2000
+> quit
+exit 0
+save line 12: "0" -> "1"
+save line 410: "10" -> "12"

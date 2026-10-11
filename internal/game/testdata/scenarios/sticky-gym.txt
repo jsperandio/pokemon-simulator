@@ -1,0 +1,67 @@
+# The sticky BattleType: Brock's win leaves it at 3, and the Mewtwo picker's
+# "Go!" doesn't set it, so beating a wild L.5 Squirtle earns the next badge.
+party 150 100
+> start
+> seed 29
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Brock
+log Brock wants to fight!
+log Brock sent out Geodude!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> fightbest
+rand 10 = 9
+rand 20 = 1
+log Mewtwo used Blizzard!
+log Critical hit!
+log It's super effective!
+log Mewtwo did 744 points of damage to enemy Geodude.
+log Enemy Geodude fainted!
+log Mewtwo gained 397 experience points!
+rand 3 = 2
+log You got 8000¥!
+> end
+dialog information "You earned the BoulderBadge!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=3 own=1 hp=1000 enemy=74 level=12 hp=0 levels=2-100
+state player badges=1 Money=8000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 150
+state party 1:150/L100/1000000
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+dialog information "Using Mewtwo's psychic powers, you can fight any POKéMON you want to, and at any level. Please select which POKéMON to fight against, or click Random to face a random POKéMON." -> OK
+> combo Form4.ComboBox1 6
+> type Form4.SpinEdit1 5
+> click Form4.Button2
+log Wild Squirtle appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> fightbest
+rand 10 = 2
+rand 20 = 16
+log Mewtwo used Thunder!
+log It's super effective!
+log Mewtwo did 392 points of damage to enemy Squirtle.
+log Enemy Squirtle fainted!
+log Mewtwo gained 61 experience points!
+rand 3 = 1
+log You got 4000¥!
+> end
+dialog information "You earned the CascadeBadge!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=3 own=1 hp=1000 enemy=7 level=5 hp=0 levels=2-100
+state player badges=2 Money=12000 Wins=2 Losses=0 Fights=2 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 150
+state party 1:150/L100/1000000
+> quit
+exit 0
+save line 8: "0" -> "2"
+save line 9: "0" -> "12000"
+save line 10: "0" -> "2"
+save line 12: "0" -> "2"

@@ -1,0 +1,31 @@
+# The Mart: 3 Great Balls for 9000¥, then the 32-bit wrap of quantity ×
+# price: 4294968 POKéBalls cost 704¥ and give none (704 div 1000).
+Money 20000
+party 25 10
+> start
+> menu Actions > Buy Items
+> radio Form9.RadioGroup1 2
+> type Form9.SpinEdit1 3
+> text Form9.Edit1
+text Form9.Edit1 "9000¥"
+> click Form9.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=11000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=3 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> menu Actions > Buy Items
+> radio Form9.RadioGroup1 1
+> type Form9.SpinEdit1 4294968
+> text Form9.Edit1
+text Form9.Edit1 "704¥"
+> click Form9.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=10296 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=3 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> quit
+exit 0
+save line 9: "20000" -> "10296"
+save line 15: "0" -> "3"

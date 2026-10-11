@@ -1,0 +1,57 @@
+# Charizard at level 30 with 50,000 XP (a level-36 amount) wins a wild
+# battle at 0 badges: the levels catch up in one go, with one "grew to
+# level" line. The second member's level is left as saved.
+Money 1000
+party 6 30 50000
+party 1 10 2000
+> start
+> seed 4
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 48
+rand 386 = 135
+rand 386 = 87
+rand 30 = 14
+rand 30 = 26
+rand 20 = 5
+rand 30 = 20
+rand 20 = 0
+rand 20 = 11
+rand 10 = 0
+rand 10 = 6
+rand 19 = 16
+rand 9 = 1
+log Wild Grimer appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 006 Charizard, L.30, XP:50000, XP to next level:-20209" -> OK
+dialog confirmation "Choose Charizard?" -> Yes
+log Charizard, I choose you!
+> fight 4
+rand 10 = 7
+rand 20 = 19
+log Charizard used Fire Blast!
+log Charizard did 64 points of damage to enemy Grimer.
+log Enemy Grimer fainted!
+log Charizard gained 19 experience points!
+log Charizard grew to level 36!
+rand 3 = 2
+log You got 1000¥!
+> state
+state battle wild=1 trainer=0 tournament=0 type=2 own=1 hp=300 enemy=88 level=3 hp=0 levels=2-100
+state player badges=0 Money=2000 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,6
+state party 1:6/L36/50019 2:1/L10/2000
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=300 enemy=88 level=3 hp=0 levels=2-100
+state player badges=0 Money=2000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,6
+state party 1:6/L36/50019 2:1/L10/2000
+> quit
+exit 0
+save line 9: "1000" -> "2000"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 407: "30" -> "36"
+save line 408: "50000" -> "50019"

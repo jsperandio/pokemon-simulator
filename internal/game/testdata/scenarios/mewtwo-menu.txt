@@ -1,0 +1,53 @@
+# Mewtwo (enabled by BeatLink) starts a wild L.100 Mewtwo; the picker's
+# Cancel; then Random (seed 28): Random(386)+1 at Random(11)+90, BattleType 2.
+flags 0 0 1 0 0
+party 150 100
+> start
+> menu Actions > Fight a wild POKéMON > Mewtwo
+log Wild Mewtwo appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> state
+state battle wild=1 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=150 level=100 hp=1000 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLink
+state dex 150
+state party 1:150/L100/1000000
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> run
+log Got away safely!
+> end
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+dialog information "Using Mewtwo's psychic powers, you can fight any POKéMON you want to, and at any level. Please select which POKéMON to fight against, or click Random to face a random POKéMON." -> OK
+> click Form4.Button3
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=1000 enemy=150 level=100 hp=1000 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLink
+state dex 150
+state party 1:150/L100/1000000
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+dialog information "Using Mewtwo's psychic powers, you can fight any POKéMON you want to, and at any level. Please select which POKéMON to fight against, or click Random to face a random POKéMON." -> OK
+> seed 28
+> click Form4.Button4
+rand 386 = 339
+rand 11 = 2
+log Wild Whiscash appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> state
+state battle wild=1 trainer=0 tournament=0 type=2 own=1 hp=1000 enemy=340 level=92 hp=920 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLink
+state dex 150
+state party 1:150/L100/1000000
+> answer yes
+> choose 1
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> run
+log Got away safely!
+> end
+> quit
+exit 0
+save line 12: "0" -> "2"

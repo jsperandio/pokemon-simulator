@@ -1,0 +1,60 @@
+# R/B/Y Elite Four wins add XP without levelling up: Raikou L.95 at 95^3
+# XP beats Lorelei and has a level-96 amount, still at L.95. The game is
+# closed while Bruno waits; the save keeps the level.
+badges 24
+flags 1 1 1 1 0
+Money 0
+party 243 95
+> start
+> seed 22
+> menu Actions > Fight a Trainer > Other Elites > R/B/Y Elite Four
+log Lorelei wants to fight!
+log Lorelei sent out Lapras!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 243 Raikou, L.95, XP:857375, XP to next level:27361" -> OK
+dialog confirmation "Choose Raikou?" -> Yes
+log Raikou, I choose you!
+> fight 3
+rand 10 = 6
+rand 20 = 5
+log Raikou used Thunder!
+log It's super effective!
+log Raikou did 351 points of damage to enemy Lapras.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 0
+log Enemy Lapras used Body Slam!
+log Enemy Lapras did 150 points of damage to Raikou.
+rand 10 = 9
+rand 20 = 17
+log Raikou used Thunder!
+log Critical hit!
+log It's super effective!
+log Raikou did 750 points of damage to enemy Lapras.
+log Enemy Lapras fainted!
+log Raikou gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> state
+state battle wild=0 trainer=1 tournament=0 type=71 own=1 hp=800 enemy=131 level=100 hp=0 levels=2-100
+state player badges=24 Money=6000 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink,GotJirachi
+state dex 243
+state party 1:243/L95/887076
+> end
+dialog information "Congratulations! You beat Lorelei! Your next opponent is Bruno." -> OK
+log Bruno wants to fight!
+log Bruno sent out Onix!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> state
+state battle wild=0 trainer=1 tournament=0 type=72 own=1 hp=800 enemy=95 level=100 hp=1000 levels=2-100
+state player badges=24 Money=6000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink,GotJirachi
+state dex 243
+state party 1:243/L95/887076
+> quit
+exit 0
+save line 9: "0" -> "6000"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 408: "857375" -> "887076"

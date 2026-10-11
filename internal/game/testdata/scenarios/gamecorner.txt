@@ -1,0 +1,49 @@
+# The Game Corner (seed 27): the two warnings, then three plays. Each play
+# draws Random(10) 10,000 times and the last draw counts: 2, 8, 8
+# (simulated). Bet 1050 on 2 for POKéBalls (10 balls and 50 × 10¥), 1050 on
+# 3 (lost), then 300 on 8 for money (×10).
+Money 5000
+party 25 10
+> start
+> seed 27
+> menu Actions > Game Corner
+> click FormB.Button1
+dialog warning "Please select something to play for." -> OK
+> radio FormB.RadioGroup1 2
+> click FormB.Button1
+dialog warning "Please select a number to bet on." -> OK
+> radio FormB.RadioGroup2 3
+> type FormB.SpinEdit1 1050
+> click FormB.Button1
+rand 10 = 2 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "10 POKéBalls and 500¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=4450 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=13 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup2 4
+> click FormB.Button1
+rand 10 = 8 (the last of 10000)
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=3400 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=13 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 1
+> radio FormB.RadioGroup2 9
+> type FormB.SpinEdit1 300
+> click FormB.Button1
+rand 10 = 8 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "3000¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=6100 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=13 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> quit
+exit 0
+save line 9: "5000" -> "6100"
+save line 14: "3" -> "13"

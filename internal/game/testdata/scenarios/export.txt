@@ -1,0 +1,14 @@
+# File > Export POKéMON information...: the party and the POKéDEX as a page.
+# Its POKéDEX count copies the Statistics label, which counts species 1-251
+# only: 3 of the 4 registered here.
+party 1 5
+party 150 100 1000000
+party 252 50 130000
+dex 7
+> start
+> answer no
+> export
+dialog information "POKéMON Information exported to C:\\Temp\\probe-export.htm. View file now?" -> No
+> quit
+exit 0
+save unchanged

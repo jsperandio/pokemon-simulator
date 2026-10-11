@@ -1,0 +1,149 @@
+# Wallace at 23 badges, after Link: the last badge, the Hoenn bonus
+# (+5000) and the Other Elites unlock. Raikou's Thunder against Milotic.
+badges 23
+flags 1 1 1 0 0
+Money 0
+party 243 100
+> start
+> seed 20
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Wallace
+log Wallace wants to fight!
+log Wallace sent out Milotic!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 243 Raikou, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Raikou?" -> Yes
+log Raikou, I choose you!
+> fight 3
+rand 10 = 6
+rand 20 = 12
+log Raikou used Thunder!
+log It's super effective!
+log Raikou did 384 points of damage to enemy Milotic.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 4
+log Enemy Milotic used Water Gun!
+log Enemy Milotic did 124 points of damage to Raikou.
+rand 10 = 6
+rand 20 = 3
+log Raikou used Thunder!
+log It's super effective!
+log Raikou did 366 points of damage to enemy Milotic.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 11
+log Enemy Milotic used Wrap!
+log Enemy Milotic did 81 points of damage to Raikou.
+rand 10 = 9
+rand 20 = 7
+log Raikou used Thunder!
+log Critical hit!
+log It's super effective!
+log Raikou did 748 points of damage to enemy Milotic.
+log Enemy Milotic fainted!
+log Raikou gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You earned the RainBadge!" -> OK
+dialog information "You beat Wallace, the final Hoenn leader! You can now battle the R/B/Y and Ru/Sa Elites! Also, you get a 5000¥ bonus!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=3 own=1 hp=795 enemy=350 level=100 hp=0 levels=2-100
+state player badges=24 Money=8000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink
+state dex 243
+state party 1:243/L100/1000000
+> menus
+menu File [enabled=true visible=true]
+menu   Export POKéMON information... [enabled=true visible=true]
+menu   Quit [enabled=true visible=true]
+menu Actions [enabled=true visible=true]
+menu   Fight a Trainer [enabled=true visible=true]
+menu     Trainers [enabled=true visible=true]
+menu       Beginner [enabled=true visible=true]
+menu         Red [enabled=true visible=true]
+menu         Blue [enabled=true visible=true]
+menu         Green [enabled=true visible=true]
+menu         Yellow [enabled=true visible=true]
+menu         Gold [enabled=true visible=true]
+menu         Silver [enabled=true visible=true]
+menu         Crystal [enabled=true visible=true]
+menu       Novice [enabled=true visible=true]
+menu         Ruby [enabled=true visible=true]
+menu         Sapphire [enabled=true visible=true]
+menu         Emerald [enabled=true visible=true]
+menu       Intermediate [enabled=true visible=true]
+menu         Prof.Oak [enabled=true visible=true]
+menu         Prof.Elm [enabled=true visible=true]
+menu         Prof.Birch [enabled=true visible=true]
+menu       Advanced [enabled=true visible=true]
+menu         Jesse [enabled=true visible=true]
+menu         James [enabled=true visible=true]
+menu       Expert [enabled=true visible=true]
+menu         Giovanni [enabled=true visible=true]
+menu     Kanto Gym Leaders [enabled=true visible=true]
+menu       Brock [enabled=true visible=true]
+menu       Misty [enabled=true visible=true]
+menu       Lt. Surge [enabled=true visible=true]
+menu       Erika [enabled=true visible=true]
+menu       Sabrina [enabled=true visible=true]
+menu       Janine [enabled=true visible=true]
+menu       Blaine [enabled=true visible=true]
+menu       Gary [enabled=true visible=true]
+menu     G/S/C Elite Four [enabled=true visible=true]
+menu     Johto Gym Leaders [enabled=true visible=true]
+menu       Falkner [enabled=true visible=true]
+menu       Bugsy [enabled=true visible=true]
+menu       Whitney [enabled=true visible=true]
+menu       Morty [enabled=true visible=true]
+menu       Chuck [enabled=true visible=true]
+menu       Jasmine [enabled=true visible=true]
+menu       Pryce [enabled=true visible=true]
+menu       Clair [enabled=true visible=true]
+menu     Ash [enabled=true visible=true]
+menu     Me [enabled=true visible=true]
+menu     Hoenn Gym Leaders (L.100) [enabled=true visible=true]
+menu       Roxanne [enabled=true visible=true]
+menu       Brawly [enabled=true visible=true]
+menu       Wattson [enabled=true visible=true]
+menu       Flannery [enabled=true visible=true]
+menu       Norman [enabled=true visible=true]
+menu       Winona [enabled=true visible=true]
+menu       Tate & Liza [enabled=true visible=true]
+menu       Wallace [enabled=true visible=true]
+menu     Other Elites [enabled=true visible=true]
+menu       R/B/Y Elite Four [enabled=true visible=true]
+menu       Ru/Sa Elite Four [enabled=true visible=true]
+menu   Fight a wild POKéMON [enabled=true visible=true]
+menu     Search for a POKéMON [enabled=true visible=true]
+menu     Mewtwo [enabled=true visible=true]
+menu   Tournaments [enabled=true visible=true]
+menu     Very Easy (Levels 2-10) [enabled=true visible=true]
+menu     Easy (Levels 10-30) [enabled=true visible=true]
+menu     Intermediate (Levels 30-50) [enabled=true visible=true]
+menu     Hard (Levels 50-70) [enabled=true visible=true]
+menu     Very Hard (Levels 70-99) [enabled=true visible=true]
+menu     Prime Cup (Level 100) [enabled=true visible=true]
+menu   Buy Items [enabled=true visible=true]
+menu   Evolve a POKéMON [enabled=true visible=true]
+menu   Release a POKéMON [enabled=true visible=true]
+menu   View POKéDEX [enabled=true visible=true]
+menu   Type Comparisons [enabled=true visible=true]
+menu   Game Corner [enabled=true visible=true]
+menu Music [enabled=true visible=true]
+menu   Open file... [enabled=true visible=true]
+menu   Repeat Music [enabled=true visible=true]
+menu   Stop Music [enabled=true visible=true]
+menu Help [enabled=true visible=true]
+menu   Contents [enabled=true visible=true]
+menu   About... [enabled=true visible=true]
+menu Debug [enabled=true visible=false]
+menu   Make Visible [enabled=true visible=true]
+menu   Always show attacks in POKéDEX [enabled=true visible=true]
+> quit
+exit 0
+save line 8: "23" -> "24"
+save line 9: "0" -> "8000"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"

@@ -1,0 +1,74 @@
+# At 5 badges (HP 200 or more) a Great Ball (bound 100) always misses; with
+# seed 3 the Ultra Ball (bound 250) misses too. Each miss gives the enemy
+# a free attack. The Master Ball always catches.
+badges 5
+Money 1000
+PokeBalls 0
+GreatBalls 1
+UltraBalls 1
+MasterBalls 1
+party 6 50
+> start
+> seed 3
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 36
+rand 30 = 15
+rand 30 = 26
+rand 20 = 8
+rand 30 = 14
+rand 20 = 12
+rand 20 = 16
+rand 10 = 7
+rand 10 = 5
+log Wild Vulpix appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 006 Charizard, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Charizard?" -> Yes
+log Charizard, I choose you!
+> item 2
+log You threw a Great Ball.
+rand 100 = 39
+log Sorry, Vulpix wasn't caught.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 7
+log Enemy Vulpix used Tackle!
+log Enemy Vulpix did 14 points of damage to Charizard.
+> item 3
+log You threw an Ultra Ball.
+rand 250 = 124
+log Sorry, Vulpix wasn't caught.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 5
+log Enemy Vulpix used Flamethrower!
+log It's not very effective...
+log Enemy Vulpix did 13 points of damage to Charizard.
+> item 4
+log You threw a Master Ball.
+log You caught Vulpix!
+log Vulpix has been added to the POKéDEX!
+> state
+state battle wild=1 trainer=0 tournament=0 type=1 own=1 hp=473 enemy=37 level=25 hp=250 levels=2-100
+state player badges=5 Money=1000 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=0 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 6,37
+state party 1:6/L50/125000 2:37/L25/15625
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=1 own=1 hp=473 enemy=37 level=25 hp=250 levels=2-100
+state player badges=5 Money=1000 Wins=0 Losses=0 Fights=1 Catches=1 PokeBalls=0 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 6,37
+state party 1:6/L50/125000 2:37/L25/15625
+> quit
+exit 0
+save line 12: "0" -> "1"
+save line 13: "0" -> "1"
+save line 15: "1" -> "0"
+save line 16: "1" -> "0"
+save line 17: "1" -> "0"
+save line 56: "FALSE" -> "TRUE"
+save line 409: "0" -> "37"
+save line 410: "0" -> "25"
+save line 411: "0" -> "15625"

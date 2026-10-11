@@ -1,0 +1,66 @@
+# At 5 badges: a Potion at full HP has no effect (no free attack); a
+# POKéBall always misses (HP 200 or more) and the enemy attacks; then a
+# Potion and a Super Potion heal, capped at the maximum, each followed by a
+# free enemy attack.
+badges 5
+Money 1000
+PokeBalls 1
+Potions 2
+SuperPotions 1
+party 7 50
+> start
+> seed 8
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 96
+rand 30 = 20
+rand 30 = 17
+rand 20 = 15
+rand 30 = 13
+rand 20 = 16
+rand 20 = 1
+rand 10 = 8
+rand 10 = 7
+log Wild Hypno appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 007 Squirtle, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Squirtle?" -> Yes
+log Squirtle, I choose you!
+> item 5
+log It won't have any effect.
+> item 1
+log You threw a POKéBall.
+rand 50 = 33
+log Sorry, Hypno wasn't caught.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 4
+log Enemy Hypno used Mega Punch!
+log Enemy Hypno did 33 points of damage to Squirtle.
+> item 5
+log Squirtle recovered 33 HP!
+rand 4 = 2
+rand 10 = 9
+rand 20 = 5
+log Enemy Hypno used Headbutt!
+log Critical hit!
+log Enemy Hypno did 54 points of damage to Squirtle.
+> item 6
+log Squirtle recovered 54 HP!
+rand 4 = 2
+rand 10 = 6
+rand 20 = 4
+log Enemy Hypno used Headbutt!
+log Enemy Hypno did 26 points of damage to Squirtle.
+> state
+state battle wild=1 trainer=0 tournament=0 type=2 own=1 hp=474 enemy=97 level=27 hp=270 levels=2-100
+state player badges=5 Money=1000 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=0 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=1 SuperPotions=0 flags=
+state dex 7
+state party 1:7/L50/125000
+> quit
+exit 0
+save line 12: "0" -> "1"
+save line 14: "1" -> "0"
+save line 18: "2" -> "1"
+save line 19: "1" -> "0"

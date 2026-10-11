@@ -1,0 +1,19 @@
+# Reference screenshots for Stage 4 (captures/screens/): the loading screen,
+# the start screen, the About box, a new game's name dialog, the starters,
+# then the POKéDEX and Statistics windows after choosing Bulbasaur.
+startscreen
+> start
+> click Form1.AboutButton
+about -> OK
+> new Gary
+namedialog -> "Gary"
+> starter 1
+log Bulbasaur has been added to the POKéDEX!
+> quit
+exit 0
+save line 2: "" -> "Gary"
+save line 14: "0" -> "3"
+save line 20: "FALSE" -> "TRUE"
+save line 406: "0" -> "1"
+save line 407: "0" -> "5"
+save line 408: "0" -> "125"

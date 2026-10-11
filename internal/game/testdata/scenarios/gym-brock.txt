@@ -1,0 +1,48 @@
+# Brock at 0 badges (BattleType 3): running from a trainer is refused, then
+# Bulbasaur L20's Razor Leaf is super effective against Geodude (Rock/Ground,
+# x4). The win pays XP and money, and "End Fight" gives the BoulderBadge and
+# unlocks Misty.
+Money 1000
+party 1 20
+> start
+> seed 2
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Brock
+log Brock wants to fight!
+log Brock sent out Geodude!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 001 Bulbasaur, L.20, XP:8000, XP to next level:1261" -> OK
+dialog confirmation "Choose Bulbasaur?" -> Yes
+log Bulbasaur, I choose you!
+> run
+log No! There's no running from a trainer battle!
+> fight 4
+rand 10 = 0
+rand 20 = 13
+log Bulbasaur used Razor Leaf!
+log It's super effective!
+log Bulbasaur did 124 points of damage to enemy Geodude.
+log Enemy Geodude fainted!
+log Bulbasaur gained 397 experience points!
+rand 3 = 1
+log You got 500¥!
+> state
+state battle wild=0 trainer=1 tournament=0 type=3 own=1 hp=200 enemy=74 level=12 hp=0 levels=2-100
+state player badges=0 Money=1500 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1
+state party 1:1/L20/8397
+> end
+dialog information "You earned the BoulderBadge!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=3 own=1 hp=200 enemy=74 level=12 hp=0 levels=2-100
+state player badges=1 Money=1500 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1
+state party 1:1/L20/8397
+> quit
+exit 0
+save line 8: "0" -> "1"
+save line 9: "1000" -> "1500"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 408: "8000" -> "8397"

@@ -1,0 +1,67 @@
+# Ash at 16 badges after Lance (BattleType 9): Celebi L.5 and the "Me"
+# unlock. Groudon's Earthquake is super effective against Pikachu.
+badges 16
+flags 1 0 0 0 0
+Money 0
+party 383 100
+> start
+> seed 15
+> menu Actions > Fight a Trainer > Ash
+log Ash wants to fight!
+log Ash sent out Pikachu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 383 Groudon, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Groudon?" -> Yes
+log Groudon, I choose you!
+> fight 2
+rand 10 = 4
+rand 20 = 9
+log Groudon used Earthquake!
+log It's super effective!
+log Groudon did 378 points of damage to enemy Pikachu.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 5
+log Enemy Pikachu used Thunder Wave!
+log It doesn't affect Groudon!
+log Enemy Pikachu did 0 points of damage to Groudon.
+rand 10 = 3
+rand 20 = 19
+log Groudon used Earthquake!
+log It's super effective!
+log Groudon did 398 points of damage to enemy Pikachu.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 5
+log Enemy Pikachu used Quick Attack!
+log Enemy Pikachu did 104 points of damage to Groudon.
+rand 10 = 9
+rand 20 = 8
+log Groudon used Earthquake!
+log Critical hit!
+log It's super effective!
+log Groudon did 752 points of damage to enemy Pikachu.
+log Enemy Pikachu fainted!
+log Groudon gained 26791 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You beat Ash! You can now battle me! Also, you get a Celebi at L.5!" -> OK
+log Celebi has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=9 own=1 hp=896 enemy=25 level=95 hp=0 levels=2-100
+state player badges=16 Money=3000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh
+state dex 251,383
+state party 1:383/L100/1000000 2:251/L5/125
+> quit
+exit 0
+save line 4: "FALSE" -> "TRUE"
+save line 9: "0" -> "3000"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 270: "FALSE" -> "TRUE"
+save line 409: "0" -> "251"
+save line 410: "0" -> "5"
+save line 411: "0" -> "125"

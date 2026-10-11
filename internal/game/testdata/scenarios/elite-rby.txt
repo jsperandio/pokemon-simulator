@@ -1,0 +1,237 @@
+# The R/B/Y Elite Four at 24 badges (BattleTypes 71-75): Lorelei, Bruno,
+# Agatha, Lance and Gary, all L.100, with a counter for each. Wins add XP
+# but no levels. The champion pays 7500 and, the first time, Jirachi L.5.
+badges 24
+flags 1 1 1 0 0
+Money 0
+party 243 100
+party 383 100
+party 386 100
+party 150 100
+party 248 100
+> start
+> seed 17
+> menu Actions > Fight a Trainer > Other Elites > R/B/Y Elite Four
+log Lorelei wants to fight!
+log Lorelei sent out Lapras!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 243 Raikou, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Raikou?" -> Yes
+log Raikou, I choose you!
+> fight 3
+rand 10 = 5
+rand 20 = 2
+log Raikou used Thunder!
+log It's super effective!
+log Raikou did 364 points of damage to enemy Lapras.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 1
+log Enemy Lapras used Ice Beam!
+log Enemy Lapras did 166 points of damage to Raikou.
+rand 10 = 6
+rand 20 = 13
+log Raikou used Thunder!
+log It's super effective!
+log Raikou did 386 points of damage to enemy Lapras.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 11
+log Enemy Lapras used Ice Beam!
+log Enemy Lapras did 176 points of damage to Raikou.
+rand 10 = 7
+rand 20 = 12
+log Raikou used Thunder!
+log It's super effective!
+log Raikou did 384 points of damage to enemy Lapras.
+log Enemy Lapras fainted!
+log Raikou gained 29701 experience points!
+rand 3 = 0
+log You got 2000¥!
+> end
+dialog information "Congratulations! You beat Lorelei! Your next opponent is Bruno." -> OK
+log Bruno wants to fight!
+log Bruno sent out Onix!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 383 Groudon, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Groudon?" -> Yes
+log Groudon, I choose you!
+> fight 4
+rand 10 = 5
+rand 20 = 0
+log Groudon used Solarbeam!
+log It's super effective!
+log Groudon did 720 points of damage to enemy Onix.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 5
+log Enemy Onix used Slam!
+log Enemy Onix did 95 points of damage to Groudon.
+rand 10 = 1
+rand 20 = 12
+log Groudon used Solarbeam!
+log It's super effective!
+log Groudon did 768 points of damage to enemy Onix.
+log Enemy Onix fainted!
+log Groudon gained 29701 experience points!
+rand 3 = 0
+log You got 2000¥!
+> end
+dialog information "Congratulations! You beat Bruno! Your next opponent is Agatha." -> OK
+log Agatha wants to fight!
+log Agatha sent out Gengar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 386 Deoxys, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Deoxys?" -> Yes
+log Deoxys, I choose you!
+> fight 2
+rand 10 = 6
+rand 20 = 14
+log Deoxys used Psychic!
+log It's super effective!
+log Deoxys did 408 points of damage to enemy Gengar.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 13
+log Enemy Gengar used Psychic!
+log Critical hit!
+log It's not very effective...
+log Enemy Gengar did 203 points of damage to Deoxys.
+rand 10 = 7
+rand 20 = 1
+log Deoxys used Psychic!
+log It's super effective!
+log Deoxys did 382 points of damage to enemy Gengar.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 16
+log Enemy Gengar used Poison Gas!
+log Enemy Gengar did 116 points of damage to Deoxys.
+rand 10 = 4
+rand 20 = 17
+log Deoxys used Psychic!
+log It's super effective!
+log Deoxys did 414 points of damage to enemy Gengar.
+log Enemy Gengar fainted!
+log Deoxys gained 29701 experience points!
+rand 3 = 1
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Agatha! Your next opponent is Lance." -> OK
+log Lance wants to fight!
+log Lance sent out Dragonite!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 150 Mewtwo, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Mewtwo?" -> Yes
+log Mewtwo, I choose you!
+> fight 3
+rand 10 = 2
+rand 20 = 14
+log Mewtwo used Blizzard!
+log It's super effective!
+log Mewtwo did 796 points of damage to enemy Dragonite.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 2
+log Enemy Dragonite used Hyper Beam!
+log Enemy Dragonite did 172 points of damage to Mewtwo.
+rand 10 = 0
+rand 20 = 3
+log Mewtwo used Blizzard!
+log It's super effective!
+log Mewtwo did 752 points of damage to enemy Dragonite.
+log Enemy Dragonite fainted!
+log Mewtwo gained 29701 experience points!
+rand 3 = 0
+log You got 2000¥!
+> end
+dialog information "You have proven your worth against the R/B/Y Elite Four. Now, it is time for you to fight the R/B/Y Elite Four Champion: Gary!" -> OK
+log Gary wants to fight!
+log Gary sent out Alakazam!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 248 Tyranitar, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> fight 1
+rand 10 = 3
+rand 20 = 14
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 238 points of damage to enemy Alakazam.
+rand 4 = 2
+rand 10 = 0
+rand 20 = 13
+log Enemy Alakazam used Body Slam!
+log It's not very effective...
+log Enemy Alakazam did 81 points of damage to Tyranitar.
+rand 10 = 6
+rand 20 = 14
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 238 points of damage to enemy Alakazam.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 5
+log Enemy Alakazam used Psychic!
+log It doesn't affect Tyranitar!
+log Enemy Alakazam did 0 points of damage to Tyranitar.
+rand 10 = 1
+rand 20 = 15
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 240 points of damage to enemy Alakazam.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 3
+log Enemy Alakazam used Body Slam!
+log It's not very effective...
+log Enemy Alakazam did 76 points of damage to Tyranitar.
+rand 10 = 5
+rand 20 = 4
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 218 points of damage to enemy Alakazam.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 1
+log Enemy Alakazam used Body Slam!
+log It's not very effective...
+log Enemy Alakazam did 75 points of damage to Tyranitar.
+rand 10 = 0
+rand 20 = 11
+log Tyranitar used Bite!
+log It's super effective!
+log Tyranitar did 232 points of damage to enemy Alakazam.
+log Enemy Alakazam fainted!
+log Tyranitar gained 29701 experience points!
+rand 3 = 1
+log You got 4000¥!
+> end
+dialog information "You beat Gary, the R/B/Y Elite Four champion! You get a bonus of 7500¥!" -> OK
+dialog information "Also, you get a Jirachi at L.5!" -> OK
+log Jirachi has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=75 own=5 hp=768 enemy=65 level=100 hp=0 levels=2-100
+state player badges=24 Money=21500 Wins=5 Losses=0 Fights=5 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink,GotJirachi
+state dex 150,243,248,383,385,386
+state party 1:243/L100/1000000 2:383/L100/1000000 3:386/L100/1000000 4:150/L100/1000000 5:248/L100/1000000 6:385/L5/125
+> quit
+exit 0
+save line 6: "FALSE" -> "TRUE"
+save line 9: "0" -> "21500"
+save line 10: "0" -> "5"
+save line 12: "0" -> "5"
+save line 404: "FALSE" -> "TRUE"
+save line 421: "0" -> "385"
+save line 422: "0" -> "5"
+save line 423: "0" -> "125"

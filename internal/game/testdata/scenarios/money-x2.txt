@@ -1,0 +1,52 @@
+# A win at 5 badges: the prize money is doubled (3 < GymProgress < 8).
+badges 5
+Money 0
+party 6 100
+> start
+> seed 9
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 109
+rand 30 = 14
+rand 30 = 28
+rand 20 = 16
+rand 30 = 25
+rand 20 = 9
+rand 20 = 18
+rand 10 = 0
+rand 10 = 8
+log Wild Weezing appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 006 Charizard, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Charizard?" -> Yes
+log Charizard, I choose you!
+> fight 4
+rand 10 = 3
+rand 20 = 12
+log Charizard used Fire Blast!
+log Charizard did 187 points of damage to enemy Weezing.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 16
+log Enemy Weezing used Slam!
+log Enemy Weezing did 34 points of damage to Charizard.
+rand 10 = 1
+rand 20 = 18
+log Charizard used Fire Blast!
+log Charizard did 193 points of damage to enemy Weezing.
+log Enemy Weezing fainted!
+log Charizard gained 2269 experience points!
+rand 3 = 2
+log You got 2000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=966 enemy=110 level=28 hp=0 levels=2-100
+state player badges=5 Money=2000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 6
+state party 1:6/L100/1000000
+> quit
+exit 0
+save line 9: "0" -> "2000"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"

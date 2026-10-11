@@ -1,0 +1,17 @@
+# A new game with an empty name: OKBtnClick makes it "Ash".
+startscreen
+> start
+> new
+namedialog -> ""
+> text Form4
+text Form4 "POKéMON Simulator V4.5 - Ash [probe-newgame-noname.pgs]"
+> starter 3
+log Squirtle has been added to the POKéDEX!
+> quit
+exit 0
+save line 2: "" -> "Ash"
+save line 14: "0" -> "3"
+save line 26: "FALSE" -> "TRUE"
+save line 406: "0" -> "7"
+save line 407: "0" -> "5"
+save line 408: "0" -> "125"

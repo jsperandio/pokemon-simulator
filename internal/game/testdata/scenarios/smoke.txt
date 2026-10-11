@@ -1,0 +1,13 @@
+# Loads a one-member save, dumps the state and quits: the game saves the
+# file back on quit, so the result checks the .pgs layout both ways.
+Money 1000
+party 1 5
+> start
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=1000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1
+state party 1:1/L5/125
+> quit
+exit 0
+save unchanged

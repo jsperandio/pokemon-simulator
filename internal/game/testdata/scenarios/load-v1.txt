@@ -1,0 +1,30 @@
+# A version 1 save (no header, no Jirachi/Deoxys flags, 251 POKéDEX entries)
+# loaded with "Load a saved game..." from the start screen. The game writes
+# version 2 on quit: compared with the same save in version 2.
+startscreen
+version 1
+name Red
+flags 1 1 0 0 0
+badges 9
+Money 12345
+Wins 10
+Losses 2
+Fights 14
+Catches 3
+GreatBalls 4
+Potions 1
+dex 16 19
+party 25 40
+party 249 70
+> start
+> load
+> text Form4
+text Form4 "POKéMON Simulator V4.5 - Red [probe-load-v1.pgs]"
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=9 Money=12345 Wins=10 Losses=2 Fights=14 Catches=3 PokeBalls=3 GreatBalls=4 UltraBalls=0 MasterBalls=0 Potions=1 SuperPotions=0 flags=BeatLance,BeatAsh
+state dex 16,19,25,249
+state party 1:25/L40/64000 2:249/L70/343000
+> quit
+exit 0
+save unchanged

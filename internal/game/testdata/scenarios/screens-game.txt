@@ -1,0 +1,121 @@
+# Reference screenshots for Stage 4 (captures/screens/): the main window
+# idle and through a battle against Red's L.5 Charmander (seed 30), the
+# item buttons, Battle Info, the dialog kinds, the Mart, the Game Corner,
+# Type Comparisons (Razor Leaf on Charizard), the POKéDEX with a selection,
+# the Mewtwo picker and Eevee's evolution choice.
+Money 5000
+Potions 2
+party 25 5
+party 150 100
+party 133 30
+> start
+> seed 30
+> menu Actions > Fight a Trainer > Trainers > Beginner > Red
+log Red wants to fight!
+log Red sent out Charmander!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 025 Pikachu, L.5, XP:125, XP to next level:91" -> OK
+dialog confirmation "Choose Pikachu?" -> Yes
+log Pikachu, I choose you!
+> move 1
+rand 10 = 9
+rand 20 = 18
+log Pikachu used Thundershock!
+log Critical hit!
+log Pikachu did 25 points of damage to enemy Charmander.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 4
+log Enemy Charmander used Scratch!
+log Enemy Charmander did 1 points of damage to Pikachu.
+> fightbest
+rand 10 = 0
+rand 20 = 12
+log Pikachu used Quick Attack!
+log Pikachu did 7 points of damage to enemy Charmander.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 2
+log Enemy Charmander used Cut!
+log Critical hit!
+log Enemy Charmander did 1 points of damage to Pikachu.
+rand 10 = 8
+rand 20 = 6
+log Pikachu used Quick Attack!
+log Pikachu did 1 points of damage to enemy Charmander.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 1
+log Enemy Charmander used Scratch!
+log Enemy Charmander did 1 points of damage to Pikachu.
+rand 10 = 0
+rand 20 = 8
+log Pikachu used Quick Attack!
+log Pikachu did 3 points of damage to enemy Charmander.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 8
+log Enemy Charmander used Ember!
+log Enemy Charmander did 3 points of damage to Pikachu.
+rand 10 = 0
+rand 20 = 1
+log Pikachu used Quick Attack!
+log Pikachu did 1 points of damage to enemy Charmander.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 3
+log Enemy Charmander used Cut!
+log Critical hit!
+log Enemy Charmander did 1 points of damage to Pikachu.
+rand 10 = 4
+rand 20 = 17
+log Pikachu used Quick Attack!
+log Pikachu did 12 points of damage to enemy Charmander.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 7
+log Enemy Charmander used Ember!
+log Enemy Charmander did 2 points of damage to Pikachu.
+rand 10 = 5
+rand 20 = 18
+log Pikachu used Quick Attack!
+log Pikachu did 13 points of damage to enemy Charmander.
+log Enemy Charmander fainted!
+log Pikachu gained 61 experience points!
+rand 3 = 0
+log You got 2000¥!
+> end
+> menu Actions > Buy Items
+> radio Form9.RadioGroup1 2
+> type Form9.SpinEdit1 1
+> click Form9.Button2
+> menu Actions > Game Corner
+> click FormB.Button1
+dialog warning "Please select something to play for." -> OK
+> click FormB.Button2
+> menu Actions > Type Comparisons
+> combo FormA.ComboBox1 5
+> combo FormA.ComboBox2 3
+> click FormA.Button1
+> menu Actions > View POKéDEX
+> combo Form8.ComboBox1 132
+> click Form8.Button1
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+dialog information "Using Mewtwo's psychic powers, you can fight any POKéMON you want to, and at any level. Please select which POKéMON to fight against, or click Random to face a random POKéMON." -> OK
+> click Form4.Button3
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 3
+dialog information "# 133 Eevee, L.30, XP:27000, XP to next level:2791" -> OK
+dialog information "Please select what you would like to evolve your Eevee to." -> OK
+> radio Form4.EvolveChoice 1
+> click Form4.EvolveButton
+dialog information "Evolution cancelled." -> OK
+> quit
+exit 0
+save line 9: "5000" -> "7000"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 408: "125" -> "186"

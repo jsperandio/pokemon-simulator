@@ -1,0 +1,24 @@
+# A new game from the start screen: the save file is chosen first, then the
+# name, then a starter (lifecycle.md). The save written at the end is
+# compared with an empty one.
+startscreen
+> start
+> new Gary
+namedialog -> "Gary"
+> text Form4
+text Form4 "POKéMON Simulator V4.5 - Gary [probe-newgame.pgs]"
+> starter 2
+log Charmander has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 4
+state party 1:4/L5/125
+> quit
+exit 0
+save line 2: "" -> "Gary"
+save line 14: "0" -> "3"
+save line 23: "FALSE" -> "TRUE"
+save line 406: "0" -> "4"
+save line 407: "0" -> "5"
+save line 408: "0" -> "125"

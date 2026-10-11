@@ -1,0 +1,18 @@
+# Entry refused: not enough money for the fee, then no POKéMON in the
+# level range (the money check comes second).
+Money 500
+party 25 10
+party 6 50
+> start
+> menu Actions > Tournaments > Very Easy (Levels 2-10)
+dialog information "You don't have enough money!" -> OK
+> menu Actions > Tournaments > Prime Cup (Level 100)
+dialog warning "None of your POKéMON meet the level requirements." -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=500 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 6,25
+state party 1:25/L10/1000 2:6/L50/125000
+> quit
+exit 0
+save unchanged

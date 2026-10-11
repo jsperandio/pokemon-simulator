@@ -1,0 +1,14 @@
+# The Statistics window's win percentage is computed in x87 Extended:
+# Int(Wins / (Wins + Losses) × 10000) / 100. With 39 wins and 11 losses the
+# division rounds just below 0.78, and the window should show 77.99, not 78
+# (float64 gives 78). Then 1 win and 2 losses: 33.33.
+Wins 39
+Losses 11
+party 25 5
+> start
+> set Wins 1
+> set Losses 2
+> quit
+exit 0
+save line 10: "39" -> "1"
+save line 11: "11" -> "2"
