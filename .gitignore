@@ -1,0 +1,9 @@
+# Build output
+/dist/
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Never commit the original game's binaries or help file
+*.exe
+*.[Hh][Ll][Pp]
