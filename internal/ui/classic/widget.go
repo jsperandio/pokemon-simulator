@@ -583,9 +583,12 @@ const radioDot = `
 `
 
 // paintRadio draws a radio button and its caption in a rectangle of the
-// given size.
+// given size. As the original's screenshots show them, the glyph's
+// 13-pixel box and the line of text are centred with an odd pixel above
+// them, the text is 17 pixels in, and the focus rectangle goes one pixel
+// round the text but for the bottom.
 func paintRadio(cv canvas, size image.Point, f face, caption string, checked, pushed, enabled, focus bool, fg color.RGBA) {
-	gy := (size.Y - 13) / 2
+	gy := (size.Y - 13 + 1) >> 1
 	inside := colWindow
 	if pushed || !enabled {
 		inside = colFace
@@ -598,15 +601,15 @@ func paintRadio(cv canvas, size image.Point, f face, caption string, checked, pu
 		}
 		cv.pattern(5, gy+4, radioDot, map[byte]color.RGBA{'#': dot})
 	}
-	ty := (size.Y - f.height()) / 2
+	ty := size.Y/2 - f.height()/2
 	if enabled {
-		drawCaption(cv, f, 18, ty, caption, fg)
+		drawCaption(cv, f, 17, ty, caption, fg)
 	} else {
-		drawDisabled(cv, f, 18, ty, caption)
+		drawDisabled(cv, f, 17, ty, caption)
 	}
 	if focus {
 		w := f.width(plain(caption))
-		cv.focusRect(image.Rect(17, ty, 18+w+1, ty+f.height()))
+		cv.focusRect(image.Rect(16, ty-1, 17+w+1, ty+f.height()))
 	}
 }
 
