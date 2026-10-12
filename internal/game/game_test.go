@@ -11,8 +11,23 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jsperandio/pokemon-simulator/assets"
+	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
+
+func loadData(t *testing.T) *gamedata.Data {
+	t.Helper()
+	raw, err := assets.FS.ReadFile("pokegame.dat")
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, err := gamedata.Load(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return d
+}
 
 // silent answers every dialog with OK or Yes.
 type silent struct{ messages []string }
