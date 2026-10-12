@@ -12,6 +12,8 @@ The game plays as the original did, and its manual is under Help → Contents (F
 
 - **Saving.** As in the original, you choose a save file when you start a new game, and the game saves when you quit (File → Quit, or closing the window).
 - **Music.** Music → Open file... plays MP3, Ogg Vorbis and WAV files. The original played what Windows Media Player could, but WMA, MIDI and video files aren't supported. On Linux, music needs a PulseAudio or PipeWire sound server, as desktop distributions have.
+- **On Linux with GNOME 44 or later,** the game's window gets its title bar from a GNOME helper, `mutter-x11-frames`, as every X11 program's does. If that helper has stopped, GNOME shows none of these windows. The game notices after a few seconds and starts again without a title bar, and a notification says so: move the window with the Super key and the mouse, and close it with Alt+F4 or File → Quit. Logging out and in again brings the title bars back.
+- **If the game can't start,** it says why in a notification or a message box, as there may be no terminal to read it in.
 - **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab.
 
 ## Building
