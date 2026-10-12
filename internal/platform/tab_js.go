@@ -13,3 +13,9 @@ func openTab(page []byte) error {
 	js.Global().Call("open", url, "_blank")
 	return nil
 }
+
+// openURL opens an address in a new tab.
+func openURL(url string) error {
+	js.Global().Call("open", url, "_blank", "noopener")
+	return nil
+}

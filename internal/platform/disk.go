@@ -100,15 +100,22 @@ func (disk) IsAbs(path string) bool       { return filepath.IsAbs(path) }
 
 // OpenPage shows a page, written to the file at path, in the system's
 // browser.
-func OpenPage(path string, _ []byte) error {
+func OpenPage(path string, _ []byte) error { return start(path) }
+
+// OpenURL opens a web address in the system's browser, or a mailto: one in
+// its e-mail program.
+func OpenURL(url string) error { return start(url) }
+
+// start opens a file or an address with the program the system has for it.
+func start(target string) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", path)
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", target)
 	case "darwin":
-		cmd = exec.Command("open", path)
+		cmd = exec.Command("open", target)
 	default:
-		cmd = exec.Command("xdg-open", path)
+		cmd = exec.Command("xdg-open", target)
 	}
 	if err := cmd.Start(); err != nil {
 		return err

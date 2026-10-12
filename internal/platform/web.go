@@ -106,5 +106,9 @@ func (m *memory) IsAbs(p string) bool          { return strings.HasPrefix(p, "/"
 // OpenPage shows a page in a new tab.
 func OpenPage(_ string, page []byte) error { return openTab(page) }
 
+// OpenURL opens a web address in a new tab; a mailto: one opens the
+// browser's e-mail program.
+func OpenURL(url string) error { return openURL(url) }
+
 // Args returns no arguments: a page has no command line.
 func Args() []string { return nil }
