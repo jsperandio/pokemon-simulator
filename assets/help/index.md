@@ -6,28 +6,17 @@ Welcome! This help file will give you help with playing this game. If you need h
 
 First-time players: Read the "Playing the Game" section first. Also check this section for special notices regarding special POKéMON.
 
-[Playing the Game](playing.md)
-
-[Menu Items](menus.md)
-
-[Tournaments](tournaments.md)
-
-[Music](music.md)
-
-[Evolution](evolution.md)
-
-[Releasing](releasing.md)
-
-[POKéDEX](pokedex.md)
-
-[Type Comparisons](type-comparisons.md)
-
-[Game Corner](game-corner.md)
-
-[Statistics](statistics.md)
-
-[Items](items.md)
-
+[Playing the Game](playing.md)\
+[Menu Items](menus.md)\
+[Tournaments](tournaments.md)\
+[Music](music.md)\
+[Evolution](evolution.md)\
+[Releasing](releasing.md)\
+[POKéDEX](pokedex.md)\
+[Type Comparisons](type-comparisons.md)\
+[Game Corner](game-corner.md)\
+[Statistics](statistics.md)\
+[Items](items.md)\
 [Technical Support and Donations](support.md)
 
 Help file written in Microsoft Word XP and 1st Page 2000([http://www.evrsoft.com](http://www.evrsoft.com)). Help file compiled using Microsoft Help Workshop.
