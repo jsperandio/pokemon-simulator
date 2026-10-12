@@ -321,9 +321,14 @@ func (a *App) closeProgram() {
 }
 
 // WindowSize returns the window's default size: the desktop at the
-// largest scale, in steps of a half, that fits 90 % of the monitor.
+// largest scale, in steps of a half, that fits 90 % of the monitor. With
+// no monitor, it is the desktop's size; ebiten.RunGame then says why.
 func WindowSize() (int, int) {
-	mw, mh := ebiten.Monitor().Size()
+	m := ebiten.Monitor()
+	if m == nil {
+		return screenWidth, screenHeight
+	}
+	mw, mh := m.Size()
 	s := math.Floor(min(0.9*float64(mw)/screenWidth, 0.9*float64(mh)/screenHeight)*2) / 2
 	s = max(s, 1)
 	return int(screenWidth * s), int(screenHeight * s)
