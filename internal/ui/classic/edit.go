@@ -24,6 +24,7 @@ type textBox struct {
 	scroll   int // pixels scrolled out on the left
 	maxLen   int // 0: no limit
 	readOnly bool
+	keepSel  bool              // ES_NOHIDESEL: the selection shows without the focus
 	valid    func(r rune) bool // characters that may be typed
 	onChange func()            // after any change of the text
 	blink    time.Time         // when the caret was last moved
@@ -205,7 +206,7 @@ func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, foc
 	x := -t.scroll
 	s := string(t.text)
 	a, b := t.sel()
-	if !focused || a == b {
+	if !focused && !t.keepSel || a == b {
 		f.draw(in, x, 0, s, fg)
 	} else {
 		pre, mid, post := string(t.text[:a]), string(t.text[a:b]), string(t.text[b:])
@@ -704,21 +705,30 @@ func (c *comboBox) setup(comp *layout.Component) {
 	c.index = -1
 	c.itemHeight = c.propInt("ItemHeight", 13)
 	c.tb.set(comp.Caption)
+	c.tb.keepSel = true // the combo box's edit has ES_NOHIDESEL
 	c.tb.onChange = c.invalidate
 }
 
 func (c *comboBox) focusable() bool { return true }
 
 // setIndex selects item i (-1 for none) as the program does, which
-// doesn't run OnChange; the text follows the selection.
+// doesn't run OnChange; the text follows the selection (none empties it),
+// all of it selected if the box has the focus, else with the caret at its
+// start.
 func (c *comboBox) setIndex(i int) {
 	if i == c.index {
 		return
 	}
 	c.index = i
+	text := ""
 	if i >= 0 && i < len(c.items) {
-		c.tb.set(c.items[i])
-		c.tb.selectAll() // CB_SETCURSEL selects the text
+		text = c.items[i]
+	}
+	c.tb.set(text)
+	if c.focused() && c.win.active {
+		c.tb.selectAll()
+	} else {
+		c.tb.caret, c.tb.anchor = 0, 0
 	}
 	c.invalidate()
 }
