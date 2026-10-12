@@ -59,6 +59,7 @@ type window struct {
 	active  bool
 	kids    []widget
 	focus   widget
+	noFocus bool // the focused control was disabled, which left nothing with the focus
 	menu    *menuBar
 
 	modal       bool
@@ -417,6 +418,7 @@ func (w *window) setFocus(k widget, byMouse bool) {
 	}
 	old := w.focus
 	w.focus = k
+	w.noFocus = false
 	if l, ok := old.(interface{ lostFocus() }); ok {
 		l.lostFocus()
 	}

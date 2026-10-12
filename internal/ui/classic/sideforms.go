@@ -98,7 +98,7 @@ func (f *statsForm) freshen() {
 		f.counts["Percent"].setCaption(p)
 	}
 	f.counts["OwnedPKMNLbl"].setCaption(itoa(g.DexCount()))
-	if f.w.active && f.w.focus == nil && f.a.main.w.visible && f.a.desk.topModal() == nil {
+	if f.w.active && f.w.focus == nil && !f.w.noFocus && f.a.main.w.visible && f.a.desk.topModal() == nil {
 		f.a.desk.activate(f.a.main.w)
 	}
 }

@@ -159,6 +159,12 @@ func (c *ctl) setEnabled(v bool) {
 	if c.enabled != v {
 		c.enabled = v
 		c.invalidate()
+		if w := c.win; !v && w != nil && w.focus != nil && !w.focus.base().usable() {
+			// A disabled window can't have the focus: Windows takes it
+			// away, to no window.
+			w.setFocus(nil, false)
+			w.noFocus = true
+		}
 	}
 }
 

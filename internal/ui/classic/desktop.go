@@ -216,6 +216,7 @@ func (d *desktop) activate(w *window) {
 	d.active = w
 	if w != nil {
 		w.active = true
+		w.noFocus = false
 		d.raise(w)
 		if w.focus == nil || !canFocus(w.focus) {
 			w.focus = nil
