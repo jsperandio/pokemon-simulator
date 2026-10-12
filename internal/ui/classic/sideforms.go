@@ -186,7 +186,6 @@ type martForm struct {
 	radio *radioGroup
 	buy   *button
 	total *edit
-	shown bool
 }
 
 func newMartForm(a *App) *martForm {
@@ -200,16 +199,13 @@ func newMartForm(a *App) *martForm {
 	f.radio.onClick = func() { g.SelectMartItem(f.radio.index) }
 	f.buy.onClick = func() { a.call(g.Buy) }
 	get[*button](f.w, "Button2").onClick = func() { g.LeaveMart() }
+	f.w.onShow = func() { f.spin.tb.set(itoa(g.Mart.Quantity)) } // FormShow, before the focus comes in
 	a.desk.add(f.w)
 	return f
 }
 
 func (f *martForm) sync() {
 	g := f.a.g
-	if g.Mart.Visible && !f.shown {
-		f.spin.tb.set(itoa(g.Mart.Quantity)) // FormShow
-	}
-	f.shown = g.Mart.Visible
 	f.radio.setIndex(g.Mart.Item)
 	f.total.tb.set(g.Mart.Total)
 	f.buy.setEnabled(g.Mart.BuyEnabled)
@@ -278,7 +274,6 @@ type cornerForm struct {
 	prize  *radioGroup
 	number *radioGroup
 	drawn  *radioGroup
-	shown  bool
 }
 
 func newCornerForm(a *App) *cornerForm {
@@ -293,17 +288,16 @@ func newCornerForm(a *App) *cornerForm {
 	f.number.onClick = func() { g.SelectNumber(f.number.index) }
 	get[*button](f.w, "Button1").onClick = func() { a.call(g.Draw) }
 	get[*button](f.w, "Button2").onClick = func() { g.CloseCorner() }
+	f.w.onShow = func() { // FormShow, before the focus comes in and selects the bet
+		f.bet.maxValue = g.Corner.MaxBet
+		f.bet.tb.set(itoa(g.Corner.Bet))
+	}
 	a.desk.add(f.w)
 	return f
 }
 
 func (f *cornerForm) sync() {
 	g := f.a.g
-	if g.Corner.Visible && !f.shown { // FormShow
-		f.bet.maxValue = g.Corner.MaxBet
-		f.bet.tb.set(itoa(g.Corner.Bet))
-	}
-	f.shown = g.Corner.Visible
 	f.prize.setIndex(g.Corner.Prize)
 	f.number.setIndex(g.Corner.Number)
 	f.drawn.setIndex(g.Corner.Drawn)

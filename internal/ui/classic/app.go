@@ -174,6 +174,7 @@ func (a *App) Message(kind game.DialogKind, yesNo bool, text string) bool {
 // show shows a window the game shows, bringing it to the front, as Show
 // does; it runs on the handler's goroutine.
 func (a *App) show(w game.Window) {
+	a.syncForms() // the controls as the game left them, before the focus comes in
 	a.desk.show(map[game.Window]*window{
 		game.MainForm: a.main.w, game.StatsForm: a.stats.w, game.InfoForm: a.info.w, game.DexForm: a.dex.w,
 		game.MartForm: a.mart.w, game.TypesForm: a.types.w, game.CornerForm: a.corner.w,
@@ -199,11 +200,17 @@ func (a *App) sync() {
 	} {
 		switch {
 		case f.visible && !f.w.visible:
+			a.syncForms()
 			a.desk.show(f.w)
 		case !f.visible && f.w.visible:
 			a.desk.hide(f.w)
 		}
 	}
+	a.syncForms()
+}
+
+// syncForms brings the forms' controls up to date with the game's state.
+func (a *App) syncForms() {
 	a.main.sync()
 	a.stats.sync()
 	a.info.sync()
