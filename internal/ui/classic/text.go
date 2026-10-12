@@ -49,13 +49,9 @@ type trueTypeFace struct {
 	asc, hgt int
 }
 
-// newTrueType returns font data at an em height of px pixels: a VCL font
-// with Height = -px.
-func newTrueType(data []byte, px int) (*trueTypeFace, error) {
-	f, err := opentype.Parse(data)
-	if err != nil {
-		return nil, err
-	}
+// newTrueType returns a font at an em height of px pixels: a VCL font with
+// Height = -px.
+func newTrueType(f *opentype.Font, px int) (*trueTypeFace, error) {
 	ff, err := opentype.NewFace(f, &opentype.FaceOptions{Size: float64(px), DPI: 72, Hinting: font.HintingFull})
 	if err != nil {
 		return nil, err

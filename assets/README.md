@@ -33,7 +33,7 @@ The original draws its windows with fonts and icons that come with Windows and c
 |---|---|---|---|
 | `wine/sserife.fon` | MS Sans Serif 8 pt, the font of every window and dialog | Wine 11.0's bitmap MS Sans Serif, byte for byte. Its characters have the same widths as Microsoft's | © 2004 Huw D M Davies, Dmitry Timoshkov. [LGPL 2.1](wine/LGPL-2.1.txt) or later. Its source is `wine/ms_sans_serif.sfd`, from Wine 11.0's source tree, which builds it as that file's `#pragma makedep font sserife.fon` line describes |
 | `wine/oic_*.png` | The warning, error, information and question icons of message dialogs | The 32×32, 32-bit images of Wine 11.0's `oic_bang.ico`, `oic_hand.ico`, `oic_note.ico` and `oic_ques.ico` | The Wine project. [LGPL 2.1](wine/LGPL-2.1.txt) or later. Their sources are the `wine/oic_*.svg` files, from Wine 11.0's source tree |
-| `liberation/LiberationSans-Regular.ttf` | Arial, used by the red titles of the start menu and the loading screen | Liberation Sans 2.1.5 | © 2010 Google Corporation, © 2012 Red Hat, Inc. [SIL Open Font License 1.1](liberation/OFL-1.1.txt) |
+| `liberation/LiberationSans-*.ttf` | Arial, used by the red titles of the start menu and the loading screen, and by the help manual | Liberation Sans 2.1.5: Regular, Bold and Italic | © 2010 Google Corporation, © 2012 Red Hat, Inc. [SIL Open Font License 1.1](liberation/OFL-1.1.txt) |
 
 The binaries embed the `.fon`, `.png` and `.ttf` files. Release archives ship the licence texts and the `.sfd` and `.svg` sources next to them.
 

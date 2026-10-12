@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/image/font/opentype"
+
 	"github.com/jsperandio/pokemon-simulator/assets"
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/winfont"
@@ -19,8 +21,9 @@ import (
 
 // resources are the decoded assets the classic UI draws with.
 type resources struct {
-	sans, bold face         // MS Sans Serif 8, as the forms and captions use it
-	arial      map[int]face // Liberation Sans, by em height, for Arial
+	sans, bold face // MS Sans Serif 8, as the forms and captions use it
+	ttf        [3]*opentype.Font
+	arials     map[arialKey]face
 	lists      map[string]*imageList
 	pictures   map[string]*image.NRGBA
 	dlgIcons   map[game.DialogKind]*image.NRGBA
@@ -30,7 +33,7 @@ type resources struct {
 
 func loadResources() (*resources, error) {
 	r := &resources{
-		arial:    map[int]face{},
+		arials:   map[arialKey]face{},
 		lists:    map[string]*imageList{},
 		pictures: map[string]*image.NRGBA{},
 		dlgIcons: map[game.DialogKind]*image.NRGBA{},
@@ -45,13 +48,13 @@ func loadResources() (*resources, error) {
 	}
 	r.sans = bitmapFace{f: fonts[0]}
 	r.bold = bitmapFace{f: fonts[0], bold: true}
-	ttf, err := assets.FS.ReadFile("liberation/LiberationSans-Regular.ttf")
-	if err != nil {
-		return nil, err
-	}
-	for _, px := range []int{43, 27} {
-		if r.arial[px], err = newTrueType(ttf, px); err != nil {
+	for st, name := range []string{"Regular", "Bold", "Italic"} {
+		b, err := assets.FS.ReadFile("liberation/LiberationSans-" + name + ".ttf")
+		if err != nil {
 			return nil, err
+		}
+		if r.ttf[st], err = opentype.Parse(b); err != nil {
+			return nil, fmt.Errorf("liberation sans %s: %w", name, err)
 		}
 	}
 	// GetAveCharSize: the width of A–Z and a–z, over 52.
@@ -138,7 +141,36 @@ func (r *resources) fontFor(props map[string]string) face {
 	if err != nil {
 		return nil
 	}
-	return r.arial[-h]
+	return r.arial(-h, plainStyle)
+}
+
+// fontStyle is a style of Liberation Sans.
+type fontStyle int
+
+const (
+	plainStyle fontStyle = iota
+	boldStyle
+	italicStyle
+)
+
+type arialKey struct {
+	px    int
+	style fontStyle
+}
+
+// arial returns Liberation Sans, standing in for Arial, at an em height of
+// px pixels: a VCL font with Height = -px.
+func (r *resources) arial(px int, style fontStyle) face {
+	k := arialKey{px, style}
+	if f, ok := r.arials[k]; ok {
+		return f
+	}
+	f, err := newTrueType(r.ttf[style], px)
+	if err != nil { // a size no font has
+		return r.sans
+	}
+	r.arials[k] = f
+	return f
 }
 
 func (r *resources) imageList(name string) *imageList { return r.lists[name] }
