@@ -7,6 +7,7 @@ import (
 	"image"
 	"io/fs"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -86,6 +87,7 @@ type desktop struct {
 	cursor     ebiten.CursorShapeType
 	altAlone   bool // Alt is down and no other key came with it
 	caretOn    bool // the caret's phase when last painted
+	hint       hint
 }
 
 func newDesktop(res *resources) *desktop {
@@ -345,6 +347,7 @@ func (d *desktop) update(in *input, now time.Time) {
 	for _, k := range in.keysUp {
 		d.keyUp(k, in.mods)
 	}
+	d.updateHint(p, in.pressed || in.released || in.wheel != 0 || len(in.keys) > 0 || len(in.keysUp) > 0)
 	d.tick(now)
 	d.updateCursor(p)
 }
@@ -748,5 +751,88 @@ func (d *desktop) paint(img *image.RGBA) {
 	if d.menu != nil {
 		d.menu.paintPopups(cv)
 	}
+	d.hint.paint(cv, d.res.sans)
 	d.dirty = false
+}
+
+// The application's hint delays (HintPause, HintHidePause), and the arrow
+// cursor's height below its hot spot, which a hint shows under
+// (GetCursorHeightMargin).
+const (
+	hintPause        = 500 * time.Millisecond
+	hintHidePause    = 2500 * time.Millisecond
+	hintCursorMargin = 20
+)
+
+// hint is the hint window (THintWindow) of a control with ShowHint and a
+// Hint: it shows once the mouse has been on the control for HintPause, and
+// hides after HintHidePause, when the mouse leaves the control, or at a
+// click or a key (IsHintMsg).
+type hint struct {
+	ctl   widget    // the control the mouse is on, if it has a hint
+	since time.Time // when the mouse came onto it
+	text  string
+	r     image.Rectangle // the window, while it shows
+	done  bool            // it showed and hid: not again on this control
+}
+
+func (d *desktop) updateHint(p image.Point, cancel bool) {
+	h := &d.hint
+	var k widget
+	if d.menu == nil && len(d.popups) == 0 && d.drag == nil && d.capture == nil && d.topModal() == nil {
+		if w := d.windowAt(p); w != nil && p.In(w.clientRect()) {
+			k = w.widgetAt(p)
+		}
+	}
+	if k != nil && (!k.base().shown() || k.base().prop("ShowHint") != "True" || hintText(k) == "") {
+		k = nil
+	}
+	if cancel || k != h.ctl {
+		if !h.r.Empty() {
+			h.r = image.Rectangle{}
+			d.dirty = true
+		}
+		h.ctl, h.since, h.done = k, d.now, false
+		if cancel {
+			h.ctl = nil // CancelHint: the pause starts again
+		}
+		return
+	}
+	if k == nil || h.done {
+		return
+	}
+	switch {
+	case h.r.Empty() && d.now.Sub(h.since) >= hintPause:
+		// CalcHintRect adds 6 and 2 to the text's size, ActivateHint 4 more
+		// to the height, and keeps the window on the screen.
+		f := d.res.sans
+		h.text = hintText(k)
+		size := image.Pt(f.width(h.text)+6, f.height()+6)
+		o := p.Add(image.Pt(0, hintCursorMargin))
+		o.X = max(min(o.X, screenWidth-size.X), 0)
+		o.Y = max(min(o.Y, screenHeight-size.Y), 0)
+		h.r = image.Rectangle{Min: o, Max: o.Add(size)}
+		d.dirty = true
+	case !h.r.Empty() && d.now.Sub(h.since) >= hintPause+hintHidePause:
+		h.r = image.Rectangle{}
+		h.done = true
+		d.dirty = true
+	}
+}
+
+// hintText is a control's hint, the part before a "|" (GetShortHint).
+func hintText(k widget) string {
+	text, _, _ := strings.Cut(k.base().prop("Hint"), "|")
+	return text
+}
+
+// paint draws the hint window: a black border, the tooltip colour, and the
+// text 2 pixels into the client area.
+func (h *hint) paint(cv canvas, f face) {
+	if h.r.Empty() {
+		return
+	}
+	cv.fill(h.r, colInfo)
+	cv.frame(h.r, colFrame)
+	f.draw(cv.sub(h.r), 3, 3, h.text, colText)
 }
