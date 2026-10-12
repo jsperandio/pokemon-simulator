@@ -6,6 +6,15 @@ The original only runs on Windows, or on other systems through Wine. This port m
 
 > **Status:** in development. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface is playable on the desktop and in the browser, with the manual and the music; a few details of the original's windows are still to come.
 
+## Download
+
+Each release has an archive per system on the repository's Releases page. Nothing needs installing: extract the archive and run the program in it. The programs aren't signed, so Windows and macOS warn about them the first time.
+
+- **Windows** (`windows-amd64.zip`): run `pokemon-simulator.exe`. If SmartScreen says it protected your PC, choose More info, then Run anyway.
+- **macOS** (`macos-arm64.zip` for Apple silicon, `macos-amd64.zip` for Intel): macOS won't open the program until you allow it. Either run `xattr -d com.apple.quarantine pokemon-simulator` in Terminal, in its folder, or try to open it once and then choose Open Anyway in System Settings → Privacy & Security. It runs in a Terminal window, beside the game's.
+- **Linux** (`linux-amd64.tar.gz` or `linux-arm64.tar.gz`): run `./pokemon-simulator`. It needs X11 or XWayland and OpenGL, as desktop distributions have.
+- **In the browser** (`web.zip`): put its files on a web server, or upload the archive to itch.io as an HTML game. Opening `index.html` from the disk doesn't work, as browsers don't load the game from there.
+
 ## Playing
 
 The game plays as the original did, and its manual is under Help → Contents (F1). A few things differ by platform:
@@ -14,7 +23,7 @@ The game plays as the original did, and its manual is under Help → Contents (F
 - **Music.** Music → Open file... plays MP3, Ogg Vorbis and WAV files. The original played what Windows Media Player could, but WMA, MIDI and video files aren't supported. On Linux, music needs a PulseAudio or PipeWire sound server, as desktop distributions have.
 - **On Linux with GNOME 44 or later,** the game's window gets its title bar from a GNOME helper, `mutter-x11-frames`, as every X11 program's does. If that helper has stopped, GNOME shows none of these windows. The game notices after a few seconds and starts again without a title bar, and a notification says so: move the window with the Super key and the mouse, and close it with Alt+F4 or File → Quit. Logging out and in again brings the title bars back.
 - **If the game can't start,** it says why in a notification or a message box, as there may be no terminal to read it in.
-- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab.
+- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab. The game needs WebGL 2, which current browsers have.
 
 ## Building
 
@@ -24,9 +33,11 @@ You need Go 1.25 or later. No C compiler is needed, because every build uses `CG
 |---|---|
 | `make run` | Run the game from source |
 | `make test` | Run the tests |
-| `make dist` | Build Linux, Windows and macOS binaries plus the WebAssembly build into `dist/` |
+| `make dist` | Build the Linux, Windows and macOS programs and the WebAssembly version, and pack each into an archive in `dist/`, with the licences |
 | `make web` | Build only the WebAssembly version into `dist/web/` |
 | `make serve` | Build and serve the WebAssembly version at http://localhost:8080 (needs Python 3) |
+
+`make dist` names the archives after the latest `v*` tag, such as `v1.0.0`, which also goes into the Windows program's properties. It needs GNU tar and zip, and network access the first time, to fetch [go-winres](https://github.com/tc-hib/go-winres), which gives the Windows program its icon.
 
 On Linux, the game loads the system's graphics and audio libraries at runtime. Desktop distributions already include them.
 
