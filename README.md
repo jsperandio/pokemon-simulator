@@ -28,6 +28,7 @@ Michael Madsen (BirdieSoft) created the original POKéMON Simulator. This port r
 
 - **Source code:** licensed under the [GNU Affero General Public License v3.0 only](LICENSE).
 - **Assets:** POKéMON names, sprites and icons, and the original game's data, texts, manual and window layouts. They are **not** covered by the AGPL and remain the property of their owners. [assets/README.md](assets/README.md) lists where each one comes from and who owns it. As the copyright holders of the code, we allow the program's binaries to be distributed with these assets embedded (an additional permission under section 7 of the AGPL).
+- **Fonts and icons:** free stand-ins for the Windows fonts and icons the original uses, under their own licences (LGPL 2.1 or later, and SIL OFL 1.1). See [assets/README.md](assets/README.md#fonts-and-icons).
 - **No monetisation:** the project will never include ads, sales or paid features.
 
 If you hold rights to any of this material and want it removed, please open an issue on this repository.
@@ -37,3 +38,5 @@ If you hold rights to any of this material and want it removed, please open an i
 - **Michael Madsen (BirdieSoft):** creator of the original POKéMON Simulator.
 - **Nintendo, Creatures Inc. and GAME FREAK inc.:** POKéMON.
 - **Hajime Hoshi and contributors:** Ebitengine.
+- **The Wine project:** the MS Sans Serif replacement font and the dialog icons.
+- **Red Hat and Google:** the Liberation Sans font.

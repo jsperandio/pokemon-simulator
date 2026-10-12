@@ -1,6 +1,6 @@
 # Assets
 
-Everything in this directory, except the Go files, comes from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds these files in its binaries, so it plays and looks exactly like the original.
+Everything in this directory, except the Go files and the fonts and icons in `wine/` and `liberation/`, comes from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds these files in its binaries, so it plays and looks exactly like the original.
 
 ## Rights
 
@@ -24,6 +24,18 @@ This is a non-commercial project. If you hold rights to any of this material and
 | `help/*.png` | The manual's screenshots and figures | `POKéGAME.HLP` | Michael Madsen. The screenshots show sprites owned by Nintendo / Creatures / GAME FREAK |
 
 The form layouts in `internal/ui/classic/layout/` hold the original's window positions, sizes, captions, menus and event handler names. They are Michael Madsen's design.
+
+## Fonts and icons
+
+The original draws its windows with fonts and icons that come with Windows and can't be redistributed. The port uses free stand-ins instead. They don't come from the original, and their own licences allow embedding them:
+
+| Path | Stands in for | Content | Licence |
+|---|---|---|---|
+| `wine/sserife.fon` | MS Sans Serif 8 pt, the font of every window and dialog | Wine 11.0's bitmap MS Sans Serif, byte for byte. Its characters have the same widths as Microsoft's | © 2004 Huw D M Davies, Dmitry Timoshkov. [LGPL 2.1](wine/LGPL-2.1.txt) or later. Its source is `wine/ms_sans_serif.sfd`, from Wine 11.0's source tree, which builds it as that file's `#pragma makedep font sserife.fon` line describes |
+| `wine/oic_*.png` | The warning, error, information and question icons of message dialogs | The 32×32, 32-bit images of Wine 11.0's `oic_bang.ico`, `oic_hand.ico`, `oic_note.ico` and `oic_ques.ico` | The Wine project. [LGPL 2.1](wine/LGPL-2.1.txt) or later. Their sources are the `wine/oic_*.svg` files, from Wine 11.0's source tree |
+| `liberation/LiberationSans-Regular.ttf` | Arial, used by the red titles of the start menu and the loading screen | Liberation Sans 2.1.5 | © 2010 Google Corporation, © 2012 Red Hat, Inc. [SIL Open Font License 1.1](liberation/OFL-1.1.txt) |
+
+The binaries embed the `.fon`, `.png` and `.ttf` files. Release archives ship the licence texts and the `.sfd` and `.svg` sources next to them.
 
 ## How they were extracted
 
