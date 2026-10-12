@@ -54,6 +54,7 @@ type window struct {
 	maxBox  bool
 	pos     image.Point // the outer top-left corner, on the desktop
 	client  image.Point // the client area's size
+	fits    bool        // AutoSize: the client area is the controls' extent
 	color   color.RGBA
 	visible bool
 	active  bool
@@ -112,15 +113,10 @@ func newWindow(d *desktop, comp *layout.Component) *window {
 	}
 	cw, _ := strconv.Atoi(props["ClientWidth"])
 	ch, _ := strconv.Atoi(props["ClientHeight"])
-	if cw == 0 || ch == 0 || props["AutoSize"] == "True" {
-		// AutoSize: the controls' extent.
-		for _, k := range w.kids {
-			if r := k.base().r; k.base().visible {
-				cw, ch = max(cw, r.Max.X), max(ch, r.Max.Y)
-			}
-		}
-	}
 	w.client = image.Pt(cw, ch)
+	if cw == 0 || ch == 0 {
+		w.client = w.extent()
+	}
 	w.pos = image.Pt(comp.Bounds.X, comp.Bounds.Y)
 	switch props["Position"] {
 	case "poScreenCenter", "poDesktopCenter", "poMainFormCenter":
@@ -129,7 +125,69 @@ func newWindow(d *desktop, comp *layout.Component) *window {
 	for _, k := range w.kids {
 		k.base().parent = nil
 	}
+	// The labels measure their captions as they load (TCustomLabel.Loaded).
+	// The form's AutoSize applies once it has a window, after Position
+	// placed it: the loading screen grows to the right, to its title.
+	var measure func(ws []widget)
+	measure = func(ws []widget) {
+		for _, k := range ws {
+			if l, ok := k.(*label); ok && l.prop("Align") == "" {
+				l.autoSize()
+			}
+			measure(k.base().kids)
+		}
+	}
+	measure(w.kids)
+	w.fits = props["AutoSize"] == "True"
+	w.fit()
 	return w
+}
+
+// extent is the size that holds the visible controls.
+func (w *window) extent() image.Point {
+	var e image.Point
+	for _, k := range w.kids {
+		if c := k.base(); c.visible {
+			e = image.Pt(max(e.X, c.r.Max.X), max(e.Y, c.r.Max.Y))
+		}
+	}
+	return e
+}
+
+// fit is the form's AutoSize (TWinControl.DoAutoSize), which follows its
+// controls as they show, hide or resize: the POKéDEX shrinks to its list
+// while it has no selection. The controls anchored to the right or bottom
+// edge move with it.
+func (w *window) fit() {
+	if !w.fits {
+		return
+	}
+	d := w.extent().Sub(w.client)
+	if d == (image.Point{}) {
+		return
+	}
+	w.client = w.client.Add(d)
+	for _, k := range w.kids {
+		c := k.base()
+		anchors := c.prop("Anchors")
+		if strings.Contains(anchors, "akRight") {
+			if strings.Contains(anchors, "akLeft") {
+				c.r.Max.X += d.X
+			} else {
+				c.r = c.r.Add(image.Pt(d.X, 0))
+			}
+		}
+		if strings.Contains(anchors, "akBottom") {
+			if strings.Contains(anchors, "akTop") {
+				c.r.Max.Y += d.Y
+			} else {
+				c.r = c.r.Add(image.Pt(0, d.Y))
+			}
+		}
+	}
+	if w.desk != nil {
+		w.desk.dirty = true
+	}
 }
 
 // center puts the window in the middle of the screen, as poScreenCenter

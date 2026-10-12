@@ -152,6 +152,7 @@ func (c *ctl) setVisible(v bool) {
 		if !v && c.win != nil && c.win.focus != nil && !c.win.focus.base().shown() {
 			c.win.focus = nil
 		}
+		c.refit()
 	}
 }
 
@@ -172,6 +173,15 @@ func (c *ctl) setBounds(r image.Rectangle) {
 	if c.r != r {
 		c.r = r
 		c.invalidate()
+		c.refit()
+	}
+}
+
+// refit fits an AutoSize form to its controls again, after one of them
+// showed, hid or moved.
+func (c *ctl) refit() {
+	if c.parent == nil && c.win != nil {
+		c.win.fit()
 	}
 }
 

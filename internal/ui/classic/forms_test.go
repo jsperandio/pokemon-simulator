@@ -158,3 +158,18 @@ func TestCornerDraws(t *testing.T) {
 		t.Errorf("%d shows, the game drew %d", c.drawn.index, ta.g.Corner.Drawn)
 	}
 }
+
+// The loading screen is AutoSize: it grows to its title, a pixel wider in
+// Arial than the form, after Position centred it, and the labels anchored
+// to its right move with it.
+func TestLoadingFits(t *testing.T) {
+	w := newTestApp(t).load.w
+	if w.client != image.Pt(511, 157) || w.pos.X != (screenWidth-510)/2 {
+		t.Errorf("client %v at %v, want 511×157 centred as 510 wide", w.client, w.pos)
+	}
+	for name, x := range map[string]int{"Label1": 216, "Label2": 265, "Label3": 12, "Label4": 29} {
+		if got := w.find(name).base().r.Min.X; got != x {
+			t.Errorf("%s at x=%d, want %d", name, got, x)
+		}
+	}
+}
