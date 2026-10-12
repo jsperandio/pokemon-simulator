@@ -172,14 +172,14 @@ func (cv canvas) sunkenSoft(r image.Rectangle) image.Rectangle { // pushed butto
 }
 
 // focusRect inverts every other pixel of r's outline, as DrawFocusRect
-// does. The dots fall where x + y is even, so a focus rectangle's corners
-// are dotted.
+// does. The dots fall where x + y is even on the screen, as Windows lines
+// the patterns of all the windows up on the screen.
 func (cv canvas) focusRect(r image.Rectangle) {
 	if r.Empty() {
 		return
 	}
 	dot := func(x, y int) {
-		if (x+y)&1 == 0 {
+		if (x+cv.org.X+y+cv.org.Y)&1 == 0 {
 			cv.invert(x, y)
 		}
 	}
