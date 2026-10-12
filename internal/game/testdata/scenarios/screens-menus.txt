@@ -1,0 +1,11 @@
+# Reference screenshots of the game window's menus for Stage 4
+# (captures/screens/): VCL draws them itself, because the main menu has an
+# image list. Each is opened with the keyboard, so its first item is
+# selected: File (Quit has an icon), Actions and its nested submenus down
+# to the disabled Johto Gym Leaders, Music (Repeat Music is checked) and
+# Help (Contents has an icon and F1).
+party 25 5
+> start
+> quit
+exit 0
+save unchanged

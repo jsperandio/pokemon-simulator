@@ -37,6 +37,7 @@ type uiDriver struct {
 	ta    *testApp
 	p     *scenario.Player
 	files *writes
+	modal func(w *window) // if set, sees each of the game's modal windows before it is answered
 }
 
 // writes keeps the last file written: the save, on quitting.
@@ -93,6 +94,13 @@ func (d *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook fun
 	return nil
 }
 
+// seen shows the driver's modal hook a modal window about to be answered.
+func (d *uiDriver) seen(w *window) {
+	if d.modal != nil {
+		d.modal(w)
+	}
+}
+
 // settle runs frames until the game waits for the player, with no
 // handler running but one waiting for a window. The game's message
 // dialogs are answered on the way, as the scenario says.
@@ -102,6 +110,7 @@ func (d *uiDriver) settle() {
 		ta.wait(2)
 		top := ta.desk.topModal()
 		if top != nil && top.name == "MessageForm" {
+			d.seen(top)
 			text := top.find("Message").base().caption
 			b := "Button1" // OK or Yes
 			if !d.p.Answer(top.find("Button2") != nil, text) {
@@ -244,6 +253,7 @@ func (d *uiDriver) Click(path string) error {
 		if about != d.ta.about {
 			return errors.New("no About box")
 		}
+		d.seen(about)
 		d.press(about, about.find("OKButton"))
 		d.settle()
 	}
@@ -345,6 +355,7 @@ func (d *uiDriver) New(file, name string) error {
 	if ta.desk.topModal() != ta.name.w {
 		return errors.New("no name dialog")
 	}
+	d.seen(ta.name.w)
 	ta.typeText(name) // over "Ash", all selected
 	ta.key(ebiten.KeyEnter)
 	d.settle()

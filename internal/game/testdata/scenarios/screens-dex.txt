@@ -1,0 +1,11 @@
+# The POKéDEX with no selection, which hides its panel (Form8 is AutoSize),
+# and then with one.
+party 25 5
+> start
+> menu Actions > View POKéDEX
+> combo Form8.ComboBox1 24
+> click Form8.Button1
+> menu Actions > View POKéDEX
+> quit
+exit 0
+save unchanged

@@ -94,8 +94,9 @@ type Player struct {
 	Name      string // the scenario's
 	Dir       string // the scenarios' folder, for portsave
 	Data      *gamedata.Data
-	NewDriver func() Driver // the driver for this scenario, and for those portsave plays
-	Saves     string        // if not "", the folder for the save the scenario quits with
+	NewDriver func() Driver       // the driver for this scenario, and for those portsave plays
+	Saves     string              // if not "", the folder for the save the scenario quits with
+	After     func(action string) // if set, runs after each action, "> start" included
 
 	G *game.Game // the game, once launched
 
@@ -226,6 +227,9 @@ func (p *Player) Play(src string) (want []string, err error) {
 	if err := p.launch(); err != nil {
 		return want, err
 	}
+	if p.After != nil {
+		p.After("> start")
+	}
 	for _, line := range want[1:] {
 		if !strings.HasPrefix(line, "> ") {
 			continue // the original's output
@@ -234,6 +238,9 @@ func (p *Player) Play(src string) (want []string, err error) {
 		cmd, arg, _ := strings.Cut(strings.TrimPrefix(line, "> "), " ")
 		if err := p.do(cmd, arg); err != nil {
 			return want, fmt.Errorf("%s: %v", line, err)
+		}
+		if p.After != nil {
+			p.After(line)
 		}
 	}
 	return want, nil

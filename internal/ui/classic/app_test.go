@@ -3,9 +3,7 @@
 package classic
 
 import (
-	"bytes"
 	"image"
-	"image/png"
 	"os"
 	"path/filepath"
 	"strings"
@@ -116,17 +114,7 @@ func (ta *testApp) shot(name string) *image.RGBA {
 	ta.t.Helper()
 	img := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
 	ta.desk.paint(img)
-	dir := os.Getenv("CLASSIC_SHOTS")
-	if dir == "" {
-		return img
-	}
-	var b bytes.Buffer
-	if err := png.Encode(&b, img); err != nil {
-		ta.t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, name+".png"), b.Bytes(), 0o644); err != nil {
-		ta.t.Fatal(err)
-	}
+	savePNG(ta.t, name, img)
 	return img
 }
 
