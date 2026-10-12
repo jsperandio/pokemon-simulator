@@ -5,6 +5,8 @@ package classic
 import (
 	"image"
 	"testing"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // The party list's hint shows after half a second on it, under the
@@ -61,6 +63,29 @@ func TestStatsHint(t *testing.T) {
 	ta.wait(40)
 	if !ta.desk.hint.r.Empty() {
 		t.Fatal("a hint off the list")
+	}
+}
+
+// The Game Corner's bet goes up and down by its Increment, 50, with the
+// spin buttons and the arrow keys.
+func TestSpinIncrement(t *testing.T) {
+	ta := newTestApp(t)
+	ta.startGame()
+	ta.g.Money = 1000
+	ta.menu("Action1", "GameCorner1")
+	ta.wait(1)
+	s := get[*spinEdit](ta.corner.w, "SpinEdit1")
+	up, down := s.buttons()
+	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
+	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
+	if ta.g.Corner.Bet != 100 {
+		t.Errorf("bet %d after two clicks up, want 100", ta.g.Corner.Bet)
+	}
+	ta.click(widgetOrigin(s).Add(down.Min).Add(down.Size().Div(2)))
+	ta.key(ebiten.KeyUp)
+	ta.key(ebiten.KeyUp)
+	if ta.g.Corner.Bet != 150 || s.tb.String() != "150" {
+		t.Errorf("bet %d, text %q, want 150", ta.g.Corner.Bet, s.tb.String())
 	}
 }
 

@@ -331,6 +331,7 @@ func (e *edit) cursor(image.Point) ebiten.CursorShapeType { return ebiten.Cursor
 type spinEdit struct {
 	edit
 	minValue, maxValue int
+	increment          int
 	pressed            int // 0 none, 1 up, 2 down
 	inside             bool
 	next               time.Time
@@ -341,6 +342,7 @@ func (s *spinEdit) setup(comp *layout.Component) {
 	s.edit.setup(comp)
 	s.minValue = s.propInt("MinValue", 0)
 	s.maxValue = s.propInt("MaxValue", 0)
+	s.increment = s.propInt("Increment", 1)
 	s.tb.set(strconv.Itoa(s.propInt("Value", 0)))
 	// IsValidChar: digits, signs and the decimal separator.
 	s.tb.valid = func(r rune) bool { return r >= '0' && r <= '9' || r == '+' || r == '-' || r == '.' }
@@ -443,20 +445,25 @@ func (s *spinEdit) mouseDown(p image.Point, double bool) {
 	}
 	s.inside = true
 	s.step()
-	s.next = time.Now().Add(400 * time.Millisecond)
+	s.next = s.win.desk.now.Add(400 * time.Millisecond)
 	s.invalidate()
 }
 
 // step is one click of the pressed button.
 func (s *spinEdit) step() {
+	if s.pressed == 1 {
+		s.spin(1)
+	} else {
+		s.spin(-1)
+	}
+}
+
+// spin adds Increment, or takes it away, as UpClick and DownClick do.
+func (s *spinEdit) spin(dir int) {
 	if s.tb.readOnly {
 		return
 	}
-	if s.pressed == 1 {
-		s.setValue(s.value() + 1)
-	} else {
-		s.setValue(s.value() - 1)
-	}
+	s.setValue(s.value() + dir*s.increment)
 	s.tb.selectAll()
 }
 
@@ -496,13 +503,12 @@ func (s *spinEdit) tick(now time.Time) {
 func (s *spinEdit) key(k ebiten.Key, m mods) bool {
 	switch k {
 	case ebiten.KeyUp:
-		s.setValue(s.value() + 1)
+		s.spin(1)
 	case ebiten.KeyDown:
-		s.setValue(s.value() - 1)
+		s.spin(-1)
 	default:
 		return s.edit.key(k, m)
 	}
-	s.tb.selectAll()
 	return true
 }
 
