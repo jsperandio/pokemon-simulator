@@ -32,6 +32,24 @@ type testApp struct {
 
 func newTestApp(t *testing.T) *testApp {
 	t.Helper()
+	return newTestAppIn(t, t.TempDir(), nil)
+}
+
+// newTestAppIn makes the user interface with the file dialogs in dir and
+// the command line's arguments args.
+func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
+	t.Helper()
+	a, err := New(testData(t), platform.Disk(dir), args)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a.g.Rand.Seed = 1
+	return &testApp{App: a, t: t, now: time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC), dir: dir}
+}
+
+// testData returns the game's data.
+func testData(t *testing.T) *gamedata.Data {
+	t.Helper()
 	raw, err := assets.FS.ReadFile("pokegame.dat")
 	if err != nil {
 		t.Fatal(err)
@@ -40,13 +58,7 @@ func newTestApp(t *testing.T) *testApp {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir := t.TempDir()
-	a, err := New(data, platform.Disk(dir), nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	a.g.Rand.Seed = 1
-	return &testApp{App: a, t: t, now: time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC), dir: dir}
+	return data
 }
 
 // frame runs one frame with the given input.
