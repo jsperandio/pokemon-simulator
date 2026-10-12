@@ -249,11 +249,13 @@ func (t *textBox) drag(f face, x int) {
 type edit struct {
 	ctl
 	tb       textBox
+	inset    int    // the text's top-left corner, from the control's
 	onChange func() // OnChange
 }
 
 func (e *edit) setup(comp *layout.Component) {
 	e.windowed = true
+	e.inset = 3 // the border, and the format rectangle's pixel inside it
 	e.tabStop = e.prop("TabStop") != "False"
 	e.color = vclColor(e.prop("Color"), colWindow)
 	e.tb.set(comp.Caption)
@@ -300,12 +302,12 @@ func (e *edit) paint(cv canvas) {
 }
 
 func (e *edit) mouseDown(p image.Point, double bool) {
-	e.tb.press(e.font, p.X-3, double, false)
+	e.tb.press(e.font, p.X-e.inset, double, false)
 	e.invalidate()
 }
 
 func (e *edit) mouseDrag(p image.Point) {
-	e.tb.drag(e.font, p.X-3)
+	e.tb.drag(e.font, p.X-e.inset)
 	e.invalidate()
 }
 
@@ -340,6 +342,7 @@ type spinEdit struct {
 
 func (s *spinEdit) setup(comp *layout.Component) {
 	s.edit.setup(comp)
+	s.inset = 2 // SetEditRect puts the text at the client area's corner
 	s.minValue = s.propInt("MinValue", 0)
 	s.maxValue = s.propInt("MaxValue", 0)
 	s.increment = s.propInt("Increment", 1)
@@ -383,15 +386,36 @@ func (s *spinEdit) lostFocus() {
 }
 
 // buttons returns the up and down buttons: TSpinButton sits inside the
-// edit's border, 15 pixels wide and 5 short of the edit's height.
+// edit's border, 15 pixels wide and 5 short of the edit's height, and its
+// down button covers the up button's last row (AdjustSize).
 func (s *spinEdit) buttons() (up, down image.Rectangle) {
 	r := s.local().Inset(2)
 	x := r.Min.X + s.r.Dx() - 15 - 5
 	h := s.r.Dy() - 5
 	up = image.Rect(x, r.Min.Y, x+15, r.Min.Y+h/2)
-	down = image.Rect(x, up.Max.Y, x+15, r.Min.Y+h)
+	down = image.Rect(x, up.Max.Y-1, x+15, r.Min.Y+h)
 	return
 }
+
+// The SPINUP and SPINDOWN glyphs.
+const (
+	glyphSpinUp = `
+.........
+....#....
+...###...
+..#####..
+.#######.
+.........
+`
+	glyphSpinDown = `
+.........
+.#######.
+..#####..
+...###...
+....#....
+.........
+`
+)
 
 func (s *spinEdit) paint(cv canvas) {
 	r := s.local()
@@ -402,32 +426,31 @@ func (s *spinEdit) paint(cv canvas) {
 	}
 	cv.fill(in, bg)
 	up, down := s.buttons()
-	s.tb.paint(cv, image.Rect(3, 3, up.Min.X-1, r.Max.Y-2), s.font, fg, s.focused() && s.win.active)
+	s.tb.paint(cv, image.Rect(s.inset, s.inset, up.Min.X-1, r.Max.Y-2), s.font, fg, s.focused() && s.win.active)
+	// Two speed buttons, the down one painted last, each drawn by
+	// DrawFrameControl with its glyph centred inside the frame.
 	for i, b := range []image.Rectangle{up, down} {
 		pushed := s.pressed == i+1 && s.inside
 		cv.fill(b, colFace)
 		off := 0
 		if pushed {
-			cv.edge(b, colDkShadow, colHighlight)
-			cv.edge(b.Inset(1), colShadow, colFace)
+			cv.sunkenSoft(b)
 			off = 1
 		} else {
-			cv.edge(b, colHighlight, colDkShadow)
-			cv.edge(b.Inset(1), colFace, colShadow)
+			cv.raisedSoft(b)
 		}
-		// The SPINUP and SPINDOWN glyphs: 5×3 triangles.
-		x := b.Min.X + (b.Dx()-5)/2 + off
-		y := b.Min.Y + (b.Dy()-3)/2 + off
-		c := colText
-		if !s.usable() {
-			c = colShadow
+		glyph := glyphSpinUp
+		if i == 1 {
+			glyph = glyphSpinDown
 		}
-		for j := range 3 {
-			if i == 0 {
-				cv.hline(x+2-j, x+3+j, y+j, c)
-			} else {
-				cv.hline(x+j, x+5-j, y+j, c)
-			}
+		in := b.Inset(2)
+		x := in.Min.X + (in.Dx()-9+1)/2 + off
+		y := in.Min.Y + (in.Dy()-6+1)/2 + off
+		if s.usable() {
+			cv.pattern(x, y, glyph, map[byte]color.RGBA{'#': colText})
+		} else {
+			cv.pattern(x+1, y+1, glyph, map[byte]color.RGBA{'#': colHighlight})
+			cv.pattern(x, y, glyph, map[byte]color.RGBA{'#': colShadow})
 		}
 	}
 }
@@ -435,10 +458,10 @@ func (s *spinEdit) paint(cv canvas) {
 func (s *spinEdit) mouseDown(p image.Point, double bool) {
 	up, down := s.buttons()
 	switch {
+	case p.In(down): // on top of the up button
+		s.pressed = 2
 	case p.In(up):
 		s.pressed = 1
-	case p.In(down):
-		s.pressed = 2
 	default:
 		s.edit.mouseDown(p, double)
 		return
