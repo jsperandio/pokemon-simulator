@@ -4,7 +4,15 @@ A faithful, cross-platform port of **POKéMON Simulator V4.5** to [Go](https://g
 
 The original only runs on Windows, or on other systems through Wine. This port makes it playable again on Linux, Windows, macOS and in the browser, with the same rules, data and look.
 
-> **Status:** in development. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays on the desktop, from the start screen to a saved game; the help, the music and the browser version are still to come.
+> **Status:** in development. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface is playable on the desktop and in the browser, with the manual and the music; a few details of the original's windows are still to come.
+
+## Playing
+
+The game plays as the original did, and its manual is under Help → Contents (F1). A few things differ by platform:
+
+- **Saving.** As in the original, you choose a save file when you start a new game, and the game saves when you quit (File → Quit, or closing the window).
+- **Music.** Music → Open file... plays MP3, Ogg Vorbis and WAV files. The original played what Windows Media Player could, but WMA, MIDI and video files aren't supported. On Linux, music needs a PulseAudio or PipeWire sound server, as desktop distributions have.
+- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab.
 
 ## Building
 
