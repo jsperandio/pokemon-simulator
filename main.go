@@ -39,7 +39,7 @@ func main() {
 	ebiten.SetWindowIcon([]image.Image{app.Icon()})
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowClosingHandled(true)
-	if err := ebiten.RunGame(app); err != nil && !errors.Is(err, ebiten.Termination) {
+	if err := ebiten.RunGame(watchWindow(app)); err != nil && !errors.Is(err, ebiten.Termination) {
 		fail(err)
 	}
 }
