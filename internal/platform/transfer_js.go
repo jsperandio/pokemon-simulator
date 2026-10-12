@@ -98,3 +98,28 @@ func awaitPromise(p js.Value) (js.Value, error) {
 		return js.Undefined(), err
 	}
 }
+
+var (
+	leaveGuard js.Func
+	guarding   bool
+)
+
+// WarnOnLeave has the browser ask before the page closes or reloads while
+// on is true: a game in progress is saved only when the player quits.
+func WarnOnLeave(on bool) {
+	if on == guarding {
+		return
+	}
+	guarding = on
+	if on {
+		leaveGuard = js.FuncOf(func(_ js.Value, args []js.Value) any {
+			args[0].Call("preventDefault")
+			args[0].Set("returnValue", "")
+			return nil
+		})
+		js.Global().Call("addEventListener", "beforeunload", leaveGuard)
+		return
+	}
+	js.Global().Call("removeEventListener", "beforeunload", leaveGuard)
+	leaveGuard.Release()
+}

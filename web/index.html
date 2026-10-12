@@ -6,6 +6,11 @@
   <title>POKéMON Simulator</title>
   <style>
     html, body { margin: 0; height: 100%; background: #008080; }
+    .ended {
+      display: flex; height: 100%; margin: 0; align-items: center; justify-content: center;
+      color: #fff; font: 16px sans-serif;
+    }
+    .ended a { color: #ff0; margin-left: 0.5em; }
   </style>
 </head>
 <body>
@@ -14,6 +19,11 @@
     const go = new Go();
     WebAssembly.instantiateStreaming(fetch("pokemon-simulator.wasm"), go.importObject)
       .then((result) => go.run(result.instance))
+      .then(() => {
+        // The game ended, and its window with it, as the program's did.
+        document.body.removeAttribute("style");
+        document.body.innerHTML = '<p class="ended">The game has ended.<a href="">Play again</a></p>';
+      })
       .catch((err) => { document.body.textContent = "Failed to load the game: " + err; });
   </script>
 </body>

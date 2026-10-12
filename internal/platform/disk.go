@@ -135,3 +135,6 @@ func Upload(Files, string) <-chan []string { return nil }
 
 // Download does nothing on the disk; see Transfers.
 func Download(string, []byte) error { return nil }
+
+// WarnOnLeave does nothing on the desktop, where closing the window saves.
+func WarnOnLeave(bool) {}

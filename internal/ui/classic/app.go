@@ -213,17 +213,21 @@ func (a *App) sync() {
 // Update handles a frame's input (ebiten.Game).
 func (a *App) Update() error {
 	if a.quit {
+		platform.WarnOnLeave(false)
 		return ErrQuit
 	}
 	if ebiten.IsWindowBeingClosed() && a.desk.topModal() == nil {
 		a.closeProgram()
 	}
 	a.step(a.input(), time.Now())
+	// On the web, leaving the page doesn't save the game, as quitting does.
+	platform.WarnOnLeave(a.main.w.visible && !a.quit)
 	if a.desk.cursor != a.shown {
 		a.shown = a.desk.cursor
 		ebiten.SetCursorShape(a.shown)
 	}
 	if a.quit {
+		platform.WarnOnLeave(false)
 		return ErrQuit
 	}
 	return nil
