@@ -5,6 +5,7 @@ package classic
 import (
 	"image"
 	"image/color"
+	"image/draw"
 	"strings"
 )
 
@@ -170,7 +171,6 @@ func (cv canvas) sunkenSoft(r image.Rectangle) image.Rectangle { // pushed butto
 	return r.Inset(1)
 }
 
-
 // focusRect inverts every other pixel of r's outline, as DrawFocusRect
 // does. The dots fall where x + y is even, so a focus rectangle's corners
 // are dotted.
@@ -223,6 +223,16 @@ func (cv canvas) draw(x, y int, src *image.NRGBA, sr image.Rectangle) {
 			cv.pix(x+sx-sr.Min.X, y+sy-sr.Min.Y, color.RGBA{c.R, c.G, c.B, 0xff})
 		}
 	}
+}
+
+// copy copies src's rectangle sr to (x, y), as BitBlt does.
+func (cv canvas) copy(x, y int, src *image.RGBA, sr image.Rectangle) {
+	dr := image.Rectangle{Min: image.Pt(x, y), Max: image.Pt(x, y).Add(sr.Size())}.Add(cv.org)
+	r := dr.Intersect(cv.clip)
+	if r.Empty() {
+		return
+	}
+	draw.Draw(cv.img, r, src, sr.Min.Add(r.Min.Sub(dr.Min)), draw.Src)
 }
 
 // blend draws src's rectangle sr at (x, y) with its alpha channel, for the

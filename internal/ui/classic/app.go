@@ -52,6 +52,8 @@ type App struct {
 	name   *nameDialog
 	about  *window
 
+	helpWin *helpWindow // the manual, once opened
+
 	// A game handler runs on its own goroutine, taking turns with the
 	// user interface: while it runs, the user interface waits, and while
 	// it waits for a modal window, the user interface runs.

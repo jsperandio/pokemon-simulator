@@ -31,6 +31,7 @@ type scrollBar struct {
 	r        image.Rectangle // in the owner's coordinates
 	min, max int             // the range
 	page     int             // what one screenful shows
+	line     int             // what an arrow scrolls by: 1 if 0
 	pos      int
 
 	pressed  int // the part held down
@@ -132,9 +133,9 @@ func (s *scrollBar) press(p image.Point) bool {
 func (s *scrollBar) step() {
 	switch s.pressed {
 	case partLess:
-		s.set(s.pos - 1)
+		s.set(s.pos - max(s.line, 1))
 	case partMore:
-		s.set(s.pos + 1)
+		s.set(s.pos + max(s.line, 1))
 	case partPageLess:
 		s.set(s.pos - max(s.page, 1))
 	case partPageMore:

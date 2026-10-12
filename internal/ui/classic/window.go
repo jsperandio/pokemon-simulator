@@ -74,6 +74,9 @@ type window struct {
 
 	maximized bool
 	restore   image.Rectangle
+	onResize  func()
+
+	icon *image.NRGBA // the caption's icon, if not the program's
 
 	capPressed int // the caption button held down
 	capInside  bool
@@ -292,8 +295,12 @@ func (w *window) paint(cv canvas) {
 		}
 		cv.gradient(cr, a, b)
 		x := cr.Min.X + 2
-		if w.sysMenu && w.style != bsDialog && w.style != bsToolWindow && w.res.appIcon != nil {
-			cv.blend(x, cr.Min.Y+1, w.res.appIcon, w.res.appIcon.Rect)
+		icon := w.icon
+		if icon == nil {
+			icon = w.res.appIcon
+		}
+		if w.sysMenu && w.style != bsDialog && w.style != bsToolWindow && icon != nil {
+			cv.blend(x, cr.Min.Y+1, icon, icon.Rect)
 			x += 18
 		}
 		textEnd := cr.Max.X
@@ -599,6 +606,9 @@ func (w *window) toggleMaximize() {
 		w.pos = image.Pt(-f, -f)
 		w.client = image.Pt(screenWidth, screenHeight-w.captionH()-w.menuH())
 		w.maximized = true
+	}
+	if w.onResize != nil {
+		w.onResize()
 	}
 	w.desk.dirty = true
 }
