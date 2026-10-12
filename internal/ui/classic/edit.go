@@ -294,12 +294,12 @@ func (e *edit) gotFocus(byMouse bool) {
 func (e *edit) paint(cv canvas) {
 	r := e.local()
 	in := cv.sunken(r)
-	bg, fg := e.color, e.fontColor
+	fg := e.fontColor
 	if !e.usable() {
-		bg, fg = colFace, colGrayText
+		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
-	cv.fill(in, bg)
-	e.tb.paint(cv, image.Rect(3, 3, r.Max.X-3, r.Max.Y-2), e.font, fg, e.focused() && e.win.active)
+	cv.fill(in, e.color)
+	e.tb.paint(cv, image.Rect(e.inset, e.inset, r.Max.X-3, r.Max.Y-2), e.font, fg, e.focused() && e.win.active)
 }
 
 func (e *edit) mouseDown(p image.Point, double bool) {
@@ -421,11 +421,11 @@ const (
 func (s *spinEdit) paint(cv canvas) {
 	r := s.local()
 	in := cv.sunken(r)
-	bg, fg := s.color, s.fontColor
+	fg := s.fontColor
 	if !s.usable() {
-		bg, fg = colFace, colGrayText
+		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
-	cv.fill(in, bg)
+	cv.fill(in, s.color)
 	up, down := s.buttons()
 	s.tb.paint(cv, image.Rect(s.inset, s.inset, up.Min.X-1, r.Max.Y-2), s.font, fg, s.focused() && s.win.active)
 	// Two speed buttons, the down one painted last, each drawn by
@@ -767,11 +767,11 @@ func (c *comboBox) lostFocus() {
 func (c *comboBox) paint(cv canvas) {
 	r := c.local()
 	in := cv.sunken(r)
-	bg, fg := c.color, c.fontColor
+	fg := c.fontColor
 	if !c.usable() {
-		bg, fg = colFace, colGrayText
+		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
-	cv.fill(in, bg)
+	cv.fill(in, c.color)
 	b := c.button()
 	if c.listOnly {
 		// The selected item, highlighted while the box has the focus.
