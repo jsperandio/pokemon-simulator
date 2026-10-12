@@ -81,6 +81,9 @@ type fileDialog struct {
 	types  *comboBox
 	up     *toolButton
 	dirs   []string // lookIn's folders
+
+	uploadButton, downloadButton *toolButton     // on the web
+	uploads                      <-chan []string // the files being uploaded
 }
 
 // The view's icons and the toolbar's glyph: o outline, y yellow, w white,
@@ -161,7 +164,9 @@ func (r *resources) fileIcons() *imageList {
 // chosen file's path. It runs on the handler's goroutine.
 func (a *App) openFile(opts fileOptions) (string, bool) {
 	f := a.newFileDialog(opts)
+	a.fileDlg = f
 	r := a.modal(f.w)
+	a.fileDlg = nil
 	a.desk.remove(f.w)
 	return f.result, r == mrOk
 }
@@ -206,6 +211,9 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 
 	f.up = &toolButton{glyph: glyphUp, onPress: f.upOneLevel}
 	addWidget(w, f.up, image.Rect(280, 4, 303, 26))
+	if a.xfer != nil {
+		f.addTransfers()
+	}
 
 	for _, ft := range f.filters {
 		f.types.items = append(f.types.items, ft.name)

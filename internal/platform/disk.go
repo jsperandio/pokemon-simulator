@@ -126,3 +126,12 @@ func start(target string) error {
 
 // Args returns the command line's arguments.
 func Args() []string { return os.Args[1:] }
+
+// Transfers is false: the game's files are the player's own, on the disk.
+const Transfers = false
+
+// Upload does nothing on the disk; see Transfers.
+func Upload(Files, string) <-chan []string { return nil }
+
+// Download does nothing on the disk; see Transfers.
+func Download(string, []byte) error { return nil }

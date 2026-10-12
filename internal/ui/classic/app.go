@@ -55,6 +55,8 @@ type App struct {
 
 	helpWin *helpWindow // the manual, once opened
 	music   musicPlayer
+	xfer    transfers   // the browser's uploads and downloads, on the web
+	fileDlg *fileDialog // the file dialog that shows, if one does
 
 	// A game handler runs on its own goroutine, taking turns with the
 	// user interface: while it runs, the user interface waits, and while
@@ -85,6 +87,9 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 		frame:    image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight)),
 		requests: make(chan func()),
 		music:    &audio.Music{},
+	}
+	if platform.Transfers {
+		a.xfer = browser{files}
 	}
 	a.g = game.New(data, a)
 	a.buildForms()
@@ -229,6 +234,12 @@ func (a *App) step(in input, now time.Time) {
 	a.desk.update(&in, now)
 	a.load.tick()
 	a.music.Update(a.g.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
+	if a.xfer != nil && in.dropped != nil {
+		a.importDropped(in.dropped)
+	}
+	if a.fileDlg != nil {
+		a.fileDlg.poll()
+	}
 	if !a.running {
 		a.sync()
 		a.stats.freshen()
@@ -262,6 +273,7 @@ func (a *App) input() input {
 	}
 	in.keysUp = inpututil.AppendJustReleasedKeys(nil)
 	in.chars = ebiten.AppendInputChars(nil)
+	in.dropped = ebiten.DroppedFiles()
 	return in
 }
 

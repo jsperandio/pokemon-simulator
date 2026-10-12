@@ -171,3 +171,7 @@ func OpenURL(url string) error { return openURL(url) }
 
 // Args returns no arguments: a page has no command line.
 func Args() []string { return nil }
+
+// Transfers is true: the game's files live in the browser, and the player
+// uploads and downloads them.
+const Transfers = true

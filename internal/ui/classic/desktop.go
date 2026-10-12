@@ -5,6 +5,7 @@ package classic
 import (
 	"cmp"
 	"image"
+	"io/fs"
 	"slices"
 	"time"
 
@@ -57,6 +58,7 @@ type input struct {
 	keysUp   []ebiten.Key
 	chars    []rune
 	mods     mods
+	dropped  fs.FS // the files dropped on the game, if any
 }
 
 // desktop is the screen: its windows in z-order, the popups, and the
