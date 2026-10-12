@@ -13,6 +13,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
+	"github.com/jsperandio/pokemon-simulator/internal/audio"
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
@@ -53,6 +54,7 @@ type App struct {
 	about  *window
 
 	helpWin *helpWindow // the manual, once opened
+	music   musicPlayer
 
 	// A game handler runs on its own goroutine, taking turns with the
 	// user interface: while it runs, the user interface waits, and while
@@ -82,6 +84,7 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 		args:     args,
 		frame:    image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight)),
 		requests: make(chan func()),
+		music:    &audio.Music{},
 	}
 	a.g = game.New(data, a)
 	a.buildForms()
@@ -134,6 +137,22 @@ func (a *App) modal(w *window) int {
 		a.desk.showModal(w)
 	}
 	return <-result
+}
+
+// appTitle is the program's title (Application.Title).
+const appTitle = "POKéMON Simulator"
+
+// showException shows an error as Application.ShowException does: its
+// message, ending in a full stop, in a box captioned with the program's
+// title. It runs on the handler's goroutine.
+func (a *App) showException(msg string) {
+	if msg != "" && msg[len(msg)-1] > '.' {
+		msg += "."
+	}
+	w := messageDialog(a.desk, game.Error, false, msg)
+	w.caption = appTitle
+	a.modal(w)
+	a.desk.remove(w)
 }
 
 // Message shows a message dialog and waits for the player (game.UI).
@@ -209,6 +228,7 @@ func (a *App) Update() error {
 func (a *App) step(in input, now time.Time) {
 	a.desk.update(&in, now)
 	a.load.tick()
+	a.music.Update(a.g.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
 	if !a.running {
 		a.sync()
 		a.stats.freshen()

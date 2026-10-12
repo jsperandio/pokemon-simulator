@@ -3,9 +3,11 @@
 package classic
 
 import (
+	"errors"
 	"image"
 	"time"
 
+	"github.com/jsperandio/pokemon-simulator/internal/audio"
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
@@ -113,8 +115,10 @@ func (f *mainForm) menuCommand(e *menuEntry) {
 		a.call(f.export)
 	case "Quit1":
 		f.formClose()
-	case "Openfile1", "StopMusic1":
-		// The music player comes with the audio package.
+	case "Openfile1":
+		a.call(f.openMusic)
+	case "StopMusic1":
+		f.stopMusic()
 	case "Contents1":
 		a.help()
 	case "About1":
@@ -155,6 +159,51 @@ func (f *mainForm) export() {
 		if err := platform.OpenPage(file, page); err != nil {
 			a.Message(game.Error, false, err.Error())
 		}
+	}
+}
+
+// musicPlayer is what the Music menu plays music with: an audio.Music.
+type musicPlayer interface {
+	Open(name string, data []byte) error
+	Stop() error
+	Update(repeat bool)
+}
+
+// musicFilter is Music → Open file...'s. The original's offered what
+// Windows Media Player played; these are what the port plays.
+const musicFilter = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.ogg;*.wav|" +
+	"MPEG Audio Files (*.mp3)|*.mp3|Ogg Vorbis Files (*.ogg)|*.ogg|Wave Files (*.wav)|*.wav|All files (*.*)|*.*"
+
+// openMusic is Music → Open file... (TForm4.Openfile1Click): the music
+// chosen plays at once.
+func (f *mainForm) openMusic() {
+	a := f.a
+	file, ok := a.openFile(fileOptions{filter: musicFilter, mustExist: true})
+	if !ok {
+		return
+	}
+	b, err := a.files.ReadFile(file)
+	if err == nil {
+		err = a.music.Open(a.files.Base(file), b)
+	}
+	switch {
+	case errors.Is(err, audio.ErrFormat):
+		a.showException("Cannot play " + a.files.Base(file) + ". Only MP3, Ogg Vorbis and WAV files can be played")
+	case err != nil:
+		a.showException(err.Error())
+	}
+}
+
+// stopMusic is Music → Stop Music (TForm4.StopMusic1Click), which with no
+// music open raised the media player's error.
+func (f *mainForm) stopMusic() {
+	a := f.a
+	if err := a.music.Stop(); err != nil {
+		msg := err.Error()
+		if errors.Is(err, audio.ErrNotOpen) {
+			msg = "No MCI device open"
+		}
+		a.call(func() { a.showException(msg) })
 	}
 }
 

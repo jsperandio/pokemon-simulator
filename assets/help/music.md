@@ -1,6 +1,6 @@
 # Music
 
-> **Port note:** This page describes the original Windows game, which played music through Windows Media Player. The port has its own player, so the file types, video support and Windows Media Player instructions below don't apply to it.
+> **Port note:** This page describes the original Windows game, which played music through Windows Media Player. The port has its own player, which plays MP3, Ogg Vorbis and WAV files, and not WMA, MIDI or video. The file types and Windows Media Player instructions below don't apply to it. Repeat Music and Stop Music work as described.
 
 To play music within the game, you must first select a file to play. This is done by selecting Music|Open file..., and selecting the file to play. By default, the file selector will show the following files:
 

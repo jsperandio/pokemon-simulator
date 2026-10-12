@@ -15,6 +15,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/jsperandio/pokemon-simulator/assets"
+	"github.com/jsperandio/pokemon-simulator/internal/audio"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
 )
@@ -322,4 +323,78 @@ func TestCatchSaveLoad(t *testing.T) {
 	if got := tb.main.w.pos; got != image.Pt(95, 54) {
 		t.Errorf("game window at %v", got)
 	}
+}
+
+// fakeMusic records what the Music menu asks of the player.
+type fakeMusic struct {
+	opened  []string
+	stopped int
+	repeat  bool
+	err     error
+	stopErr error
+}
+
+func (m *fakeMusic) Open(name string, data []byte) error {
+	m.opened = append(m.opened, name+":"+string(data))
+	return m.err
+}
+
+func (m *fakeMusic) Stop() error {
+	m.stopped++
+	return m.stopErr
+}
+
+func (m *fakeMusic) Update(repeat bool) { m.repeat = repeat }
+
+// TestMusicMenu opens music from the Music menu, stops it, and turns
+// Repeat Music off; the player's errors show as the original's exceptions.
+func TestMusicMenu(t *testing.T) {
+	ta := newTestApp(t)
+	fm := &fakeMusic{stopErr: audio.ErrNotOpen}
+	ta.music = fm
+	ta.startGame()
+	ta.wait(1)
+	if !fm.repeat {
+		t.Error("Repeat Music is off at the start")
+	}
+	ta.menu("SelectMusic1", "StopMusic1")
+	ta.wait(1)
+	ta.shot("40-stop-music")
+	if top := ta.desk.topModal(); top == nil || top.caption != "POKéMON Simulator" {
+		t.Fatalf("no error box: %v", top)
+	}
+	ta.answer("No MCI device open.")
+
+	if err := os.WriteFile(filepath.Join(ta.dir, "song.ogg"), []byte("OggS"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ta.menu("SelectMusic1", "Openfile1")
+	ta.wait(1)
+	ta.shot("41-open-music")
+	ta.typeText("song.ogg")
+	ta.key(ebiten.KeyEnter)
+	ta.wait(1)
+	if len(fm.opened) != 1 || fm.opened[0] != "song.ogg:OggS" {
+		t.Fatalf("opened %q", fm.opened)
+	}
+	fm.stopErr = nil
+	ta.menu("SelectMusic1", "StopMusic1")
+	ta.wait(1)
+	if fm.stopped != 2 || ta.desk.topModal() != nil {
+		t.Errorf("Stop Music: %d stops, dialog %v", fm.stopped, ta.desk.topModal())
+	}
+	ta.menu("SelectMusic1", "RepeatMusic1")
+	ta.wait(1)
+	if fm.repeat {
+		t.Error("Repeat Music is still on")
+	}
+
+	fm.err = audio.ErrFormat
+	ta.menu("SelectMusic1", "Openfile1")
+	ta.wait(1)
+	ta.typeText("song.ogg")
+	ta.key(ebiten.KeyEnter)
+	ta.wait(1)
+	ta.shot("42-cannot-play")
+	ta.answer("Cannot play song.ogg. Only MP3, Ogg Vorbis and WAV files can be played.")
 }
