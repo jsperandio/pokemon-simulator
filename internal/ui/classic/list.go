@@ -644,12 +644,21 @@ func (d *dropList) paint(cv canvas) {
 		}
 		y := in.Min.Y + row*c.itemHeight
 		ir := image.Rect(in.Min.X, y, in.Max.X, y+c.itemHeight)
+		tx := 2
+		if c.images != nil {
+			// Owner-drawn: the item's icon at its indent, then its text,
+			// highlighted on its own.
+			x := ir.Min.X + 1 + c.indents[i]
+			c.images.drawFrame(cv, x, y+(c.itemHeight-c.images.size)/2, c.icons[i], false)
+			x += c.images.size + 3
+			ir = image.Rect(x, y, min(x+c.font.width(c.items[i])+4, in.Max.X), y+c.itemHeight)
+		}
 		fg := colText
 		if i == d.hot {
 			cv.fill(ir, colSelection)
 			fg = colSelText
 		}
-		c.font.draw(cv.sub(ir), 2, (c.itemHeight-c.font.height())/2, c.items[i], fg)
+		c.font.draw(cv.sub(ir), tx, (c.itemHeight-c.font.height())/2, c.items[i], fg)
 	}
 	if d.scroll.max > 0 {
 		d.scroll.paint(cv)

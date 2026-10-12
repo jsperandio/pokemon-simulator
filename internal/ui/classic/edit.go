@@ -663,6 +663,12 @@ type comboBox struct {
 	dropped    *dropList
 	pressing   bool // the arrow button
 	onSelect   func(i int)
+
+	// An owner-drawn list's icons (CBS_OWNERDRAWFIXED): each item's image
+	// and indent, in pixels, in the list.
+	images  *imageList
+	icons   []int
+	indents []int
 }
 
 func (c *comboBox) setup(comp *layout.Component) {
@@ -737,14 +743,22 @@ func (c *comboBox) paint(cv canvas) {
 		// The selected item, highlighted while the box has the focus.
 		tr := image.Rect(in.Min.X+1, in.Min.Y+1, b.Min.X-1, in.Max.Y-1)
 		focus := c.focused() && c.win.active && c.dropped == nil
+		item := c.index >= 0 && c.index < len(c.items)
+		tx := 1
+		if c.images != nil && item {
+			// Owner-drawn: the item's icon, then its text, highlighted on
+			// its own; the box doesn't indent it.
+			c.images.drawFrame(cv, tr.Min.X+1, tr.Min.Y+(tr.Dy()-c.images.size)/2, c.icons[c.index], false)
+			x := tr.Min.X + c.images.size + 4
+			tr = image.Rect(x, tr.Min.Y, min(x+c.font.width(c.items[c.index])+4, tr.Max.X), tr.Max.Y)
+			tx = 2
+		}
 		if focus {
 			cv.fill(tr, colSelection)
 			fg = colSelText
 		}
-		if c.index >= 0 && c.index < len(c.items) {
-			// The list may indent its items; the box doesn't.
-			text := strings.TrimLeft(c.items[c.index], " ")
-			c.font.draw(cv.sub(tr), 1, (tr.Dy()-c.font.height())/2, text, fg)
+		if item {
+			c.font.draw(cv.sub(tr), tx, (tr.Dy()-c.font.height())/2, c.items[c.index], fg)
 		}
 		if focus {
 			cv.focusRect(tr)

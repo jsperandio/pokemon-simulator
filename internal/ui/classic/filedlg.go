@@ -86,8 +86,8 @@ type fileDialog struct {
 	uploads                      <-chan []string // the files being uploaded
 }
 
-// The view's icons and the toolbar's glyph: o outline, y yellow, w white,
-// k black, s shadow.
+// The view's icons, the look-in list's drive and the toolbar's glyph: o
+// outline, y yellow, w white, k black, s shadow, c face, g green.
 const (
 	iconFolder = `
 ................
@@ -125,6 +125,24 @@ okkkkkkkkkkkkkk.
 ...kkkkkkkkkkk..
 ................
 `
+	iconDrive = `
+................
+................
+................
+................
+................
+..kkkkkkkkkkkkk.
+.kwwwwwwwwwwwwsk
+kwcccccccccccssk
+kssssssssssssssk
+kwccccccccccccsk
+kwccccccccggccsk
+kwccccccccccccsk
+kssssssssssssssk
+.kkkkkkkkkkkkkk.
+................
+................
+`
 	glyphUp = `
 ..ooooo.........
 .oyyyyyo........
@@ -142,20 +160,30 @@ okkkkkkkkkkkkkk.
 
 var iconColors = map[byte]color.RGBA{
 	'o': rgb(0x808000), 'y': rgb(0xFFFF00), 'w': rgb(0xFFFFFF), 'k': rgb(0x000000), 's': rgb(0x808080),
+	'c': rgb(0xC0C0C0), 'g': rgb(0x00FF00),
 }
 
-// fileIcons returns the view's image list: a folder, then a document.
+// The file icons' frames.
+const (
+	fileIconFolder = iota
+	fileIconDocument
+	fileIconDrive
+)
+
+// fileIcons returns the file dialog's image list: a folder, a document and
+// a drive.
 func (r *resources) fileIcons() *imageList {
 	if l := r.lists["fileIcons"]; l != nil {
 		return l
 	}
-	img := image.NewRGBA(image.Rect(0, 0, 32, 16))
+	img := image.NewRGBA(image.Rect(0, 0, 48, 16))
 	cv := newCanvas(img)
 	cv.pattern(0, 0, iconFolder, iconColors)
 	cv.pattern(16, 0, iconDocument, iconColors)
+	cv.pattern(32, 0, iconDrive, iconColors)
 	n := image.NewNRGBA(img.Rect)
 	copy(n.Pix, img.Pix) // the pixels are opaque or fully transparent
-	l := &imageList{img: n, size: 16, cols: 2}
+	l := &imageList{img: n, size: 16, cols: 3}
 	r.lists["fileIcons"] = l
 	return l
 }
@@ -183,7 +211,7 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 		Children: []layout.Component{
 			{Class: "TLabel", Name: "LookInLabel", Caption: in, Bounds: layout.Rect{X: 6, Y: 10, W: 50, H: 13}},
 			{Class: "TComboBox", Name: "LookIn", Bounds: layout.Rect{X: 74, Y: 5, W: 198, H: 21},
-				Props: map[string]string{"Style": "csDropDownList", "TabOrder": "0"}},
+				Props: map[string]string{"Style": "csDropDownList", "ItemHeight": "16", "TabOrder": "0"}},
 			{Class: "TListView", Name: "View", Bounds: layout.Rect{X: 6, Y: 33, W: 408, H: 138},
 				Props: map[string]string{"TabOrder": "1"}},
 			{Class: "TLabel", Name: "NameLabel", Caption: "File &name:", Bounds: layout.Rect{X: 8, Y: 183, W: 50, H: 13}},
@@ -208,6 +236,7 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 	w.find("NameLabel").(*label).focusControl = f.name
 	w.find("TypeLabel").(*label).focusControl = f.types
 	f.view.images = a.res.fileIcons()
+	f.lookIn.images = a.res.fileIcons()
 
 	f.up = &toolButton{glyph: glyphUp, onPress: f.upOneLevel}
 	addWidget(w, f.up, image.Rect(280, 4, 303, 26))
@@ -245,13 +274,17 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 	return f
 }
 
+// lookInIndent is the look-in list's indent for each level of folders.
+const lookInIndent = 10
+
 // navigate shows a folder.
 func (f *fileDialog) navigate(dir string) {
 	if st, err := f.files.Stat(dir); err != nil || !st.Dir {
 		return
 	}
 	f.dir = dir
-	// Look in: the roots, with the folder's ancestors under its own.
+	// Look in: the roots, with the folder's ancestors under its own, each
+	// indented under its parent.
 	f.dirs = nil
 	var chain []string
 	for d := dir; ; d = f.files.Dir(d) {
@@ -262,28 +295,33 @@ func (f *fileDialog) navigate(dir string) {
 	}
 	slices.Reverse(chain)
 	var items []string
+	var icons, indents []int
+	add := func(d string, depth int) {
+		name, icon := f.files.Base(d), fileIconFolder
+		if depth == 0 {
+			name, icon = d, fileIconDrive
+		}
+		f.dirs = append(f.dirs, d)
+		items = append(items, name)
+		icons = append(icons, icon)
+		indents = append(indents, depth*lookInIndent)
+	}
+	roots := f.files.Roots()
+	if !slices.Contains(roots, chain[0]) { // a root the storage doesn't list
+		roots = append(roots, chain[0])
+	}
 	sel := 0
-	for _, root := range f.files.Roots() {
+	for _, root := range roots {
 		if root != chain[0] {
-			f.dirs = append(f.dirs, root)
-			items = append(items, root)
+			add(root, 0)
 			continue
 		}
 		for depth, d := range chain {
-			name := f.files.Base(d)
-			if depth == 0 {
-				name = d
-			}
-			f.dirs = append(f.dirs, d)
-			items = append(items, strings.Repeat("   ", depth)+name)
-			sel = len(items) - 1
+			add(d, depth)
 		}
+		sel = len(items) - 1
 	}
-	if len(f.dirs) == 0 { // a root the storage doesn't list
-		f.dirs, items = chain, chain
-		sel = len(chain) - 1
-	}
-	f.lookIn.items = items
+	f.lookIn.items, f.lookIn.icons, f.lookIn.indents = items, icons, indents
 	f.lookIn.index = sel
 	f.lookIn.invalidate()
 	f.list()
