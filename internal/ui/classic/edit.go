@@ -592,7 +592,7 @@ func (m *memo) layout() {
 	r := m.local().Inset(2)
 	m.scroll.r = image.Rect(r.Max.X-scrollSize, r.Min.Y, r.Max.X, r.Max.Y)
 	m.scroll.min, m.scroll.max = 0, len(m.wraps)-1
-	m.scroll.page = tr.Dy() / m.font.height()
+	m.scroll.page = (tr.Dy() - 2) / m.font.height()
 	m.scroll.set(m.scroll.pos)
 }
 
@@ -604,9 +604,10 @@ func (m *memo) paint(cv canvas) {
 	cv.sunken(r)
 	tr := m.textRect()
 	cv.fill(tr, m.color)
+	// The format rectangle is a pixel inside the client area.
 	in := cv.sub(tr)
 	for i := m.scroll.pos; i < len(m.wraps); i++ {
-		y := (i - m.scroll.pos) * m.font.height()
+		y := 1 + (i-m.scroll.pos)*m.font.height()
 		if y >= tr.Dy() {
 			break
 		}
