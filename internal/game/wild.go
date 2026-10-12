@@ -46,24 +46,29 @@ func (g *Game) FindPKMN() {
 		g.message(Information, "Using Mewtwo's psychic powers, you can fight any POKéMON you want to, and at any level. Please select which POKéMON to fight against, or click Random to face a random POKéMON.")
 		return
 	}
+
 	s := g.Rand.Random(386) + 1
 	for !g.wildAllowed(s) {
 		s = g.Rand.Random(386) + 1
 	}
+
 	// Each rule that applies draws a level; the last one counts.
 	l := g.Rand.Random(30) + 71
 	if !g.InDex[150] {
 		l = g.Rand.Random(30) + 61
 	}
+
 	if !g.BeatAsh {
 		l = g.Rand.Random(20) + 61
 	}
+
 	gp := g.GymProgress
 	for _, rule := range wildLevels {
 		if gp < rule.below {
 			l = g.Rand.Random(rule.n) + rule.base
 		}
 	}
+
 	g.BattleType = 2
 	g.StartWildBattle(s, l)
 }

@@ -58,6 +58,7 @@ func (g *Game) ClickMenu(name string) bool {
 	default:
 		return false
 	}
+
 	return true
 }
 
@@ -70,12 +71,15 @@ func (g *Game) available(name string) bool {
 			if !m.Enabled || !m.Visible {
 				continue
 			}
+
 			if m.Name == name || find(m.Items) {
 				return true
 			}
 		}
+
 		return false
 	}
+
 	return find(g.Menu)
 }
 

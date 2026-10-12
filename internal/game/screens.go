@@ -38,7 +38,9 @@ func (g *Game) SelectDex(k int) {
 }
 
 // CloseDex is "Close POKéDEX".
-func (g *Game) CloseDex() { g.Dex.Visible = false }
+func (g *Game) CloseDex() {
+	g.Dex.Visible = false
+}
 
 // DexMovesShown reports whether the POKéDEX shows species s's attacks:
 // once it is registered, or always with the Debug option.
@@ -65,6 +67,7 @@ func (g *Game) SelectTypes(species, attack int) {
 	if species >= -1 && species < len(g.Data.Species) {
 		g.Types.Species = species
 	}
+
 	if attack >= -1 && attack < len(g.Data.Moves) {
 		g.Types.Attack = attack
 	}
@@ -77,9 +80,11 @@ func (g *Game) TypeMultipliers() (first, second, total string, ok bool) {
 	if g.Types.Species < 0 || g.Types.Attack < 0 {
 		return "", "", "", false
 	}
+
 	sp, mv := g.species(g.Types.Species+1), g.move(g.Types.Attack+1)
 	a := float32(g.Data.Effect(mv.Type, sp.Types[0]))
 	b := float32(g.Data.Effect(mv.Type, sp.Types[1]))
+
 	return delphi.FloatToStr(float64(a)), delphi.FloatToStr(float64(b)), delphi.FloatToStr(float64(a * b)), true
 }
 

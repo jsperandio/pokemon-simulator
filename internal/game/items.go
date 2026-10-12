@@ -87,7 +87,9 @@ func (g *Game) showItems() {
 }
 
 // hideItems hides them (TForm5.HideButtons).
-func (g *Game) hideItems() { g.Stats.Items = false }
+func (g *Game) hideItems() {
+	g.Stats.Items = false
+}
 
 // enableItems enables the buttons of the items the player has, as the
 // battle allows (TForm5.EnableButtons).
@@ -96,13 +98,16 @@ func (g *Game) enableItems() {
 	for k, n := range []uint32{g.PokeBalls, g.GreatBalls, g.UltraBalls, g.MasterBalls, g.Potions, g.SuperPotions} {
 		e[k] = n != 0
 	}
+
 	noBalls := func() { e[PokeBall], e[GreatBall], e[UltraBall], e[MasterBall] = false, false, false, false }
 	if g.partyHas(150) && g.Main.EnemyImage == 149 {
 		noBalls() // one Mewtwo at a time
 	}
+
 	if g.InTrainerBattle || g.InWildBattle && len(g.Party()) == len(g.Owned) {
 		noBalls()
 	}
+
 	if g.InTournament {
 		e[Potion], e[SuperPotion] = false, false
 	}

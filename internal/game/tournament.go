@@ -29,14 +29,17 @@ var tiers = [...]struct {
 func (g *Game) enterTournament(tier int) {
 	t := tiers[tier]
 	ok := false
+
 	for _, m := range g.Party() {
 		if t.lo <= m.Level && m.Level <= t.hi {
 			ok = true
 		}
 	}
+
 	if !ok {
 		g.message(Warning, "None of your POKéMON meet the level requirements.")
 	}
+
 	if g.Money < t.fee && ok {
 		g.message(Information, "You don't have enough money!")
 	} else if ok {
@@ -118,6 +121,7 @@ func (g *Game) isEvolved(s int) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -126,10 +130,12 @@ func (g *Game) trainerName(i int) string {
 	if i < 0 || i >= len(g.TournamentTrainers) {
 		return ""
 	}
+
 	n := int(g.TournamentTrainers[i])
 	if n < 1 || n > len(g.Data.TrainerNames) {
 		return ""
 	}
+
 	return g.Data.TrainerNames[n-1]
 }
 
@@ -144,9 +150,11 @@ func (g *Game) handleTournament() {
 		g.StartTrainerBattle(g.TournamentSpecies[r], int(g.TournamentLevels[r]), g.trainerName(r))
 		g.InTournament = true
 	}
+
 	if r != 8 {
 		return
 	}
+
 	g.message(Information, "Congratulations! You beat "+g.trainerName(7)+"! You won the tournament! Now for the unveiling of your prize...")
 	g.recomputeLevels()
 	g.MinLevel, g.MaxLevel = 2, 100
@@ -156,6 +164,7 @@ func (g *Game) handleTournament() {
 	if len(g.Party()) == len(g.Owned) && tier == 6 && roll == 3 {
 		roll = g.Rand.Random(2) + 1 // no room for a POKéMON
 	}
+
 	g.message(Information, "You won "+g.prize(tier, roll)+"!")
 	switch (tier-1)*3 + roll {
 	case 1:
@@ -207,5 +216,6 @@ func (g *Game) prize(tier, roll int) string {
 	if i < 0 || i >= len(g.Data.Prizes) {
 		return ""
 	}
+
 	return g.Data.Prizes[i]
 }

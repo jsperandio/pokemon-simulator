@@ -213,18 +213,33 @@ func (g *Game) Party() []save.Slot { return g.File.Party() }
 // original's forms when they are created. The random generator is seeded
 // from the clock, as the original's Randomize did.
 func New(data *gamedata.Data, ui UI) *Game {
-	g := &Game{Data: data, UI: ui, Rand: &delphi.Rand{}}
+	g := &Game{
+		Data: data,
+		UI:   ui,
+		Rand: &delphi.Rand{},
+	}
+
 	g.Rand.Randomize()
 	g.Start.Visible = true
-	g.Main = MainWindow{Caption: Title, AttackIndex: -1, PickSpecies: -1, PickLevel: 100}
+
+	g.Main = MainWindow{
+		Caption:     Title,
+		AttackIndex: -1,
+		PickSpecies: -1,
+		PickLevel:   100,
+	}
+
 	g.Stats.PartyEnabled = true
 	g.Stats.ItemEnabled = [6]bool{true, true, true, true, true, true}
+
 	g.Info.Lines = []string{""} // Memo1's design-time text
+
 	g.Dex.Index = -1
 	g.Mart.Item = -1
 	g.Types.Species, g.Types.Attack = -1, -1
 	g.Corner.Prize, g.Corner.Number, g.Corner.Drawn = -1, -1, -1
 	g.buildMenu()
+
 	return g
 }
 
@@ -234,30 +249,42 @@ func (g *Game) species(s int) *gamedata.Species {
 	if sp := g.Data.SpeciesByID(s); sp != nil {
 		return sp
 	}
+
 	return &gamedata.Species{ID: s}
 }
 
 // name is SpeciesNames[s].
-func (g *Game) name(s int) string { return g.species(s).Name }
+func (g *Game) name(s int) string {
+	return g.species(s).Name
+}
 
 // member returns party member i (1-based).
-func (g *Game) member(i int) *save.Slot { return &g.Owned[i-1] }
+func (g *Game) member(i int) *save.Slot {
+	return &g.Owned[i-1]
+}
 
 // log adds a line to Battle Info.
 func (g *Game) log(line string) {
 	g.Info.Lines = append(g.Info.Lines, line)
+
 	if g.OnLog != nil {
 		g.OnLog(line)
 	}
 }
 
-func (g *Game) logf(format string, a ...any) { g.log(fmt.Sprintf(format, a...)) }
+func (g *Game) logf(format string, a ...any) {
+	g.log(fmt.Sprintf(format, a...))
+}
 
 // message shows a dialog with an OK button.
-func (g *Game) message(kind DialogKind, text string) { g.UI.Message(kind, false, text) }
+func (g *Game) message(kind DialogKind, text string) {
+	g.UI.Message(kind, false, text)
+}
 
 // confirm asks a Yes/No question (mtConfirmation).
-func (g *Game) confirm(text string) bool { return g.UI.Message(Confirmation, true, text) }
+func (g *Game) confirm(text string) bool {
+	return g.UI.Message(Confirmation, true, text)
+}
 
 // showInfo shows Battle Info; a hidden window clears its log as it shows
 // (TForm7.FormShow).
@@ -276,6 +303,7 @@ func (g *Game) partyHas(s int) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -285,11 +313,14 @@ func (g *Game) partyHas(s int) bool {
 func levelFor(level uint8, xp uint32) uint8 {
 	for level < 255 {
 		n := uint64(level) + 1
+
 		if n*n*n > uint64(xp) {
 			break
 		}
+
 		level++
 	}
+
 	return level
 }
 
@@ -297,8 +328,10 @@ func levelFor(level uint8, xp uint32) uint8 {
 // the 1,000,000 XP cap (EndBattle after a loss, the end of a tournament).
 func (g *Game) recomputeLevels() {
 	for i := range g.Party() {
+
 		m := &g.Owned[i]
 		m.Level = levelFor(m.Level, m.XP)
+
 		if m.XP > maxXP {
 			m.XP, m.Level = maxXP, 100
 		}

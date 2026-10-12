@@ -36,6 +36,7 @@ func (g *Game) setPlayer(name string) {
 	if name == "" {
 		name = "Ash"
 	}
+
 	g.PlayerName = name
 	g.Main.Caption = Title + " - " + name + " [" + fileName(g.SaveFile) + "]"
 	g.Stats.Name = name
@@ -64,6 +65,7 @@ func (g *Game) Load(file string, b []byte) error {
 	if err != nil {
 		return err
 	}
+
 	g.MinLevel, g.MaxLevel = 2, 100
 	g.SaveFile = file
 	g.File = *f
@@ -75,6 +77,7 @@ func (g *Game) Load(file string, b []byte) error {
 	g.show(StatsForm)
 	g.show(MainForm)
 	g.Start.Visible = false
+
 	return nil
 }
 
@@ -85,9 +88,11 @@ func (g *Game) Close() []byte {
 	if g.InTournament {
 		g.quitTournament()
 	}
+
 	if g.Main.Starters || !g.Main.Visible {
 		return nil
 	}
+
 	return g.Bytes()
 }
 
@@ -106,10 +111,12 @@ func (g *Game) ExportPage(now time.Time) []byte {
 		s := int(m.Species)
 		info.Party = append(info.Party, export.Member{Entry: export.Entry{Number: s, Name: g.name(s)}, Level: m.Level, XP: m.XP})
 	}
+
 	for s := 1; s < len(g.InDex); s++ {
 		if g.InDex[s] {
 			info.Dex = append(info.Dex, export.Entry{Number: s, Name: g.name(s)})
 		}
 	}
+
 	return export.Page(info)
 }
