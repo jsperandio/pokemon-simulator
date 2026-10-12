@@ -104,3 +104,57 @@ func TestMinimize(t *testing.T) {
 		t.Errorf("%d minimizes, start screen shown: %t", n, w.visible)
 	}
 }
+
+// A play's draws show one after another in "Lucky number" for a second,
+// the bet already paid in Statistics, with no input taken, and the last
+// one stays: the one the game counts.
+func TestCornerDraws(t *testing.T) {
+	ta := newTestApp(t)
+	ta.startGame()
+	ta.g.Money = 1000
+	ta.menu("Action1", "GameCorner1")
+	ta.wait(1)
+	c := ta.corner
+	radio := func(g *radioGroup, k int) {
+		r := g.buttonRect(k)
+		ta.click(widgetOrigin(g).Add(r.Min).Add(image.Pt(6, r.Dy()/2)))
+	}
+	radio(c.prize, 0)  // money
+	radio(c.number, 3) // on 3
+	ta.click(widgetOrigin(c.bet).Add(image.Pt(5, 5)))
+	ta.key(ebiten.KeyHome)
+	ta.frame(input{keys: []ebiten.Key{ebiten.KeyEnd}, mods: mods{shift: true}})
+	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
+	ta.typeText("100")
+	ta.clickOn(c.w, "Button1") // Draw number!
+	if ta.draws == nil {
+		t.Fatal("no draws show")
+	}
+	if got := ta.stats.counts["MoneyLbl"].caption; got != "900" {
+		t.Errorf("Statistics shows %s¥ during the draws, want the bet paid", got)
+	}
+	seen := map[int]bool{}
+	frames := 0
+	for ; ta.draws != nil && frames < 120; frames++ {
+		seen[c.drawn.index] = true
+		if frames == 20 {
+			ta.shot("51-corner-draws")
+			ta.clickOn(c.w, "Button2") // Close: no input meanwhile
+			frames += 2
+		}
+		ta.wait(1)
+	}
+	if frames < 57 || frames > 63 {
+		t.Errorf("the draws showed for %d frames, want about a second", frames)
+	}
+	if len(seen) < 8 {
+		t.Errorf("%d numbers shown", len(seen))
+	}
+	if !c.w.visible {
+		t.Error("Close worked during the draws")
+	}
+	ta.wait(1)
+	if c.drawn.index != ta.g.Corner.Drawn {
+		t.Errorf("%d shows, the game drew %d", c.drawn.index, ta.g.Corner.Drawn)
+	}
+}

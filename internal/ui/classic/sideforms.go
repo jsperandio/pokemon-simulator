@@ -6,6 +6,7 @@ import (
 	"image"
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
@@ -306,4 +307,47 @@ func (f *cornerForm) sync() {
 	f.prize.setIndex(g.Corner.Prize)
 	f.number.setIndex(g.Corner.Number)
 	f.drawn.setIndex(g.Corner.Drawn)
+}
+
+// drawTime is how long a play's draws show. The original repainted the
+// window for each of its 10,000 draws, which took a while; the port shows
+// them in a second.
+const drawTime = time.Second
+
+// showDraws shows a play's draws in "Lucky number", one after another, as
+// the original's loop did, before the game tells the result. It runs on
+// the handler's goroutine, which waits until the last draw shows; the
+// user interface takes no input meanwhile, as the original's didn't.
+func (a *App) showDraws(draws []int) {
+	done := make(chan struct{})
+	a.requests <- func() {
+		a.stats.freshen() // Form5.Freshen: the bet paid
+		a.draws = &drawShow{draws: draws, start: a.desk.now, done: func() {
+			close(done)
+			a.wait()
+		}}
+	}
+	<-done
+}
+
+// drawShow is a play's draws showing.
+type drawShow struct {
+	draws []int
+	start time.Time
+	done  func()
+}
+
+// tick shows the draw due at now; the last one ends the show.
+func (s *drawShow) tick(a *App, now time.Time) {
+	t := now.Sub(s.start)
+	i := len(s.draws) - 1
+	if t < drawTime {
+		i = int(int64(len(s.draws)) * int64(t) / int64(drawTime))
+	}
+	a.corner.drawn.setIndex(s.draws[i])
+	a.desk.dirty = true
+	if t >= drawTime {
+		a.draws = nil
+		s.done()
+	}
 }

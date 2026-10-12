@@ -57,6 +57,7 @@ type App struct {
 	music   musicPlayer
 	xfer    transfers   // the browser's uploads and downloads, on the web
 	fileDlg *fileDialog // the file dialog that shows, if one does
+	draws   *drawShow   // the Game Corner's draws, while they show
 
 	// A game handler runs on its own goroutine, taking turns with the
 	// user interface: while it runs, the user interface waits, and while
@@ -95,6 +96,7 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 	a.g = game.New(data, a)
 	a.buildForms()
 	a.g.OnShow = a.show
+	a.g.OnDraws = a.showDraws
 	a.load.begin()
 	return a, nil
 }
@@ -236,6 +238,10 @@ func (a *App) Update() error {
 
 // step runs a frame: the input, then the timers.
 func (a *App) step(in input, now time.Time) {
+	if a.draws != nil {
+		a.draws.tick(a, now) // and no input
+		return
+	}
 	a.desk.update(&in, now)
 	a.load.tick()
 	a.music.Update(a.g.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer

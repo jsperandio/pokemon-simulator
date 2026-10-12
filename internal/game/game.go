@@ -62,6 +62,10 @@ type Game struct {
 	// that is showing already.
 	OnShow func(w Window)
 
+	// OnDraws, if set, sees the Game Corner's draws of a play, which the
+	// original showed one by one before telling the result.
+	OnDraws func(draws []int)
+
 	// The battle (notes/state.md). The party indexes are 1-based, as in
 	// the original; 0 means none.
 	InWildBattle, InTrainerBattle, InTournament bool

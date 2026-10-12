@@ -233,8 +233,18 @@ func (g *Game) Draw() {
 		return
 	}
 	g.Money -= uint32(bet)
+	var draws []int
+	if g.OnDraws != nil {
+		draws = make([]int, 0, 10000)
+	}
 	for range 10000 { // the animation: the last draw counts
 		g.Corner.Drawn = g.Rand.Random(10)
+		if draws != nil {
+			draws = append(draws, g.Corner.Drawn)
+		}
+	}
+	if g.OnDraws != nil {
+		g.OnDraws(draws)
 	}
 	if g.Corner.Number != g.Corner.Drawn {
 		return
