@@ -733,6 +733,15 @@ func (c *comboBox) setIndex(i int) {
 	c.invalidate()
 }
 
+// reselect selects the item again, as a FormShow that refills the list
+// does (ItemIndex := -1, the items again, ItemIndex := k): the form isn't
+// active yet, so the text isn't selected.
+func (c *comboBox) reselect() {
+	k := c.index
+	c.setIndex(-1)
+	c.setIndex(k)
+}
+
 // pick selects item i as the player does: the text becomes the item,
 // all selected, and OnChange runs.
 func (c *comboBox) pick(i int) {

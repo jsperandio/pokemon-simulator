@@ -4,9 +4,13 @@ package classic
 
 import (
 	"image"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
+	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
 // The party list's hint shows after half a second on it, under the
@@ -171,5 +175,45 @@ func TestLoadingFits(t *testing.T) {
 		if got := w.find(name).base().r.Min.X; got != x {
 			t.Errorf("%s at x=%d, want %d", name, got, x)
 		}
+	}
+}
+
+// The POKéDEX is AutoSize: with no species selected, its panel hidden, it
+// is its list and its button, and it grows to the panel with one. Shown
+// again, its FormShow selects the species again, which leaves the text
+// unselected: the focus is on the button that closed it.
+func TestDexFits(t *testing.T) {
+	f := save.File{PlayerName: "Gary", PokeBalls: 3}
+	f.Owned[0] = save.Slot{Species: 4, Level: 5, XP: 125}
+	f.InDex[4] = true
+	dir := t.TempDir()
+	file := filepath.Join(dir, "dex.pgs")
+	if err := os.WriteFile(file, f.Bytes(), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ta := newTestAppIn(t, dir, []string{file})
+	ta.wait(80)
+	ta.menu("Action1", "ViewDEX1")
+	ta.wait(1)
+	dex := ta.dex
+	if dex.w.client != image.Pt(241, 25) {
+		t.Errorf("client %v with no selection, want 241×25", dex.w.client)
+	}
+	c := dex.combo
+	b := c.button()
+	ta.click(widgetOrigin(c).Add(b.Min).Add(b.Size().Div(2)))
+	ta.click(c.dropped.r.Min.Add(image.Pt(5, 1+3*c.itemHeight+c.itemHeight/2)))
+	ta.wait(1)
+	if dex.w.client != image.Pt(241, 161) || c.index != 3 {
+		t.Errorf("client %v with species %d, want 241×161 with Charmander", dex.w.client, c.index+1)
+	}
+	ta.clickOn(dex.w, "Button1")
+	ta.menu("Action1", "ViewDEX1")
+	ta.wait(1)
+	if from, to := c.tb.sel(); from != to || c.tb.String() != "Charmander (#004)" {
+		t.Errorf("text %q, selected from %d to %d; want Charmander's, unselected", c.tb.String(), from, to)
+	}
+	if dex.w.focus != dex.w.find("Button1") {
+		t.Error("the focus left the button")
 	}
 }

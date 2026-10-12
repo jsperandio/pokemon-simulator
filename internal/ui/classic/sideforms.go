@@ -134,6 +134,7 @@ func newDexForm(a *App) *dexForm {
 	f.panel = get[*panel](f.w, "Panel1")
 	f.image = get[*listView](f.w, "ListView1")
 	f.combo.items = a.dexItems() // FormShow
+	f.w.onShow = f.combo.reselect
 	f.combo.onSelect = func(i int) { a.g.SelectDex(i) }
 	get[*button](f.w, "Button1").onClick = func() { a.g.CloseDex() }
 	a.desk.add(f.w)
@@ -236,6 +237,10 @@ func newTypesForm(a *App) *typesForm {
 	}
 	for _, mv := range g.Data.Moves {
 		f.attack.items = append(f.attack.items, mv.Name+", "+g.Data.TypeName(mv.Type))
+	}
+	f.w.onShow = func() {
+		f.species.reselect()
+		f.attack.reselect()
 	}
 	f.species.onSelect = func(i int) { g.SelectTypes(i, g.Types.Attack) }
 	f.attack.onSelect = func(i int) { g.SelectTypes(g.Types.Species, i) }
