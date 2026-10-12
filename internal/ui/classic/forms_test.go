@@ -63,3 +63,19 @@ func TestStatsHint(t *testing.T) {
 		t.Fatal("a hint off the list")
 	}
 }
+
+// The start screen's minimize button minimizes the program's window.
+func TestMinimize(t *testing.T) {
+	ta := newTestApp(t)
+	n := 0
+	ta.desk.onMinimize = func() { n++ }
+	ta.wait(80)
+	w := ta.start.w
+	if !w.minBox {
+		t.Fatal("the start screen has no minimize button")
+	}
+	ta.click(w.captionButton(capMin).Min.Add(image.Pt(4, 4)))
+	if n != 1 || !w.visible {
+		t.Errorf("%d minimizes, start screen shown: %t", n, w.visible)
+	}
+}

@@ -88,6 +88,8 @@ type desktop struct {
 	altAlone   bool // Alt is down and no other key came with it
 	caretOn    bool // the caret's phase when last painted
 	hint       hint
+
+	onMinimize func() // a minimize button: the program's window
 }
 
 func newDesktop(res *resources) *desktop {
@@ -553,6 +555,10 @@ func (d *desktop) mouseUp(p image.Point) {
 			case capMax:
 				if w.maxBox {
 					w.toggleMaximize()
+				}
+			case capMin:
+				if w.minBox && d.onMinimize != nil {
+					d.onMinimize()
 				}
 			}
 		}

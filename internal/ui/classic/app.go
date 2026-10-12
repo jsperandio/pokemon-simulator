@@ -91,6 +91,7 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 	if platform.Transfers {
 		a.xfer = browser{files}
 	}
+	a.desk.onMinimize = ebiten.MinimizeWindow
 	a.g = game.New(data, a)
 	a.buildForms()
 	a.g.OnShow = a.show
