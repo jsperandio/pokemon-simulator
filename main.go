@@ -24,15 +24,15 @@ import (
 func main() {
 	raw, err := assets.FS.ReadFile("pokegame.dat")
 	if err != nil {
-		log.Fatal(err)
+		fail(err)
 	}
 	data, err := gamedata.Load(raw)
 	if err != nil {
-		log.Fatal(err)
+		fail(err)
 	}
 	app, err := classic.New(data, platform.Default(), platform.Args())
 	if err != nil {
-		log.Fatal(err)
+		fail(err)
 	}
 	ebiten.SetWindowSize(classic.WindowSize())
 	ebiten.SetWindowTitle(game.Title)
@@ -40,6 +40,13 @@ func main() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowClosingHandled(true)
 	if err := ebiten.RunGame(app); err != nil && !errors.Is(err, ebiten.Termination) {
-		log.Fatal(err)
+		fail(err)
 	}
+}
+
+// fail tells the player why the game stopped, also where there is no
+// terminal to read it in, as when it was started from an icon, and ends it.
+func fail(err error) {
+	platform.Alert(game.Title, "The game stopped because of an error:\n\n"+err.Error())
+	log.Fatal(err)
 }
