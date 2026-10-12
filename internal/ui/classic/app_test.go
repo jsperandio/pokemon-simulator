@@ -398,3 +398,23 @@ func TestMusicMenu(t *testing.T) {
 	ta.shot("42-cannot-play")
 	ta.answer("Cannot play song.ogg. Only MP3, Ogg Vorbis and WAV files can be played.")
 }
+
+// A menu's keys type nothing in the dialog they open: Alt+M, then O,
+// whose character comes in the same frame as the key.
+func TestMenuKeysTypeNothing(t *testing.T) {
+	ta := newTestApp(t)
+	ta.music = &fakeMusic{}
+	ta.startGame()
+	ta.frame(input{keys: []ebiten.Key{ebiten.KeyAltLeft}, mods: mods{alt: true}})
+	ta.frame(input{keys: []ebiten.Key{ebiten.KeyM}, chars: []rune{'m'}, mods: mods{alt: true}})
+	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}})
+	ta.frame(input{keys: []ebiten.Key{ebiten.KeyO}, chars: []rune{'o'}})
+	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyO}})
+	top := ta.desk.topModal()
+	if top == nil || top.caption != "Open" {
+		t.Fatalf("no Open dialog: %v", top)
+	}
+	if got := top.find("FileName").(*edit).text(); got != "" {
+		t.Errorf("the file name box has %q", got)
+	}
+}

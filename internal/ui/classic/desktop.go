@@ -319,10 +319,16 @@ func (d *desktop) update(in *input, now time.Time) {
 	if in.wheel != 0 {
 		d.wheel(p, in.wheel)
 	}
+	// The characters the keys type go to the active window, unless the
+	// menu took the keys, or they opened another window: a menu's loop
+	// eats its characters, as a dialog the menu opens doesn't get them.
+	active, menu := d.active, false
 	for _, k := range in.keys {
+		menu = menu || d.menu != nil
 		d.keyDown(k, in.mods)
+		menu = menu || d.menu != nil
 	}
-	if !in.mods.alt && !in.mods.ctrl {
+	if !in.mods.alt && !in.mods.ctrl && !menu && d.active == active {
 		for _, r := range in.chars {
 			d.char(r, in.mods)
 		}
