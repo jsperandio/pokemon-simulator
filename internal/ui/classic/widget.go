@@ -9,6 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"github.com/jsperandio/pokemon-simulator/internal/delphi"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
@@ -758,6 +759,15 @@ func (g *gauge) set(top, progress int, fore color.RGBA) {
 	}
 }
 
+// oneHundredth is the Extended constant 0.01 of SolveForX.
+var oneHundredth = delphi.NewExtended(1).Quo(delphi.NewExtended(100))
+
+// solveForX is Gauges.SolveForX: Trunc(z × (y × 0.01)), on the x87.
+func solveForX(y, z int) int {
+	p := delphi.NewExtended(float64(y)).Mul(oneHundredth)
+	return int(delphi.NewExtended(float64(z)).Mul(p).Int().Float64())
+}
+
 // percent is PercentDone: Trunc(done × 100 / range).
 func (g *gauge) percent() int {
 	if g.max == g.min {
@@ -772,10 +782,9 @@ func (g *gauge) paint(cv canvas) {
 	in := r.Inset(1)        // bsSingle
 	cv.fill(in, g.back)
 	// PaintAsBar: W is one pixel wider than the inside, and the bar's right
-	// edge is FillSize itself; SolveForX multiplies by a Single 0.01.
+	// edge is FillSize itself.
 	w := in.Dx() + 1
-	fill := int(float64(w) * (float64(g.percent()) * float64(float32(0.01))))
-	fill = min(fill, w)
+	fill := min(solveForX(g.percent(), w), w)
 	if fill > 0 {
 		cv.fill(image.Rect(in.Min.X, in.Min.Y, fill, in.Max.Y).Intersect(in), g.fore)
 	}
