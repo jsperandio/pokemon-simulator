@@ -4,7 +4,7 @@ A faithful, cross-platform port of **POKéMON Simulator V4.5** to [Go](https://g
 
 The original only runs on Windows, or on other systems through Wine. This port makes it playable again on Linux, Windows, macOS and in the browser, with the same rules, data and look.
 
-> **Status:** early development. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The user interface isn't done, so the game is not playable yet.
+> **Status:** in development. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays on the desktop, from the start screen to a saved game; the help, the music and the browser version are still to come.
 
 ## Building
 
