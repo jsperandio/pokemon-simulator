@@ -7,3 +7,6 @@
 # Never commit the original game's binaries or help file
 *.exe
 *.[Hh][Ll][Pp]
+
+# Windows resources that make dist generates for a build
+/rsrc_windows_*.syso
