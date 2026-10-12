@@ -25,6 +25,7 @@ func (g *Game) NewGame(file, name string) {
 	g.Start.Visible = false
 	g.setPlayer(name)
 	g.Main.Visible = true
+	g.show(MainForm)
 	g.InDex = [save.NumSpecies + 1]bool{}
 	g.Main.Starters = true
 	g.enable(false, "File1", "Action1")
@@ -50,6 +51,8 @@ func (g *Game) ChooseStarter(k int) {
 	g.Main.Starters = false
 	g.enable(true, "File1", "Action1")
 	g.Stats.Visible = true
+	g.show(StatsForm)
+	g.show(MainForm)
 }
 
 // Load starts the game saved in b, read from file: from the start screen's
@@ -69,6 +72,8 @@ func (g *Game) Load(file string, b []byte) error {
 	g.unlockAll()
 	g.Stats.Visible = true
 	g.Main.Visible = true
+	g.show(StatsForm)
+	g.show(MainForm)
 	g.Start.Visible = false
 	return nil
 }

@@ -5,6 +5,7 @@ package game
 import (
 	"bytes"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -208,4 +209,84 @@ func TestExportPage(t *testing.T) {
 	if got := g.ExportPage(time.Date(2026, 10, 11, 17, 32, 51, 0, time.Local)); !bytes.Equal(got, want) {
 		t.Errorf("the page differs from the original's:\n%s", got)
 	}
+}
+
+// uiFunc answers dialogs with a function.
+type uiFunc func(kind DialogKind, yesNo bool, text string) bool
+
+func (f uiFunc) Message(kind DialogKind, yesNo bool, text string) bool { return f(kind, yesNo, text) }
+
+// The arena shows what the original's labels and gauges showed, which
+// lags the battle (notes/battle.md).
+func TestArenaShows(t *testing.T) {
+	g, _ := newGame(t)
+	g.NewGame("ash.pgs", "Ash")
+	g.ChooseStarter(1) // Charmander, L.5
+	var during MainWindow
+	g.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
+		if text == choosePrompt {
+			during = g.Main
+		}
+		return true
+	})
+	g.StartWildBattle(25, 7) // Pikachu, L.7
+	if during.Enemy != (Shown{25, 7, 70}) || during.EnemyMoves != (Shown{}) {
+		t.Errorf("during %q: enemy %v, attacks of %v", choosePrompt, during.Enemy, during.EnemyMoves)
+	}
+	if g.Main.EnemyMoves != g.Main.Enemy || g.Main.Pokeball {
+		t.Errorf("after it: attacks of %v, POKéBall %v", g.Main.EnemyMoves, g.Main.Pokeball)
+	}
+	g.ClickParty(0)
+	if g.Main.Own != (Shown{4, 5, 50}) {
+		t.Errorf("fighter %v", g.Main.Own)
+	}
+	g.Main.AttackIndex = 0
+	g.Go()
+	if g.Main.Enemy.HP != g.EnemyHP || g.Main.Own.HP != g.OwnHP || g.EnemyHP == 70 {
+		t.Errorf("after a turn: shows %d and %d HP, has %d and %d", g.Main.Enemy.HP, g.Main.Own.HP, g.EnemyHP, g.OwnHP)
+	}
+	g.Main.AttackIndex = 4 // Run!
+	g.Go()
+	g.EndFight()
+	if g.Main.Own != (Shown{}) || g.Main.Enemy.Species != 25 {
+		t.Errorf("after the battle: fighter %v, enemy %v", g.Main.Own, g.Main.Enemy)
+	}
+	g.StartWildBattle(4, 5) // Charmander is in the POKéDEX
+	if !g.Main.Pokeball {
+		t.Error("no POKéBall for a registered species")
+	}
+}
+
+func TestGaugeColor(t *testing.T) {
+	for _, c := range []struct {
+		hp, level int
+		want      GaugeColor
+	}{
+		{50, 5, Green}, {26, 5, Green}, {25, 5, Yellow}, {13, 5, Yellow}, {12, 5, Red}, {0, 5, Red}, {-3, 5, Red},
+	} {
+		if got := gaugeColor(c.hp, c.level); got != c.want {
+			t.Errorf("gaugeColor(%d, %d) = %d, want %d", c.hp, c.level, got, c.want)
+		}
+	}
+}
+
+func TestShowOrder(t *testing.T) {
+	g, _ := newGame(t)
+	var shown []Window
+	g.OnShow = func(w Window) { shown = append(shown, w) }
+	check := func(what string, want ...Window) {
+		t.Helper()
+		if !slices.Equal(shown, want) {
+			t.Errorf("%s shows %v, want %v", what, shown, want)
+		}
+		shown = nil
+	}
+	g.NewGame("ash.pgs", "Ash")
+	check("NewGame", MainForm)
+	g.ChooseStarter(0)
+	check("ChooseStarter", DexForm, StatsForm, MainForm)
+	g.StartWildBattle(25, 7)
+	check("StartWildBattle", InfoForm)
+	g.OpenDex()
+	check("OpenDex", DexForm)
 }

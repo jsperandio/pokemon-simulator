@@ -57,6 +57,11 @@ type Game struct {
 	// OnLog, if set, sees every line added to Battle Info.
 	OnLog func(line string)
 
+	// OnShow, if set, sees every window the original shows with Show, in
+	// order: Show brings a window to the front and activates it, even one
+	// that is showing already.
+	OnShow func(w Window)
+
 	// The battle (notes/state.md). The party indexes are 1-based, as in
 	// the original; 0 means none.
 	InWildBattle, InTrainerBattle, InTournament bool
@@ -92,6 +97,27 @@ type Game struct {
 	menu map[string]*MenuItem // Menu by item name
 }
 
+// Window is one of the original's windows, for OnShow.
+type Window int
+
+// The windows the game shows.
+const (
+	MainForm   Window = iota // the game window (Form4)
+	StatsForm                // Statistics (Form5)
+	InfoForm                 // Battle Info (Form7)
+	DexForm                  // the POKéDEX (Form8)
+	MartForm                 // the Mart (Form9)
+	TypesForm                // Type Comparisons (FormA)
+	CornerForm               // the Game Corner (FormB)
+)
+
+// show tells the user interface that the original shows window w here.
+func (g *Game) show(w Window) {
+	if g.OnShow != nil {
+		g.OnShow(w)
+	}
+}
+
 // StartScreen is the start screen (Form1).
 type StartScreen struct {
 	Visible bool
@@ -111,6 +137,19 @@ type MainWindow struct {
 	AttackIndex int  // RadioGroup1.ItemIndex: 0–3 an attack, 4 "Run!", -1 none
 	EnemyImage  int  // ListView3's image: the enemy's species − 1
 
+	// What the arena shows, set where the original sets its labels and
+	// gauges, so it can lag the battle: a Potion's HP shows only once the
+	// enemy has attacked, and the enemy's attacks only once the player has
+	// read "Select a POKéMON".
+	Enemy      Shown // Label3, Label9, Gauge2's progress and GroupBox2's caption
+	EnemyMoves Shown // whose attacks Label4–7 list; Gauge2 sits after its Label3
+	Own        Shown // Label2, Label8, Gauge1, ListView2 and RadioGroup1's attacks
+	Pokeball   bool  // Image1: the wild POKéMON is already in the POKéDEX
+
+	// The HP gauges' colours (Gauge2, Gauge1), which only the attacks
+	// set: a new battle starts with the last one's colours.
+	EnemyColor, OwnColor GaugeColor
+
 	// The Mewtwo-power picker (ComboBox1, SpinEdit1 and Button2–4).
 	Picker      bool
 	PickSpecies int // ComboBox1.ItemIndex: species − 1, or -1
@@ -120,6 +159,36 @@ type MainWindow struct {
 	// shown while Choices isn't empty; Choices[0] is "Don't evolve".
 	Choices []string
 	Choice  int // EvolveChoice.ItemIndex
+}
+
+// Shown is a fighter as the arena shows it. Species 0 is none: the
+// arena's design-time text, or no fighter chosen.
+type Shown struct {
+	Species, Level int
+	HP             int // of Level × 10
+}
+
+// GaugeColor is an HP gauge's colour.
+type GaugeColor int
+
+// Gauge colours.
+const (
+	Green GaugeColor = iota
+	Yellow
+	Red
+)
+
+// gaugeColor is the colour an attack gives an HP gauge: yellow at half
+// the maximum or less, red at a quarter or less. The original divides in
+// Single; with whole HP up to 1000, comparing products is the same.
+func gaugeColor(hp, level int) GaugeColor {
+	switch maxHP := level * 10; {
+	case 4*hp <= maxHP:
+		return Red
+	case 2*hp <= maxHP:
+		return Yellow
+	}
+	return Green
 }
 
 // StatsWindow is the Statistics window (Form5): the party and the items.
@@ -197,6 +266,7 @@ func (g *Game) showInfo() {
 		g.Info.Visible = true
 		g.Info.Lines = nil
 	}
+	g.show(InfoForm)
 }
 
 // partyHas reports whether species s is in the party.

@@ -25,9 +25,11 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.showInfo()
 	g.log(trainer + " wants to fight!")
 	g.log(trainer + " sent out " + g.name(species) + "!")
+	g.Main.Enemy = Shown{species, level, level * 10}
 	g.Main.EnemyImage = species - 1
 	g.Main.Attacks = false
 	g.message(Information, choosePrompt)
+	g.Main.EnemyMoves = g.Main.Enemy
 }
 
 // StartWildBattle starts a battle against a wild POKéMON. BattleType is
@@ -41,10 +43,13 @@ func (g *Game) StartWildBattle(species, level int) {
 	g.EnemyHP = level * 10
 	g.EnemyLevel = uint8(level)
 	g.log("Wild " + g.name(species) + " appeared!")
+	g.Main.Enemy = Shown{species, level, level * 10}
 	g.Main.EnemyImage = species - 1
 	g.message(Information, choosePrompt)
 	g.Main.Attacks = false
+	g.Main.EnemyMoves = g.Main.Enemy
 	g.EnemySpecies = species
+	g.Main.Pokeball = g.InDex[species]
 }
 
 // ClickParty is a double click on party member k (0-based) in the
@@ -92,6 +97,7 @@ func (g *Game) choose(i int) {
 	g.Main.Attacks = true
 	g.enable(false, "File1")
 	g.OwnHP = int(m.Level) * 10
+	g.Main.Own = Shown{int(m.Species), int(m.Level), g.OwnHP}
 	g.OwnIndex = i
 	g.Fights++
 }
@@ -146,9 +152,11 @@ func (g *Game) ownAttack(k int) {
 	d := g.hit(r, mv, int(m.Level), crit, enemy)
 	g.logf("%s did %d points of damage to enemy %s.", own.Name, d, enemy.Name)
 	g.EnemyHP -= d
+	g.Main.EnemyColor = gaugeColor(g.EnemyHP, int(g.EnemyLevel))
 	if g.EnemyHP < 0 {
 		g.EnemyHP = 0
 	}
+	g.Main.Enemy.HP = g.EnemyHP
 	if g.EnemyHP < 1 {
 		g.victory()
 	}
@@ -171,9 +179,11 @@ func (g *Game) oppAttack() {
 	d := g.hit(r, mv, int(g.EnemyLevel), crit, own)
 	g.logf("Enemy %s did %d points of damage to %s.", enemy.Name, d, own.Name)
 	g.OwnHP -= d
+	g.Main.OwnColor = gaugeColor(g.OwnHP, int(m.Level))
 	if g.OwnHP < 0 {
 		g.OwnHP = 0
 	}
+	g.Main.Own.HP = g.OwnHP
 	if g.OwnHP < 1 {
 		g.BattleType = 0
 		g.battleOver()
@@ -320,6 +330,7 @@ func (g *Game) EndFight() {
 	g.Info.Visible = false
 	g.Main.Battle = false
 	g.Stats.PartyEnabled = true
+	g.Main.Own = Shown{}
 	g.Main.Attacks = false
 	g.eliteFour()
 	if 10 < g.BattleType && g.BattleType < 70 {

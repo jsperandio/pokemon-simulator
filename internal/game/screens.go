@@ -18,11 +18,15 @@ type DexWindow struct {
 }
 
 // OpenDex is Actions → View POKéDEX (it keeps its selection).
-func (g *Game) OpenDex() { g.Dex.Visible = true }
+func (g *Game) OpenDex() {
+	g.Dex.Visible = true
+	g.show(DexForm)
+}
 
 // ShowDex opens the POKéDEX on species k+1, as a new species does.
 func (g *Game) ShowDex(k int) {
 	g.Dex.Visible = true
+	g.show(DexForm)
 	g.SelectDex(k)
 }
 
@@ -51,7 +55,10 @@ type TypesWindow struct {
 
 // OpenTypes is Actions → Type Comparisons (both lists keep their
 // selection).
-func (g *Game) OpenTypes() { g.Types.Visible = true }
+func (g *Game) OpenTypes() {
+	g.Types.Visible = true
+	g.show(TypesForm)
+}
 
 // SelectTypes selects a species and an attack (-1 for none) to compare.
 func (g *Game) SelectTypes(species, attack int) {
@@ -95,6 +102,7 @@ var MartPrices = [5]uint32{1000, 3000, 6000, 2000, 5000}
 // OpenMart is Actions → Buy Items.
 func (g *Game) OpenMart() {
 	g.Mart = MartWindow{Visible: true, Item: -1, Total: "0¥"}
+	g.show(MartForm)
 }
 
 // martTotal is the price of the order, wrapping at 2³² as the original's
@@ -181,6 +189,7 @@ func (g *Game) OpenCorner() {
 	g.Corner.Bet = 0
 	g.Corner.Prize = -1
 	g.Corner.MaxBet = int(g.Money)
+	g.show(CornerForm)
 }
 
 // SelectPrize selects what to play for (0 money, then CornerPrizes).
