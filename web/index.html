@@ -4,27 +4,42 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>POKéMON Simulator</title>
+  <link rel="icon" href="favicon.png">
   <style>
     html, body { margin: 0; height: 100%; background: #008080; }
-    .ended {
+    .message {
       display: flex; height: 100%; margin: 0; align-items: center; justify-content: center;
       color: #fff; font: 16px sans-serif;
     }
-    .ended a { color: #ff0; margin-left: 0.5em; }
+    .message a { color: #ff0; margin-left: 0.5em; }
   </style>
 </head>
 <body>
+  <p class="message" id="loading">Loading POKéMON Simulator...</p>
   <script src="wasm_exec.js"></script>
   <script>
     const go = new Go();
+    // message replaces the page with a line of text.
+    const message = (text) => {
+      document.body.removeAttribute("style");
+      document.body.innerHTML = '<p class="message"></p>';
+      document.body.firstChild.textContent = text;
+    };
     WebAssembly.instantiateStreaming(fetch("pokemon-simulator.wasm"), go.importObject)
-      .then((result) => go.run(result.instance))
+      .then((result) => {
+        // The game's canvas takes the page.
+        document.getElementById("loading").remove();
+        return go.run(result.instance);
+      })
       .then(() => {
         // The game ended, and its window with it, as the program's did.
-        document.body.removeAttribute("style");
-        document.body.innerHTML = '<p class="ended">The game has ended.<a href="">Play again</a></p>';
+        message("The game has ended.");
+        const again = document.createElement("a");
+        again.href = "";
+        again.textContent = "Play again";
+        document.body.firstChild.append(again);
       })
-      .catch((err) => { document.body.textContent = "Failed to load the game: " + err; });
+      .catch((err) => message("Failed to load the game: " + err));
   </script>
 </body>
 </html>

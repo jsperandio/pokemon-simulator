@@ -79,6 +79,7 @@ web:
 	mkdir -p $(DIST)/web
 	GOOS=js GOARCH=wasm go build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/web/$(BINARY).wasm .
 	cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" web/index.html $(DIST)/web/
+	cp assets/sprites/icon.png $(DIST)/web/favicon.png
 
 serve: web
 	@echo "Serving $(DIST)/web at http://localhost:8080"
