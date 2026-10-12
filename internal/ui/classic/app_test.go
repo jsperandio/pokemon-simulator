@@ -418,3 +418,21 @@ func TestMenuKeysTypeNothing(t *testing.T) {
 		t.Errorf("the file name box has %q", got)
 	}
 }
+
+// Alt and a letter that come down in the same frame open the menu, which
+// releasing Alt leaves open. Ebitengine lists them letter first.
+func TestAltAndLetterInOneFrame(t *testing.T) {
+	ta := newTestApp(t)
+	ta.music = &fakeMusic{}
+	ta.startGame()
+	ta.frame(input{keys: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}, chars: []rune{'m'}, mods: mods{alt: true}})
+	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}})
+	if ta.desk.menu == nil {
+		t.Fatal("releasing Alt closed the menu")
+	}
+	ta.frame(input{keys: []ebiten.Key{ebiten.KeyO}, chars: []rune{'o'}})
+	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyO}})
+	if top := ta.desk.topModal(); top == nil || top.caption != "Open" {
+		t.Fatalf("no Open dialog: %v", top)
+	}
+}

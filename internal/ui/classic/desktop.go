@@ -3,6 +3,7 @@
 package classic
 
 import (
+	"cmp"
 	"image"
 	"slices"
 	"time"
@@ -319,6 +320,12 @@ func (d *desktop) update(in *input, now time.Time) {
 	if in.wheel != 0 {
 		d.wheel(p, in.wheel)
 	}
+	// Keys that come down in the same frame come in key code order, the
+	// letters before Alt; the modifiers go first, as they were pressed
+	// before the keys they modify. Alt+M in one frame isn't Alt alone.
+	slices.SortStableFunc(in.keys, func(a, b ebiten.Key) int {
+		return cmp.Compare(keyOrder(a), keyOrder(b))
+	})
 	// The characters the keys type go to the active window, unless the
 	// menu took the keys, or they opened another window: a menu's loop
 	// eats its characters, as a dialog the menu opens doesn't get them.
@@ -667,6 +674,16 @@ func keyRune(k ebiten.Key) rune {
 		return '0' + rune(k-ebiten.KeyDigit0)
 	}
 	return 0
+}
+
+// keyOrder is 0 for the modifier keys and 1 for the others.
+func keyOrder(k ebiten.Key) int {
+	switch k {
+	case ebiten.KeyAltLeft, ebiten.KeyAltRight, ebiten.KeyControlLeft, ebiten.KeyControlRight,
+		ebiten.KeyShiftLeft, ebiten.KeyShiftRight, ebiten.KeyMetaLeft, ebiten.KeyMetaRight:
+		return 0
+	}
+	return 1
 }
 
 // tick runs what time drives: auto-repeat, the menus' delays and the
