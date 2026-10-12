@@ -11,22 +11,47 @@ import (
 	"time"
 )
 
-// memory keeps the files in memory, under "/".
+// memory keeps the files in memory, under "/", and in the browser's
+// IndexedDB, where they outlast the page: they are read from it when the
+// game starts, and each change is written to it at once.
 type memory struct {
 	mu    sync.Mutex
 	files map[string][]byte    // by clean path
 	dirs  map[string]time.Time // the folders, "/" included
 	times map[string]time.Time
+	db    *database // nil when the browser keeps nothing
 }
 
-var store = &memory{
-	files: map[string][]byte{},
-	dirs:  map[string]time.Time{"/": time.Now()},
-	times: map[string]time.Time{},
+func newMemory() *memory {
+	return &memory{
+		files: map[string][]byte{},
+		dirs:  map[string]time.Time{"/": time.Now()},
+		times: map[string]time.Time{},
+	}
 }
 
-// Default returns the platform's storage: here, the browser's.
-func Default() Files { return store }
+var (
+	store     = newMemory()
+	storeOnce sync.Once
+)
+
+// Default returns the platform's storage: here, the browser's. The first
+// call reads the files the browser kept; without IndexedDB, the files
+// last as long as the page.
+func Default() Files {
+	storeOnce.Do(func() {
+		db, err := openDatabase()
+		if err == nil {
+			err = db.load(store)
+		}
+		if err != nil {
+			warn("POKéMON Simulator: the saved games won't outlast this page: " + err.Error())
+			return
+		}
+		store.db = db
+	})
+	return store
+}
 
 func (m *memory) Home() string    { return "/" }
 func (m *memory) Roots() []string { return []string{"/"} }
@@ -77,25 +102,59 @@ func (m *memory) ReadFile(p string) ([]byte, error) {
 
 func (m *memory) WriteFile(p string, data []byte) error {
 	m.mu.Lock()
-	defer m.mu.Unlock()
 	p = path.Clean(p)
 	if _, ok := m.dirs[path.Dir(p)]; !ok {
+		m.mu.Unlock()
 		return ErrNotExist
 	}
+	now := time.Now()
 	m.files[p] = append([]byte(nil), data...)
-	m.times[p] = time.Now()
-	return nil
+	m.times[p] = now
+	db := m.db
+	m.mu.Unlock()
+	if db == nil {
+		return nil
+	}
+	return db.put(p, false, now, data)
 }
 
 func (m *memory) Mkdir(p string) error {
 	m.mu.Lock()
-	defer m.mu.Unlock()
 	p = path.Clean(p)
 	if _, ok := m.dirs[path.Dir(p)]; !ok {
+		m.mu.Unlock()
 		return ErrNotExist
 	}
-	m.dirs[p] = time.Now()
-	return nil
+	now := time.Now()
+	m.dirs[p] = now
+	db := m.db
+	m.mu.Unlock()
+	if db == nil {
+		return nil
+	}
+	return db.put(p, true, now, nil)
+}
+
+// restore adds a file or folder read from the database, and the folders
+// it is in.
+func (m *memory) restore(p string, dir bool, t time.Time, data []byte) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	p = path.Clean(p)
+	if !strings.HasPrefix(p, "/") {
+		return
+	}
+	for d := path.Dir(p); d != "/"; d = path.Dir(d) {
+		if _, ok := m.dirs[d]; !ok {
+			m.dirs[d] = t
+		}
+	}
+	if dir {
+		m.dirs[p] = t
+		return
+	}
+	m.files[p] = data
+	m.times[p] = t
 }
 
 func (m *memory) Join(dir, name string) string { return path.Join(dir, name) }
