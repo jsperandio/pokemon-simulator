@@ -15,6 +15,9 @@ VERSION  ?= $(if $(filter v%,$(DESCRIBE)),$(DESCRIBE),v0.0.0-$(or $(DESCRIBE),un
 # WINRES makes the Windows build's icon, manifest and properties from winres/.
 WINRES := go run github.com/tc-hib/go-winres@v0.3.3
 
+# LINT checks the code with the linters and formatters in .golangci.yaml.
+LINT := golangci-lint run --config .golangci.yaml
+
 # DOCS go into every archive: the licences, and the sources of the embedded
 # fonts and icons (assets/README.md).
 DOCS := README.md LICENSE assets/README.md assets/wine/LGPL-2.1.txt assets/wine/ms_sans_serif.sfd \
@@ -43,7 +46,7 @@ define package
 
 endef
 
-.PHONY: run test vet build dist web serve clean $(PLATFORMS)
+.PHONY: run test vet lint build dist web serve clean $(PLATFORMS)
 
 run:
 	go run .
@@ -53,6 +56,14 @@ test:
 
 vet:
 	go vet ./...
+
+# lint checks every platform's code, as the build tags give Windows and the
+# web files of their own; the web's tests build only in internal/platform.
+lint:
+	GOOS=linux $(LINT)
+	GOOS=windows $(LINT)
+	GOOS=js GOARCH=wasm $(LINT) --tests=false
+	GOOS=js GOARCH=wasm $(LINT) ./internal/platform/
 
 build:
 	go build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/$(BINARY) .

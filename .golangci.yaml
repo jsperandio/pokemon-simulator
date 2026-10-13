@@ -1,0 +1,88 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    # extras
+    - funcorder
+    - revive
+    - errname
+    - bodyclose
+    - misspell
+    - gocritic
+    - exhaustive
+    - gosec
+    - perfsprint
+    - prealloc
+    - nlreturn
+    - recvcheck
+    - sqlclosecheck
+    - unconvert
+    - unparam
+    - unqueryvet
+    - wastedassign
+    - modernize
+    - gocyclo
+    - wsl_v5
+
+  settings:
+    funcorder:
+      constructor: true
+      struct-method: false
+    revive:
+      rules:
+        - name: package-comments
+        - name: exported
+          disabled: true
+        - name: early-return
+        - name: superfluous-else
+        - name: indent-error-flow
+    exhaustive:
+      default-signifies-exhaustive: true
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+    gocyclo:
+      min-complexity: 15
+    wsl_v5:
+      default: all
+      disable:
+        - after-decl
+        - assign
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/jsperandio/pokemon-simulator
+
+issues:
+  # 0 = unlimited: report every occurrence instead of collapsing repeats, so a
+  # repeated finding (e.g. the same gosec rule across many files) is fully visible.
+  max-same-issues: 0
+  max-issues-per-linter: 0
+
+output:
+  formats:
+    tab:
+      path: stdout
+      print-linter-name: true
+      colors: true

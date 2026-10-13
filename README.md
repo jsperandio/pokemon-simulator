@@ -33,6 +33,7 @@ You need Go 1.26 or later. No C compiler is needed, because every build uses `CG
 |---|---|
 | `make run` | Run the game from source |
 | `make test` | Run the tests |
+| `make lint` | Check the code of every platform with [golangci-lint](https://golangci-lint.run) 2.14 or later |
 | `make dist` | Build the Linux, Windows and macOS programs and the WebAssembly version, and pack each into an archive in `dist/`, with the licences |
 | `make web` | Build only the WebAssembly version into `dist/web/` |
 | `make serve` | Build and serve the WebAssembly version at http://localhost:8080 (needs Python 3) |
