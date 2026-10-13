@@ -42,10 +42,14 @@ type scrollBar struct {
 }
 
 // enabled reports whether there is anything to scroll.
-func (s *scrollBar) enabled() bool { return s.max-s.min >= s.page }
+func (s *scrollBar) enabled() bool {
+	return s.max-s.min >= s.page
+}
 
 // limit is the largest position.
-func (s *scrollBar) limit() int { return max(s.max-s.page+1, s.min) }
+func (s *scrollBar) limit() int {
+	return max(s.max-s.page+1, s.min)
+}
 
 func (s *scrollBar) set(pos int) {
 	pos = max(min(pos, s.limit()), s.min)
@@ -66,7 +70,9 @@ func (s *scrollBar) length() int {
 	return s.r.Dx()
 }
 
-func (s *scrollBar) arrow() int { return min(scrollSize, s.length()/2) }
+func (s *scrollBar) arrow() int {
+	return min(scrollSize, s.length()/2)
+}
 
 // thumb returns the thumb's start and length along the bar, or a length
 // of 0 when there is none.
@@ -363,7 +369,9 @@ func (l *listView) setup(comp *layout.Component) {
 	l.scroll.onScroll = l.invalidate
 }
 
-func (l *listView) focusable() bool { return true }
+func (l *listView) focusable() bool {
+	return true
+}
 
 // setItems replaces the items, keeping the selection when it still exists.
 func (l *listView) setItems(items []listItem) {
@@ -716,7 +724,9 @@ func (d *dropList) show(i int) {
 	d.scroll.pos = d.top
 }
 
-func (d *dropList) bounds() image.Rectangle { return d.r }
+func (d *dropList) bounds() image.Rectangle {
+	return d.r
+}
 
 func (d *dropList) paint(cv canvas) {
 	cv = cv.sub(d.r)
@@ -822,7 +832,9 @@ func (d *dropList) mouseUp(p image.Point) bool {
 	return false
 }
 
-func (d *dropList) tick(now time.Time) bool { return d.scroll.tick(now) }
+func (d *dropList) tick(now time.Time) bool {
+	return d.scroll.tick(now)
+}
 
 // dismiss closes the list, as a click outside it does.
 func (d *dropList) dismiss() { d.combo.closeUp() }

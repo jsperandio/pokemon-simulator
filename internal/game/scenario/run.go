@@ -36,11 +36,13 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 			}
 
 			p := &Player{
-				Name:      name,
-				Dir:       dir,
-				Data:      data,
-				NewDriver: func() Driver { return newDriver(t) },
-				Saves:     saves,
+				Name: name,
+				Dir:  dir,
+				Data: data,
+				NewDriver: func() Driver {
+					return newDriver(t)
+				},
+				Saves: saves,
 			}
 
 			want, err := p.Play(string(src))

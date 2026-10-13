@@ -10,7 +10,9 @@ import (
 )
 
 // mulDiv is Windows' MulDiv: a × b / c, rounded.
-func mulDiv(a, b, c int) int { return (a*b + c/2) / c }
+func mulDiv(a, b, c int) int {
+	return (a*b + c/2) / c
+}
 
 // messageDialog builds a message dialog as Delphi's CreateMessageDialog
 // does, in the message font: an icon, the text wrapped at half the

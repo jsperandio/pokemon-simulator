@@ -83,10 +83,14 @@ type ctl struct {
 	onDblClick func()
 }
 
-func (c *ctl) base() *ctl { return c }
+func (c *ctl) base() *ctl {
+	return c
+}
 
 // local is the control's rectangle in its own coordinates.
-func (c *ctl) local() image.Rectangle { return image.Rectangle{Max: c.r.Size()} }
+func (c *ctl) local() image.Rectangle {
+	return image.Rectangle{Max: c.r.Size()}
+}
 
 // shown reports whether the control and its parents are visible.
 func (c *ctl) shown() bool {
@@ -131,7 +135,9 @@ func (c *ctl) origin() image.Point {
 }
 
 // focused reports whether the control has its window's focus.
-func (c *ctl) focused() bool { return c.win != nil && c.win.focus == c.self }
+func (c *ctl) focused() bool {
+	return c.win != nil && c.win.focus == c.self
+}
 
 // invalidate asks for a repaint.
 func (c *ctl) invalidate() {
@@ -196,7 +202,9 @@ func (c *ctl) refit() {
 }
 
 // prop returns a design-time property, or "".
-func (c *ctl) prop(name string) string { return c.props[name] }
+func (c *ctl) prop(name string) string {
+	return c.props[name]
+}
 
 // propInt returns an integer property, or def.
 func (c *ctl) propInt(name string, def int) int {
@@ -209,20 +217,48 @@ func (c *ctl) propInt(name string, def int) int {
 
 // classes make the widgets of the classes of components that have one.
 var classes = map[string]func() widget{
-	"TLabel":       func() widget { return &label{} },
-	"TButton":      func() widget { return &button{} },
-	"TGroupBox":    func() widget { return &groupBox{} },
-	"TRadioGroup":  func() widget { return &radioGroup{} },
-	"TPanel":       func() widget { return &panel{} },
-	"TBevel":       func() widget { return &bevel{} },
-	"TImage":       func() widget { return &picture{} },
-	"TGauge":       func() widget { return &gauge{} },
-	"TListView":    func() widget { return &listView{} },
-	"TComboBox":    func() widget { return &comboBox{} },
-	"TSpinEdit":    func() widget { return &spinEdit{} },
-	"TEdit":        func() widget { return &edit{} },
-	"TMemo":        func() widget { return &memo{} },
-	"TMediaPlayer": func() widget { return &panel{} }, // hidden for good
+	"TLabel": func() widget {
+		return &label{}
+	},
+	"TButton": func() widget {
+		return &button{}
+	},
+	"TGroupBox": func() widget {
+		return &groupBox{}
+	},
+	"TRadioGroup": func() widget {
+		return &radioGroup{}
+	},
+	"TPanel": func() widget {
+		return &panel{}
+	},
+	"TBevel": func() widget {
+		return &bevel{}
+	},
+	"TImage": func() widget {
+		return &picture{}
+	},
+	"TGauge": func() widget {
+		return &gauge{}
+	},
+	"TListView": func() widget {
+		return &listView{}
+	},
+	"TComboBox": func() widget {
+		return &comboBox{}
+	},
+	"TSpinEdit": func() widget {
+		return &spinEdit{}
+	},
+	"TEdit": func() widget {
+		return &edit{}
+	},
+	"TMemo": func() widget {
+		return &memo{}
+	},
+	"TMediaPlayer": func() widget {
+		return &panel{}
+	}, // hidden for good
 }
 
 // build makes the widget for a component and its children, or returns nil
@@ -408,10 +444,14 @@ func (b *button) setup(*layout.Component) {
 	b.modalResult = b.propInt("ModalResult", 0)
 }
 
-func (b *button) focusable() bool { return true }
+func (b *button) focusable() bool {
+	return true
+}
 
 // pushed reports whether it is drawn pushed in.
-func (b *button) pushed() bool { return b.down && b.inside || b.keyDown }
+func (b *button) pushed() bool {
+	return b.down && b.inside || b.keyDown
+}
 
 // looksDefault reports whether it has the default button's black frame:
 // when it has the focus, or when it is the default and no other button
@@ -574,7 +614,9 @@ func (g *radioGroup) setup(comp *layout.Component) {
 	g.pressing = -1
 }
 
-func (g *radioGroup) focusable() bool { return len(g.items) > 0 }
+func (g *radioGroup) focusable() bool {
+	return len(g.items) > 0
+}
 
 func (g *radioGroup) setItems(items []string) {
 	g.items = items

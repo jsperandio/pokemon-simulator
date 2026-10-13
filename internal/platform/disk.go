@@ -105,24 +105,45 @@ func (disk) Stat(path string) (Entry, error) {
 	return Entry{Name: st.Name(), Dir: st.IsDir(), Size: st.Size(), ModTime: st.ModTime()}, nil
 }
 
-func (disk) ReadFile(path string) ([]byte, error) { return os.ReadFile(path) } //nolint:gosec // the file the player chose
+func (disk) ReadFile(path string) ([]byte, error) {
+	return os.ReadFile(path) //nolint:gosec // the file the player chose
+}
 
-func (disk) WriteFile(path string, data []byte) error { return os.WriteFile(path, data, 0o600) }
+func (disk) WriteFile(path string, data []byte) error {
+	return os.WriteFile(path, data, 0o600)
+}
 
-func (disk) Mkdir(path string) error { return os.Mkdir(path, 0o750) }
+func (disk) Mkdir(path string) error {
+	return os.Mkdir(path, 0o750)
+}
 
-func (disk) Join(dir, name string) string { return filepath.Join(dir, name) }
-func (disk) Dir(path string) string       { return filepath.Dir(path) }
-func (disk) Base(path string) string      { return filepath.Base(path) }
-func (disk) IsAbs(path string) bool       { return filepath.IsAbs(path) }
+func (disk) Join(dir, name string) string {
+	return filepath.Join(dir, name)
+}
+
+func (disk) Dir(path string) string {
+	return filepath.Dir(path)
+}
+
+func (disk) Base(path string) string {
+	return filepath.Base(path)
+}
+
+func (disk) IsAbs(path string) bool {
+	return filepath.IsAbs(path)
+}
 
 // OpenPage shows a page, written to the file at path, in the system's
 // browser.
-func OpenPage(path string, _ []byte) error { return start(path) }
+func OpenPage(path string, _ []byte) error {
+	return start(path)
+}
 
 // OpenURL opens a web address in the system's browser, or a mailto: one in
 // its e-mail program.
-func OpenURL(url string) error { return start(url) }
+func OpenURL(url string) error {
+	return start(url)
+}
 
 // start opens a file or an address with the program the system has for it.
 func start(target string) error {
@@ -148,16 +169,22 @@ func start(target string) error {
 }
 
 // Args returns the command line's arguments.
-func Args() []string { return os.Args[1:] }
+func Args() []string {
+	return os.Args[1:]
+}
 
 // Transfers is false: the game's files are the player's own, on the disk.
 const Transfers = false
 
 // Upload does nothing on the disk; see Transfers.
-func Upload(Files, string) <-chan []string { return nil }
+func Upload(Files, string) <-chan []string {
+	return nil
+}
 
 // Download does nothing on the disk; see Transfers.
-func Download(string, []byte) error { return nil }
+func Download(string, []byte) error {
+	return nil
+}
 
 // WarnOnLeave does nothing on the desktop, where closing the window saves.
 func WarnOnLeave(bool) {}

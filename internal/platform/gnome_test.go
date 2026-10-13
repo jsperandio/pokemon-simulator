@@ -28,7 +28,9 @@ func TestGNOMEFrames(t *testing.T) {
 
 			return ""
 		}
-		exists := func(path string) bool { return path == c.helper }
+		exists := func(path string) bool {
+			return path == c.helper
+		}
 
 		if got := gnomeFrames(getenv, exists); got != c.want {
 			t.Errorf("desktop %q, helper %q: %t, want %t", c.desktop, c.helper, got, c.want)

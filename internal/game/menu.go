@@ -13,7 +13,9 @@ type MenuItem struct {
 }
 
 // Item returns the menu item with the given name, or nil.
-func (g *Game) Item(name string) *MenuItem { return g.menu[name] }
+func (g *Game) Item(name string) *MenuItem {
+	return g.menu[name]
+}
 
 // ClickMenu runs a menu command, if its item and the items above it are
 // enabled and visible. The File, Music and Help commands other than

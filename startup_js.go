@@ -9,4 +9,6 @@ import (
 )
 
 // watchWindow returns the game as it is: a page has no window to watch.
-func watchWindow(app *classic.App) ebiten.Game { return app }
+func watchWindow(app *classic.App) ebiten.Game {
+	return app
+}

@@ -196,9 +196,13 @@ func (r *resources) arial(px int, style fontStyle) face {
 	return f
 }
 
-func (r *resources) imageList(name string) *imageList { return r.lists[name] }
+func (r *resources) imageList(name string) *imageList {
+	return r.lists[name]
+}
 
-func (r *resources) picture(path string) *image.NRGBA { return r.pictures[path] }
+func (r *resources) picture(path string) *image.NRGBA {
+	return r.pictures[path]
+}
 
 // imageList is a TImageList: square frames in an atlas, row by row.
 type imageList struct {

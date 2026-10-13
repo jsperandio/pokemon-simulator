@@ -26,7 +26,9 @@ import (
 // as the original's, as they do when the game's handlers are called
 // directly.
 func TestScenarios(t *testing.T) {
-	ui := func(t *testing.T) scenario.Driver { return &uiDriver{t: t} }
+	ui := func(t *testing.T) scenario.Driver {
+		return &uiDriver{t: t}
+	}
 	scenario.Run(t, filepath.Join("..", "..", "game", "testdata", "scenarios"), testData(t), ui, "")
 }
 
@@ -69,7 +71,9 @@ func (r dialogs) Message(kind game.DialogKind, yesNo bool, text string) bool {
 }
 
 // winBase is a Windows path's file name.
-func winBase(path string) string { return path[strings.LastIndex(path, `\`)+1:] }
+func winBase(path string) string {
+	return path[strings.LastIndex(path, `\`)+1:]
+}
 
 func (d *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook func(*game.Game)) error {
 	d.p = p

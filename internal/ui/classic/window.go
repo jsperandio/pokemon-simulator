@@ -281,7 +281,9 @@ func (w *window) size() image.Point {
 	return image.Pt(w.client.X+2*f, w.client.Y+2*f+w.captionH()+w.menuH())
 }
 
-func (w *window) rect() image.Rectangle { return image.Rectangle{Min: w.pos, Max: w.pos.Add(w.size())} }
+func (w *window) rect() image.Rectangle {
+	return image.Rectangle{Min: w.pos, Max: w.pos.Add(w.size())}
+}
 
 func (w *window) clientOrigin() image.Point {
 	f := w.frameWidth()
@@ -519,7 +521,9 @@ func (w *window) tabOrder() []widget {
 	)
 	walk = func(ws []widget) {
 		sorted := slices.Clone(ws)
-		slices.SortStableFunc(sorted, func(a, b widget) int { return a.base().tabOrder - b.base().tabOrder })
+		slices.SortStableFunc(sorted, func(a, b widget) int {
+			return a.base().tabOrder - b.base().tabOrder
+		})
 
 		for _, k := range sorted {
 			c := k.base()

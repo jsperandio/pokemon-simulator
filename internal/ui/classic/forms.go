@@ -112,4 +112,6 @@ func setRadioItems(g *radioGroup, items []string) {
 	}
 }
 
-func itoa(n int) string { return strconv.Itoa(n) }
+func itoa(n int) string {
+	return strconv.Itoa(n)
+}

@@ -28,8 +28,13 @@ type transfers interface {
 // browser is the browser's uploads and downloads.
 type browser struct{ files platform.Files }
 
-func (b browser) upload(dir string) <-chan []string     { return platform.Upload(b.files, dir) }
-func (browser) download(name string, data []byte) error { return platform.Download(name, data) }
+func (b browser) upload(dir string) <-chan []string {
+	return platform.Upload(b.files, dir)
+}
+
+func (browser) download(name string, data []byte) error {
+	return platform.Download(name, data)
+}
 
 // The toolbar's glyphs: an arrow out of a tray, and into one.
 const (
@@ -95,7 +100,9 @@ func (f *fileDialog) uploaded(names []string) {
 		return
 	}
 
-	if i := slices.IndexFunc(f.entries, func(e platform.Entry) bool { return e.Name == names[0] }); i >= 0 {
+	if i := slices.IndexFunc(f.entries, func(e platform.Entry) bool {
+		return e.Name == names[0]
+	}); i >= 0 {
 		f.view.selected = i
 		f.view.ensureVisible(i)
 	}

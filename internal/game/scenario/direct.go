@@ -156,7 +156,9 @@ func (d *Direct) New(file, name string) error {
 	return nil
 }
 
-func (d *Direct) Load(file string, save []byte) error { return d.g.Load(file, save) }
+func (d *Direct) Load(file string, save []byte) error {
+	return d.g.Load(file, save)
+}
 
 func (d *Direct) Starter(k int) error {
 	d.g.ChooseStarter(k)
@@ -170,4 +172,6 @@ func (d *Direct) Export(file string) error {
 	return nil
 }
 
-func (d *Direct) Quit() ([]byte, error) { return d.g.Close(), nil }
+func (d *Direct) Quit() ([]byte, error) {
+	return d.g.Close(), nil
+}

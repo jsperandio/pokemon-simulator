@@ -57,8 +57,13 @@ func Default() Files {
 	return store
 }
 
-func (m *memory) Home() string    { return "/" }
-func (m *memory) Roots() []string { return []string{"/"} }
+func (m *memory) Home() string {
+	return "/"
+}
+
+func (m *memory) Roots() []string {
+	return []string{"/"}
+}
 
 func (m *memory) List(dir string) ([]Entry, error) {
 	m.mu.Lock()
@@ -187,20 +192,37 @@ func (m *memory) restore(p string, dir bool, t time.Time, data []byte) {
 	m.times[p] = t
 }
 
-func (m *memory) Join(dir, name string) string { return path.Join(dir, name) }
-func (m *memory) Dir(p string) string          { return path.Dir(p) }
-func (m *memory) Base(p string) string         { return path.Base(p) }
-func (m *memory) IsAbs(p string) bool          { return strings.HasPrefix(p, "/") }
+func (m *memory) Join(dir, name string) string {
+	return path.Join(dir, name)
+}
+
+func (m *memory) Dir(p string) string {
+	return path.Dir(p)
+}
+
+func (m *memory) Base(p string) string {
+	return path.Base(p)
+}
+
+func (m *memory) IsAbs(p string) bool {
+	return strings.HasPrefix(p, "/")
+}
 
 // OpenPage shows a page in a new tab.
-func OpenPage(_ string, page []byte) error { return openTab(page) }
+func OpenPage(_ string, page []byte) error {
+	return openTab(page)
+}
 
 // OpenURL opens a web address in a new tab; a mailto: one opens the
 // browser's e-mail program.
-func OpenURL(url string) error { return openURL(url) }
+func OpenURL(url string) error {
+	return openURL(url)
+}
 
 // Args returns no arguments: a page has no command line.
-func Args() []string { return nil }
+func Args() []string {
+	return nil
+}
 
 // Transfers is true: the game's files live in the browser, and the player
 // uploads and downloads them.

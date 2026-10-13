@@ -30,6 +30,8 @@ func TestScenarios(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	direct := func(*testing.T) scenario.Driver { return &scenario.Direct{} }
+	direct := func(*testing.T) scenario.Driver {
+		return &scenario.Direct{}
+	}
 	scenario.Run(t, filepath.Join("testdata", "scenarios"), data, direct, *saveDir)
 }

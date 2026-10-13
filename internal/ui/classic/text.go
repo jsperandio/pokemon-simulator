@@ -32,9 +32,17 @@ type bitmapFace struct {
 	bold bool
 }
 
-func (b bitmapFace) height() int        { return b.f.Height }
-func (b bitmapFace) ascent() int        { return b.f.Ascent }
-func (b bitmapFace) width(s string) int { return b.f.Width(s, b.bold) }
+func (b bitmapFace) height() int {
+	return b.f.Height
+}
+
+func (b bitmapFace) ascent() int {
+	return b.f.Ascent
+}
+
+func (b bitmapFace) width(s string) int {
+	return b.f.Width(s, b.bold)
+}
 
 func (b bitmapFace) draw(cv canvas, x, y int, s string, c color.RGBA) int {
 	p := image.Pt(x, y).Add(cv.org)
@@ -64,8 +72,13 @@ func newTrueType(f *opentype.Font, px int) (*trueTypeFace, error) {
 	return &trueTypeFace{f: ff, asc: asc, hgt: asc + desc}, nil
 }
 
-func (t *trueTypeFace) height() int { return t.hgt }
-func (t *trueTypeFace) ascent() int { return t.asc }
+func (t *trueTypeFace) height() int {
+	return t.hgt
+}
+
+func (t *trueTypeFace) ascent() int {
+	return t.asc
+}
 
 func (t *trueTypeFace) width(s string) int {
 	w := 0

@@ -258,7 +258,9 @@ func TestExportPage(t *testing.T) {
 // uiFunc answers dialogs with a function.
 type uiFunc func(kind DialogKind, yesNo bool, text string) bool
 
-func (f uiFunc) Message(kind DialogKind, yesNo bool, text string) bool { return f(kind, yesNo, text) }
+func (f uiFunc) Message(kind DialogKind, yesNo bool, text string) bool {
+	return f(kind, yesNo, text)
+}
 
 // The arena shows what the original's labels and gauges showed, which
 // lags the battle (notes/battle.md).

@@ -301,7 +301,9 @@ func (v *helpView) paint(cv canvas) {
 	}
 }
 
-func (v *helpView) focusable() bool { return true }
+func (v *helpView) focusable() bool {
+	return true
+}
 
 // spotAt returns the hotspot at p, in the view's coordinates, or -1.
 func (v *helpView) spotAt(p image.Point) int {

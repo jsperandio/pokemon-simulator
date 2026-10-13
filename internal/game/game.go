@@ -212,7 +212,9 @@ type InfoWindow struct {
 }
 
 // Party returns the party's members, as the Statistics window lists them.
-func (g *Game) Party() []save.Slot { return g.File.Party() }
+func (g *Game) Party() []save.Slot {
+	return g.File.Party()
+}
 
 // New returns a game at the start screen, with the window state of the
 // original's forms when they are created. The random generator is seeded

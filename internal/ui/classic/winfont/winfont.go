@@ -131,8 +131,13 @@ func parseFNT(b []byte) (*Font, error) {
 	return f, nil
 }
 
-func u16(b []byte, o int) int { return int(binary.LittleEndian.Uint16(b[o:])) }
-func u32(b []byte, o int) int { return int(binary.LittleEndian.Uint32(b[o:])) }
+func u16(b []byte, o int) int {
+	return int(binary.LittleEndian.Uint16(b[o:]))
+}
+
+func u32(b []byte, o int) int {
+	return int(binary.LittleEndian.Uint32(b[o:]))
+}
 
 // faceName reads the face name that starts at face, ended by a NUL, or
 // returns "" for none.

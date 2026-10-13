@@ -31,7 +31,9 @@ type textBox struct {
 	dragging bool
 }
 
-func (t *textBox) String() string { return string(t.text) }
+func (t *textBox) String() string {
+	return string(t.text)
+}
 
 // set replaces the text, putting the caret at its end.
 func (t *textBox) set(s string) {
@@ -45,7 +47,9 @@ func (t *textBox) selectAll() {
 	t.blink = time.Now()
 }
 
-func (t *textBox) sel() (from, to int) { return min(t.anchor, t.caret), max(t.anchor, t.caret) }
+func (t *textBox) sel() (from, to int) {
+	return min(t.anchor, t.caret), max(t.anchor, t.caret)
+}
 
 func (t *textBox) changed() {
 	t.blink = time.Now()
@@ -315,9 +319,13 @@ func (e *edit) setup(comp *layout.Component) {
 	}
 }
 
-func (e *edit) focusable() bool { return true }
+func (e *edit) focusable() bool {
+	return true
+}
 
-func (e *edit) text() string { return e.tb.String() }
+func (e *edit) text() string {
+	return e.tb.String()
+}
 
 // setText sets the text as the program does: OnChange runs.
 func (e *edit) setText(s string) {
@@ -377,7 +385,9 @@ func (e *edit) char(r rune) {
 	e.invalidate()
 }
 
-func (e *edit) cursor(image.Point) ebiten.CursorShapeType { return ebiten.CursorShapeText }
+func (e *edit) cursor(image.Point) ebiten.CursorShapeType {
+	return ebiten.CursorShapeText
+}
 
 // spinEdit is a TSpinEdit from the Delphi samples: an edit box with two
 // arrow buttons, holding an integer.
@@ -401,7 +411,9 @@ func (s *spinEdit) setup(comp *layout.Component) {
 	s.tb.set(strconv.Itoa(s.propInt("Value", 0)))
 
 	// IsValidChar: digits, signs and the decimal separator.
-	s.tb.valid = func(r rune) bool { return r >= '0' && r <= '9' || r == '+' || r == '-' || r == '.' }
+	s.tb.valid = func(r rune) bool {
+		return r >= '0' && r <= '9' || r == '+' || r == '-' || r == '.'
+	}
 	s.tb.onChange = func() {
 		s.invalidate()
 
@@ -641,7 +653,9 @@ func (m *memo) setup(comp *layout.Component) {
 	m.scroll.onScroll = m.invalidate
 }
 
-func (m *memo) focusable() bool { return true }
+func (m *memo) focusable() bool {
+	return true
+}
 
 // text returns the client rectangle for the text.
 func (m *memo) textRect() image.Rectangle {
@@ -806,7 +820,9 @@ func (c *comboBox) setup(comp *layout.Component) {
 	c.tb.onChange = c.invalidate
 }
 
-func (c *comboBox) focusable() bool { return true }
+func (c *comboBox) focusable() bool {
+	return true
+}
 
 // setIndex selects item i (-1 for none) as the program does, which
 // doesn't run OnChange; the text follows the selection (none empties it),

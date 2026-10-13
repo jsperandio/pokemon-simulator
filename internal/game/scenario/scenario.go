@@ -127,7 +127,9 @@ func (p *Player) Fail(format string, a ...any) {
 }
 
 // Trace returns the lines recorded so far.
-func (p *Player) Trace() []string { return p.out }
+func (p *Player) Trace() []string {
+	return p.out
+}
 
 func (p *Player) emit(format string, a ...any) {
 	p.flush()
@@ -425,7 +427,9 @@ func (p *Player) setupParty(nums []int) error {
 }
 
 // savePath is where the probe kept the scenario's save, as the game saw it.
-func (p *Player) savePath(ext string) string { return `C:\Temp\probe-` + p.Name + ext }
+func (p *Player) savePath(ext string) string {
+	return `C:\Temp\probe-` + p.Name + ext
+}
 
 // launch starts the game: on the setup's save, or at the start screen.
 func (p *Player) launch() error {
@@ -557,7 +561,9 @@ func (p *Player) move(arg string) error {
 }
 
 // run chooses "Run!".
-func (p *Player) run(string) error { return p.attack(5) }
+func (p *Player) run(string) error {
+	return p.attack(5)
+}
 
 // fight attacks with attack k (1–4) until the battle is over.
 func (p *Player) fight(arg string) error {
@@ -566,11 +572,15 @@ func (p *Player) fight(arg string) error {
 		return err
 	}
 
-	return p.fightWith(func() int { return k })
+	return p.fightWith(func() int {
+		return k
+	})
 }
 
 // fightBest attacks with the best attack until the battle is over.
-func (p *Player) fightBest(string) error { return p.fightWith(p.bestMove) }
+func (p *Player) fightBest(string) error {
+	return p.fightWith(p.bestMove)
+}
 
 // fightWith attacks with the attack move picks until the battle is over.
 func (p *Player) fightWith(move func() int) error {

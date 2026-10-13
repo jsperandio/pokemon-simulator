@@ -109,7 +109,9 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 }
 
 // Game returns the game the user interface plays.
-func (a *App) Game() *game.Game { return a.g }
+func (a *App) Game() *game.Game {
+	return a.g
+}
 
 // call runs a game handler, or any code that waits for modal windows, on
 // its own goroutine; it returns once the handler ends or waits for a
@@ -357,7 +359,9 @@ func (a *App) Draw(screen *ebiten.Image) {
 }
 
 // Layout returns the logical screen's size (ebiten.Game).
-func (a *App) Layout(int, int) (w, h int) { return screenWidth, screenHeight }
+func (a *App) Layout(int, int) (w, h int) {
+	return screenWidth, screenHeight
+}
 
 // closeProgram ends the program as closing the main form does.
 func (a *App) closeProgram() {
@@ -387,4 +391,6 @@ func WindowSize() (w, h int) {
 }
 
 // Icon returns the program's icon, for the window.
-func (a *App) Icon() image.Image { return a.res.picture("sprites/icon.png") }
+func (a *App) Icon() image.Image {
+	return a.res.picture("sprites/icon.png")
+}

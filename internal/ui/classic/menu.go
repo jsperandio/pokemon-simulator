@@ -35,7 +35,9 @@ type menuEntry struct {
 	kids     []*menuEntry
 }
 
-func (e *menuEntry) name() string { return e.item.Name }
+func (e *menuEntry) name() string {
+	return e.item.Name
+}
 
 // visibleKids lists the submenu's visible items.
 func (e *menuEntry) visibleKids() []*menuEntry {
@@ -208,7 +210,9 @@ func (m *menuBar) barAt(p image.Point) int {
 }
 
 // active reports whether the menu is in menu mode.
-func (m *menuBar) active() bool { return m.win.desk.menu == m }
+func (m *menuBar) active() bool {
+	return m.win.desk.menu == m
+}
 
 func (m *menuBar) paint(cv canvas, r image.Rectangle) {
 	cv.fill(r, colFace)

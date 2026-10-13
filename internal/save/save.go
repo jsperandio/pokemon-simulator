@@ -177,7 +177,9 @@ func (r *reader) text() string {
 }
 
 // boolean is true for "TRUE" only, as the game's comparison is.
-func (r *reader) boolean() bool { return r.text() == "TRUE" }
+func (r *reader) boolean() bool {
+	return r.text() == "TRUE"
+}
 
 // number reads an integer; the game reads Int64s and keeps the low bits.
 func (r *reader) number() int64 {

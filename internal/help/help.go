@@ -134,7 +134,9 @@ func parseBlocks(lines []string) []Block {
 	return out
 }
 
-func isBlank(line string) bool { return strings.TrimSpace(line) == "" }
+func isBlank(line string) bool {
+	return strings.TrimSpace(line) == ""
+}
 
 // indent returns a line without the up to 3 spaces that may lead a block.
 func indent(line string) (string, bool) {
@@ -260,7 +262,9 @@ func parseList(lines []string, i int) (b Block, next int) {
 	return b, i
 }
 
-func isOrdered(marker string) bool { return marker != "" && marker[0] >= '0' && marker[0] <= '9' }
+func isOrdered(marker string) bool {
+	return marker != "" && marker[0] >= '0' && marker[0] <= '9'
+}
 
 // isTable reports whether a table starts at line i: a row of cells, then
 // a row of dashes.

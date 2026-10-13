@@ -213,7 +213,9 @@ func (cv canvas) gradient(r image.Rectangle, a, b color.RGBA) {
 			t = x * 256 / (w - 1)
 		}
 
-		mix := func(p, q uint8) uint8 { return uint8((int(p)*(256-t) + int(q)*t) / 256) } //nolint:gosec // a weighted mean of two uint8s
+		mix := func(p, q uint8) uint8 {
+			return uint8((int(p)*(256-t) + int(q)*t) / 256) //nolint:gosec // a weighted mean of two uint8s
+		}
 		cv.vline(r.Min.X+x, r.Min.Y, r.Max.Y, color.RGBA{mix(a.R, b.R), mix(a.G, b.G), mix(a.B, b.B), 0xff})
 	}
 }
@@ -258,7 +260,9 @@ func (cv canvas) blend(x, y int, src *image.NRGBA, sr image.Rectangle) {
 			px, py := x+sx-sr.Min.X, y+sy-sr.Min.Y
 			d := cv.at(px, py)
 			a := int(c.A)
-			mix := func(s, d uint8) uint8 { return uint8((int(s)*a + int(d)*(255-a) + 127) / 255) } //nolint:gosec // a weighted mean of two uint8s
+			mix := func(s, d uint8) uint8 {
+				return uint8((int(s)*a + int(d)*(255-a) + 127) / 255) //nolint:gosec // a weighted mean of two uint8s
+			}
 			cv.pix(px, py, color.RGBA{mix(c.R, d.R), mix(c.G, d.G), mix(c.B, d.B), 0xff})
 		}
 	}

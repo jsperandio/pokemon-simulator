@@ -401,7 +401,9 @@ func (m *fakeMusic) Stop() error {
 
 func (m *fakeMusic) Update(repeat bool) { m.repeat = repeat }
 
-func (m *fakeMusic) Playing() bool { return false }
+func (m *fakeMusic) Playing() bool {
+	return false
+}
 
 // TestMusicMenu opens music from the Music menu, stops it, and turns
 // Repeat Music off; the player's errors show as the original's exceptions.
