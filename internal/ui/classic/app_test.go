@@ -401,7 +401,9 @@ func (m *fakeMusic) Stop() error {
 	return m.stopErr
 }
 
-func (m *fakeMusic) Update(repeat bool) { m.repeat = repeat }
+func (m *fakeMusic) Update(repeat bool) {
+	m.repeat = repeat
+}
 
 func (m *fakeMusic) Playing() bool {
 	return false

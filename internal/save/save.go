@@ -109,7 +109,10 @@ func (f *File) Bytes() []byte {
 	var b bytes.Buffer
 	b.Grow(3 * Slots * 4)
 
-	line := func(s string) { b.WriteString(s); b.WriteString("\r\n") }
+	line := func(s string) {
+		b.WriteString(s)
+		b.WriteString("\r\n")
+	}
 	boolean := func(v bool) {
 		if v {
 			line("TRUE")

@@ -132,11 +132,18 @@ func (cv canvas) invert(x, y int) {
 }
 
 // hline draws [x0, x1) on row y; vline draws [y0, y1) on column x.
-func (cv canvas) hline(x0, x1, y int, c color.RGBA) { cv.fill(image.Rect(x0, y, x1, y+1), c) }
-func (cv canvas) vline(x, y0, y1 int, c color.RGBA) { cv.fill(image.Rect(x, y0, x+1, y1), c) }
+func (cv canvas) hline(x0, x1, y int, c color.RGBA) {
+	cv.fill(image.Rect(x0, y, x1, y+1), c)
+}
+
+func (cv canvas) vline(x, y0, y1 int, c color.RGBA) {
+	cv.fill(image.Rect(x, y0, x+1, y1), c)
+}
 
 // frame draws r's outline.
-func (cv canvas) frame(r image.Rectangle, c color.RGBA) { cv.edge(r, c, c) }
+func (cv canvas) frame(r image.Rectangle, c color.RGBA) {
+	cv.edge(r, c, c)
+}
 
 // edge draws r's outline with its top and left sides in tl and its bottom
 // and right sides in br, which win at the corners, as DrawEdge does.

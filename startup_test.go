@@ -29,7 +29,9 @@ func TestWatch(t *testing.T) {
 
 			restarted := false
 
-			watch(shown, 10*time.Millisecond, c.frames, func() { restarted = true })
+			watch(shown, 10*time.Millisecond, c.frames, func() {
+				restarted = true
+			})
 
 			if restarted != c.want {
 				t.Errorf("started again: %t, want %t", restarted, c.want)

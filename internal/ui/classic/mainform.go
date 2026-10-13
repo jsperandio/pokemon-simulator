@@ -82,18 +82,38 @@ func newMainForm(a *App) *mainForm {
 
 	g := a.g
 	f.starters.onClick = f.starterClick
-	f.evolveChoice.onClick = func() { g.ChooseEvolution(f.evolveChoice.index) }
-	f.evolveButton.onClick = func() { a.call(g.Evolve) }
+	f.evolveChoice.onClick = func() {
+		g.ChooseEvolution(f.evolveChoice.index)
+	}
+	f.evolveButton.onClick = func() {
+		a.call(g.Evolve)
+	}
 
 	f.pickCombo.items = a.dexItems() // FormShow
-	f.pickCombo.onSelect = func(i int) { g.PickSpecies(i) }
-	f.pickLevel.onChangeValue = func(v int) { g.PickLevel(v) }
-	get[*button](w, "Button2").onClick = func() { a.call(g.PickGo) }
-	get[*button](w, "Button3").onClick = func() { a.call(g.PickCancel) }
-	get[*button](w, "Button4").onClick = func() { a.call(g.PickRandom) }
-	f.attacks.onClick = func() { g.Main.AttackIndex = f.attacks.index }
-	f.goButton.onClick = func() { a.call(g.Go) }
-	f.endButton.onClick = func() { a.call(g.EndFight) }
+	f.pickCombo.onSelect = func(i int) {
+		g.PickSpecies(i)
+	}
+	f.pickLevel.onChangeValue = func(v int) {
+		g.PickLevel(v)
+	}
+	get[*button](w, "Button2").onClick = func() {
+		a.call(g.PickGo)
+	}
+	get[*button](w, "Button3").onClick = func() {
+		a.call(g.PickCancel)
+	}
+	get[*button](w, "Button4").onClick = func() {
+		a.call(g.PickRandom)
+	}
+	f.attacks.onClick = func() {
+		g.Main.AttackIndex = f.attacks.index
+	}
+	f.goButton.onClick = func() {
+		a.call(g.Go)
+	}
+	f.endButton.onClick = func() {
+		a.call(g.EndFight)
+	}
 	w.onClose = f.formClose
 
 	m := newMenuBar(w, g.Menu, layout.Form4.Find("MainMenu1"))
@@ -112,7 +132,9 @@ func (f *mainForm) starterClick() {
 	}
 
 	a := f.a
-	a.call(func() { a.g.ChooseStarter(k) })
+	a.call(func() {
+		a.g.ChooseStarter(k)
+	})
 }
 
 // menuCommand runs a menu item: the user interface's own, or the game's.
@@ -133,7 +155,9 @@ func (f *mainForm) menuCommand(e *menuEntry) {
 	case "About1":
 		a.showAbout()
 	default:
-		a.call(func() { a.g.ClickMenu(e.name()) })
+		a.call(func() {
+			a.g.ClickMenu(e.name())
+		})
 	}
 }
 
@@ -222,7 +246,9 @@ func (f *mainForm) stopMusic() {
 			msg = "No MCI device open"
 		}
 
-		a.call(func() { a.showException(msg) })
+		a.call(func() {
+			a.showException(msg)
+		})
 	}
 }
 

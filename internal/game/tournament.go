@@ -208,23 +208,57 @@ func (g *Game) handleTournament() {
 
 // tournamentPrizes give the prizes, by (tier−1)×3 + roll.
 var tournamentPrizes = [...]func(g *Game){
-	1:  func(g *Game) { g.PokeBalls += 3 },
-	2:  func(g *Game) { g.Potions += 2 },
-	3:  func(g *Game) { g.Money += 2500 },
-	4:  func(g *Game) { g.Potions += 3 },
-	5:  func(g *Game) { g.PokeBalls += 5 },
-	6:  func(g *Game) { g.Money += 4000 },
-	7:  func(g *Game) { g.GreatBalls += 3 },
-	8:  func(g *Game) { g.UltraBalls++ },
-	9:  func(g *Game) { g.SuperPotions++ },
-	10: func(g *Game) { g.SuperPotions += 3 },
-	11: func(g *Game) { g.GreatBalls += 5 },
-	12: func(g *Game) { g.Money += 10000 },
-	13: func(g *Game) { g.UltraBalls += 3 },
-	14: func(g *Game) { g.Money += 15000 },
-	15: func(g *Game) { g.GreatBalls += 10 },
-	16: func(g *Game) { g.MasterBalls++ },
-	17: func(g *Game) { g.Money += 30000 },
+	1: func(g *Game) {
+		g.PokeBalls += 3
+	},
+	2: func(g *Game) {
+		g.Potions += 2
+	},
+	3: func(g *Game) {
+		g.Money += 2500
+	},
+	4: func(g *Game) {
+		g.Potions += 3
+	},
+	5: func(g *Game) {
+		g.PokeBalls += 5
+	},
+	6: func(g *Game) {
+		g.Money += 4000
+	},
+	7: func(g *Game) {
+		g.GreatBalls += 3
+	},
+	8: func(g *Game) {
+		g.UltraBalls++
+	},
+	9: func(g *Game) {
+		g.SuperPotions++
+	},
+	10: func(g *Game) {
+		g.SuperPotions += 3
+	},
+	11: func(g *Game) {
+		g.GreatBalls += 5
+	},
+	12: func(g *Game) {
+		g.Money += 10000
+	},
+	13: func(g *Game) {
+		g.UltraBalls += 3
+	},
+	14: func(g *Game) {
+		g.Money += 15000
+	},
+	15: func(g *Game) {
+		g.GreatBalls += 10
+	},
+	16: func(g *Game) {
+		g.MasterBalls++
+	},
+	17: func(g *Game) {
+		g.Money += 30000
+	},
 	18: (*Game).winPokemon,
 }
 

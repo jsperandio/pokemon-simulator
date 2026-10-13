@@ -368,7 +368,9 @@ func (e *edit) mouseDrag(p image.Point) {
 	e.invalidate()
 }
 
-func (e *edit) mouseUp(image.Point) { e.tb.dragging = false }
+func (e *edit) mouseUp(image.Point) {
+	e.tb.dragging = false
+}
 
 func (e *edit) key(k ebiten.Key, m mods) bool {
 	if e.tb.key(k, m) {
@@ -444,7 +446,9 @@ func (s *spinEdit) check(v int) int {
 
 // setValue sets Value as the program does: OnChange runs if the text
 // changes.
-func (s *spinEdit) setValue(v int) { s.setText(strconv.Itoa(s.check(v))) }
+func (s *spinEdit) setValue(v int) {
+	s.setText(strconv.Itoa(s.check(v)))
+}
 
 // lostFocus clamps the value, as CMExit does.
 func (s *spinEdit) lostFocus() {

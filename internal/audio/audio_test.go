@@ -18,8 +18,14 @@ type fakePlayer struct {
 	closed  bool
 }
 
-func (f *fakePlayer) Play()  { f.playing, f.plays = true, f.plays+1 }
-func (f *fakePlayer) Pause() { f.playing = false }
+func (f *fakePlayer) Play() {
+	f.playing, f.plays = true, f.plays+1
+}
+
+func (f *fakePlayer) Pause() {
+	f.playing = false
+}
+
 func (f *fakePlayer) IsPlaying() bool {
 	return f.playing
 }

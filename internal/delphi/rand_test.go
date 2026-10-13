@@ -31,7 +31,9 @@ func TestRandom(t *testing.T) {
 
 func TestRandomHook(t *testing.T) {
 	var seen [][2]int
-	r := Rand{Seed: 27, OnCall: func(n, v int) { seen = append(seen, [2]int{n, v}) }}
+	r := Rand{Seed: 27, OnCall: func(n, v int) {
+		seen = append(seen, [2]int{n, v})
+	}}
 
 	for range 10000 { // a Game Corner draw: the last one counts
 		r.Random(10)

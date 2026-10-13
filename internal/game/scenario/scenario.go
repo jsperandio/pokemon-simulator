@@ -453,7 +453,9 @@ func (p *Player) launch() error {
 	return p.d.Launch(p, p.savePath(".pgs"), b, func(g *game.Game) {
 		p.G = g
 		g.Rand.OnCall = p.random
-		g.OnLog = func(line string) { p.emit("log %s", line) }
+		g.OnLog = func(line string) {
+			p.emit("log %s", line)
+		}
 	})
 }
 

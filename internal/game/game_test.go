@@ -332,7 +332,9 @@ func TestShowOrder(t *testing.T) {
 	g, _ := newGame(t)
 
 	var shown []Window
-	g.OnShow = func(w Window) { shown = append(shown, w) }
+	g.OnShow = func(w Window) {
+		shown = append(shown, w)
+	}
 	check := func(what string, want ...Window) {
 		t.Helper()
 

@@ -572,7 +572,9 @@ func (b *button) click() {
 // groupBox is a TGroupBox.
 type groupBox struct{ ctl }
 
-func (g *groupBox) setup(*layout.Component) { g.windowed = true }
+func (g *groupBox) setup(*layout.Component) {
+	g.windowed = true
+}
 
 func (g *groupBox) paint(cv canvas) {
 	cv.fill(g.local(), g.color)
@@ -791,7 +793,9 @@ func (g *radioGroup) char(rune) {}
 // panel is a TPanel.
 type panel struct{ ctl }
 
-func (p *panel) setup(*layout.Component) { p.windowed = true }
+func (p *panel) setup(*layout.Component) {
+	p.windowed = true
+}
 
 func (p *panel) paint(cv canvas) {
 	r := p.local()

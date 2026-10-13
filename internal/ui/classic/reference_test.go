@@ -86,7 +86,9 @@ func TestReferenceScreens(t *testing.T) {
 	dir := filepath.Join("..", "..", "game", "testdata", "scenarios")
 
 	for name, shots := range referenceShots {
-		t.Run(name, func(t *testing.T) { shootScenario(t, data, dir, name, shots) })
+		t.Run(name, func(t *testing.T) {
+			shootScenario(t, data, dir, name, shots)
+		})
 	}
 
 	// The loading screen, which the original shows for about a second: its

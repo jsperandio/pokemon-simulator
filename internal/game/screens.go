@@ -89,7 +89,9 @@ func (g *Game) TypeMultipliers() (first, second, total string, ok bool) {
 }
 
 // CloseTypes is "Close".
-func (g *Game) CloseTypes() { g.Types.Visible = false }
+func (g *Game) CloseTypes() {
+	g.Types.Visible = false
+}
 
 // MartWindow is the POKéMON Mart (Form9).
 type MartWindow struct {
@@ -173,7 +175,9 @@ func (g *Game) Buy() {
 }
 
 // LeaveMart is the Mart's "Leave".
-func (g *Game) LeaveMart() { g.Mart.Visible = false }
+func (g *Game) LeaveMart() {
+	g.Mart.Visible = false
+}
 
 // CornerWindow is the Game Corner (FormB).
 type CornerWindow struct {
@@ -216,7 +220,9 @@ func (g *Game) SelectNumber(n int) {
 }
 
 // SetBet is typing the bet.
-func (g *Game) SetBet(n int) { g.Corner.Bet = n }
+func (g *Game) SetBet(n int) {
+	g.Corner.Bet = n
+}
 
 // Draw is "Draw number!" (TFormB.Button1Click): one number in ten wins ten
 // times the bet, in money or in items.
@@ -299,7 +305,9 @@ func (g *Game) Draw() {
 }
 
 // CloseCorner is the Game Corner's "Close".
-func (g *Game) CloseCorner() { g.Corner.Visible = false }
+func (g *Game) CloseCorner() {
+	g.Corner.Visible = false
+}
 
 // WinPercent is the Statistics window's win percentage, truncated to two
 // decimals: Int(Wins / (Wins + Losses) × 10000) / 100, computed in x87

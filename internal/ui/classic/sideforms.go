@@ -31,7 +31,11 @@ func newStatsForm(a *App) *statsForm {
 	for i := range f.items {
 		k := i
 		f.items[i] = get[*button](w, "Button"+itoa(i+1))
-		f.items[i].onClick = func() { a.call(func() { a.g.UseItem(k) }) }
+		f.items[i].onClick = func() {
+			a.call(func() {
+				a.g.UseItem(k)
+			})
+		}
 	}
 
 	for _, n := range []string{
@@ -44,7 +48,9 @@ func newStatsForm(a *App) *statsForm {
 
 	f.party.onDblClick = func() {
 		if k := f.party.selected; k >= 0 {
-			a.call(func() { a.g.ClickParty(k) })
+			a.call(func() {
+				a.g.ClickParty(k)
+			})
 		}
 	}
 	// FormClick: a click on the window gives the focus to the game window.
@@ -133,7 +139,9 @@ func newInfoForm(a *App) *infoForm {
 	return f
 }
 
-func (f *infoForm) sync() { f.memo.setLines(f.a.g.Info.Lines) }
+func (f *infoForm) sync() {
+	f.memo.setLines(f.a.g.Info.Lines)
+}
 
 // dexForm is the POKéDEX (TForm8).
 type dexForm struct {
@@ -151,8 +159,12 @@ func newDexForm(a *App) *dexForm {
 	f.image = get[*listView](f.w, "ListView1")
 	f.combo.items = a.dexItems() // FormShow
 	f.w.onShow = f.combo.reselect
-	f.combo.onSelect = func(i int) { a.g.SelectDex(i) }
-	get[*button](f.w, "Button1").onClick = func() { a.g.CloseDex() }
+	f.combo.onSelect = func(i int) {
+		a.g.SelectDex(i)
+	}
+	get[*button](f.w, "Button1").onClick = func() {
+		a.g.CloseDex()
+	}
 	a.desk.add(f.w)
 
 	return f
@@ -223,12 +235,22 @@ func newMartForm(a *App) *martForm {
 	f.buy = get[*button](f.w, "Button1")
 	f.total = get[*edit](f.w, "Edit1")
 	g := a.g
-	f.spin.onChangeValue = func(v int) { g.SetMartQuantity(v) }
-	f.radio.onClick = func() { g.SelectMartItem(f.radio.index) }
-	f.buy.onClick = func() { a.call(g.Buy) }
-	get[*button](f.w, "Button2").onClick = func() { g.LeaveMart() }
+	f.spin.onChangeValue = func(v int) {
+		g.SetMartQuantity(v)
+	}
+	f.radio.onClick = func() {
+		g.SelectMartItem(f.radio.index)
+	}
+	f.buy.onClick = func() {
+		a.call(g.Buy)
+	}
+	get[*button](f.w, "Button2").onClick = func() {
+		g.LeaveMart()
+	}
 
-	f.w.onShow = func() { f.spin.tb.set(itoa(g.Mart.Quantity)) } // FormShow, before the focus comes in
+	f.w.onShow = func() {
+		f.spin.tb.set(itoa(g.Mart.Quantity)) // FormShow, before the focus comes in
+	}
 	a.desk.add(f.w)
 
 	return f
@@ -276,9 +298,15 @@ func newTypesForm(a *App) *typesForm {
 		f.species.reselect()
 		f.attack.reselect()
 	}
-	f.species.onSelect = func(i int) { g.SelectTypes(i, g.Types.Attack) }
-	f.attack.onSelect = func(i int) { g.SelectTypes(g.Types.Species, i) }
-	get[*button](f.w, "Button1").onClick = func() { g.CloseTypes() }
+	f.species.onSelect = func(i int) {
+		g.SelectTypes(i, g.Types.Attack)
+	}
+	f.attack.onSelect = func(i int) {
+		g.SelectTypes(g.Types.Species, i)
+	}
+	get[*button](f.w, "Button1").onClick = func() {
+		g.CloseTypes()
+	}
 	a.desk.add(f.w)
 
 	return f
@@ -327,11 +355,21 @@ func newCornerForm(a *App) *cornerForm {
 	f.number = get[*radioGroup](f.w, "RadioGroup2")
 	f.drawn = get[*radioGroup](f.w, "RadioGroup3")
 	g := a.g
-	f.bet.onChangeValue = func(v int) { g.SetBet(v) }
-	f.prize.onClick = func() { g.SelectPrize(f.prize.index) }
-	f.number.onClick = func() { g.SelectNumber(f.number.index) }
-	get[*button](f.w, "Button1").onClick = func() { a.call(g.Draw) }
-	get[*button](f.w, "Button2").onClick = func() { g.CloseCorner() }
+	f.bet.onChangeValue = func(v int) {
+		g.SetBet(v)
+	}
+	f.prize.onClick = func() {
+		g.SelectPrize(f.prize.index)
+	}
+	f.number.onClick = func() {
+		g.SelectNumber(f.number.index)
+	}
+	get[*button](f.w, "Button1").onClick = func() {
+		a.call(g.Draw)
+	}
+	get[*button](f.w, "Button2").onClick = func() {
+		g.CloseCorner()
+	}
 
 	f.w.onShow = func() { // FormShow, before the focus comes in and selects the bet
 		f.bet.maxValue = g.Corner.MaxBet

@@ -276,7 +276,9 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 	}
 
 	f.types.index = 0
-	f.types.onSelect = func(int) { f.list() }
+	f.types.onSelect = func(int) {
+		f.list()
+	}
 	f.lookIn.onSelect = func(i int) {
 		if i >= 0 && i < len(f.dirs) {
 			f.navigate(f.dirs[i])
@@ -518,7 +520,9 @@ func (f *fileDialog) choose(p string) {
 
 	switch {
 	case f.opts.save && exists && f.opts.overwrite:
-		f.alert(true, p+" already exists.\nDo you want to replace it?", func() { f.accept(p) })
+		f.alert(true, p+" already exists.\nDo you want to replace it?", func() {
+			f.accept(p)
+		})
 	case !f.opts.save && !exists && f.opts.mustExist:
 		f.alert(false, f.files.Base(p)+"\nFile not found.\nPlease verify the correct file name was given.", nil)
 	default:

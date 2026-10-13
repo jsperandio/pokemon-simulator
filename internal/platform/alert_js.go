@@ -5,4 +5,6 @@ package platform
 import "syscall/js"
 
 // Alert tells the player about a problem in the browser's alert box.
-func Alert(title, text string) { js.Global().Call("alert", title+"\n\n"+text) }
+func Alert(title, text string) {
+	js.Global().Call("alert", title+"\n\n"+text)
+}

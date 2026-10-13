@@ -110,7 +110,9 @@ func (g *Game) PickSpecies(k int) {
 }
 
 // PickLevel sets the picker's level (SpinEdit1).
-func (g *Game) PickLevel(level int) { g.Main.PickLevel = level }
+func (g *Game) PickLevel(level int) {
+	g.Main.PickLevel = level
+}
 
 // PickGo is the picker's "Go!" (TForm4.Button2Click). BattleType stays as
 // the last battle left it. The original fights species 0, a nameless

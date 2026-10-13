@@ -181,7 +181,9 @@ func (s *scrollBar) drag(p image.Point) {
 	s.inside = s.partAt(p) == s.pressed
 }
 
-func (s *scrollBar) release() { s.pressed = partNone }
+func (s *scrollBar) release() {
+	s.pressed = partNone
+}
 
 // tick repeats a held arrow or page click; it reports whether anything
 // moved.
@@ -707,7 +709,9 @@ func newDropList(c *comboBox) *dropList {
 
 	d.show(max(c.index, 0))
 
-	d.scroll.onScroll = func() { d.top = d.scroll.pos }
+	d.scroll.onScroll = func() {
+		d.top = d.scroll.pos
+	}
 
 	return d
 }
@@ -837,7 +841,9 @@ func (d *dropList) tick(now time.Time) bool {
 }
 
 // dismiss closes the list, as a click outside it does.
-func (d *dropList) dismiss() { d.combo.closeUp() }
+func (d *dropList) dismiss() {
+	d.combo.closeUp()
+}
 
 func (d *dropList) wheel(dy int) {
 	if d.scroll.max > 0 {

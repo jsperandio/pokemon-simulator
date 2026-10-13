@@ -109,7 +109,9 @@ func (g *Game) enableItems() {
 		e[k] = n != 0
 	}
 
-	noBalls := func() { e[PokeBall], e[GreatBall], e[UltraBall], e[MasterBall] = false, false, false, false }
+	noBalls := func() {
+		e[PokeBall], e[GreatBall], e[UltraBall], e[MasterBall] = false, false, false, false
+	}
 	if g.partyHas(150) && g.Main.EnemyImage == 149 {
 		noBalls() // one Mewtwo at a time
 	}

@@ -129,7 +129,9 @@ func newHelpWindow(a *App) *helpWindow {
 		h.goBack()
 		w.setFocus(h.view, false)
 	}
-	w.onResize = func() { h.view.setBounds(image.Rect(0, helpBarHeight, w.client.X, w.client.Y)) }
+	w.onResize = func() {
+		h.view.setBounds(image.Rect(0, helpBarHeight, w.client.X, w.client.Y))
+	}
 	w.onClose = func() {
 		a.desk.hide(w)
 
@@ -448,7 +450,9 @@ func (v *helpView) follow(k int) {
 		if strings.HasPrefix(t, scheme) {
 			if err := v.h.openURL(t); err != nil {
 				a := v.h.a
-				a.call(func() { a.Message(game.Error, false, err.Error()) })
+				a.call(func() {
+					a.Message(game.Error, false, err.Error())
+				})
 			}
 
 			return

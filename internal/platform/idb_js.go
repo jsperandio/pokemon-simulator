@@ -29,7 +29,9 @@ func openDatabase() (*database, error) {
 
 	var req js.Value
 
-	if err := catch(func() { req = idb.Call("open", dbName, dbVersion) }); err != nil {
+	if err := catch(func() {
+		req = idb.Call("open", dbName, dbVersion)
+	}); err != nil {
 		return nil, err
 	}
 

@@ -53,12 +53,16 @@ func (a *App) placeWindows(dy int) {
 
 // showAbout is the About box (TAboutBox.ShowModal).
 func (a *App) showAbout() {
-	a.call(func() { a.modal(a.about) })
+	a.call(func() {
+		a.modal(a.about)
+	})
 }
 
 // exit ends the program, as closing the loading screen, the main form,
 // does.
-func (a *App) exit() { a.quit = true }
+func (a *App) exit() {
+	a.quit = true
+}
 
 // loadGame loads a save (TForm1.LoadGame); it reports whether it could.
 // It runs on the handler's goroutine.

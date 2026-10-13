@@ -123,7 +123,9 @@ func TestSpinIncrement(t *testing.T) {
 func TestMinimize(t *testing.T) {
 	ta := newTestApp(t)
 	n := 0
-	ta.desk.onMinimize = func() { n++ }
+	ta.desk.onMinimize = func() {
+		n++
+	}
 	ta.wait(80)
 
 	w := ta.start.w

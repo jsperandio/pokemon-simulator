@@ -103,7 +103,9 @@ func newMenuBar(w *window, items []*game.MenuItem, design *layout.Component) *me
 	m.images = w.res.imageList(design.Props["Images"])
 	props := map[string]map[string]string{}
 
-	design.Walk(func(c *layout.Component) { props[c.Name] = c.Props })
+	design.Walk(func(c *layout.Component) {
+		props[c.Name] = c.Props
+	})
 
 	var build func(items []*game.MenuItem) []*menuEntry
 	build = func(items []*game.MenuItem) []*menuEntry {

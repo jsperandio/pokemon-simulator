@@ -82,7 +82,10 @@ func TestFields(t *testing.T) {
 // original loads it and writes testdata/load-v1 back.
 func TestVersion1(t *testing.T) {
 	var b strings.Builder
-	line := func(s string) { b.WriteString(s); b.WriteString("\r\n") }
+	line := func(s string) {
+		b.WriteString(s)
+		b.WriteString("\r\n")
+	}
 	line("Red")
 	line("TRUE")
 	line("TRUE")
