@@ -104,9 +104,11 @@ func (d *desktop) add(w *window) {
 // remove forgets a window for good, as freeing a dialog does.
 func (d *desktop) remove(w *window) {
 	d.hide(w)
+
 	if i := slices.Index(d.windows, w); i >= 0 {
 		d.windows = slices.Delete(d.windows, i, i+1)
 	}
+
 	for _, o := range d.windows {
 		if o.prevActive == w {
 			o.prevActive = nil
@@ -123,8 +125,10 @@ func (d *desktop) show(w *window) {
 			w.onShow()
 		}
 	}
+
 	d.raise(w)
 	d.activate(w)
+
 	d.dirty = true
 }
 
@@ -134,19 +138,25 @@ func (d *desktop) hide(w *window) {
 	if !w.visible {
 		return
 	}
+
 	w.visible = false
 	d.release(w)
+
 	if d.active == w {
 		d.active = nil
 		w.active = false
+
 		if w.onDeactivate != nil {
 			w.onDeactivate()
 		}
+
 		d.activateTop()
 	}
+
 	if w.onHide != nil {
 		w.onHide()
 	}
+
 	d.dirty = true
 }
 
@@ -155,27 +165,33 @@ func (d *desktop) release(w *window) {
 	if d.capture != nil && d.capture.base().win == w {
 		d.capture = nil
 	}
+
 	if d.hover != nil && d.hover.base().win == w {
 		d.hover = nil
 	}
+
 	if d.drag == w {
 		d.drag = nil
 	}
+
 	if d.capWindow == w {
 		d.capWindow = nil
 		w.capPressed = capNone
 	}
+
 	if d.menu != nil && d.menu.win == w {
 		d.menu.exit()
 	}
+
 	d.dismissPopups()
 }
 
 // activateTop activates the topmost visible window.
 func (d *desktop) activateTop() {
-	for i := len(d.windows) - 1; i >= 0; i-- {
-		if w := d.windows[i]; w.visible {
+	for _, w := range slices.Backward(d.windows) {
+		if w.visible {
 			d.activate(w)
+
 			return
 		}
 	}
@@ -196,28 +212,36 @@ func (d *desktop) activate(w *window) {
 	if m := d.topModal(); m != nil && w != m {
 		w = m
 	}
+
 	if w == d.active {
 		if w != nil {
 			d.raise(w)
 		}
+
 		return
 	}
+
 	prev := d.active
 	if prev != nil {
 		prev.active = false
+
 		d.dismissPopups()
+
 		if d.menu != nil {
 			d.menu.exit()
 		}
+
 		if l, ok := prev.focus.(interface{ lostFocus() }); ok {
 			l.lostFocus()
 		}
 	}
+
 	d.active = w
 	if w != nil {
 		w.active = true
 		w.noFocus = false
 		d.raise(w)
+
 		if w.focus == nil || !canFocus(w.focus) {
 			w.focus = nil
 			w.focusFirst()
@@ -225,10 +249,13 @@ func (d *desktop) activate(w *window) {
 			g.gotFocus(false)
 		}
 	}
+
 	d.dirty = true
+
 	if prev != nil && prev.onDeactivate != nil {
 		prev.onDeactivate()
 	}
+
 	if w != nil && w.onActivate != nil {
 		w.onActivate()
 	}
@@ -238,6 +265,7 @@ func (d *desktop) topModal() *window {
 	if n := len(d.modals); n > 0 {
 		return d.modals[n-1]
 	}
+
 	return nil
 }
 
@@ -258,11 +286,13 @@ func (d *desktop) closeModal(w *window) {
 	if i < 0 {
 		return
 	}
+
 	d.modals = slices.Delete(d.modals, i, i+1)
 	w.modal = false
 	prev := w.prevActive
 	w.prevActive = nil
 	d.hide(w)
+
 	if prev != nil && prev.visible {
 		d.activate(prev)
 	}
@@ -286,26 +316,30 @@ func (d *desktop) dismissPopups() {
 	for len(d.popups) > 0 {
 		n := len(d.popups)
 		d.popups[n-1].dismiss()
+
 		if len(d.popups) == n { // it didn't close itself
 			d.popups = d.popups[:n-1]
 		}
 	}
+
 	d.popupPress = false
 }
 
 // windowAt returns the topmost visible window at p, or nil.
 func (d *desktop) windowAt(p image.Point) *window {
-	for i := len(d.windows) - 1; i >= 0; i-- {
-		if w := d.windows[i]; w.visible && p.In(w.rect()) {
+	for _, w := range slices.Backward(d.windows) {
+		if w.visible && p.In(w.rect()) {
 			return w
 		}
 	}
+
 	return nil
 }
 
 // blocked reports whether a modal window keeps w from taking input.
 func (d *desktop) blocked(w *window) bool {
 	m := d.topModal()
+
 	return m != nil && w != m
 }
 
@@ -315,24 +349,30 @@ func (d *desktop) update(in *input, now time.Time) {
 	p := image.Pt(max(min(in.mouse.X, screenWidth-1), 0), max(min(in.mouse.Y, screenHeight-1), 0))
 	moved := p != d.mouse
 	d.mouse = p
+
 	if moved {
 		d.mouseMove(p, in.down && !in.pressed)
 	}
+
 	if in.pressed {
 		d.mouseDown(p)
 	}
+
 	if in.released {
 		d.mouseUp(p)
 	}
+
 	if in.wheel != 0 {
 		d.wheel(p, in.wheel)
 	}
+
 	// Keys that come down in the same frame come in key code order, the
 	// letters before Alt; the modifiers go first, as they were pressed
 	// before the keys they modify. Alt+M in one frame isn't Alt alone.
 	slices.SortStableFunc(in.keys, func(a, b ebiten.Key) int {
 		return cmp.Compare(keyOrder(a), keyOrder(b))
 	})
+
 	// The characters the keys type go to the active window, unless the
 	// menu took the keys, or they opened another window: a menu's loop
 	// eats its characters, as a dialog the menu opens doesn't get them.
@@ -340,16 +380,20 @@ func (d *desktop) update(in *input, now time.Time) {
 	for _, k := range in.keys {
 		menu = menu || d.menu != nil
 		d.keyDown(k, in.mods)
+
 		menu = menu || d.menu != nil
 	}
+
 	if !in.mods.alt && !in.mods.ctrl && !menu && d.active == active {
 		for _, r := range in.chars {
 			d.char(r, in.mods)
 		}
 	}
+
 	for _, k := range in.keysUp {
 		d.keyUp(k, in.mods)
 	}
+
 	d.updateHint(p, in.pressed || in.released || in.wheel != 0 || len(in.keys) > 0 || len(in.keysUp) > 0)
 	d.tick(now)
 	d.updateCursor(p)
@@ -358,6 +402,7 @@ func (d *desktop) update(in *input, now time.Time) {
 // widgetOrigin returns a widget's top-left corner on the screen.
 func widgetOrigin(k widget) image.Point {
 	c := k.base()
+
 	return c.win.clientOrigin().Add(c.origin())
 }
 
@@ -366,12 +411,15 @@ func (d *desktop) isDouble(p image.Point, target any) bool {
 	dp := p.Sub(d.lastPos)
 	double := target == d.lastTarget && d.now.Sub(d.lastClick) <= doubleClickTime &&
 		abs(dp.X) <= doubleClickDist/2 && abs(dp.Y) <= doubleClickDist/2
+
 	if double {
 		d.lastTarget = nil // a third click starts over
 	} else {
 		d.lastTarget = target
 	}
+
 	d.lastClick, d.lastPos = d.now, p
+
 	return double
 }
 
@@ -379,6 +427,7 @@ func abs(x int) int {
 	if x < 0 {
 		return -x
 	}
+
 	return x
 }
 
@@ -386,55 +435,75 @@ func (d *desktop) mouseDown(p image.Point) {
 	d.dirty = true
 	if d.menu != nil {
 		d.menu.mouseDown(p)
+
 		return
 	}
+
 	if n := len(d.popups); n > 0 {
 		top := d.popups[n-1]
 		if p.In(top.bounds()) {
 			d.popupPress = true
+
 			top.mouseDown(p)
+
 			return
 		}
+
 		d.dismissPopups()
+
 		return // the click only closes the popup
 	}
+
 	w := d.windowAt(p)
 	if w == nil {
 		return
 	}
+
 	if d.blocked(w) {
 		d.activate(d.topModal())
+
 		return
 	}
+
 	d.activate(w)
+
 	if w.style != bsNone && p.In(w.captionRect()) {
 		d.captionDown(w, p)
+
 		return
 	}
+
 	if w.menu != nil && p.In(w.menuRect()) {
 		d.menu = w.menu
 		w.menu.mouseDown(p)
+
 		return
 	}
+
 	if !p.In(w.clientRect()) {
 		return // the frame
 	}
+
 	k := w.widgetAt(p)
 	// A disabled control takes no clicks: its parent gets them, as
 	// WindowFromPoint skips disabled windows.
 	for k != nil && !k.base().usable() {
 		k = k.base().parent
 	}
+
 	double := d.isDouble(p, any(k))
 	if k == nil {
 		if w.onClick != nil {
 			w.onClick()
 		}
+
 		return
 	}
+
 	if canFocus(k) {
 		w.setFocus(k, true)
 	}
+
 	if c, ok := k.(clicker); ok {
 		d.capture = k
 		c.mouseDown(p.Sub(widgetOrigin(k)), double)
@@ -450,9 +519,11 @@ func (d *desktop) captionDown(w *window, p image.Point) {
 		if p.In(w.captionButton(b)) {
 			w.capPressed, w.capInside = b, true
 			d.capWindow = w
+
 			return
 		}
 	}
+
 	if d.isDouble(p, w) {
 		icon := w.sysMenu && w.style != bsDialog && w.style != bsToolWindow &&
 			p.X < w.captionRect().Min.X+20
@@ -462,8 +533,10 @@ func (d *desktop) captionDown(w *window, p image.Point) {
 		case w.maxBox:
 			w.toggleMaximize()
 		}
+
 		return
 	}
+
 	if !w.maximized {
 		d.drag = w
 		d.dragFrom = p.Sub(w.pos)
@@ -475,12 +548,15 @@ func (d *desktop) mouseMove(p image.Point, down bool) {
 	d.lastTarget = nil
 	if d.menu != nil {
 		d.menu.mouseMove(p, down)
+
 		return
 	}
+
 	switch {
 	case d.drag != nil:
 		d.drag.pos = p.Sub(d.dragFrom)
 		d.dirty = true
+
 		return
 	case d.capWindow != nil:
 		w := d.capWindow
@@ -488,36 +564,47 @@ func (d *desktop) mouseMove(p image.Point, down bool) {
 			w.capInside = in
 			d.dirty = true
 		}
+
 		return
 	}
+
 	if n := len(d.popups); n > 0 {
 		d.popups[n-1].mouseMove(p, down && d.popupPress || down && d.capture != nil)
+
 		d.dirty = true
 		if d.popupPress {
 			return
 		}
 	}
+
 	if d.capture != nil {
 		if c, ok := d.capture.(clicker); ok {
 			c.mouseDrag(p.Sub(widgetOrigin(d.capture)))
 		}
+
 		return
 	}
+
 	// Hovering: hot-tracking list views and the menu bar.
 	var over widget
 	w := d.windowAt(p)
+
 	for _, m := range d.menuBars() {
 		m.hover(p, w == m.win && !d.blocked(w) && len(d.popups) == 0)
 	}
+
 	if w != nil && !d.blocked(w) && len(d.popups) == 0 && p.In(w.clientRect()) {
 		over = w.widgetAt(p)
 	}
+
 	if over != d.hover {
 		if h, ok := d.hover.(hoverer); ok {
 			h.hover(image.Point{}, true)
 		}
+
 		d.hover = over
 	}
+
 	if h, ok := over.(hoverer); ok {
 		h.hover(p.Sub(widgetOrigin(over)), false)
 	}
@@ -526,11 +613,13 @@ func (d *desktop) mouseMove(p image.Point, down bool) {
 // menuBars lists the visible windows' menu bars.
 func (d *desktop) menuBars() []*menuBar {
 	var out []*menuBar
+
 	for _, w := range d.windows {
 		if w.visible && w.menu != nil {
 			out = append(out, w.menu)
 		}
 	}
+
 	return out
 }
 
@@ -538,17 +627,21 @@ func (d *desktop) mouseUp(p image.Point) {
 	d.dirty = true
 	if d.menu != nil {
 		d.menu.mouseUp(p)
+
 		return
 	}
+
 	switch {
 	case d.drag != nil:
 		d.drag = nil
+
 		return
 	case d.capWindow != nil:
 		w := d.capWindow
 		b := w.capPressed
 		inside := p.In(w.captionButton(b))
 		w.capPressed, d.capWindow = capNone, nil
+
 		if inside {
 			switch b {
 			case capClose:
@@ -563,21 +656,27 @@ func (d *desktop) mouseUp(p image.Point) {
 				}
 			}
 		}
+
 		return
 	}
+
 	if d.popupPress {
 		d.popupPress = false
 		if n := len(d.popups); n > 0 && d.popups[n-1].mouseUp(p) {
 			d.popups[n-1].dismiss()
 		}
+
 		return
 	}
+
 	if d.capture != nil {
 		k := d.capture
 		d.capture = nil
+
 		if c, ok := k.(clicker); ok {
 			c.mouseUp(p.Sub(widgetOrigin(k)))
 		}
+
 		// A press on a combo box's button can end on its list.
 		if n := len(d.popups); n > 0 && p.In(d.popups[n-1].bounds()) && d.popups[n-1].mouseUp(p) {
 			d.popups[n-1].dismiss()
@@ -591,11 +690,14 @@ func (d *desktop) wheel(p image.Point, dy int) {
 	if d.menu != nil {
 		return
 	}
+
 	d.dirty = true
 	if n := len(d.popups); n > 0 {
 		d.popups[n-1].wheel(dy)
+
 		return
 	}
+
 	if w := d.active; w != nil && w.focus != nil {
 		if h, ok := w.focus.(wheeler); ok && w.focus.base().usable() {
 			h.wheel(dy)
@@ -607,41 +709,52 @@ func (d *desktop) keyDown(k ebiten.Key, m mods) {
 	d.dirty = true
 	if k == ebiten.KeyAltLeft || k == ebiten.KeyAltRight {
 		d.altAlone = true
+
 		return
 	}
+
 	d.altAlone = false
 	if d.menu != nil {
 		d.menu.key(k, m)
+
 		return
 	}
+
 	w := d.active
 	if w == nil {
 		return
 	}
+
 	if w.menu != nil && !d.blocked(w) && len(d.popups) == 0 {
 		switch {
 		case k == ebiten.KeyF10 && !m.shift && !m.ctrl:
 			d.menu = w.menu
 			w.menu.enterKeyboard()
+
 			return
 		case m.alt && w.menu.openByKey(k):
 			d.menu = w.menu
+
 			return
 		case w.menu.shortcut(k, m):
 			return
 		}
 	}
+
 	switch {
 	case m.alt && k == ebiten.KeyF4:
 		if w.sysMenu && w.style != bsNone {
 			w.close()
 		}
+
 		return
 	case m.alt && keyRune(k) != 0:
 		// Alt and a letter: a button's accelerator.
 		w.accelerator(keyRune(k))
+
 		return
 	}
+
 	w.key(k, m)
 }
 
@@ -649,16 +762,21 @@ func (d *desktop) keyUp(k ebiten.Key, m mods) {
 	if (k == ebiten.KeyAltLeft || k == ebiten.KeyAltRight) && d.altAlone {
 		d.altAlone = false
 		d.dirty = true
+
 		if d.menu != nil {
 			d.menu.exit()
+
 			return
 		}
+
 		if w := d.active; w != nil && w.menu != nil && !d.blocked(w) && len(d.popups) == 0 {
 			d.menu = w.menu
 			w.menu.enterKeyboard()
 		}
+
 		return
 	}
+
 	if w := d.active; w != nil {
 		if b, ok := w.focus.(*button); ok {
 			b.keyUp(k)
@@ -669,10 +787,13 @@ func (d *desktop) keyUp(k ebiten.Key, m mods) {
 func (d *desktop) char(r rune, m mods) {
 	if d.menu != nil {
 		d.menu.char(r)
+
 		return
 	}
+
 	if w := d.active; w != nil {
 		d.dirty = true
+
 		w.char(r, m)
 	}
 }
@@ -685,6 +806,7 @@ func keyRune(k ebiten.Key) rune {
 	case k >= ebiten.KeyDigit0 && k <= ebiten.KeyDigit9:
 		return '0' + rune(k-ebiten.KeyDigit0)
 	}
+
 	return 0
 }
 
@@ -695,6 +817,7 @@ func keyOrder(k ebiten.Key) int {
 		ebiten.KeyShiftLeft, ebiten.KeyShiftRight, ebiten.KeyMetaLeft, ebiten.KeyMetaRight:
 		return 0
 	}
+
 	return 1
 }
 
@@ -704,14 +827,18 @@ func (d *desktop) tick(now time.Time) {
 	if n := len(d.popups); n > 0 && d.popups[n-1].tick(now) {
 		d.dirty = true
 	}
+
 	if t, ok := d.capture.(ticker); ok {
 		t.tick(now)
 	}
+
 	if d.menu != nil {
 		d.menu.tick(now)
 	}
+
 	if w := d.active; w != nil && w.focus != nil {
 		var since time.Duration
+
 		switch f := w.focus.(type) {
 		case *edit:
 			since = now.Sub(f.tb.blink)
@@ -722,6 +849,7 @@ func (d *desktop) tick(now time.Time) {
 		default:
 			return
 		}
+
 		if on := since%(2*caretBlink) < caretBlink; on != d.caretOn {
 			d.caretOn = on
 			d.dirty = true
@@ -731,6 +859,7 @@ func (d *desktop) tick(now time.Time) {
 
 func (d *desktop) updateCursor(p image.Point) {
 	c := ebiten.CursorShapeDefault
+
 	if d.menu == nil && len(d.popups) == 0 && d.drag == nil {
 		k := d.capture
 		if k == nil {
@@ -738,10 +867,12 @@ func (d *desktop) updateCursor(p image.Point) {
 				k = w.widgetAt(p)
 			}
 		}
+
 		if cu, ok := k.(cursorer); ok && k.base().usable() {
 			c = cu.cursor(p.Sub(widgetOrigin(k)))
 		}
 	}
+
 	d.cursor = c
 }
 
@@ -749,16 +880,21 @@ func (d *desktop) updateCursor(p image.Point) {
 func (d *desktop) paint(img *image.RGBA) {
 	cv := newCanvas(img)
 	cv.fill(img.Rect, colDesktop)
+
 	for _, w := range d.windows {
 		w.paint(cv)
 	}
+
 	for _, p := range d.popups {
 		p.paint(cv)
 	}
+
 	if d.menu != nil {
 		d.menu.paintPopups(cv)
 	}
+
 	d.hint.paint(cv, d.res.sans)
+
 	d.dirty = false
 }
 
@@ -785,29 +921,37 @@ type hint struct {
 
 func (d *desktop) updateHint(p image.Point, cancel bool) {
 	h := &d.hint
+
 	var k widget
+
 	if d.menu == nil && len(d.popups) == 0 && d.drag == nil && d.capture == nil && d.topModal() == nil {
 		if w := d.windowAt(p); w != nil && p.In(w.clientRect()) {
 			k = w.widgetAt(p)
 		}
 	}
+
 	if k != nil && (!k.base().shown() || k.base().prop("ShowHint") != "True" || hintText(k) == "") {
 		k = nil
 	}
+
 	if cancel || k != h.ctl {
 		if !h.r.Empty() {
 			h.r = image.Rectangle{}
 			d.dirty = true
 		}
+
 		h.ctl, h.since, h.done = k, d.now, false
 		if cancel {
 			h.ctl = nil // CancelHint: the pause starts again
 		}
+
 		return
 	}
+
 	if k == nil || h.done {
 		return
 	}
+
 	switch {
 	case h.r.Empty() && d.now.Sub(h.since) >= hintPause:
 		// CalcHintRect adds 6 and 2 to the text's size, ActivateHint 4 more
@@ -830,6 +974,7 @@ func (d *desktop) updateHint(p image.Point, cancel bool) {
 // hintText is a control's hint, the part before a "|" (GetShortHint).
 func hintText(k widget) string {
 	text, _, _ := strings.Cut(k.base().prop("Hint"), "|")
+
 	return text
 }
 
@@ -839,6 +984,7 @@ func (h *hint) paint(cv canvas, f face) {
 	if h.r.Empty() {
 		return
 	}
+
 	cv.fill(h.r, colInfo)
 	cv.frame(h.r, colFrame)
 	f.draw(cv.sub(h.r), 3, 3, h.text, colText)

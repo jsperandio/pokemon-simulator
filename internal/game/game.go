@@ -192,6 +192,7 @@ func gaugeColor(hp, level int) GaugeColor {
 	case 2*hp <= maxHP:
 		return Yellow
 	}
+
 	return Green
 }
 
@@ -224,6 +225,7 @@ func New(data *gamedata.Data, ui UI) *Game {
 	}
 
 	g.Rand.Randomize()
+
 	g.Start.Visible = true
 
 	g.Main = MainWindow{
@@ -297,6 +299,7 @@ func (g *Game) showInfo() {
 		g.Info.Visible = true
 		g.Info.Lines = nil
 	}
+
 	g.show(InfoForm)
 }
 
@@ -332,7 +335,6 @@ func levelFor(level uint8, xp uint32) uint8 {
 // the 1,000,000 XP cap (EndBattle after a loss, the end of a tournament).
 func (g *Game) recomputeLevels() {
 	for i := range g.Party() {
-
 		m := &g.Owned[i]
 		m.Level = levelFor(m.Level, m.XP)
 

@@ -18,14 +18,17 @@ import (
 
 func loadData(t *testing.T) *gamedata.Data {
 	t.Helper()
+
 	raw, err := assets.FS.ReadFile("pokegame.dat")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	d, err := gamedata.Load(raw)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	return d
 }
 
@@ -34,12 +37,15 @@ type silent struct{ messages []string }
 
 func (s *silent) Message(kind DialogKind, yesNo bool, text string) bool {
 	s.messages = append(s.messages, text)
+
 	return true
 }
 
 func newGame(t *testing.T) (*Game, *silent) {
 	t.Helper()
+
 	ui := &silent{}
+
 	return New(loadData(t), ui), ui
 }
 
@@ -57,6 +63,7 @@ func TestWinPercent(t *testing.T) {
 			t.Errorf("%d wins, %d losses: %q, want %q", c.wins, c.losses, got, c.want)
 		}
 	}
+
 	g.Wins, g.Losses = 0, 0
 	if _, ok := g.WinPercent(); ok {
 		t.Error("a percentage of no fights")
@@ -68,10 +75,13 @@ func TestWinPercent(t *testing.T) {
 func TestTypeMultipliers(t *testing.T) {
 	g, _ := newGame(t)
 	g.OpenTypes()
+
 	if _, _, _, ok := g.TypeMultipliers(); ok {
 		t.Error("multipliers with nothing selected")
 	}
+
 	g.SelectTypes(5, 3) // Charizard (Fire/Flying), Razor Leaf (Grass)
+
 	a, b, total, ok := g.TypeMultipliers()
 	if !ok || a != "0.5" || b != "0.5" || total != "0.25" {
 		t.Errorf("Razor Leaf on Charizard: %s × %s = %s", a, b, total)
@@ -84,6 +94,7 @@ func TestDexCount(t *testing.T) {
 	for _, s := range []int{1, 150, 251, 252, 386} {
 		g.InDex[s] = true
 	}
+
 	if n := g.DexCount(); n != 3 {
 		t.Errorf("DexCount = %d, want 3", n)
 	}
@@ -123,14 +134,18 @@ func TestTournamentPrizes(t *testing.T) {
 				seed := g.Rand.Seed
 				if g.Rand.Random(3)+1 == roll {
 					g.Rand.Seed = seed
+
 					break
 				}
 			}
+
 			g.handleTournament()
+
 			prize := g.prize(tier, roll)
 			if !strings.Contains(strings.Join(ui.messages, "\n"), "You won "+prize+"!") {
 				t.Errorf("tier %d roll %d: no \"You won %s!\" in %q", tier, roll, prize, ui.messages)
 			}
+
 			got := map[string]int{
 				"¥":             int(g.Money) - int(before.Money),
 				" POKéBALL":     int(g.PokeBalls) - int(before.PokeBalls),
@@ -142,23 +157,28 @@ func TestTournamentPrizes(t *testing.T) {
 				" POKéMON":      len(g.Party()) - len(before.Party()),
 			}
 			want := map[string]int{}
+
 			if prize == "a random POKéMON at a random level" {
 				want[" POKéMON"] = 1
 			} else {
 				n, unit, _ := strings.Cut(strings.TrimSuffix(strings.TrimSuffix(prize, "s"), "¥"), " ")
-				if strings.HasSuffix(prize, "¥") {
-					n, unit = strings.TrimSuffix(prize, "¥"), ""
+				if before0, ok := strings.CutSuffix(prize, "¥"); ok {
+					n, unit = before0, ""
 				}
+
 				v, err := strconv.Atoi(n)
 				if err != nil {
 					t.Fatalf("tier %d roll %d: prize %q", tier, roll, prize)
 				}
+
 				key := " " + unit
 				if unit == "" {
 					key = "¥"
 				}
+
 				want[key] = v
 			}
+
 			for k, v := range got {
 				if v != want[k] {
 					t.Errorf("tier %d roll %d (%s): %s changed by %d, want %d", tier, roll, prize, k, v, want[k])
@@ -183,22 +203,27 @@ func TestLevelFor(t *testing.T) {
 func TestMenu(t *testing.T) {
 	g := New(nil, nil)
 	n := 0
+
 	var count func(items []*MenuItem)
 	count = func(items []*MenuItem) {
 		for _, m := range items {
 			n++
+
 			count(m.Items)
 		}
 	}
 	count(g.Menu)
+
 	if n != 86 {
 		t.Errorf("%d menu items, want the original's 86", n)
 	}
+
 	for name, want := range map[string]bool{"Brock1": true, "Misty1": false, "Falkner1": false, "MakeVisible1": false, "Quit1": true} {
 		if got := g.available(name); got != want {
 			t.Errorf("%s available: %t, want %t", name, got, want)
 		}
 	}
+
 	if g.ClickMenu("Misty1") || g.ClickMenu("NoSuchItem") || g.ClickMenu("Quit1") {
 		t.Error("ClickMenu ran a disabled, unknown or user interface command")
 	}
@@ -211,16 +236,20 @@ func TestExportPage(t *testing.T) {
 	f.Owned[0] = save.Slot{Species: 1, Level: 5, XP: 125}
 	f.Owned[1] = save.Slot{Species: 150, Level: 100, XP: 1000000}
 	f.Owned[2] = save.Slot{Species: 252, Level: 50, XP: 130000}
+
 	for _, s := range []int{1, 7, 150, 252} {
 		f.InDex[s] = true
 	}
+
 	if err := g.Load(`C:\Temp\probe-export.pgs`, f.Bytes()); err != nil {
 		t.Fatal(err)
 	}
+
 	want, err := os.ReadFile("../export/testdata/export.htm")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if got := g.ExportPage(time.Date(2026, 10, 11, 17, 32, 51, 0, time.Local)); !bytes.Equal(got, want) {
 		t.Errorf("the page differs from the original's:\n%s", got)
 	}
@@ -237,36 +266,48 @@ func TestArenaShows(t *testing.T) {
 	g, _ := newGame(t)
 	g.NewGame("ash.pgs", "Ash")
 	g.ChooseStarter(1) // Charmander, L.5
+
 	var during MainWindow
 	g.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
 		if text == choosePrompt {
 			during = g.Main
 		}
+
 		return true
 	})
 	g.StartWildBattle(25, 7) // Pikachu, L.7
+
 	if during.Enemy != (Shown{25, 7, 70}) || during.EnemyMoves != (Shown{}) {
 		t.Errorf("during %q: enemy %v, attacks of %v", choosePrompt, during.Enemy, during.EnemyMoves)
 	}
+
 	if g.Main.EnemyMoves != g.Main.Enemy || g.Main.Pokeball {
 		t.Errorf("after it: attacks of %v, POKéBall %v", g.Main.EnemyMoves, g.Main.Pokeball)
 	}
+
 	g.ClickParty(0)
+
 	if g.Main.Own != (Shown{4, 5, 50}) {
 		t.Errorf("fighter %v", g.Main.Own)
 	}
+
 	g.Main.AttackIndex = 0
 	g.Go()
+
 	if g.Main.Enemy.HP != g.EnemyHP || g.Main.Own.HP != g.OwnHP || g.EnemyHP == 70 {
 		t.Errorf("after a turn: shows %d and %d HP, has %d and %d", g.Main.Enemy.HP, g.Main.Own.HP, g.EnemyHP, g.OwnHP)
 	}
+
 	g.Main.AttackIndex = 4 // Run!
 	g.Go()
 	g.EndFight()
+
 	if g.Main.Own != (Shown{}) || g.Main.Enemy.Species != 25 {
 		t.Errorf("after the battle: fighter %v, enemy %v", g.Main.Own, g.Main.Enemy)
 	}
+
 	g.StartWildBattle(4, 5) // Charmander is in the POKéDEX
+
 	if !g.Main.Pokeball {
 		t.Error("no POKéBall for a registered species")
 	}
@@ -287,15 +328,19 @@ func TestGaugeColor(t *testing.T) {
 
 func TestShowOrder(t *testing.T) {
 	g, _ := newGame(t)
+
 	var shown []Window
 	g.OnShow = func(w Window) { shown = append(shown, w) }
 	check := func(what string, want ...Window) {
 		t.Helper()
+
 		if !slices.Equal(shown, want) {
 			t.Errorf("%s shows %v, want %v", what, shown, want)
 		}
+
 		shown = nil
 	}
+
 	g.NewGame("ash.pgs", "Ash")
 	check("NewGame", MainForm)
 	g.ChooseStarter(0)

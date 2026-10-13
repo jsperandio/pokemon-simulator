@@ -11,14 +11,17 @@ import (
 
 func loadEmbedded(t *testing.T) *Data {
 	t.Helper()
+
 	raw, err := assets.FS.ReadFile("pokegame.dat")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	d, err := Load(raw)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	return d
 }
 
@@ -34,6 +37,7 @@ func TestLoadCounts(t *testing.T) {
 		{"prizes", len(d.Prizes), NumPrizes},
 		{"trainer names", len(d.TrainerNames), NumTrainerNames},
 	}
+
 	for _, c := range counts {
 		if c.got != c.want {
 			t.Errorf("%s: got %d, want %d", c.name, c.got, c.want)
@@ -46,6 +50,7 @@ func TestTypes(t *testing.T) {
 	if d.TypeName(Normal) != "Normal" || d.TypeName(Steel) != "Steel" || d.TypeName(Grass) != "Grass" {
 		t.Errorf("type names: %q", d.TypeNames)
 	}
+
 	effects := []struct {
 		atk, def Type
 		want     float64
@@ -81,28 +86,36 @@ func TestSpecies(t *testing.T) {
 		{ID: 252, Name: "Treecko"},
 		{ID: 386, Name: "Deoxys"},
 	}
+
 	for _, want := range tests {
 		got := d.SpeciesByID(want.ID)
 		if got == nil || got.Name != want.Name {
 			t.Errorf("species %d: got %+v, want name %q", want.ID, got, want.Name)
+
 			continue
 		}
+
 		if want.Types != [2]Type{} && got.Types != want.Types {
 			t.Errorf("%s types: got %v, want %v", want.Name, got.Types, want.Types)
 		}
+
 		if want.EvolveLevel != 0 && got.EvolveLevel != want.EvolveLevel {
 			t.Errorf("%s evolve level: got %d, want %d", want.Name, got.EvolveLevel, want.EvolveLevel)
 		}
+
 		if want.EvolveTo != 0 && got.EvolveTo != want.EvolveTo {
 			t.Errorf("%s evolves to: got %d, want %d", want.Name, got.EvolveTo, want.EvolveTo)
 		}
+
 		if want.Moves != [4]int{} && got.Moves != want.Moves {
 			t.Errorf("%s moves: got %v, want %v", want.Name, got.Moves, want.Moves)
 		}
 	}
+
 	if eevee := d.SpeciesByID(133); eevee.EvolveTo != 0 {
 		t.Errorf("Eevee evolves to %d, want 0 (chosen by the game)", eevee.EvolveTo)
 	}
+
 	if d.SpeciesByID(0) != nil || d.SpeciesByID(387) != nil {
 		t.Error("SpeciesByID accepts out-of-range IDs")
 	}
@@ -115,12 +128,14 @@ func TestMoves(t *testing.T) {
 		{ID: 3, Name: "Leech Seed", Power: 110, Type: Grass},
 		{ID: 8, Name: "Ember", Type: Fire},
 	}
+
 	for _, want := range tests {
 		got := d.MoveByID(want.ID)
 		if got == nil || got.Name != want.Name || got.Type != want.Type || (want.Power != 0 && got.Power != want.Power) {
 			t.Errorf("move %d: got %+v, want %+v", want.ID, got, want)
 		}
 	}
+
 	for _, s := range d.Species {
 		for _, m := range s.Moves {
 			if d.MoveByID(m) == nil {
@@ -141,6 +156,7 @@ func TestTexts(t *testing.T) {
 		{d.TrainerNames[0], "Tracey"},
 		{d.TrainerNames[NumTrainerNames-1], "Julia"},
 	}
+
 	for _, c := range checks {
 		if c.got != c.want {
 			t.Errorf("got %q, want %q", c.got, c.want)
@@ -153,6 +169,7 @@ func TestLoadErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	lines := strings.Split(string(raw), "\r\n")
 
 	truncated := strings.Join(lines[:1000], "\r\n")
@@ -162,6 +179,7 @@ func TestLoadErrors(t *testing.T) {
 
 	bad := append([]string(nil), lines...)
 	bad[699] = "four" // first type of Bulbasaur
+
 	if _, err := Load([]byte(strings.Join(bad, "\r\n"))); err == nil || !strings.Contains(err.Error(), "line 700") {
 		t.Errorf("non-numeric value: got error %v, want one naming line 700", err)
 	}

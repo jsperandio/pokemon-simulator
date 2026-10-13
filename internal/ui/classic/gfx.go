@@ -57,6 +57,7 @@ func vclColor(name string, def color.RGBA) color.RGBA {
 	if c, ok := vclColors[name]; ok {
 		return c
 	}
+
 	return def
 }
 
@@ -76,6 +77,7 @@ func newCanvas(img *image.RGBA) canvas {
 // corner as its origin, clipped to r.
 func (cv canvas) sub(r image.Rectangle) canvas {
 	r = r.Add(cv.org)
+
 	return canvas{img: cv.img, org: r.Min, clip: cv.clip.Intersect(r)}
 }
 
@@ -85,11 +87,14 @@ func (cv canvas) fill(r image.Rectangle, c color.RGBA) {
 	if r.Empty() {
 		return
 	}
+
 	row := cv.img.Pix[cv.img.PixOffset(r.Min.X, r.Min.Y):]
 	n := r.Dx() * 4
+
 	for i := 0; i < n; i += 4 {
 		row[i], row[i+1], row[i+2], row[i+3] = c.R, c.G, c.B, c.A
 	}
+
 	first := row[:n]
 	for y := r.Min.Y + 1; y < r.Max.Y; y++ {
 		copy(cv.img.Pix[cv.img.PixOffset(r.Min.X, y):], first)
@@ -111,6 +116,7 @@ func (cv canvas) at(x, y int) color.RGBA {
 	if !p.In(cv.img.Rect) {
 		return color.RGBA{A: 0xff}
 	}
+
 	return cv.img.RGBAAt(p.X, p.Y)
 }
 
@@ -145,29 +151,37 @@ func (cv canvas) edge(r image.Rectangle, tl, br color.RGBA) {
 // the rectangle inside them.
 func (cv canvas) raised(r image.Rectangle) image.Rectangle { // windows, panels
 	cv.edge(r, colLight, colDkShadow)
+
 	r = r.Inset(1)
 	cv.edge(r, colHighlight, colShadow)
+
 	return r.Inset(1)
 }
 
 func (cv canvas) raisedSoft(r image.Rectangle) image.Rectangle { // buttons
 	cv.edge(r, colHighlight, colDkShadow)
+
 	r = r.Inset(1)
 	cv.edge(r, colLight, colShadow)
+
 	return r.Inset(1)
 }
 
 func (cv canvas) sunken(r image.Rectangle) image.Rectangle { // edit boxes, lists
 	cv.edge(r, colShadow, colHighlight)
+
 	r = r.Inset(1)
 	cv.edge(r, colDkShadow, colLight)
+
 	return r.Inset(1)
 }
 
 func (cv canvas) sunkenSoft(r image.Rectangle) image.Rectangle { // pushed buttons
 	cv.edge(r, colDkShadow, colHighlight)
+
 	r = r.Inset(1)
 	cv.edge(r, colShadow, colLight)
+
 	return r.Inset(1)
 }
 
@@ -178,6 +192,7 @@ func (cv canvas) focusRect(r image.Rectangle) {
 	if r.Empty() {
 		return
 	}
+
 	dot := func(x, y int) {
 		if (x+cv.org.X+y+cv.org.Y)&1 == 0 {
 			cv.invert(x, y)
@@ -185,12 +200,15 @@ func (cv canvas) focusRect(r image.Rectangle) {
 	}
 	for x := r.Min.X; x < r.Max.X; x++ {
 		dot(x, r.Min.Y)
+
 		if r.Dy() > 1 {
 			dot(x, r.Max.Y-1)
 		}
 	}
+
 	for y := r.Min.Y + 1; y < r.Max.Y-1; y++ {
 		dot(r.Min.X, y)
+
 		if r.Dx() > 1 {
 			dot(r.Max.X-1, y)
 		}
@@ -206,6 +224,7 @@ func (cv canvas) gradient(r image.Rectangle, a, b color.RGBA) {
 		if w > 1 {
 			t = x * 256 / (w - 1)
 		}
+
 		mix := func(p, q uint8) uint8 { return uint8((int(p)*(256-t) + int(q)*t) / 256) }
 		cv.vline(r.Min.X+x, r.Min.Y, r.Max.Y, color.RGBA{mix(a.R, b.R), mix(a.G, b.G), mix(a.B, b.B), 0xff})
 	}
@@ -220,6 +239,7 @@ func (cv canvas) draw(x, y int, src *image.NRGBA, sr image.Rectangle) {
 			if c.A < 0x80 {
 				continue
 			}
+
 			cv.pix(x+sx-sr.Min.X, y+sy-sr.Min.Y, color.RGBA{c.R, c.G, c.B, 0xff})
 		}
 	}
@@ -229,9 +249,11 @@ func (cv canvas) draw(x, y int, src *image.NRGBA, sr image.Rectangle) {
 func (cv canvas) copy(x, y int, src *image.RGBA, sr image.Rectangle) {
 	dr := image.Rectangle{Min: image.Pt(x, y), Max: image.Pt(x, y).Add(sr.Size())}.Add(cv.org)
 	r := dr.Intersect(cv.clip)
+
 	if r.Empty() {
 		return
 	}
+
 	draw.Draw(cv.img, r, src, sr.Min.Add(r.Min.Sub(dr.Min)), draw.Src)
 }
 
@@ -244,6 +266,7 @@ func (cv canvas) blend(x, y int, src *image.NRGBA, sr image.Rectangle) {
 			if c.A == 0 {
 				continue
 			}
+
 			px, py := x+sx-sr.Min.X, y+sy-sr.Min.Y
 			d := cv.at(px, py)
 			a := int(c.A)

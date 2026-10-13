@@ -15,9 +15,11 @@ func Upload(files Files, dir string) <-chan []string {
 	input := js.Global().Get("document").Call("createElement", "input")
 	input.Set("type", "file")
 	input.Set("multiple", true)
+
 	var onChange, onCancel js.Func
 	finish := func(names []string) {
 		out <- names
+
 		onChange.Release()
 		onCancel.Release()
 	}
@@ -26,34 +28,46 @@ func Upload(files Files, dir string) <-chan []string {
 		// Reading a file waits for a promise, which a callback can't.
 		go func() {
 			var names []string
+
 			for i := range list.Get("length").Int() {
 				f := list.Index(i)
+
 				buf, err := awaitPromise(f.Call("arrayBuffer"))
 				if err != nil {
 					warn("POKéMON Simulator: " + err.Error())
+
 					continue
 				}
+
 				arr := js.Global().Get("Uint8Array").New(buf)
 				b := make([]byte, arr.Get("length").Int())
 				js.CopyBytesToGo(b, arr)
+
 				name := f.Get("name").String()
 				if err := files.WriteFile(files.Join(dir, name), b); err != nil {
 					warn("POKéMON Simulator: " + name + ": " + err.Error())
+
 					continue
 				}
+
 				names = append(names, name)
 			}
+
 			finish(names)
 		}()
+
 		return nil
 	})
 	onCancel = js.FuncOf(func(js.Value, []js.Value) any {
 		finish(nil)
+
 		return nil
 	})
+
 	input.Call("addEventListener", "change", onChange)
 	input.Call("addEventListener", "cancel", onCancel)
 	input.Call("click")
+
 	return out
 }
 
@@ -69,10 +83,12 @@ func Download(name string, data []byte) error {
 	doc.Get("body").Call("appendChild", a)
 	a.Call("click")
 	a.Call("remove")
+
 	go func() {
 		time.Sleep(time.Minute)
 		js.Global().Get("URL").Call("revokeObjectURL", url)
 	}()
+
 	return nil
 }
 
@@ -82,15 +98,20 @@ func awaitPromise(p js.Value) (js.Value, error) {
 	errs := make(chan error, 1)
 	then := js.FuncOf(func(_ js.Value, args []js.Value) any {
 		vals <- args[0]
+
 		return nil
 	})
 	fail := js.FuncOf(func(_ js.Value, args []js.Value) any {
 		errs <- jsError(args[0])
+
 		return nil
 	})
+
 	defer then.Release()
 	defer fail.Release()
+
 	p.Call("then", then, fail)
+
 	select {
 	case v := <-vals:
 		return v, nil
@@ -110,16 +131,20 @@ func WarnOnLeave(on bool) {
 	if on == guarding {
 		return
 	}
+
 	guarding = on
 	if on {
 		leaveGuard = js.FuncOf(func(_ js.Value, args []js.Value) any {
 			args[0].Call("preventDefault")
 			args[0].Set("returnValue", "")
+
 			return nil
 		})
 		js.Global().Call("addEventListener", "beforeunload", leaveGuard)
+
 		return
 	}
+
 	js.Global().Call("removeEventListener", "beforeunload", leaveGuard)
 	leaveGuard.Release()
 }

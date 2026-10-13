@@ -28,23 +28,28 @@ func (ta *testApp) menuEffects() menuEffects {
 	if w := ta.desk.topModal(); w != nil {
 		e.modal = w.caption
 	}
+
 	for _, w := range ta.desk.windows {
 		if w.visible {
 			e.windows += w.name + " "
 		}
 	}
+
 	g := ta.g
 	e.battle = [3]bool{g.InWildBattle, g.InTrainerBattle, g.InTournament}
+
 	var walk func(items []*game.MenuItem)
 	walk = func(items []*game.MenuItem) {
 		for _, m := range items {
 			if m.Checked {
 				e.checked += m.Name + " "
 			}
+
 			walk(m.Items)
 		}
 	}
 	walk(g.Menu)
+
 	return e
 }
 
@@ -59,46 +64,59 @@ func TestEveryMenuCommand(t *testing.T) {
 	f.InDex[6], f.InDex[150] = true, true
 	b := f.Bytes()
 
-	var commands [][]string
-	var walk func(items []*game.MenuItem, path []string)
+	var (
+		commands [][]string
+		walk     func(items []*game.MenuItem, path []string)
+	)
 	walk = func(items []*game.MenuItem, path []string) {
 		for _, m := range items {
 			if !m.Visible {
 				continue
 			}
+
 			p := append(slices.Clone(path), m.Name)
 			if len(m.Items) > 0 {
 				walk(m.Items, p)
+
 				continue
 			}
+
 			commands = append(commands, p)
 		}
 	}
 	walk(game.New(nil, nil).Menu, nil)
+
 	// 45 trainers, 2 wild battles, 6 tournaments, 6 other actions, and
 	// File's 2, Music's 3 and Help's 2.
 	if len(commands) != 66 {
 		t.Errorf("%d commands, want the 66 outside the Debug menu", len(commands))
 	}
+
 	for _, path := range commands {
 		t.Run(path[len(path)-1], func(t *testing.T) {
 			dir := t.TempDir()
 			file := filepath.Join(dir, "all.pgs")
+
 			if err := os.WriteFile(file, b, 0o644); err != nil {
 				t.Fatal(err)
 			}
+
 			ta := newTestAppIn(t, dir, []string{file})
 			ta.music = &fakeMusic{stopErr: audio.ErrNotOpen}
 			ta.wait(80)
+
 			if !ta.main.w.visible {
 				t.Fatal("the game didn't load")
 			}
+
 			if ta.main.w.menu.entries[len(ta.main.w.menu.entries)-1].item.Visible {
 				t.Error("the Debug menu shows")
 			}
+
 			before := ta.menuEffects()
 			ta.menu(path...)
 			ta.wait(2)
+
 			if after := ta.menuEffects(); after == before {
 				t.Errorf("%s did nothing", strings.Join(path, " > "))
 			}

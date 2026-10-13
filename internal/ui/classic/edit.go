@@ -59,17 +59,21 @@ func (t *textBox) replace(s string) {
 	if t.readOnly {
 		return
 	}
+
 	a, b := t.sel()
 	in := []rune(s)
+
 	if t.maxLen > 0 {
 		room := t.maxLen - (len(t.text) - (b - a))
 		if room < len(in) {
 			in = in[:max(room, 0)]
 		}
 	}
+
 	if len(in) == 0 && a == b {
 		return
 	}
+
 	t.text = append(t.text[:a:a], append(in, t.text[b:]...)...)
 	t.caret = a + len(in)
 	t.anchor = t.caret
@@ -82,9 +86,11 @@ func (t *textBox) typed(r rune) {
 	if r < 0x20 || r == 0x7f || string(delphi.EncodeANSI(string(r))) == "?" && r != '?' {
 		return
 	}
+
 	if t.valid != nil && !t.valid(r) {
 		return
 	}
+
 	t.replace(string(r))
 }
 
@@ -95,9 +101,11 @@ func (t *textBox) key(k ebiten.Key, m mods) bool {
 		if !m.shift {
 			t.anchor = t.caret
 		}
+
 		t.blink = time.Now()
 	}
 	a, b := t.sel()
+
 	switch k {
 	case ebiten.KeyLeft:
 		if !m.shift && a != b {
@@ -123,27 +131,34 @@ func (t *textBox) key(k ebiten.Key, m mods) bool {
 		if t.readOnly {
 			return true
 		}
+
 		if a == b {
 			if a == 0 {
 				return true
 			}
+
 			t.anchor = a - 1
 		}
+
 		t.replace("")
 	case ebiten.KeyDelete:
 		if t.readOnly {
 			return true
 		}
+
 		if a == b {
 			if b == len(t.text) {
 				return true
 			}
+
 			t.caret = b + 1
 		}
+
 		t.replace("")
 	default:
 		return false
 	}
+
 	return true
 }
 
@@ -152,9 +167,11 @@ func (t *textBox) wordLeft() int {
 	for i > 0 && t.text[i-1] == ' ' {
 		i--
 	}
+
 	for i > 0 && t.text[i-1] != ' ' {
 		i--
 	}
+
 	return i
 }
 
@@ -163,9 +180,11 @@ func (t *textBox) wordRight() int {
 	for i < len(t.text) && t.text[i] != ' ' {
 		i++
 	}
+
 	for i < len(t.text) && t.text[i] == ' ' {
 		i++
 	}
+
 	return i
 }
 
@@ -174,13 +193,16 @@ func (t *textBox) wordRight() int {
 func (t *textBox) at(f face, x int) int {
 	x += t.scroll
 	w := 0
+
 	for i := range t.text {
 		cw := f.width(string(t.text[i]))
 		if x < w+cw/2 {
 			return i
 		}
+
 		w += cw
 	}
+
 	return len(t.text)
 }
 
@@ -190,9 +212,11 @@ func (t *textBox) fit(f face, w int) {
 	if cx-t.scroll > w-1 {
 		t.scroll = cx - w + 1 + w/4
 	}
+
 	if cx < t.scroll {
 		t.scroll = max(cx-w/4, 0)
 	}
+
 	if f.width(string(t.text))-t.scroll < w-1 {
 		t.scroll = max(f.width(string(t.text))-w+1, 0)
 	}
@@ -202,10 +226,12 @@ func (t *textBox) fit(f face, w int) {
 // blinking caret.
 func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, focused bool) {
 	t.fit(f, r.Dx())
+
 	in := cv.sub(r)
 	x := -t.scroll
 	s := string(t.text)
 	a, b := t.sel()
+
 	if !focused && !t.keepSel || a == b {
 		f.draw(in, x, 0, s, fg)
 	} else {
@@ -213,9 +239,11 @@ func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, foc
 		x = f.draw(in, x, 0, pre, fg)
 		w := f.width(mid)
 		in.fill(image.Rect(x, 0, x+w, f.height()), colSelection)
+
 		x = f.draw(in, x, 0, mid, colSelText)
 		f.draw(in, x, 0, post, fg)
 	}
+
 	if focused && a == b && !t.readOnly && time.Since(t.blink)%(1060*time.Millisecond) < 530*time.Millisecond {
 		cx := f.width(string(t.text[:t.caret])) - t.scroll
 		for y := range f.height() {
@@ -230,12 +258,15 @@ func (t *textBox) press(f face, x int, double bool, shift bool) {
 		t.caret = t.anchor
 		t.anchor = t.wordLeft()
 		t.caret = t.wordRight()
+
 		return
 	}
+
 	t.caret = t.at(f, x)
 	if !shift {
 		t.anchor = t.caret
 	}
+
 	t.dragging = true
 	t.blink = time.Now()
 }
@@ -260,10 +291,12 @@ func (e *edit) setup(comp *layout.Component) {
 	e.tabStop = e.prop("TabStop") != "False"
 	e.color = vclColor(e.prop("Color"), colWindow)
 	e.tb.set(comp.Caption)
+
 	e.tb.maxLen = e.propInt("MaxLength", 0)
 	e.tb.readOnly = e.prop("ReadOnly") == "True"
 	e.tb.onChange = func() {
 		e.invalidate()
+
 		if e.onChange != nil {
 			e.onChange()
 		}
@@ -288,6 +321,7 @@ func (e *edit) gotFocus(byMouse bool) {
 	if !byMouse {
 		e.tb.selectAll()
 	}
+
 	e.invalidate()
 }
 
@@ -295,9 +329,11 @@ func (e *edit) paint(cv canvas) {
 	r := e.local()
 	in := cv.sunken(r)
 	fg := e.fontColor
+
 	if !e.usable() {
 		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
+
 	cv.fill(in, e.color)
 	e.tb.paint(cv, image.Rect(e.inset, e.inset, r.Max.X-3, r.Max.Y-2), e.font, fg, e.focused() && e.win.active)
 }
@@ -317,8 +353,10 @@ func (e *edit) mouseUp(p image.Point) { e.tb.dragging = false }
 func (e *edit) key(k ebiten.Key, m mods) bool {
 	if e.tb.key(k, m) {
 		e.invalidate()
+
 		return true
 	}
+
 	return false
 }
 
@@ -343,15 +381,18 @@ type spinEdit struct {
 
 func (s *spinEdit) setup(comp *layout.Component) {
 	s.edit.setup(comp)
+
 	s.inset = 2 // SetEditRect puts the text at the client area's corner
 	s.minValue = s.propInt("MinValue", 0)
 	s.maxValue = s.propInt("MaxValue", 0)
 	s.increment = s.propInt("Increment", 1)
 	s.tb.set(strconv.Itoa(s.propInt("Value", 0)))
+
 	// IsValidChar: digits, signs and the decimal separator.
 	s.tb.valid = func(r rune) bool { return r >= '0' && r <= '9' || r == '+' || r == '-' || r == '.' }
 	s.tb.onChange = func() {
 		s.invalidate()
+
 		if s.onChangeValue != nil {
 			s.onChangeValue(s.value())
 		}
@@ -364,6 +405,7 @@ func (s *spinEdit) value() int {
 	if v, ok := delphi.StrToInt(s.tb.String()); ok {
 		return int(v)
 	}
+
 	return s.minValue
 }
 
@@ -372,6 +414,7 @@ func (s *spinEdit) check(v int) int {
 	if s.maxValue != s.minValue {
 		v = max(min(v, s.maxValue), s.minValue)
 	}
+
 	return v
 }
 
@@ -395,6 +438,7 @@ func (s *spinEdit) buttons() (up, down image.Rectangle) {
 	h := s.r.Dy() - 5
 	up = image.Rect(x, r.Min.Y, x+15, r.Min.Y+h/2)
 	down = image.Rect(x, up.Max.Y-1, x+15, r.Min.Y+h)
+
 	return
 }
 
@@ -422,31 +466,42 @@ func (s *spinEdit) paint(cv canvas) {
 	r := s.local()
 	in := cv.sunken(r)
 	fg := s.fontColor
+
 	if !s.usable() {
 		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
+
 	cv.fill(in, s.color)
+
 	up, down := s.buttons()
 	s.tb.paint(cv, image.Rect(s.inset, s.inset, up.Min.X-1, r.Max.Y-2), s.font, fg, s.focused() && s.win.active)
+
 	// Two speed buttons, the down one painted last, each drawn by
 	// DrawFrameControl with its glyph centred inside the frame.
 	for i, b := range []image.Rectangle{up, down} {
 		pushed := s.pressed == i+1 && s.inside
+
 		cv.fill(b, colFace)
+
 		off := 0
+
 		if pushed {
 			cv.sunkenSoft(b)
+
 			off = 1
 		} else {
 			cv.raisedSoft(b)
 		}
+
 		glyph := glyphSpinUp
 		if i == 1 {
 			glyph = glyphSpinDown
 		}
+
 		in := b.Inset(2)
 		x := in.Min.X + (in.Dx()-9+1)/2 + off
 		y := in.Min.Y + (in.Dy()-6+1)/2 + off
+
 		if s.usable() {
 			cv.pattern(x, y, glyph, map[byte]color.RGBA{'#': colText})
 		} else {
@@ -465,10 +520,13 @@ func (s *spinEdit) mouseDown(p image.Point, double bool) {
 		s.pressed = 1
 	default:
 		s.edit.mouseDown(p, double)
+
 		return
 	}
+
 	s.inside = true
 	s.step()
+
 	s.next = s.win.desk.now.Add(400 * time.Millisecond)
 	s.invalidate()
 }
@@ -487,6 +545,7 @@ func (s *spinEdit) spin(dir int) {
 	if s.tb.readOnly {
 		return
 	}
+
 	s.setValue(s.value() + dir*s.increment)
 	s.tb.selectAll()
 }
@@ -494,13 +553,17 @@ func (s *spinEdit) spin(dir int) {
 func (s *spinEdit) mouseDrag(p image.Point) {
 	if s.pressed == 0 {
 		s.edit.mouseDrag(p)
+
 		return
 	}
+
 	up, down := s.buttons()
 	b := up
+
 	if s.pressed == 2 {
 		b = down
 	}
+
 	if in := p.In(b); in != s.inside {
 		s.inside = in
 		s.invalidate()
@@ -510,8 +573,10 @@ func (s *spinEdit) mouseDrag(p image.Point) {
 func (s *spinEdit) mouseUp(p image.Point) {
 	if s.pressed == 0 {
 		s.edit.mouseUp(p)
+
 		return
 	}
+
 	s.pressed = 0
 	s.invalidate()
 }
@@ -520,6 +585,7 @@ func (s *spinEdit) mouseUp(p image.Point) {
 func (s *spinEdit) tick(now time.Time) {
 	if s.pressed != 0 && s.inside && !now.Before(s.next) {
 		s.step()
+
 		s.next = now.Add(100 * time.Millisecond)
 	}
 }
@@ -533,6 +599,7 @@ func (s *spinEdit) key(k ebiten.Key, m mods) bool {
 	default:
 		return s.edit.key(k, m)
 	}
+
 	return true
 }
 
@@ -540,6 +607,7 @@ func (s *spinEdit) cursor(p image.Point) ebiten.CursorShapeType {
 	if up, down := s.buttons(); p.In(up) || p.In(down) {
 		return ebiten.CursorShapeDefault
 	}
+
 	return ebiten.CursorShapeText
 }
 
@@ -555,6 +623,7 @@ func (m *memo) setup(comp *layout.Component) {
 	m.windowed = true
 	m.tabStop = m.prop("TabStop") != "False"
 	m.color = vclColor(m.prop("Color"), colWindow)
+
 	m.lines = append([]string(nil), comp.Items...)
 	m.scroll = scrollBar{vertical: true}
 	m.scroll.onScroll = m.invalidate
@@ -566,6 +635,7 @@ func (m *memo) focusable() bool { return true }
 func (m *memo) textRect() image.Rectangle {
 	r := m.local().Inset(2)
 	r.Max.X -= scrollSize
+
 	return r
 }
 
@@ -574,12 +644,15 @@ func (m *memo) setLines(lines []string) {
 	if strings.Join(lines, "\n") == strings.Join(m.lines, "\n") {
 		return
 	}
+
 	grew := len(lines) > len(m.lines)
 	m.lines = append(m.lines[:0:0], lines...)
 	m.layout()
+
 	if grew {
 		m.scroll.set(m.scroll.limit())
 	}
+
 	m.invalidate()
 }
 
@@ -587,9 +660,11 @@ func (m *memo) setLines(lines []string) {
 func (m *memo) layout() {
 	tr := m.textRect()
 	m.wraps = m.wraps[:0]
+
 	for _, l := range m.lines {
 		m.wraps = append(m.wraps, wrap(m.font, l, tr.Dx()-2)...)
 	}
+
 	r := m.local().Inset(2)
 	m.scroll.r = image.Rect(r.Max.X-scrollSize, r.Min.Y, r.Max.X, r.Max.Y)
 	m.scroll.min, m.scroll.max = 0, len(m.wraps)-1
@@ -601,19 +676,25 @@ func (m *memo) paint(cv canvas) {
 	if len(m.wraps) == 0 && len(m.lines) > 0 || m.scroll.r.Empty() {
 		m.layout()
 	}
+
 	r := m.local()
 	cv.sunken(r)
+
 	tr := m.textRect()
 	cv.fill(tr, m.color)
+
 	// The format rectangle is a pixel inside the client area.
 	in := cv.sub(tr)
+
 	for i := m.scroll.pos; i < len(m.wraps); i++ {
 		y := 1 + (i-m.scroll.pos)*m.font.height()
 		if y >= tr.Dy() {
 			break
 		}
+
 		m.font.draw(in, 1, y, m.wraps[i], m.fontColor)
 	}
+
 	m.scroll.paint(cv)
 }
 
@@ -669,7 +750,9 @@ func (m *memo) key(k ebiten.Key, mm mods) bool {
 	default:
 		return false
 	}
+
 	m.invalidate()
+
 	return true
 }
 
@@ -701,10 +784,12 @@ func (c *comboBox) setup(comp *layout.Component) {
 	c.tabStop = c.prop("TabStop") != "False"
 	c.color = vclColor(c.prop("Color"), colWindow)
 	c.listOnly = c.prop("Style") == "csDropDownList"
+
 	c.items = append([]string(nil), comp.Items...)
 	c.index = -1
 	c.itemHeight = c.propInt("ItemHeight", 13)
 	c.tb.set(comp.Caption)
+
 	c.tb.keepSel = true // the combo box's edit has ES_NOHIDESEL
 	c.tb.onChange = c.invalidate
 }
@@ -719,17 +804,22 @@ func (c *comboBox) setIndex(i int) {
 	if i == c.index {
 		return
 	}
+
 	c.index = i
 	text := ""
+
 	if i >= 0 && i < len(c.items) {
 		text = c.items[i]
 	}
+
 	c.tb.set(text)
+
 	if c.focused() && c.win.active {
 		c.tb.selectAll()
 	} else {
 		c.tb.caret, c.tb.anchor = 0, 0
 	}
+
 	c.invalidate()
 }
 
@@ -748,11 +838,13 @@ func (c *comboBox) pick(i int) {
 	if i < 0 || i >= len(c.items) {
 		return
 	}
+
 	changed := i != c.index
 	c.index = i
 	c.tb.set(c.items[i])
 	c.tb.selectAll()
 	c.invalidate()
+
 	if changed && c.onSelect != nil {
 		c.onSelect(i)
 	}
@@ -761,6 +853,7 @@ func (c *comboBox) pick(i int) {
 // button is the drop-down button, inside the border.
 func (c *comboBox) button() image.Rectangle {
 	in := c.local().Inset(2)
+
 	return image.Rect(in.Max.X-scrollSize, in.Min.Y, in.Max.X, in.Max.Y)
 }
 
@@ -777,10 +870,13 @@ func (c *comboBox) paint(cv canvas) {
 	r := c.local()
 	in := cv.sunken(r)
 	fg := c.fontColor
+
 	if !c.usable() {
 		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
+
 	cv.fill(in, c.color)
+
 	b := c.button()
 	if c.listOnly {
 		// The selected item, highlighted while the box has the focus.
@@ -788,27 +884,34 @@ func (c *comboBox) paint(cv canvas) {
 		focus := c.focused() && c.win.active && c.dropped == nil
 		item := c.index >= 0 && c.index < len(c.items)
 		tx := 1
+
 		if c.images != nil && item {
 			// Owner-drawn: the item's icon, then its text, highlighted on
 			// its own; the box doesn't indent it.
 			c.images.drawFrame(cv, tr.Min.X+1, tr.Min.Y+(tr.Dy()-c.images.size)/2, c.icons[c.index], false)
+
 			x := tr.Min.X + c.images.size + 4
 			tr = image.Rect(x, tr.Min.Y, min(x+c.font.width(c.items[c.index])+4, tr.Max.X), tr.Max.Y)
 			tx = 2
 		}
+
 		if focus {
 			cv.fill(tr, colSelection)
+
 			fg = colSelText
 		}
+
 		if item {
 			c.font.draw(cv.sub(tr), tx, (tr.Dy()-c.font.height())/2, c.items[c.index], fg)
 		}
+
 		if focus {
 			cv.focusRect(tr)
 		}
 	} else {
 		c.tb.paint(cv, image.Rect(3, 3, b.Min.X-1, r.Max.Y-3), c.font, fg, c.focused() && c.win.active)
 	}
+
 	paintArrowButton(cv, b, arrowDown, c.usable(), c.pressing && c.dropped != nil, 5)
 }
 
@@ -816,6 +919,7 @@ func (c *comboBox) dropDown() {
 	if c.dropped != nil || len(c.items) == 0 {
 		return
 	}
+
 	c.dropped = newDropList(c)
 	c.win.desk.openPopup(c.dropped)
 	c.invalidate()
@@ -825,6 +929,7 @@ func (c *comboBox) closeUp() {
 	if c.dropped == nil {
 		return
 	}
+
 	d := c.dropped
 	c.dropped = nil
 	c.win.desk.closePopup(d)
@@ -839,8 +944,10 @@ func (c *comboBox) mouseDown(p image.Point, double bool) {
 		} else {
 			c.dropDown()
 		}
+
 		return
 	}
+
 	c.tb.press(c.font, p.X-3, double, false)
 	c.invalidate()
 }
@@ -861,15 +968,20 @@ func (c *comboBox) mouseUp(p image.Point) {
 func (c *comboBox) key(k ebiten.Key, m mods) bool {
 	if c.dropped != nil && (k == ebiten.KeyEscape || k == ebiten.KeyF4 || m.alt && (k == ebiten.KeyUp || k == ebiten.KeyDown)) {
 		c.closeUp()
+
 		return true
 	}
+
 	if c.dropped != nil && c.dropped.key(k) {
 		if k == ebiten.KeyEnter || k == ebiten.KeyNumpadEnter {
 			c.closeUp()
 		}
+
 		c.invalidate()
+
 		return true
 	}
+
 	switch {
 	case k == ebiten.KeyF4 || m.alt && k == ebiten.KeyDown:
 		c.dropDown()
@@ -894,15 +1006,20 @@ func (c *comboBox) key(k ebiten.Key, m mods) bool {
 			c.tb.anchor = a - 1
 			c.tb.replace("")
 		}
+
 		c.typedText()
 	default:
 		if c.tb.key(k, m) {
 			c.invalidate()
+
 			return true
 		}
+
 		return false
 	}
+
 	c.invalidate()
+
 	return true
 }
 
@@ -913,6 +1030,7 @@ func (c *comboBox) char(r rune) {
 	if r < 0x20 {
 		return
 	}
+
 	if c.listOnly {
 		// The next item starting with the letter.
 		n := len(c.items)
@@ -920,20 +1038,26 @@ func (c *comboBox) char(r rune) {
 			i := (max(c.index, -1) + k) % n
 			if strings.HasPrefix(strings.ToLower(c.items[i]), strings.ToLower(string(r))) {
 				c.pick(i)
+
 				if c.dropped != nil {
 					c.dropped.hot = i
 					c.dropped.show(i)
 				}
+
 				return
 			}
 		}
+
 		return
 	}
+
 	a, _ := c.tb.sel()
 	prefix := string(c.tb.text[:a]) + string(r)
+
 	for i, item := range c.items {
 		if strings.HasPrefix(strings.ToLower(item), strings.ToLower(prefix)) {
 			c.tb.set(prefix + string([]rune(item)[len([]rune(prefix)):]))
+
 			c.tb.anchor, c.tb.caret = len([]rune(prefix)), len(c.tb.text)
 			if i != c.index {
 				c.index = i
@@ -941,14 +1065,18 @@ func (c *comboBox) char(r rune) {
 					c.onSelect(i)
 				}
 			}
+
 			if c.dropped != nil {
 				c.dropped.hot = i
 				c.dropped.show(i)
 			}
+
 			c.invalidate()
+
 			return
 		}
 	}
+
 	c.tb.typed(r)
 	c.typedText()
 }
@@ -957,25 +1085,30 @@ func (c *comboBox) char(r rune) {
 // lost.
 func (c *comboBox) typedText() {
 	i := -1
+
 	for k, item := range c.items {
 		if strings.EqualFold(item, c.tb.String()) {
 			i = k
 		}
 	}
+
 	if i != c.index {
 		c.index = i
 		if c.onSelect != nil {
 			c.onSelect(i)
 		}
 	}
+
 	c.invalidate()
 }
 
 func (c *comboBox) wheel(dy int) {
 	if c.dropped != nil {
 		c.dropped.wheel(dy)
+
 		return
 	}
+
 	if dy > 0 {
 		c.pick(max(c.index-1, 0))
 	} else if dy < 0 {
@@ -987,5 +1120,6 @@ func (c *comboBox) cursor(p image.Point) ebiten.CursorShapeType {
 	if p.In(c.button()) || c.listOnly {
 		return ebiten.CursorShapeDefault
 	}
+
 	return ebiten.CursorShapeText
 }

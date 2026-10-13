@@ -11,15 +11,19 @@ import "strings"
 func DecodeANSI(b []byte) string {
 	var sb strings.Builder
 	sb.Grow(len(b))
+
 	for _, c := range b {
 		if c >= 0x80 && c < 0xA0 {
 			if r := cp1252High[c-0x80]; r != 0 {
 				sb.WriteRune(r)
+
 				continue
 			}
 		}
+
 		sb.WriteRune(rune(c))
 	}
+
 	return sb.String()
 }
 
@@ -35,15 +39,19 @@ func EncodeANSI(s string) []byte {
 			b = append(b, byte(r)) // the undefined bytes decode to themselves
 		default:
 			c := byte('?')
+
 			for i, h := range cp1252High {
 				if h == r {
 					c = byte(0x80 + i)
+
 					break
 				}
 			}
+
 			b = append(b, c)
 		}
 	}
+
 	return b
 }
 

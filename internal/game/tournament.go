@@ -44,6 +44,7 @@ func (g *Game) enterTournament(tier int) {
 		g.message(Information, "You don't have enough money!")
 	} else if ok {
 		g.setUpTournament(tier)
+
 		g.Money -= t.fee
 	}
 }
@@ -62,11 +63,14 @@ var notInEasyTiers = []int{134, 135, 136, 196, 197, 45, 182, 186, 62, 80, 199, 2
 // are distinct and the species allowed.
 func (g *Game) setUpTournament(tier int) {
 	g.MinLevel, g.MaxLevel = tiers[tier].lo, tiers[tier].hi
+
 	for {
 		ok := true
+
 		for i := range g.TournamentTrainers {
 			g.TournamentTrainers[i] = uint8(g.Rand.Random(64) + 1)
 		}
+
 		for i, a := range g.TournamentTrainers {
 			for _, b := range g.TournamentTrainers[i+1:] {
 				if a == b {
@@ -74,15 +78,18 @@ func (g *Game) setUpTournament(tier int) {
 				}
 			}
 		}
+
 		if ok {
 			for i := range g.TournamentSpecies {
 				s := g.Rand.Random(386) + 4 // so 1–3 never come, and 387–389 can
 				g.TournamentSpecies[i] = s
+
 				if slices.Contains(notInTournaments, s) {
 					ok = false
 				}
 			}
 		}
+
 		if ok {
 			lo, hi := int(g.MinLevel), int(g.MaxLevel)
 			for i := range g.TournamentLevels {
@@ -90,6 +97,7 @@ func (g *Game) setUpTournament(tier int) {
 				g.TournamentLevels[i] = uint8(min(max(l, lo), hi))
 			}
 		}
+
 		if ok && tier < 3 { // unevolved species only
 			for _, s := range g.TournamentSpecies {
 				if g.isEvolved(s) || slices.Contains(notInEasyTiers, s) {
@@ -97,6 +105,7 @@ func (g *Game) setUpTournament(tier int) {
 				}
 			}
 		}
+
 		// Species 387–389 don't exist, and a set the original accepts with
 		// one crashes it (tournament-387). The port draws again then, and
 		// only then, so the draws stay the original's.
@@ -105,12 +114,15 @@ func (g *Game) setUpTournament(tier int) {
 				ok = false
 			}
 		}
+
 		if ok {
 			break
 		}
 	}
+
 	g.BattleType = uint8(tier*10 + 1)
 	g.StartTrainerBattle(g.TournamentSpecies[0], int(g.TournamentLevels[0]), g.trainerName(0))
+
 	g.InTournament = true
 }
 
@@ -146,8 +158,10 @@ func (g *Game) handleTournament() {
 	if r < 8 {
 		g.message(Information, fmt.Sprintf("Congratulations! You beat %s! Next up is trainer #%d, %s with a L.%d %s.",
 			g.trainerName(r-1), r+1, g.trainerName(r), g.TournamentLevels[r], g.name(g.TournamentSpecies[r])))
+
 		g.BattleType++
 		g.StartTrainerBattle(g.TournamentSpecies[r], int(g.TournamentLevels[r]), g.trainerName(r))
+
 		g.InTournament = true
 	}
 
@@ -157,15 +171,18 @@ func (g *Game) handleTournament() {
 
 	g.message(Information, "Congratulations! You beat "+g.trainerName(7)+"! You won the tournament! Now for the unveiling of your prize...")
 	g.recomputeLevels()
+
 	g.MinLevel, g.MaxLevel = 2, 100
 	g.InTournament = false
 	roll := g.Rand.Random(3) + 1
 	tier := int(g.BattleType / 10)
+
 	if len(g.Party()) == len(g.Owned) && tier == 6 && roll == 3 {
 		roll = g.Rand.Random(2) + 1 // no room for a POKéMON
 	}
 
 	g.message(Information, "You won "+g.prize(tier, roll)+"!")
+
 	switch (tier-1)*3 + roll {
 	case 1:
 		g.PokeBalls += 3

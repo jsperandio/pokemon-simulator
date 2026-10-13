@@ -88,6 +88,7 @@ type window struct {
 func newWindow(d *desktop, comp *layout.Component) *window {
 	w := &window{desk: d, res: d.res, name: comp.Name, caption: comp.Caption, visible: false}
 	props := comp.Props
+
 	switch props["BorderStyle"] {
 	case "bsNone":
 		w.style = bsNone
@@ -98,33 +99,42 @@ func newWindow(d *desktop, comp *layout.Component) *window {
 	case "bsToolWindow":
 		w.style = bsToolWindow
 	}
+
 	icons := props["BorderIcons"]
 	if icons == "" {
 		icons = "[biSystemMenu, biMinimize, biMaximize]"
 	}
+
 	w.sysMenu = strings.Contains(icons, "biSystemMenu")
 	w.minBox = w.sysMenu && strings.Contains(icons, "biMinimize") && w.style != bsDialog && w.style != bsToolWindow
 	w.maxBox = w.sysMenu && strings.Contains(icons, "biMaximize") && w.style != bsDialog && w.style != bsToolWindow
 	w.color = vclColor(props["Color"], colFace)
+
 	for i := range comp.Children {
 		if k := build(w, nil, &comp.Children[i]); k != nil {
 			w.kids = append(w.kids, k)
 		}
 	}
+
 	cw, _ := strconv.Atoi(props["ClientWidth"])
 	ch, _ := strconv.Atoi(props["ClientHeight"])
 	w.client = image.Pt(cw, ch)
+
 	if cw == 0 || ch == 0 {
 		w.client = w.extent()
 	}
+
 	w.pos = image.Pt(comp.Bounds.X, comp.Bounds.Y)
+
 	switch props["Position"] {
 	case "poScreenCenter", "poDesktopCenter", "poMainFormCenter":
 		w.center()
 	}
+
 	for _, k := range w.kids {
 		k.base().parent = nil
 	}
+
 	// The labels measure their captions as they load (TCustomLabel.Loaded).
 	// The form's AutoSize applies once it has a window, after Position
 	// placed it: the loading screen grows to the right, to its title.
@@ -134,23 +144,28 @@ func newWindow(d *desktop, comp *layout.Component) *window {
 			if l, ok := k.(*label); ok && l.prop("Align") == "" {
 				l.autoSize()
 			}
+
 			measure(k.base().kids)
 		}
 	}
 	measure(w.kids)
+
 	w.fits = props["AutoSize"] == "True"
 	w.fit()
+
 	return w
 }
 
 // extent is the size that holds the visible controls.
 func (w *window) extent() image.Point {
 	var e image.Point
+
 	for _, k := range w.kids {
 		if c := k.base(); c.visible {
 			e = image.Pt(max(e.X, c.r.Max.X), max(e.Y, c.r.Max.Y))
 		}
 	}
+
 	return e
 }
 
@@ -162,14 +177,17 @@ func (w *window) fit() {
 	if !w.fits {
 		return
 	}
+
 	d := w.extent().Sub(w.client)
 	if d == (image.Point{}) {
 		return
 	}
+
 	w.client = w.client.Add(d)
 	for _, k := range w.kids {
 		c := k.base()
 		anchors := c.prop("Anchors")
+
 		if strings.Contains(anchors, "akRight") {
 			if strings.Contains(anchors, "akLeft") {
 				c.r.Max.X += d.X
@@ -177,6 +195,7 @@ func (w *window) fit() {
 				c.r = c.r.Add(image.Pt(d.X, 0))
 			}
 		}
+
 		if strings.Contains(anchors, "akBottom") {
 			if strings.Contains(anchors, "akTop") {
 				c.r.Max.Y += d.Y
@@ -185,6 +204,7 @@ func (w *window) fit() {
 			}
 		}
 	}
+
 	if w.desk != nil {
 		w.desk.dirty = true
 	}
@@ -199,21 +219,27 @@ func (w *window) center() {
 
 // find returns the control with the given name.
 func (w *window) find(name string) widget {
-	var found widget
-	var walk func(ws []widget)
+	var (
+		found widget
+		walk  func(ws []widget)
+	)
 	walk = func(ws []widget) {
 		for _, k := range ws {
 			if found != nil {
 				return
 			}
+
 			if k.base().name == name {
 				found = k
+
 				return
 			}
+
 			walk(k.base().kids)
 		}
 	}
 	walk(w.kids)
+
 	return found
 }
 
@@ -224,6 +250,7 @@ func (w *window) frameWidth() int {
 	case bsSizeable:
 		return 4 // SM_CXFRAME
 	}
+
 	return 3 // SM_CXFIXEDFRAME
 }
 
@@ -234,6 +261,7 @@ func (w *window) captionH() int {
 	case bsToolWindow:
 		return smallCaptionHeight
 	}
+
 	return captionHeight
 }
 
@@ -241,12 +269,14 @@ func (w *window) menuH() int {
 	if w.menu == nil {
 		return 0
 	}
+
 	return menuHeight
 }
 
 // size is the outer size.
 func (w *window) size() image.Point {
 	f := w.frameWidth()
+
 	return image.Pt(w.client.X+2*f, w.client.Y+2*f+w.captionH()+w.menuH())
 }
 
@@ -254,11 +284,13 @@ func (w *window) rect() image.Rectangle { return image.Rectangle{Min: w.pos, Max
 
 func (w *window) clientOrigin() image.Point {
 	f := w.frameWidth()
+
 	return w.pos.Add(image.Pt(f, f+w.captionH()+w.menuH()))
 }
 
 func (w *window) clientRect() image.Rectangle {
 	o := w.clientOrigin()
+
 	return image.Rectangle{Min: o, Max: o.Add(w.client)}
 }
 
@@ -266,12 +298,14 @@ func (w *window) clientRect() image.Rectangle {
 func (w *window) captionRect() image.Rectangle {
 	f := w.frameWidth()
 	s := w.size()
+
 	return image.Rect(f, f, s.X-f, f+w.captionH()-1).Add(w.pos)
 }
 
 func (w *window) menuRect() image.Rectangle {
 	f := w.frameWidth()
 	s := w.size()
+
 	return image.Rect(f, f+w.captionH(), s.X-f, f+w.captionH()+w.menuH()).Add(w.pos)
 }
 
@@ -281,10 +315,12 @@ func (w *window) captionButton(b int) image.Rectangle {
 	if !w.sysMenu || w.style == bsNone || w.style == bsToolWindow {
 		return image.Rectangle{}
 	}
+
 	cr := w.captionRect()
 	close := image.Rect(cr.Max.X-2-captionButtonW, cr.Min.Y+2, cr.Max.X-2, cr.Min.Y+2+captionButtonH)
 	maxB := close.Sub(image.Pt(captionButtonW+2, 0))
 	minB := maxB.Sub(image.Pt(captionButtonW, 0))
+
 	switch b {
 	case capClose:
 		return close
@@ -297,6 +333,7 @@ func (w *window) captionButton(b int) image.Rectangle {
 			return minB
 		}
 	}
+
 	return image.Rectangle{}
 }
 
@@ -343,48 +380,68 @@ func (w *window) paint(cv canvas) {
 	if !w.visible {
 		return
 	}
+
 	r := w.rect()
 	cv.fill(r, colFace)
+
 	if w.style != bsNone {
 		cv.raised(r)
+
 		cr := w.captionRect()
 		a, b, fg := colInactive, colInactive2, colInactiveText
+
 		if w.active {
 			a, b, fg = colCaption, colCaption2, colCaptionText
 		}
+
 		cv.gradient(cr, a, b)
+
 		x := cr.Min.X + 2
 		icon := w.icon
+
 		if icon == nil {
 			icon = w.res.appIcon
 		}
+
 		if w.sysMenu && w.style != bsDialog && w.style != bsToolWindow && icon != nil {
 			cv.blend(x, cr.Min.Y+1, icon, icon.Rect)
+
 			x += 18
 		}
+
 		textEnd := cr.Max.X
+
 		for _, b := range []int{capMin, capMax, capClose} {
 			if br := w.captionButton(b); !br.Empty() {
 				textEnd = min(textEnd, br.Min.X-2)
 			}
 		}
+
 		tc := cv.sub(image.Rect(cr.Min.X, cr.Min.Y, textEnd, cr.Max.Y))
 		w.res.bold.draw(tc, x-cr.Min.X, (cr.Dy()-w.res.bold.height())/2, w.caption, fg)
+
 		for _, b := range []int{capMin, capMax, capClose} {
 			br := w.captionButton(b)
 			if br.Empty() {
 				continue
 			}
+
 			pushed := w.capPressed == b && w.capInside
+
 			cv.fill(br, colFace)
+
 			off := 0
+
 			if pushed {
 				cv.sunkenSoft(br)
+
 				off = 1
 			} else {
 				cv.raisedSoft(br)
 			}
+
 			glyph, gx, gy := glyphClose, 4, 3
+
 			switch b {
 			case capMin:
 				glyph, gx, gy = glyphMin, 4, 9
@@ -394,10 +451,12 @@ func (w *window) paint(cv canvas) {
 					glyph = glyphRestore
 				}
 			}
+
 			enabled := b != capMax || w.maxBox
 			if b == capMin {
 				enabled = w.minBox
 			}
+
 			if enabled {
 				cv.pattern(br.Min.X+gx+off, br.Min.Y+gy+off, glyph, map[byte]color.RGBA{'#': colText})
 			} else {
@@ -406,12 +465,16 @@ func (w *window) paint(cv canvas) {
 			}
 		}
 	}
+
 	if w.menu != nil {
 		w.menu.paint(cv, w.menuRect())
 	}
+
 	cr := w.clientRect()
 	cv.fill(cr, w.color)
+
 	sub := cv.sub(cr)
+
 	for _, windowed := range []bool{false, true} {
 		for _, k := range w.kids {
 			if k.base().windowed == windowed {
@@ -425,44 +488,52 @@ func (w *window) paint(cv canvas) {
 func (w *window) widgetAt(p image.Point) widget {
 	q := p.Sub(w.clientOrigin())
 	for _, windowed := range []bool{true, false} {
-		for i := len(w.kids) - 1; i >= 0; i-- {
-			k := w.kids[i]
+		for _, k := range slices.Backward(w.kids) {
 			if k.base().windowed != windowed {
 				continue
 			}
+
 			if h := hit(k, q); h != nil {
 				return h
 			}
 		}
 	}
+
 	return nil
 }
 
 // tabOrder lists the controls that Tab visits, in order.
 func (w *window) tabOrder() []widget {
-	var out []widget
-	var walk func(ws []widget)
+	var (
+		out  []widget
+		walk func(ws []widget)
+	)
 	walk = func(ws []widget) {
 		sorted := slices.Clone(ws)
 		slices.SortStableFunc(sorted, func(a, b widget) int { return a.base().tabOrder - b.base().tabOrder })
+
 		for _, k := range sorted {
 			c := k.base()
 			if !c.visible || !c.enabled {
 				continue
 			}
+
 			if f, ok := k.(focuser); ok && f.focusable() && c.tabStop {
 				out = append(out, k)
 			}
+
 			walk(c.kids)
 		}
 	}
 	walk(w.kids)
+
 	return out
 }
 
 // canFocus reports whether k can take the focus now.
 func canFocus(k widget) bool {
 	f, ok := k.(focuser)
+
 	return ok && f.focusable() && k.base().shown() && k.base().usable()
 }
 
@@ -471,18 +542,23 @@ func (w *window) setFocus(k widget, byMouse bool) {
 	if k == w.focus {
 		return
 	}
+
 	if k != nil && !canFocus(k) {
 		return
 	}
+
 	old := w.focus
 	w.focus = k
 	w.noFocus = false
+
 	if l, ok := old.(interface{ lostFocus() }); ok {
 		l.lostFocus()
 	}
+
 	if g, ok := k.(interface{ gotFocus(bool) }); ok {
 		g.gotFocus(byMouse)
 	}
+
 	w.desk.dirty = true
 }
 
@@ -492,10 +568,12 @@ func (w *window) focusFirst() {
 	if w.focus != nil && canFocus(w.focus) {
 		return
 	}
+
 	w.focus = nil
 	for _, k := range w.tabOrder() {
 		if canFocus(k) {
 			w.setFocus(k, false)
+
 			return
 		}
 	}
@@ -507,6 +585,7 @@ func (w *window) tab(back bool) {
 	if len(order) == 0 {
 		return
 	}
+
 	i := slices.Index(order, w.focus)
 	for range order {
 		if back {
@@ -514,8 +593,10 @@ func (w *window) tab(back bool) {
 		} else {
 			i = (i + 1) % len(order)
 		}
+
 		if canFocus(order[i]) {
 			w.setFocus(order[i], false)
+
 			return
 		}
 	}
@@ -523,17 +604,21 @@ func (w *window) tab(back bool) {
 
 // buttons lists the window's visible buttons.
 func (w *window) buttons() []*button {
-	var out []*button
-	var walk func(ws []widget)
+	var (
+		out  []*button
+		walk func(ws []widget)
+	)
 	walk = func(ws []widget) {
 		for _, k := range ws {
 			if b, ok := k.(*button); ok && b.shown() && b.usable() {
 				out = append(out, b)
 			}
+
 			walk(k.base().kids)
 		}
 	}
 	walk(w.kids)
+
 	return out
 }
 
@@ -544,23 +629,29 @@ func (w *window) key(k ebiten.Key, m mods) bool {
 	if w.onKey != nil && w.onKey(k, m) {
 		return true
 	}
+
 	if w.focus != nil {
 		if kh, ok := w.focus.(keyer); ok && kh.key(k, m) {
 			return true
 		}
 	}
+
 	switch k {
 	case ebiten.KeyTab:
 		w.tab(m.shift)
+
 		return true
 	case ebiten.KeyEnter, ebiten.KeyNumpadEnter:
 		if b, ok := w.focus.(*button); ok {
 			b.click()
+
 			return true
 		}
+
 		for _, b := range w.buttons() {
 			if b.isDefault {
 				b.click()
+
 				return true
 			}
 		}
@@ -568,10 +659,12 @@ func (w *window) key(k ebiten.Key, m mods) bool {
 		for _, b := range w.buttons() {
 			if b.isCancel {
 				b.click()
+
 				return true
 			}
 		}
 	}
+
 	return false
 }
 
@@ -581,11 +674,14 @@ func (w *window) char(r rune, m mods) {
 	switch w.focus.(type) {
 	case *edit, *spinEdit, *comboBox:
 		w.focus.(keyer).char(r)
+
 		return
 	}
+
 	if w.accelerator(r) {
 		return
 	}
+
 	if kh, ok := w.focus.(keyer); ok {
 		kh.char(r)
 	}
@@ -599,24 +695,32 @@ func (w *window) accelerator(r rune) bool {
 		if accel(b.caption) == lr {
 			w.setFocus(b, false)
 			b.click()
+
 			return true
 		}
 	}
-	var target widget
-	var walk func(ws []widget)
+
+	var (
+		target widget
+		walk   func(ws []widget)
+	)
 	walk = func(ws []widget) {
 		for _, k := range ws {
 			if l, ok := k.(*label); ok && target == nil && l.focusControl != nil && l.shown() && accel(l.caption) == lr {
 				target = l.focusControl
 			}
+
 			walk(k.base().kids)
 		}
 	}
 	walk(w.kids)
+
 	if target != nil && canFocus(target) {
 		w.setFocus(target, false)
+
 		return true
 	}
+
 	return false
 }
 
@@ -625,8 +729,10 @@ func (w *window) endModal(result int) {
 	if !w.modal {
 		return
 	}
+
 	w.modalResult = result
 	w.desk.closeModal(w)
+
 	if w.onModal != nil {
 		w.onModal(result)
 	}
@@ -636,12 +742,16 @@ func (w *window) endModal(result int) {
 func (w *window) close() {
 	if w.modal {
 		w.endModal(mrCancel)
+
 		return
 	}
+
 	if w.onClose != nil {
 		w.onClose()
+
 		return
 	}
+
 	w.desk.hide(w)
 }
 
@@ -667,8 +777,10 @@ func (w *window) toggleMaximize() {
 		w.client = image.Pt(screenWidth, screenHeight-w.captionH()-w.menuH())
 		w.maximized = true
 	}
+
 	if w.onResize != nil {
 		w.onResize()
 	}
+
 	w.desk.dirty = true
 }

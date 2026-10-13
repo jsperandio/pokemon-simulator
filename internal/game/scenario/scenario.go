@@ -128,6 +128,7 @@ func (p *Player) Trace() []string { return p.out }
 
 func (p *Player) emit(format string, a ...any) {
 	p.flush()
+
 	p.out = append(p.out, fmt.Sprintf(format, a...))
 }
 
@@ -137,17 +138,21 @@ func (p *Player) random(n, v int) {
 	if len(p.rand) > 0 && p.rand[0].n != n {
 		p.flush()
 	}
+
 	p.rand = append(p.rand, randCall{n, v})
 }
 
 func (p *Player) flush() {
 	r := p.rand
 	p.rand = nil
+
 	if len(r) > 16 {
 		last := r[len(r)-1]
 		p.out = append(p.out, fmt.Sprintf("rand %d = %d (the last of %d)", last.n, last.v, len(r)))
+
 		return
 	}
+
 	for _, c := range r {
 		p.out = append(p.out, fmt.Sprintf("rand %d = %d", c.n, c.v))
 	}
@@ -162,11 +167,14 @@ func (p *Player) Answer(yesNo bool, text string) bool {
 	if !yesNo {
 		return true
 	}
+
 	if len(p.answers) == 0 {
 		p.Fail("no answer queued for %q", text)
 	}
+
 	yes := p.answers[0]
 	p.answers = p.answers[1:]
+
 	return yes
 }
 
@@ -179,6 +187,7 @@ func (p *Player) Dialog(kind game.DialogKind, text string, yesNo, yes bool) {
 			answer = "Yes"
 		}
 	}
+
 	p.emit("dialog %s %q -> %s", kindNames[kind], text, answer)
 }
 
@@ -186,6 +195,7 @@ func (p *Player) Dialog(kind game.DialogKind, text string, yesNo, yes bool) {
 func (p *Player) Message(kind game.DialogKind, yesNo bool, text string) bool {
 	yes := p.Answer(yesNo, text)
 	p.Dialog(kind, text, yesNo, yes)
+
 	return yes
 }
 
@@ -197,96 +207,128 @@ func (p *Player) Play(src string) (want []string, err error) {
 	p.setup.PlayerName = "Probe"
 	p.setup.PokeBalls = 3
 	start := -1
+
 	for i, line := range lines {
 		if line == "> start" {
 			start = i
+
 			break
 		}
+
 		if strings.HasPrefix(line, "#") || line == "" {
 			continue
 		}
+
 		if err := p.setupLine(line); err != nil {
 			return nil, fmt.Errorf("setup %q: %v", line, err)
 		}
 	}
+
 	if start < 0 {
 		return nil, errors.New(`no "> start"`)
 	}
+
 	want = lines[start:]
+
 	defer func() {
 		if r := recover(); r != nil {
 			e, ok := r.(errScenario)
 			if !ok {
 				panic(r)
 			}
+
 			err = e
 		}
+
 		p.flush()
 	}()
+
 	p.emit("> start")
+
 	if err := p.launch(); err != nil {
 		return want, err
 	}
+
 	if p.After != nil {
 		p.After("> start")
 	}
+
 	for _, line := range want[1:] {
 		if !strings.HasPrefix(line, "> ") {
 			continue // the original's output
 		}
+
 		p.emit("%s", line)
+
 		cmd, arg, _ := strings.Cut(strings.TrimPrefix(line, "> "), " ")
 		if err := p.do(cmd, arg); err != nil {
 			return want, fmt.Errorf("%s: %v", line, err)
 		}
+
 		if p.After != nil {
 			p.After(line)
 		}
 	}
+
 	return want, nil
 }
 
 // counterNames are the save's counters, in its order.
-var counterNames = []string{"Money", "Wins", "Losses", "Fights", "Catches",
-	"PokeBalls", "GreatBalls", "UltraBalls", "MasterBalls", "Potions", "SuperPotions"}
+var counterNames = []string{
+	"Money", "Wins", "Losses", "Fights", "Catches",
+	"PokeBalls", "GreatBalls", "UltraBalls", "MasterBalls", "Potions", "SuperPotions",
+}
 
 // counter returns the save's counter of that name, or nil.
 func counter(f *save.File, name string) *uint32 {
-	all := []*uint32{&f.Money, &f.Wins, &f.Losses, &f.Fights, &f.Catches,
-		&f.PokeBalls, &f.GreatBalls, &f.UltraBalls, &f.MasterBalls, &f.Potions, &f.SuperPotions}
+	all := []*uint32{
+		&f.Money, &f.Wins, &f.Losses, &f.Fights, &f.Catches,
+		&f.PokeBalls, &f.GreatBalls, &f.UltraBalls, &f.MasterBalls, &f.Potions, &f.SuperPotions,
+	}
+
 	for i, n := range counterNames {
 		if n == name {
 			return all[i]
 		}
 	}
+
 	return nil
 }
 
 // setupLine applies a setup command to the save the scenario starts from.
 func (p *Player) setupLine(line string) error {
 	cmd, arg, _ := strings.Cut(line, " ")
+
 	var nums []int
-	for _, f := range strings.Fields(arg) {
+
+	for f := range strings.FieldsSeq(arg) {
 		n, err := strconv.ParseInt(f, 0, 64)
 		if err != nil && cmd != "name" && cmd != "portsave" {
 			return err
 		}
+
 		nums = append(nums, int(n))
 	}
+
 	want := func(n int) error {
 		if len(nums) != n {
 			return fmt.Errorf("want %d numbers", n)
 		}
+
 		return nil
 	}
 	s := &p.setup
+
 	if c := counter(s, cmd); c != nil {
 		if err := want(1); err != nil {
 			return err
 		}
+
 		*c = uint32(nums[0])
+
 		return nil
 	}
+
 	switch cmd {
 	case "startscreen":
 		p.startScreen = true
@@ -295,18 +337,22 @@ func (p *Player) setupLine(line string) error {
 		if err != nil {
 			return err
 		}
+
 		q := &Player{Name: arg, Dir: p.Dir, Data: p.Data, NewDriver: p.NewDriver, Saves: p.Saves}
 		if _, err := q.Play(string(src)); err != nil {
 			return fmt.Errorf("%s: %v", arg, err)
 		}
+
 		if q.saved == nil {
 			return fmt.Errorf("%s doesn't quit", arg)
 		}
+
 		p.portSave = q.saved
 	case "version":
 		if err := want(1); err != nil {
 			return err
 		}
+
 		p.version = nums[0]
 	case "name":
 		s.PlayerName = arg
@@ -314,11 +360,13 @@ func (p *Player) setupLine(line string) error {
 		if err := want(1); err != nil {
 			return err
 		}
+
 		s.GymProgress = uint8(nums[0])
 	case "flags":
 		if err := want(5); err != nil {
 			return err
 		}
+
 		s.BeatLance, s.BeatAsh, s.BeatLink, s.GotJirachi, s.GotDeoxys = nums[0] != 0, nums[1] != 0, nums[2] != 0, nums[3] != 0, nums[4] != 0
 	case "dex":
 		for _, sp := range nums {
@@ -328,16 +376,20 @@ func (p *Player) setupLine(line string) error {
 		if len(nums) < 2 || len(nums) > 3 {
 			return errors.New("want species, level and maybe XP")
 		}
+
 		l := uint32(nums[1])
 		m := save.Slot{Species: int32(nums[0]), Level: uint8(nums[1]), XP: l * l * l}
+
 		if len(nums) == 3 {
 			m.XP = uint32(nums[2])
 		}
+
 		s.Owned[len(s.Party())] = m
 		s.InDex[nums[0]] = true
 	default:
 		return errors.New("unknown setup command")
 	}
+
 	return nil
 }
 
@@ -353,13 +405,16 @@ func (p *Player) launch() error {
 	if p.version == 1 {
 		p.start = p.setup.Bytes()
 	}
+
 	if p.startScreen && len(p.setup.Party()) == 0 {
 		p.start = (&save.File{}).Bytes()
 	}
+
 	var b []byte
 	if !p.startScreen {
 		b = p.setupBytes()
 	}
+
 	return p.d.Launch(p, p.savePath(".pgs"), b, func(g *game.Game) {
 		p.G = g
 		g.Rand.OnCall = p.random
@@ -372,15 +427,18 @@ func (p *Player) setupBytes() []byte {
 	if p.portSave != nil {
 		return p.portSave
 	}
+
 	b := p.setup.Bytes()
 	if p.version != 1 {
 		return b
 	}
+
 	// Version 1: no header, three flags, 251 POKéDEX entries.
 	lines := strings.SplitAfter(string(b), "\r\n")
 	v1 := append([]string{}, lines[1:5]...)        // name, BeatLance, BeatAsh, BeatLink
 	v1 = append(v1, lines[7:19+251]...)            // GymProgress, the counters, POKéDEX 1–251
 	v1 = append(v1, lines[19+save.NumSpecies:]...) // the party
+
 	return []byte(strings.Join(v1, ""))
 }
 
@@ -389,14 +447,17 @@ func (p *Player) do(cmd, arg string) error {
 	g, d := p.G, p.d
 	num := func(s string) (int, error) {
 		n, err := strconv.ParseInt(strings.TrimSpace(s), 0, 64)
+
 		return int(n), err
 	}
+
 	switch cmd {
 	case "seed":
 		n, err := strconv.ParseUint(arg, 0, 32)
 		if err != nil {
 			return err
 		}
+
 		g.Rand.Seed = uint32(n)
 	case "menu":
 		return p.menu(arg)
@@ -405,43 +466,54 @@ func (p *Player) do(cmd, arg string) error {
 		if err != nil {
 			return err
 		}
+
 		if !g.Stats.Visible || !g.Stats.PartyEnabled || i < 1 || i > len(g.Party()) {
 			return fmt.Errorf("party member %d can't be clicked", i)
 		}
+
 		return d.Choose(i - 1)
 	case "move", "run":
 		k := 5
+
 		if cmd == "move" {
 			n, err := num(arg)
 			if err != nil {
 				return err
 			}
+
 			k = n
 		}
+
 		return p.attack(k)
 	case "fight", "fightbest":
 		k, err := num(arg)
 		if cmd == "fight" && err != nil {
 			return err
 		}
+
 		for range 200 {
 			if !g.Main.Go {
 				return nil // the battle is over
 			}
+
 			if cmd == "fightbest" {
 				k = p.bestMove()
 			}
+
 			if err := p.attack(k); err != nil {
 				return err
 			}
 		}
+
 		return errors.New("the battle didn't end after 200 turns")
 	case "set":
 		name, value, _ := strings.Cut(arg, " ")
+
 		v, err := num(value)
 		if err != nil {
 			return err
 		}
+
 		switch c := counter(&g.File, name); {
 		case name == "EnemyHP":
 			g.EnemyHP = v
@@ -457,62 +529,76 @@ func (p *Player) do(cmd, arg string) error {
 		if err != nil {
 			return err
 		}
+
 		for range 200 {
 			if g.Main.EndFight || !g.Stats.Items || !g.Stats.ItemEnabled[k-1] {
 				return nil // caught, the battle is over, or no balls left
 			}
+
 			if err := d.Item(k - 1); err != nil {
 				return err
 			}
 		}
+
 		return errors.New("still throwing after 200 balls")
 	case "end":
 		if !g.Main.EndFight {
 			return errors.New(`"End Fight" is hidden`)
 		}
+
 		return d.End()
 	case "item":
 		k, err := num(arg)
 		if err != nil {
 			return err
 		}
+
 		if k < 1 || k > 6 || !g.Stats.Items || !g.Stats.ItemEnabled[k-1] {
 			return fmt.Errorf("item button %d is hidden or disabled", k)
 		}
+
 		return d.Item(k - 1)
 	case "click":
 		return p.click(arg)
 	case "radio":
 		path, k, _ := strings.Cut(arg, " ")
+
 		n, err := num(k)
 		if err != nil {
 			return err
 		}
+
 		return p.radio(path, n)
 	case "combo":
 		path, index, _ := strings.Cut(arg, " ")
+
 		i, err := num(index)
 		if err != nil {
 			return err
 		}
+
 		return p.combo(path, i)
 	case "type":
 		path, text, _ := strings.Cut(arg, " ")
+
 		return p.typeText(path, text)
 	case "text":
 		if arg != "Form4" && arg != "Form9.Edit1" {
 			return fmt.Errorf("no text for %s", arg)
 		}
+
 		s, err := d.Text(arg)
 		if err != nil {
 			return err
 		}
+
 		p.emit("text %s %q", arg, s)
 	case "answer":
-		for _, a := range strings.Fields(arg) {
+		for a := range strings.FieldsSeq(arg) {
 			if a != "yes" && a != "no" {
 				return errors.New("answers are yes or no")
 			}
+
 			p.answers = append(p.answers, a == "yes")
 		}
 	case "state":
@@ -523,46 +609,57 @@ func (p *Player) do(cmd, arg string) error {
 		if !g.Start.Visible {
 			return errors.New("not at the start screen")
 		}
+
 		p.emit("namedialog -> %q", arg)
+
 		return d.New(p.savePath(".pgs"), arg)
 	case "load":
 		if !g.Start.Visible {
 			return errors.New("not at the start screen")
 		}
+
 		return d.Load(p.savePath(".pgs"), p.setupBytes())
 	case "starter":
 		k, err := num(arg)
 		if err != nil {
 			return err
 		}
+
 		if !g.Main.Starters {
 			return errors.New("the starters are hidden")
 		}
+
 		return d.Starter(k - 1)
 	case "export":
 		if !g.Item("File1").Enabled {
 			return errors.New("the File menu is disabled")
 		}
+
 		return d.Export(p.savePath(".htm"))
 	case "quit":
 		b, err := d.Quit()
 		if err != nil {
 			return err
 		}
+
 		p.emit("exit 0")
+
 		if b == nil {
 			return errors.New("nothing to save")
 		}
+
 		p.saved = b
 		if p.Saves != "" {
 			if err := os.WriteFile(filepath.Join(p.Saves, p.Name+".pgs"), b, 0o644); err != nil {
 				return err
 			}
 		}
+
 		p.diffSave(b)
 	default:
 		return fmt.Errorf("unknown command %q", cmd)
 	}
+
 	return nil
 }
 
@@ -572,6 +669,7 @@ func (p *Player) attack(k int) error {
 	if k < 1 || k > 5 || !g.Main.Attacks || !g.Main.Go {
 		return fmt.Errorf("attack %d can't be chosen", k)
 	}
+
 	return p.d.Attack(k - 1)
 }
 
@@ -582,15 +680,18 @@ func (p *Player) bestMove() int {
 	own := g.Data.SpeciesByID(int(g.Owned[g.OwnIndex-1].Species))
 	enemy := g.Data.SpeciesByID(g.EnemySpecies)
 	best, bestScore := 1, -1.0
+
 	for k, id := range own.Moves {
 		score := 0.0
 		if mv := g.Data.MoveByID(id); mv != nil {
 			score = float64(mv.Power) * g.Data.Effect(mv.Type, enemy.Types[0]) * g.Data.Effect(mv.Type, enemy.Types[1])
 		}
+
 		if score > bestScore {
 			best, bestScore = k+1, score
 		}
 	}
+
 	return best
 }
 
@@ -601,28 +702,37 @@ var accelerators = strings.NewReplacer("&&", "&", "&", "")
 // menu runs a main menu command given by captions: "Actions > Buy Items".
 func (p *Player) menu(path string) error {
 	items := p.G.Menu
+
 	var chain []*game.MenuItem
-	for _, part := range strings.Split(path, " > ") {
+
+	for part := range strings.SplitSeq(path, " > ") {
 		var m *game.MenuItem
+
 		for _, it := range items {
 			if accelerators.Replace(it.Caption) == part {
 				m = it
+
 				break
 			}
 		}
+
 		if m == nil {
 			return fmt.Errorf("no item %q", part)
 		}
+
 		if !m.Enabled || !m.Visible {
 			return fmt.Errorf("%q is disabled or hidden", part)
 		}
+
 		chain = append(chain, m)
 		items = m.Items
 	}
+
 	m := chain[len(chain)-1]
 	if !p.G.Main.Visible || p.G.Main.Starters && m.Name != "Quit1" {
 		return errors.New("the game window isn't up")
 	}
+
 	return p.d.Menu(chain)
 }
 
@@ -637,7 +747,9 @@ func (p *Player) menus(items []*game.MenuItem, depth int) {
 // click presses a button, as long as the player could.
 func (p *Player) click(path string) error {
 	g := p.G
+
 	var shown bool
+
 	switch path {
 	case "Form1.AboutButton":
 		shown = g.Start.Visible
@@ -658,22 +770,28 @@ func (p *Player) click(path string) error {
 	default:
 		return fmt.Errorf("unknown button %s", path)
 	}
+
 	if !shown {
 		return fmt.Errorf("%s is hidden or disabled", path)
 	}
+
 	if err := p.d.Click(path); err != nil {
 		return err
 	}
+
 	if path == "Form1.AboutButton" {
 		p.emit("about -> OK")
 	}
+
 	return nil
 }
 
 // radio selects item k (1-based) of a radio group.
 func (p *Player) radio(path string, k int) error {
 	g := p.G
+
 	var shown bool
+
 	switch path {
 	case "Form4.EvolveChoice":
 		shown = len(g.Main.Choices) > 0
@@ -682,16 +800,20 @@ func (p *Player) radio(path string, k int) error {
 	case "FormB.RadioGroup1", "FormB.RadioGroup2":
 		shown = g.Corner.Visible
 	}
+
 	if !shown {
 		return fmt.Errorf("%s is hidden or unknown", path)
 	}
+
 	return p.d.Radio(path, k-1)
 }
 
 // combo selects item i (0-based) of a combo box.
 func (p *Player) combo(path string, i int) error {
 	g := p.G
+
 	var shown bool
+
 	switch path {
 	case "Form4.ComboBox1":
 		shown = g.Main.Picker
@@ -700,20 +822,25 @@ func (p *Player) combo(path string, i int) error {
 	case "FormA.ComboBox1", "FormA.ComboBox2":
 		shown = g.Types.Visible
 	}
+
 	if !shown {
 		return fmt.Errorf("%s is hidden or unknown", path)
 	}
+
 	return p.d.Combo(path, i)
 }
 
 // typeText types a number into a spin edit.
 func (p *Player) typeText(path, text string) error {
 	g := p.G
+
 	n, err := strconv.Atoi(text)
 	if err != nil {
 		return err
 	}
+
 	var shown bool
+
 	switch path {
 	case "Form4.SpinEdit1":
 		shown = g.Main.Picker
@@ -722,9 +849,11 @@ func (p *Player) typeText(path, text string) error {
 	case "FormB.SpinEdit1":
 		shown = g.Corner.Visible
 	}
+
 	if !shown {
 		return fmt.Errorf("%s is hidden or unknown", path)
 	}
+
 	return p.d.Type(path, n)
 }
 
@@ -735,33 +864,43 @@ func (p *Player) state() {
 		if v {
 			return 1
 		}
+
 		return 0
 	}
 	p.emit("state battle wild=%d trainer=%d tournament=%d type=%d own=%d hp=%d enemy=%d level=%d hp=%d levels=%d-%d",
 		b(g.InWildBattle), b(g.InTrainerBattle), b(g.InTournament), g.BattleType, g.OwnIndex, g.OwnHP,
 		g.EnemySpecies, g.EnemyLevel, g.EnemyHP, g.MinLevel, g.MaxLevel)
+
 	var cs []string
 	for _, n := range counterNames {
 		cs = append(cs, fmt.Sprintf("%s=%d", n, *counter(&g.File, n)))
 	}
+
 	var flags []string
+
 	for i, on := range []bool{g.BeatLance, g.BeatAsh, g.BeatLink, g.GotJirachi, g.GotDeoxys} {
 		if on {
 			flags = append(flags, []string{"BeatLance", "BeatAsh", "BeatLink", "GotJirachi", "GotDeoxys"}[i])
 		}
 	}
+
 	p.emit("state player badges=%d %s flags=%s", g.GymProgress, strings.Join(cs, " "), strings.Join(flags, ","))
+
 	var dex []string
+
 	for s := 1; s <= save.NumSpecies; s++ {
 		if g.InDex[s] {
 			dex = append(dex, strconv.Itoa(s))
 		}
 	}
+
 	p.emit("state dex %s", strings.Join(dex, ","))
+
 	var party []string
 	for k, m := range g.Party() {
 		party = append(party, fmt.Sprintf("%d:%d/L%d/%d", k+1, m.Species, m.Level, m.XP))
 	}
+
 	p.emit("state party %s", strings.Join(party, " "))
 }
 
@@ -770,16 +909,21 @@ func (p *Player) state() {
 func (p *Player) diffSave(end []byte) {
 	a := strings.Split(string(p.start), "\r\n")
 	b := strings.Split(string(end), "\r\n")
+
 	if len(a) != len(b) {
 		p.emit("save %d lines, was %d", len(b)-1, len(a)-1)
 	}
+
 	same := true
+
 	for i := range min(len(a), len(b)) {
 		if a[i] != b[i] {
 			p.emit("save line %d: %q -> %q", i+1, delphi.DecodeANSI([]byte(a[i])), delphi.DecodeANSI([]byte(b[i])))
+
 			same = false
 		}
 	}
+
 	if same && len(a) == len(b) {
 		p.emit("save unchanged")
 	}

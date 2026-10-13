@@ -64,17 +64,21 @@ func Parse(src []byte) *Page {
 	lines := strings.Split(strings.ReplaceAll(string(src), "\r\n", "\n"), "\n")
 	blocks := parseBlocks(lines)
 	p := &Page{}
+
 	if len(blocks) > 0 && blocks[0].Kind == Heading && blocks[0].Level == 1 {
 		p.Title = PlainText(blocks[0].Spans)
 		blocks = blocks[1:]
 	}
+
 	p.Blocks = blocks
+
 	return p
 }
 
 // PlainText returns spans' text without its styles.
 func PlainText(spans []Span) string {
 	var b strings.Builder
+
 	for _, s := range spans {
 		switch {
 		case s.Break:
@@ -83,12 +87,14 @@ func PlainText(spans []Span) string {
 			b.WriteString(s.Text)
 		}
 	}
+
 	return b.String()
 }
 
 // parseBlocks reads lines into blocks.
 func parseBlocks(lines []string) []Block {
 	var out []Block
+
 	for i := 0; i < len(lines); {
 		line := lines[i]
 		switch {
@@ -105,6 +111,7 @@ func parseBlocks(lines []string) []Block {
 			for ; i < len(lines) && isQuote(lines[i]); i++ {
 				inner = append(inner, unquote(lines[i]))
 			}
+
 			out = append(out, Block{Kind: Quote, Blocks: parseBlocks(inner)})
 		case isTable(lines, i):
 			var b Block
@@ -118,10 +125,12 @@ func parseBlocks(lines []string) []Block {
 			start := i
 			for i++; i < len(lines) && !isBlank(lines[i]) && !startsBlock(lines[i]); i++ {
 			}
+
 			text := strings.Join(trimLines(lines[start:i]), "\n")
 			out = append(out, Block{Kind: Paragraph, Spans: parseInline(text)})
 		}
 	}
+
 	return out
 }
 
@@ -130,6 +139,7 @@ func isBlank(line string) bool { return strings.TrimSpace(line) == "" }
 // indent returns a line without the up to 3 spaces that may lead a block.
 func indent(line string) (string, bool) {
 	t := strings.TrimLeft(line, " ")
+
 	return t, len(line)-len(t) <= 3
 }
 
@@ -139,15 +149,18 @@ func headingLevel(line string) int {
 	if !ok {
 		return 0
 	}
+
 	n := len(t) - len(strings.TrimLeft(t, "#"))
 	if n == 0 || n > 6 || len(t) > n && t[n] != ' ' {
 		return 0
 	}
+
 	return n
 }
 
 func isQuote(line string) bool {
 	t, ok := indent(line)
+
 	return ok && strings.HasPrefix(t, ">")
 }
 
@@ -155,6 +168,7 @@ func isQuote(line string) bool {
 func unquote(line string) string {
 	t, _ := indent(line)
 	t = t[1:]
+
 	return strings.TrimPrefix(t, " ")
 }
 
@@ -164,7 +178,9 @@ func listMarker(line string) string {
 	if !ok || t == "" {
 		return ""
 	}
+
 	n := 0
+
 	switch t[0] {
 	case '-', '*', '+':
 		n = 1
@@ -172,14 +188,18 @@ func listMarker(line string) string {
 		for n < len(t) && n < 9 && t[n] >= '0' && t[n] <= '9' {
 			n++
 		}
+
 		if n == 0 || n == len(t) || t[n] != '.' && t[n] != ')' {
 			return ""
 		}
+
 		n++
 	}
+
 	if n < len(t) && t[n] != ' ' {
 		return ""
 	}
+
 	return t[:n]
 }
 
@@ -194,6 +214,7 @@ func trimLines(lines []string) []string {
 	for i, l := range lines {
 		out[i] = strings.TrimLeft(l, " ")
 	}
+
 	return out
 }
 
@@ -203,30 +224,39 @@ func trimLines(lines []string) []string {
 func parseList(lines []string, i int) (Block, int) {
 	b := Block{Kind: List}
 	ordered := isOrdered(listMarker(lines[i]))
+
 	for i < len(lines) {
 		m := listMarker(lines[i])
 		if m == "" || isOrdered(m) != ordered {
 			break
 		}
+
 		t, _ := indent(lines[i])
 		text := []string{strings.TrimSpace(t[len(m):])}
+
 		for i++; i < len(lines) && !isBlank(lines[i]) && !startsBlock(lines[i]); i++ {
 			text = append(text, strings.TrimLeft(lines[i], " "))
 		}
+
 		item := Item{Spans: parseInline(strings.Join(text, "\n"))}
 		if ordered {
 			item.Marker = m
 		}
+
 		b.Items = append(b.Items, item)
 		j := i
+
 		for j < len(lines) && isBlank(lines[j]) {
 			j++
 		}
+
 		if j == len(lines) || listMarker(lines[j]) == "" || isOrdered(listMarker(lines[j])) != ordered {
 			break
 		}
+
 		i = j
 	}
+
 	return b, i
 }
 
@@ -238,16 +268,19 @@ func isTable(lines []string, i int) bool {
 	if i+1 >= len(lines) || !strings.Contains(lines[i], "|") {
 		return false
 	}
+
 	cells := splitRow(lines[i+1])
 	if len(cells) == 0 {
 		return false
 	}
+
 	for _, c := range cells {
 		c = strings.Trim(c, ":")
 		if c == "" || strings.Trim(c, "-") != "" {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -262,12 +295,15 @@ func parseTable(lines []string, i int) (Block, int) {
 				cells[k] = parseInline(c)
 			}
 		}
+
 		return cells
 	}
 	b.Rows = append(b.Rows, row(lines[i]))
+
 	for i += 2; i < len(lines) && !isBlank(lines[i]) && strings.Contains(lines[i], "|"); i++ {
 		b.Rows = append(b.Rows, row(lines[i]))
 	}
+
 	return b, i
 }
 
@@ -276,11 +312,14 @@ func parseTable(lines []string, i int) (Block, int) {
 func splitRow(line string) []string {
 	t := strings.TrimSpace(line)
 	t = strings.TrimPrefix(t, "|")
+
 	if strings.HasSuffix(t, "|") && !strings.HasSuffix(t, `\|`) {
 		t = t[:len(t)-1]
 	}
+
 	var cells []string
 	start := 0
+
 	for k := 0; k < len(t); k++ {
 		switch t[k] {
 		case '\\':
@@ -290,5 +329,6 @@ func splitRow(line string) []string {
 			start = k + 1
 		}
 	}
+
 	return append(cells, strings.TrimSpace(t[start:]))
 }

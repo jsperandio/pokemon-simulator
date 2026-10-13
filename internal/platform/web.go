@@ -44,12 +44,16 @@ func Default() Files {
 		if err == nil {
 			err = db.load(store)
 		}
+
 		if err != nil {
 			warn("POKéMON Simulator: the saved games won't outlast this page: " + err.Error())
+
 			return
 		}
+
 		store.db = db
 	})
+
 	return store
 }
 
@@ -59,79 +63,100 @@ func (m *memory) Roots() []string { return []string{"/"} }
 func (m *memory) List(dir string) ([]Entry, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
 	dir = path.Clean(dir)
 	if _, ok := m.dirs[dir]; !ok {
 		return nil, ErrNotExist
 	}
+
 	var out []Entry
+
 	for p, t := range m.dirs {
 		if p != "/" && path.Dir(p) == dir {
 			out = append(out, Entry{Name: path.Base(p), Dir: true, ModTime: t})
 		}
 	}
+
 	for p, b := range m.files {
 		if path.Dir(p) == dir {
 			out = append(out, Entry{Name: path.Base(p), Size: int64(len(b)), ModTime: m.times[p]})
 		}
 	}
+
 	return out, nil
 }
 
 func (m *memory) Stat(p string) (Entry, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
 	p = path.Clean(p)
 	if t, ok := m.dirs[p]; ok {
 		return Entry{Name: path.Base(p), Dir: true, ModTime: t}, nil
 	}
+
 	if b, ok := m.files[p]; ok {
 		return Entry{Name: path.Base(p), Size: int64(len(b)), ModTime: m.times[p]}, nil
 	}
+
 	return Entry{}, ErrNotExist
 }
 
 func (m *memory) ReadFile(p string) ([]byte, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
 	b, ok := m.files[path.Clean(p)]
 	if !ok {
 		return nil, ErrNotExist
 	}
+
 	return append([]byte(nil), b...), nil
 }
 
 func (m *memory) WriteFile(p string, data []byte) error {
 	m.mu.Lock()
+
 	p = path.Clean(p)
 	if _, ok := m.dirs[path.Dir(p)]; !ok {
 		m.mu.Unlock()
+
 		return ErrNotExist
 	}
+
 	now := time.Now()
+
 	m.files[p] = append([]byte(nil), data...)
 	m.times[p] = now
 	db := m.db
 	m.mu.Unlock()
+
 	if db == nil {
 		return nil
 	}
+
 	return db.put(p, false, now, data)
 }
 
 func (m *memory) Mkdir(p string) error {
 	m.mu.Lock()
+
 	p = path.Clean(p)
 	if _, ok := m.dirs[path.Dir(p)]; !ok {
 		m.mu.Unlock()
+
 		return ErrNotExist
 	}
+
 	now := time.Now()
 	m.dirs[p] = now
 	db := m.db
 	m.mu.Unlock()
+
 	if db == nil {
 		return nil
 	}
+
 	return db.put(p, true, now, nil)
 }
 
@@ -140,19 +165,24 @@ func (m *memory) Mkdir(p string) error {
 func (m *memory) restore(p string, dir bool, t time.Time, data []byte) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
 	p = path.Clean(p)
 	if !strings.HasPrefix(p, "/") {
 		return
 	}
+
 	for d := path.Dir(p); d != "/"; d = path.Dir(d) {
 		if _, ok := m.dirs[d]; !ok {
 			m.dirs[d] = t
 		}
 	}
+
 	if dir {
 		m.dirs[p] = t
+
 		return
 	}
+
 	m.files[p] = data
 	m.times[p] = t
 }

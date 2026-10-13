@@ -18,6 +18,7 @@ const choosePrompt = "Select a POKéMON from the Statistics Window. You'll be as
 // caller sets BattleType afterwards.
 func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.enable(false, "Action1")
+
 	g.EnemyLevel, g.EnemySpecies = uint8(level), species
 	g.Main.Battle = true
 	g.InTrainerBattle = true
@@ -25,10 +26,12 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.showInfo()
 	g.log(trainer + " wants to fight!")
 	g.log(trainer + " sent out " + g.name(species) + "!")
+
 	g.Main.Enemy = Shown{species, level, level * 10}
 	g.Main.EnemyImage = species - 1
 	g.Main.Attacks = false
 	g.message(Information, choosePrompt)
+
 	g.Main.EnemyMoves = g.Main.Enemy
 }
 
@@ -40,12 +43,15 @@ func (g *Game) StartWildBattle(species, level int) {
 	g.InWildBattle = true
 	g.showInfo()
 	g.enable(false, "Action1")
+
 	g.EnemyHP = level * 10
 	g.EnemyLevel = uint8(level)
 	g.log("Wild " + g.name(species) + " appeared!")
+
 	g.Main.Enemy = Shown{species, level, level * 10}
 	g.Main.EnemyImage = species - 1
 	g.message(Information, choosePrompt)
+
 	g.Main.Attacks = false
 	g.Main.EnemyMoves = g.Main.Enemy
 	g.EnemySpecies = species
@@ -60,28 +66,36 @@ func (g *Game) ClickParty(k int) {
 	if k < 0 || k >= len(party) || !g.Stats.PartyEnabled {
 		return
 	}
+
 	i := k + 1
 	m := g.member(i)
 	s := int(m.Species)
 	name := g.name(s)
 	toNext := 0
+
 	if m.Level < 100 {
 		n := int(m.Level) + 1
 		toNext = n*n*n - int(m.XP)
 	}
+
 	g.message(Information, fmt.Sprintf("# %03d %s, L.%d, XP:%d, XP to next level:%d", s, name, m.Level, m.XP, toNext))
+
 	if g.InWildBattle && g.confirm("Choose "+name+"?") {
 		g.choose(i)
 	}
+
 	if g.InTrainerBattle && g.MinLevel <= m.Level && m.Level <= g.MaxLevel && g.confirm("Choose "+name+"?") {
 		g.choose(i)
 	}
+
 	if g.EvolveMode {
 		g.evolve(i)
 	}
+
 	if g.ReleaseMode {
 		g.release(i, len(party))
 	}
+
 	g.menu["ReleasePKMN1"].Checked = false
 	g.ReleaseMode = false
 	g.enable(true, "Tournaments1", "Evolve1", "FightTrainer1", "Buy1", "FightWild1")
@@ -92,10 +106,12 @@ func (g *Game) choose(i int) {
 	m := g.member(i)
 	g.showItems()
 	g.log(g.name(int(m.Species)) + ", I choose you!")
+
 	g.Stats.PartyEnabled = false
 	g.Main.Go = true
 	g.Main.Attacks = true
 	g.enable(false, "File1")
+
 	g.OwnHP = int(m.Level) * 10
 	g.Main.Own = Shown{int(m.Species), int(m.Level), g.OwnHP}
 	g.OwnIndex = i
@@ -108,9 +124,11 @@ func (g *Game) Go() {
 	if !g.Main.Go {
 		return
 	}
+
 	switch k := g.Main.AttackIndex; {
 	case 0 <= k && k <= 3:
 		g.ownAttack(k)
+
 		if g.EnemyHP > 0 {
 			g.oppAttack()
 		}
@@ -118,11 +136,14 @@ func (g *Game) Go() {
 		if g.InTrainerBattle && !g.InTournament {
 			g.log("No! There's no running from a trainer battle!")
 		}
+
 		if g.InWildBattle {
 			g.log("Got away safely!")
+
 			g.BattleType = 0
 			g.battleOver()
 		}
+
 		if g.InTournament {
 			g.quitTournament()
 		}
@@ -132,6 +153,7 @@ func (g *Game) Go() {
 // battleOver shows "End Fight" in place of "Go!" and the item buttons.
 func (g *Game) battleOver() {
 	g.hideItems()
+
 	g.Main.EndFight = true
 	g.Main.Go = false
 }
@@ -146,16 +168,21 @@ func (g *Game) ownAttack(k int) {
 	enemy := g.species(g.EnemySpecies)
 	mv := g.move(own.Moves[k])
 	g.log(own.Name + " used " + mv.Name + "!")
+
 	if crit {
 		g.log("Critical hit!")
 	}
+
 	d := g.hit(r, mv, int(m.Level), crit, enemy)
 	g.logf("%s did %d points of damage to enemy %s.", own.Name, d, enemy.Name)
+
 	g.EnemyHP -= d
 	g.Main.EnemyColor = gaugeColor(g.EnemyHP, int(g.EnemyLevel))
+
 	if g.EnemyHP < 0 {
 		g.EnemyHP = 0
 	}
+
 	g.Main.Enemy.HP = g.EnemyHP
 	if g.EnemyHP < 1 {
 		g.victory()
@@ -173,24 +200,32 @@ func (g *Game) oppAttack() {
 	enemy := g.species(g.EnemySpecies)
 	mv := g.move(enemy.Moves[k])
 	g.log("Enemy " + enemy.Name + " used " + mv.Name + "!")
+
 	if crit {
 		g.log("Critical hit!")
 	}
+
 	d := g.hit(r, mv, int(g.EnemyLevel), crit, own)
 	g.logf("Enemy %s did %d points of damage to %s.", enemy.Name, d, own.Name)
+
 	g.OwnHP -= d
 	g.Main.OwnColor = gaugeColor(g.OwnHP, int(m.Level))
+
 	if g.OwnHP < 0 {
 		g.OwnHP = 0
 	}
+
 	g.Main.Own.HP = g.OwnHP
 	if g.OwnHP < 1 {
 		g.BattleType = 0
 		g.battleOver()
+
 		g.Fights++
+
 		g.Losses++
 		g.log(own.Name + " fainted!")
 		g.logf("You lost %d¥!", g.Money-g.Money/2)
+
 		g.Money /= 2
 	}
 }
@@ -200,6 +235,7 @@ func (g *Game) move(id int) *gamedata.Move {
 	if mv := g.Data.MoveByID(id); mv != nil {
 		return mv
 	}
+
 	return &gamedata.Move{ID: id}
 }
 
@@ -208,16 +244,21 @@ func (g *Game) hit(r int, mv *gamedata.Move, level int, crit bool, def *gamedata
 	t1 := g.Data.Effect(mv.Type, def.Types[0])
 	t2 := g.Data.Effect(mv.Type, def.Types[1])
 	d := Damage(r, mv.Power, level, crit, t1, t2)
+
 	if t1 == 2 && t2 >= 1 || t2 == 2 && t1 == 1 {
 		g.log("It's super effective!")
 	}
+
 	if t1 == 0.5 && t2 == 1 || t1 == 0.5 && t2 == 0.5 || t1 == 1 && t2 == 0.5 {
 		g.log("It's not very effective...")
 	}
+
 	if t1 == 0 || t2 == 0 {
 		g.log("It doesn't affect " + def.Name + "!")
+
 		d = 0
 	}
+
 	return d
 }
 
@@ -234,20 +275,25 @@ func Damage(r, power, level int, crit bool, t1, t2 float64) int {
 	if crit {
 		c = 2
 	}
+
 	m := int(4 * t1 * t2) // 0, 1, 2, 4, 8 or 16
 	d := ((r-10)*100 + power*level) * c * m / 400
+
 	return max(d, 1)
 }
 
 // victory ends a won battle: XP, maybe levels, and prize money.
 func (g *Game) victory() {
 	g.battleOver()
+
 	m := g.member(g.OwnIndex)
 	own := g.name(int(m.Species))
 	g.log("Enemy " + g.name(g.EnemySpecies) + " fainted!")
+
 	e := int64(g.EnemyLevel)
 	gain := e*e*e - (e-1)*(e-1)*(e-1)
 	g.logf("%s gained %d experience points!", own, int32(gain))
+
 	m.XP = uint32(int64(m.XP) + gain)
 	old := m.Level
 	// No levels mid-tournament or in the R/B/Y and Ru/Sa Elite Four:
@@ -255,31 +301,41 @@ func (g *Game) victory() {
 	if g.BattleType < 11 || g.BattleType%10 > 7 {
 		m.Level = levelFor(m.Level, m.XP)
 	}
+
 	if m.XP > maxXP {
 		m.Level, m.XP = 100, maxXP
 	}
+
 	if m.Level > old {
 		g.logf("%s grew to level %d!", own, m.Level)
 	}
+
 	r := g.Rand.Random(3) + 1
 	if r == 3 {
 		r = 4
 	}
+
 	money := r * 250
 	gp := g.GymProgress
+
 	if 3 < gp && gp < 8 {
 		money *= 2
 	}
+
 	if 7 < gp && gp < 12 {
 		money *= 4
 	}
+
 	if gp > 11 && !g.InDex[150] {
 		money *= 6
 	}
+
 	if g.InDex[150] {
 		money *= 8
 	}
+
 	g.logf("You got %d¥!", money)
+
 	g.Money += uint32(money)
 }
 
@@ -291,12 +347,15 @@ func (g *Game) quitTournament() {
 		own := g.name(int(m.Species))
 		lost := (m.XP + 10) / 20 // Int(XP/20 + 0.5)
 		g.logf("Quit the tournament! %s lost %d experience points!", own, lost)
+
 		m.XP -= lost
 		for l := uint32(m.Level); l*l*l > m.XP; l = uint32(m.Level) {
 			m.Level--
+
 			g.log(own + " lost a level!")
 		}
 	}
+
 	g.BattleType = 0
 	g.InTournament = false
 	g.battleOver()
@@ -308,31 +367,41 @@ func (g *Game) EndFight() {
 	if !g.Main.EndFight {
 		return
 	}
+
 	g.hideItems()
+
 	if g.BattleType == 0 { // lost or fled
 		g.recomputeLevels()
+
 		if g.InTournament {
 			g.Losses++
 		}
+
 		g.MinLevel, g.MaxLevel = 2, 100
 	}
+
 	if g.BattleType == 1 {
 		g.Catches++
 	}
+
 	if g.BattleType > 1 {
 		g.Wins++
 	}
+
 	g.rewards()
+
 	g.Main.EndFight = false
 	g.Main.AttackIndex = -1
 	g.InTrainerBattle, g.InTournament, g.InWildBattle = false, false, false
 	g.enable(true, "File1", "Action1")
+
 	g.Info.Visible = false
 	g.Main.Battle = false
 	g.Stats.PartyEnabled = true
 	g.Main.Own = Shown{}
 	g.Main.Attacks = false
 	g.eliteFour()
+
 	if 10 < g.BattleType && g.BattleType < 70 {
 		g.handleTournament()
 	}

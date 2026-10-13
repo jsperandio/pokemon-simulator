@@ -19,6 +19,7 @@ func get[T widget](w *window, name string) T {
 	if !ok {
 		panic(fmt.Sprintf("classic: %s has no %s of that kind", w.name, name))
 	}
+
 	return k
 }
 
@@ -66,13 +67,17 @@ func (a *App) loadGame(file string) bool {
 	if err == nil {
 		err = a.g.Load(file, b)
 	}
+
 	if err != nil {
 		a.Message(game.Error, false, err.Error())
+
 		return false
 	}
+
 	a.sync()
 	a.placeWindows(246)
 	a.desk.hide(a.start.w)
+
 	return true
 }
 
@@ -81,6 +86,7 @@ func (a *App) speciesName(s int) string {
 	if sp := a.g.Data.SpeciesByID(s); sp != nil {
 		return sp.Name
 	}
+
 	return ""
 }
 
@@ -90,6 +96,7 @@ func (a *App) dexItems() []string {
 	for _, sp := range a.g.Data.Species {
 		out = append(out, fmt.Sprintf("%s (#%03d)", sp.Name, sp.ID))
 	}
+
 	return out
 }
 

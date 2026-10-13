@@ -17,9 +17,11 @@ type Direct struct {
 func (d *Direct) Launch(p *Player, file string, save []byte, hook func(*game.Game)) error {
 	d.g = game.New(p.Data, p)
 	hook(d.g)
+
 	if save == nil {
 		return nil
 	}
+
 	return d.g.Load(file, save)
 }
 
@@ -28,27 +30,32 @@ func (d *Direct) Menu(path []*game.MenuItem) error {
 	if !d.g.ClickMenu(m.Name) {
 		return fmt.Errorf("%s isn't a game command", m.Name)
 	}
+
 	return nil
 }
 
 func (d *Direct) Choose(i int) error {
 	d.g.ClickParty(i)
+
 	return nil
 }
 
 func (d *Direct) Attack(k int) error {
 	d.g.Main.AttackIndex = k
 	d.g.Go()
+
 	return nil
 }
 
 func (d *Direct) Item(k int) error {
 	d.g.UseItem(k)
+
 	return nil
 }
 
 func (d *Direct) End() error {
 	d.g.EndFight()
+
 	return nil
 }
 
@@ -67,15 +74,19 @@ func (d *Direct) Click(path string) error {
 		"FormB.Button1":      g.Draw,
 		"FormB.Button2":      g.CloseCorner,
 	}[path]
+
 	if press == nil {
 		return fmt.Errorf("unknown button %s", path)
 	}
+
 	press()
+
 	return nil
 }
 
 func (d *Direct) Radio(path string, k int) error {
 	g := d.g
+
 	switch path {
 	case "Form4.EvolveChoice":
 		g.ChooseEvolution(k)
@@ -88,11 +99,13 @@ func (d *Direct) Radio(path string, k int) error {
 	default:
 		return fmt.Errorf("unknown radio group %s", path)
 	}
+
 	return nil
 }
 
 func (d *Direct) Combo(path string, i int) error {
 	g := d.g
+
 	switch path {
 	case "Form4.ComboBox1":
 		g.PickSpecies(i)
@@ -105,11 +118,13 @@ func (d *Direct) Combo(path string, i int) error {
 	default:
 		return fmt.Errorf("unknown combo box %s", path)
 	}
+
 	return nil
 }
 
 func (d *Direct) Type(path string, n int) error {
 	g := d.g
+
 	switch path {
 	case "Form4.SpinEdit1":
 		g.PickLevel(n)
@@ -120,6 +135,7 @@ func (d *Direct) Type(path string, n int) error {
 	default:
 		return fmt.Errorf("unknown spin edit %s", path)
 	}
+
 	return nil
 }
 
@@ -130,11 +146,13 @@ func (d *Direct) Text(path string) (string, error) {
 	case "Form9.Edit1":
 		return d.g.Mart.Total, nil
 	}
+
 	return "", fmt.Errorf("no text for %s", path)
 }
 
 func (d *Direct) New(file, name string) error {
 	d.g.NewGame(file, name)
+
 	return nil
 }
 
@@ -142,11 +160,13 @@ func (d *Direct) Load(file string, save []byte) error { return d.g.Load(file, sa
 
 func (d *Direct) Starter(k int) error {
 	d.g.ChooseStarter(k)
+
 	return nil
 }
 
 func (d *Direct) Export(file string) error {
 	d.g.Exported(file)
+
 	return nil
 }
 

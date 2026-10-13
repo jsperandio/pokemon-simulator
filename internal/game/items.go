@@ -21,6 +21,7 @@ func (g *Game) UseItem(k int) {
 	if k < 0 || k >= len(g.Stats.ItemEnabled) || !g.Stats.Items || !g.Stats.ItemEnabled[k] {
 		return
 	}
+
 	switch k {
 	case PokeBall:
 		g.throwBall("a POKéBall", &g.PokeBalls, 50)
@@ -32,6 +33,7 @@ func (g *Game) UseItem(k int) {
 		g.log("You threw a Master Ball.")
 		g.log("You caught " + g.name(g.EnemySpecies) + "!")
 		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel)
+
 		g.MasterBalls--
 		g.BattleType = 1
 		g.Main.EndFight = true
@@ -47,18 +49,22 @@ func (g *Game) UseItem(k int) {
 // HP + 2; a miss gives the enemy a free attack.
 func (g *Game) throwBall(ball string, count *uint32, bound int) {
 	g.log("You threw " + ball + ".")
+
 	*count--
 	// Int(r − (EnemyHP + 0.5)) > 0 in Extended: r ≥ EnemyHP + 2.
 	if r := g.Rand.Random(bound); r >= g.EnemyHP+2 {
 		g.log("You caught " + g.name(g.EnemySpecies) + "!")
 		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel)
+
 		g.BattleType = 1
 		g.Main.EndFight = true
 	}
+
 	if !g.Main.EndFight {
 		g.log("Sorry, " + g.name(g.EnemySpecies) + " wasn't caught.")
 		g.oppAttack()
 	}
+
 	g.enableItems()
 }
 
@@ -67,13 +73,16 @@ func (g *Game) throwBall(ball string, count *uint32, bound int) {
 func (g *Game) potion(count *uint32, heal int) {
 	before := g.OwnHP
 	full := int(g.member(g.OwnIndex).Level) * 10
+
 	if g.OwnHP == full {
 		g.log("It won't have any effect.")
 	}
+
 	if g.OwnHP < full {
 		*count--
 		g.OwnHP += heal
 		g.enableItems()
+
 		g.OwnHP = min(g.OwnHP, full)
 		g.logf("%s recovered %d HP!", g.name(int(g.member(g.OwnIndex).Species)), g.OwnHP-before)
 		g.oppAttack()
@@ -83,6 +92,7 @@ func (g *Game) potion(count *uint32, heal int) {
 // showItems shows the item buttons (TForm5.ShowButtons).
 func (g *Game) showItems() {
 	g.enableItems()
+
 	g.Stats.Items = true
 }
 

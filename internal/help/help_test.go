@@ -33,9 +33,11 @@ func TestParse(t *testing.T) {
 		"| --- | --- | --- | --- |\r\n" +
 		"| Easy | 2000¥ | 3 Potions |\r\n"
 	p := Parse([]byte(src))
+
 	if p.Title != "Items" {
 		t.Errorf("title %q", p.Title)
 	}
+
 	want := []Block{
 		{Kind: Quote, Blocks: []Block{{Kind: Paragraph, Spans: []Span{
 			{Text: "Port note:", Bold: true},
@@ -101,17 +103,22 @@ func TestManual(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	pages := map[string]*Page{}
+
 	for _, n := range names {
 		b, err := assets.FS.ReadFile(n)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		pages[path.Base(n)] = Parse(b)
 	}
+
 	if pages[Contents] == nil {
 		t.Fatalf("no %s", Contents)
 	}
+
 	walk := func(page string, spans []Span) {
 		for _, s := range spans {
 			switch {
@@ -125,19 +132,23 @@ func TestManual(t *testing.T) {
 			case pages[s.Link] == nil:
 				t.Errorf("%s: link to %s", page, s.Link)
 			}
+
 			if strings.Contains(s.Text, "**") || strings.Contains(s.Text, "](") || strings.Contains(s.Text, `\`) {
 				t.Errorf("%s: markup left in %q", page, s.Text)
 			}
 		}
 	}
+
 	var blocks func(page string, bs []Block)
 	blocks = func(page string, bs []Block) {
 		for _, b := range bs {
 			walk(page, b.Spans)
 			blocks(page, b.Blocks)
+
 			for _, it := range b.Items {
 				walk(page, it.Spans)
 			}
+
 			for _, row := range b.Rows {
 				for _, c := range row {
 					walk(page, c)
@@ -145,13 +156,16 @@ func TestManual(t *testing.T) {
 			}
 		}
 	}
+
 	for name, p := range pages {
 		if p.Title == "" {
 			t.Errorf("%s has no title", name)
 		}
+
 		if len(p.Blocks) == 0 {
 			t.Errorf("%s is empty", name)
 		}
+
 		blocks(name, p.Blocks)
 	}
 }

@@ -56,20 +56,25 @@ type player interface {
 // name.
 func (m *Music) Open(name string, data []byte) error {
 	m.close()
+
 	src, err := decode(name, data)
 	if err != nil {
 		return err
 	}
+
 	newPlayer := m.newPlayer
 	if newPlayer == nil {
 		newPlayer = soundCard
 	}
+
 	p, err := newPlayer(src)
 	if err != nil {
 		return err
 	}
+
 	m.p, m.stopped = p, false
 	p.Play()
+
 	return nil
 }
 
@@ -78,9 +83,12 @@ func (m *Music) Stop() error {
 	if m.p == nil {
 		return ErrNotOpen
 	}
+
 	m.p.Pause()
+
 	m.stopped = true
 	_, err := m.p.Seek(0, io.SeekStart)
+
 	return err
 }
 
@@ -91,6 +99,7 @@ func (m *Music) Update(repeat bool) {
 	if m.p == nil || m.stopped || !repeat || m.p.IsPlaying() {
 		return
 	}
+
 	if _, err := m.p.Seek(0, io.SeekStart); err == nil {
 		m.p.Play()
 	}
@@ -125,20 +134,27 @@ func soundCard(src io.Reader) (player, error) {
 			ApplicationName: "POKéMON Simulator",
 		})
 	})
+
 	if cardErr != nil {
 		return nil, cardErr
 	}
+
 	if err := card.Err(); err != nil {
 		return nil, err
 	}
+
 	return card.NewPlayer(src), nil
 }
 
 // decode returns sound data as 16-bit stereo at the output's rate.
 func decode(name string, data []byte) (io.ReadSeeker, error) {
 	r := bytes.NewReader(data)
-	var s io.ReadSeeker
-	var err error
+
+	var (
+		s   io.ReadSeeker
+		err error
+	)
+
 	switch format(name, data) {
 	case "mp3":
 		s, err = mp3Stream(r)
@@ -149,9 +165,11 @@ func decode(name string, data []byte) (io.ReadSeeker, error) {
 	default:
 		return nil, ErrFormat
 	}
+
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrFormat, err)
 	}
+
 	return s, nil
 }
 
@@ -160,6 +178,7 @@ func mp3Stream(r io.Reader) (io.ReadSeeker, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 
@@ -168,6 +187,7 @@ func oggStream(r io.Reader) (io.ReadSeeker, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 
@@ -176,6 +196,7 @@ func wavStream(r io.Reader) (io.ReadSeeker, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 
@@ -190,6 +211,7 @@ func format(name string, data []byte) string {
 	case bytes.HasPrefix(data, []byte("ID3")), len(data) >= 2 && data[0] == 0xFF && data[1]&0xE0 == 0xE0:
 		return "mp3"
 	}
+
 	switch strings.ToLower(path.Ext(name)) {
 	case ".mp3":
 		return "mp3"
@@ -198,5 +220,6 @@ func format(name string, data []byte) string {
 	case ".wav":
 		return "wav"
 	}
+
 	return ""
 }

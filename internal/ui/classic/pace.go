@@ -36,7 +36,9 @@ type pacer struct {
 func newPacer() *pacer {
 	p := &pacer{}
 	p.idle.Store(int64(idleFrame))
+
 	go p.beat()
+
 	return p
 }
 
@@ -56,6 +58,7 @@ func (p *pacer) wait() {
 			time.Sleep(d)
 		}
 	}
+
 	p.last = time.Now()
 }
 
@@ -65,14 +68,17 @@ func (p *pacer) next(in *input, changed, music bool, now time.Time) {
 	if changed || in.active(p.mouse) {
 		p.busyUntil = now.Add(busyFor)
 	}
+
 	p.mouse = in.mouse
 	if now.Before(p.busyUntil) {
 		ebiten.ScheduleFrame() //nolint:staticcheck // the frames the game asks for (see above)
 	}
+
 	idle := idleFrame
 	if music {
 		idle = musicFrame
 	}
+
 	p.idle.Store(int64(idle))
 }
 
@@ -83,6 +89,7 @@ func (p *pacer) next(in *input, changed, music bool, now time.Time) {
 func (in *input) active(prev image.Point) bool {
 	desktop := image.Rect(0, 0, screenWidth, screenHeight)
 	moved := in.mouse != prev && (in.mouse.In(desktop) || prev.In(desktop))
+
 	return moved || in.down || in.pressed || in.released || in.wheel != 0 ||
 		len(in.keys) > 0 || len(in.keysUp) > 0 || len(in.chars) > 0 || in.dropped != nil
 }

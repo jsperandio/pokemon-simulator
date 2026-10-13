@@ -92,43 +92,55 @@ func Load(raw []byte) (*Data, error) {
 			d.Effectiveness[a][t] = r.float()
 		}
 	}
+
 	for i := range d.Species {
 		d.Species[i].ID = i + 1
 		d.Species[i].Name = r.text()
 	}
+
 	d.Badges = r.texts(NumBadges)
 	for i := range d.Species {
 		d.Species[i].Types = [2]Type{Type(r.int()), Type(r.int())}
 	}
+
 	for i := range d.Species {
 		d.Species[i].EvolveLevel = r.int()
 	}
+
 	for i := range d.Species {
 		d.Species[i].EvolveTo = r.int()
 	}
+
 	for i := range d.Moves {
 		d.Moves[i].ID = i + 1
 		d.Moves[i].Name = r.text()
 	}
+
 	for i := range d.Moves {
 		d.Moves[i].Power = r.int()
 	}
+
 	for i := range d.Moves {
 		d.Moves[i].Type = Type(r.int())
 	}
+
 	for i := range d.TypeNames {
 		d.TypeNames[i] = r.text()
 	}
+
 	for i := range d.Species {
 		for m := range d.Species[i].Moves {
 			d.Species[i].Moves[m] = r.int()
 		}
 	}
+
 	d.Prizes = r.texts(NumPrizes)
 	d.TrainerNames = r.texts(NumTrainerNames)
+
 	if r.err != nil {
 		return nil, r.err
 	}
+
 	return d, d.validate()
 }
 
@@ -139,20 +151,24 @@ func (d *Data) validate() error {
 		if s.Types[0] < Normal || s.Types[0] > Steel || s.Types[1] < NoType || s.Types[1] > Steel {
 			return fmt.Errorf("pokegame.dat: %s has invalid types %v", s.Name, s.Types)
 		}
+
 		if s.EvolveTo < 0 || s.EvolveTo > NumSpecies {
 			return fmt.Errorf("pokegame.dat: %s evolves into unknown species %d", s.Name, s.EvolveTo)
 		}
+
 		for _, m := range s.Moves {
 			if d.MoveByID(m) == nil {
 				return fmt.Errorf("pokegame.dat: %s knows unknown move %d", s.Name, m)
 			}
 		}
 	}
+
 	for _, m := range d.Moves {
 		if m.Type < Normal || m.Type > Steel {
 			return fmt.Errorf("pokegame.dat: move %s has invalid type %d", m.Name, m.Type)
 		}
 	}
+
 	return nil
 }
 
@@ -161,6 +177,7 @@ func (d *Data) SpeciesByID(id int) *Species {
 	if id < 1 || id > len(d.Species) {
 		return nil
 	}
+
 	return &d.Species[id-1]
 }
 
@@ -169,6 +186,7 @@ func (d *Data) MoveByID(id int) *Move {
 	if id < 1 || id > len(d.Moves) {
 		return nil
 	}
+
 	return &d.Moves[id-1]
 }
 
@@ -177,6 +195,7 @@ func (d *Data) TypeName(t Type) string {
 	if t < Normal || t > Steel {
 		return ""
 	}
+
 	return d.TypeNames[t-1]
 }
 
@@ -186,6 +205,7 @@ func (d *Data) Effect(atk, def Type) float64 {
 	if atk < Normal || atk > Steel || def < Normal || def > Steel {
 		return 1
 	}
+
 	return d.Effectiveness[atk-1][def-1]
 }
 
@@ -201,11 +221,15 @@ func (r *lineReader) text() string {
 	if r.err != nil {
 		return ""
 	}
+
 	if r.n >= len(r.lines) {
 		r.err = fmt.Errorf("pokegame.dat: unexpected end of file at line %d", r.n+1)
+
 		return ""
 	}
+
 	r.n++
+
 	return r.lines[r.n-1]
 }
 
@@ -214,6 +238,7 @@ func (r *lineReader) texts(n int) []string {
 	for i := range s {
 		s[i] = r.text()
 	}
+
 	return s
 }
 
@@ -222,10 +247,12 @@ func (r *lineReader) int() int {
 	if r.err != nil {
 		return 0
 	}
+
 	v, err := strconv.Atoi(strings.TrimSpace(s))
 	if err != nil {
 		r.err = fmt.Errorf("pokegame.dat: line %d: want a whole number, got %q", r.n, s)
 	}
+
 	return v
 }
 
@@ -234,9 +261,11 @@ func (r *lineReader) float() float64 {
 	if r.err != nil {
 		return 0
 	}
+
 	v, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
 	if err != nil {
 		r.err = fmt.Errorf("pokegame.dat: line %d: want a number, got %q", r.n, s)
 	}
+
 	return v
 }

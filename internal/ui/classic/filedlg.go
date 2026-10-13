@@ -39,13 +39,17 @@ type fileFilter struct {
 // parseFilter splits a VCL Filter into its file types.
 func parseFilter(s string) []fileFilter {
 	parts := strings.Split(s, "|")
+
 	var out []fileFilter
+
 	for i := 0; i+1 < len(parts); i += 2 {
 		out = append(out, fileFilter{parts[i], strings.Split(strings.ToLower(parts[i+1]), ";")})
 	}
+
 	if len(out) == 0 {
 		out = []fileFilter{{"All files (*.*)", []string{"*.*"}}}
 	}
+
 	return out
 }
 
@@ -53,14 +57,17 @@ func parseFilter(s string) []fileFilter {
 // matches every name, as on Windows.
 func (f fileFilter) matches(name string) bool {
 	name = strings.ToLower(name)
+
 	for _, p := range f.patterns {
 		if p == "*.*" || p == "*" {
 			return true
 		}
+
 		if ok, _ := path.Match(p, name); ok {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -176,15 +183,19 @@ func (r *resources) fileIcons() *imageList {
 	if l := r.lists["fileIcons"]; l != nil {
 		return l
 	}
+
 	img := image.NewRGBA(image.Rect(0, 0, 48, 16))
 	cv := newCanvas(img)
 	cv.pattern(0, 0, iconFolder, iconColors)
 	cv.pattern(16, 0, iconDocument, iconColors)
 	cv.pattern(32, 0, iconDrive, iconColors)
+
 	n := image.NewNRGBA(img.Rect)
 	copy(n.Pix, img.Pix) // the pixels are opaque or fully transparent
+
 	l := &imageList{img: n, size: 16, cols: 3}
 	r.lists["fileIcons"] = l
+
 	return l
 }
 
@@ -196,34 +207,49 @@ func (a *App) openFile(opts fileOptions) (string, bool) {
 	r := a.modal(f.w)
 	a.fileDlg = nil
 	a.desk.remove(f.w)
+
 	return f.result, r == mrOk
 }
 
 func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 	f := &fileDialog{a: a, opts: opts, files: a.files, filters: parseFilter(opts.filter)}
 	title, in, ok, typ := "Open", "Look &in:", "&Open", "Files of &type:"
+
 	if opts.save {
 		title, in, ok, typ = "Save As", "Save &in:", "&Save", "Save as &type:"
 	}
+
 	comp := layout.Component{
 		Class: "TFileDialog", Name: "FileDialog", Caption: title,
 		Props: map[string]string{"BorderStyle": "bsDialog", "ClientWidth": "420", "ClientHeight": "240", "Position": "poScreenCenter"},
 		Children: []layout.Component{
 			{Class: "TLabel", Name: "LookInLabel", Caption: in, Bounds: layout.Rect{X: 6, Y: 10, W: 50, H: 13}},
-			{Class: "TComboBox", Name: "LookIn", Bounds: layout.Rect{X: 74, Y: 5, W: 198, H: 21},
-				Props: map[string]string{"Style": "csDropDownList", "ItemHeight": "16", "TabOrder": "0"}},
-			{Class: "TListView", Name: "View", Bounds: layout.Rect{X: 6, Y: 33, W: 408, H: 138},
-				Props: map[string]string{"TabOrder": "1"}},
+			{
+				Class: "TComboBox", Name: "LookIn", Bounds: layout.Rect{X: 74, Y: 5, W: 198, H: 21},
+				Props: map[string]string{"Style": "csDropDownList", "ItemHeight": "16", "TabOrder": "0"},
+			},
+			{
+				Class: "TListView", Name: "View", Bounds: layout.Rect{X: 6, Y: 33, W: 408, H: 138},
+				Props: map[string]string{"TabOrder": "1"},
+			},
 			{Class: "TLabel", Name: "NameLabel", Caption: "File &name:", Bounds: layout.Rect{X: 8, Y: 183, W: 50, H: 13}},
-			{Class: "TEdit", Name: "FileName", Bounds: layout.Rect{X: 81, Y: 179, W: 233, H: 21},
-				Props: map[string]string{"TabOrder": "2"}},
+			{
+				Class: "TEdit", Name: "FileName", Bounds: layout.Rect{X: 81, Y: 179, W: 233, H: 21},
+				Props: map[string]string{"TabOrder": "2"},
+			},
 			{Class: "TLabel", Name: "TypeLabel", Caption: typ, Bounds: layout.Rect{X: 8, Y: 209, W: 70, H: 13}},
-			{Class: "TComboBox", Name: "Types", Bounds: layout.Rect{X: 81, Y: 205, W: 233, H: 21},
-				Props: map[string]string{"Style": "csDropDownList", "TabOrder": "3"}},
-			{Class: "TButton", Name: "OK", Caption: ok, Bounds: layout.Rect{X: 333, Y: 179, W: 75, H: 23},
-				Props: map[string]string{"Default": "True", "TabOrder": "4"}},
-			{Class: "TButton", Name: "Cancel", Caption: "Cancel", Bounds: layout.Rect{X: 333, Y: 205, W: 75, H: 23},
-				Props: map[string]string{"Cancel": "True", "ModalResult": strconv.Itoa(mrCancel), "TabOrder": "5"}},
+			{
+				Class: "TComboBox", Name: "Types", Bounds: layout.Rect{X: 81, Y: 205, W: 233, H: 21},
+				Props: map[string]string{"Style": "csDropDownList", "TabOrder": "3"},
+			},
+			{
+				Class: "TButton", Name: "OK", Caption: ok, Bounds: layout.Rect{X: 333, Y: 179, W: 75, H: 23},
+				Props: map[string]string{"Default": "True", "TabOrder": "4"},
+			},
+			{
+				Class: "TButton", Name: "Cancel", Caption: "Cancel", Bounds: layout.Rect{X: 333, Y: 205, W: 75, H: 23},
+				Props: map[string]string{"Cancel": "True", "ModalResult": strconv.Itoa(mrCancel), "TabOrder": "5"},
+			},
 		},
 	}
 	w := newWindow(a.desk, &comp)
@@ -240,6 +266,7 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 
 	f.up = &toolButton{glyph: glyphUp, onPress: f.upOneLevel}
 	addWidget(w, f.up, image.Rect(280, 4, 303, 26))
+
 	if a.xfer != nil {
 		f.addTransfers()
 	}
@@ -247,6 +274,7 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 	for _, ft := range f.filters {
 		f.types.items = append(f.types.items, ft.name)
 	}
+
 	f.types.index = 0
 	f.types.onSelect = func(int) { f.list() }
 	f.lookIn.onSelect = func(i int) {
@@ -260,17 +288,23 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 	w.onKey = func(k ebiten.Key, m mods) bool {
 		if k == ebiten.KeyBackspace && w.focus == f.view {
 			f.upOneLevel()
+
 			return true
 		}
+
 		return false
 	}
 	dir := a.lastDir
+
 	if dir == "" {
 		dir = a.files.Home()
 	}
+
 	f.navigate(dir)
+
 	w.focus = f.name
 	a.desk.add(w)
+
 	return f
 }
 
@@ -282,45 +316,60 @@ func (f *fileDialog) navigate(dir string) {
 	if st, err := f.files.Stat(dir); err != nil || !st.Dir {
 		return
 	}
+
 	f.dir = dir
 	// Look in: the roots, with the folder's ancestors under its own, each
 	// indented under its parent.
 	f.dirs = nil
+
 	var chain []string
+
 	for d := dir; ; d = f.files.Dir(d) {
 		chain = append(chain, d)
 		if f.files.Dir(d) == d {
 			break
 		}
 	}
+
 	slices.Reverse(chain)
-	var items []string
-	var icons, indents []int
+
+	var (
+		items          []string
+		icons, indents []int
+	)
 	add := func(d string, depth int) {
 		name, icon := f.files.Base(d), fileIconFolder
 		if depth == 0 {
 			name, icon = d, fileIconDrive
 		}
+
 		f.dirs = append(f.dirs, d)
 		items = append(items, name)
 		icons = append(icons, icon)
 		indents = append(indents, depth*lookInIndent)
 	}
 	roots := f.files.Roots()
+
 	if !slices.Contains(roots, chain[0]) { // a root the storage doesn't list
 		roots = append(roots, chain[0])
 	}
+
 	sel := 0
+
 	for _, root := range roots {
 		if root != chain[0] {
 			add(root, 0)
+
 			continue
 		}
+
 		for depth, d := range chain {
 			add(d, depth)
 		}
+
 		sel = len(items) - 1
 	}
+
 	f.lookIn.items, f.lookIn.icons, f.lookIn.indents = items, icons, indents
 	f.lookIn.index = sel
 	f.lookIn.invalidate()
@@ -332,7 +381,9 @@ func (f *fileDialog) navigate(dir string) {
 func (f *fileDialog) list() {
 	entries, _ := f.files.List(f.dir)
 	ft := f.filters[max(f.types.index, 0)]
+
 	var dirs, files []platform.Entry
+
 	for _, e := range entries {
 		switch {
 		case strings.HasPrefix(e.Name, "."):
@@ -342,21 +393,27 @@ func (f *fileDialog) list() {
 			files = append(files, e)
 		}
 	}
+
 	byName := func(a, b platform.Entry) int {
 		return strings.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name))
 	}
 	slices.SortFunc(dirs, byName)
 	slices.SortFunc(files, byName)
+
 	f.entries = append(dirs, files...)
 	items := make([]listItem, len(f.entries))
+
 	for i, e := range f.entries {
 		img := 1
 		if e.Dir {
 			img = 0
 		}
+
 		items[i] = listItem{e.Name, img}
 	}
+
 	f.view.setItems(items)
+
 	f.view.selected, f.view.hot = -1, -1
 	f.view.scroll.pos = 0
 	f.view.laid = false
@@ -367,6 +424,7 @@ func (f *fileDialog) selectedEntry() (platform.Entry, bool) {
 	if i := f.view.selected; i >= 0 && i < len(f.entries) {
 		return f.entries[i], true
 	}
+
 	return platform.Entry{}, false
 }
 
@@ -383,10 +441,13 @@ func (f *fileDialog) open() {
 	if !ok {
 		return
 	}
+
 	if e.Dir {
 		f.navigate(f.files.Join(f.dir, e.Name))
+
 		return
 	}
+
 	f.name.setText(e.Name)
 	f.okClick()
 }
@@ -404,21 +465,27 @@ func (f *fileDialog) okClick() {
 	if f.w.focus == f.view || text == "" {
 		if e, ok := f.selectedEntry(); ok && e.Dir {
 			f.navigate(f.files.Join(f.dir, e.Name))
+
 			return
 		}
 	}
+
 	if text == "" {
 		return
 	}
+
 	p := text
 	if !f.files.IsAbs(p) {
 		p = f.files.Join(f.dir, p)
 	}
+
 	if st, err := f.files.Stat(p); err == nil && st.Dir {
 		f.navigate(p)
 		f.name.setText("")
+
 		return
 	}
+
 	base := f.files.Base(p)
 	if !strings.Contains(base, ".") && f.opts.defExt != "" {
 		withExt := p + "." + strings.TrimPrefix(f.opts.defExt, ".")
@@ -426,12 +493,16 @@ func (f *fileDialog) okClick() {
 			p = withExt
 		}
 	}
+
 	if st, err := f.files.Stat(f.files.Dir(p)); err != nil || !st.Dir {
 		f.alert(false, p+"\nPath does not exist.\nPlease verify the correct path was given.", nil)
+
 		return
 	}
+
 	_, err := f.files.Stat(p)
 	exists := err == nil
+
 	switch {
 	case f.opts.save && exists && f.opts.overwrite:
 		f.alert(true, p+" already exists.\nDo you want to replace it?", func() { f.accept(p) })
@@ -450,6 +521,7 @@ func (f *fileDialog) alert(yesNo bool, text string, yes func()) {
 	m.caption = f.w.caption
 	m.onModal = func(r int) {
 		d.remove(m)
+
 		if r == mrYes && yes != nil {
 			yes()
 		}
@@ -477,14 +549,18 @@ type toolButton struct {
 func (b *toolButton) paint(cv canvas) {
 	r := b.local()
 	cv.fill(r, colFace)
+
 	off := 0
+
 	switch {
 	case b.down && b.inside:
 		cv.edge(r, colShadow, colHighlight)
+
 		off = 1
 	case b.hot || b.down:
 		cv.edge(r, colHighlight, colShadow)
 	}
+
 	rows := strings.Split(strings.Trim(b.glyph, "\n"), "\n")
 	gx := (r.Dx()-len(rows[0]))/2 + off
 	gy := (r.Dy()-len(rows))/2 + off
@@ -507,6 +583,7 @@ func (b *toolButton) mouseUp(p image.Point) {
 	click := b.down && p.In(b.local())
 	b.down = false
 	b.invalidate()
+
 	if click && b.onPress != nil {
 		b.onPress()
 	}

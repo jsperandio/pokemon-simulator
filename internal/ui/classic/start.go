@@ -48,6 +48,7 @@ type loadForm struct {
 func newLoadForm(a *App) *loadForm {
 	f := &loadForm{a: a, w: newWindow(a.desk, &layout.Form3)}
 	a.desk.add(f.w)
+
 	return f
 }
 
@@ -70,19 +71,26 @@ func (f *loadForm) tick() {
 	if !f.running {
 		return
 	}
+
 	for range loadPerTick {
 		f.done++
+
 		f.total++
+
 		if f.done == loadSteps[f.step].n {
 			if f.step+1 == len(loadSteps) {
 				f.finish()
+
 				return
 			}
+
 			f.startStep(f.step + 1)
 		}
 	}
+
 	g1 := get[*gauge](f.w, "Gauge1")
 	g1.set(g1.max, f.done, g1.fore)
+
 	g2 := get[*gauge](f.w, "Gauge2")
 	g2.set(g2.max, f.total, g2.fore)
 }
@@ -93,20 +101,25 @@ func (f *loadForm) finish() {
 	f.running = false
 	a := f.a
 	a.desk.hide(f.w)
+
 	file := ""
+
 	for _, arg := range a.args {
 		if st, err := a.files.Stat(arg); err == nil && !st.Dir {
 			file = arg // the last existing one wins
 		}
 	}
+
 	if file != "" {
 		a.call(func() {
 			if !a.loadGame(file) {
 				a.desk.show(a.start.w)
 			}
 		})
+
 		return
 	}
+
 	a.desk.show(a.start.w)
 }
 
@@ -131,6 +144,7 @@ func newStartForm(a *App) *startForm {
 		}
 	}
 	a.desk.add(w)
+
 	return f
 }
 
@@ -146,7 +160,9 @@ func (f *startForm) newButtonClick() {
 		if !ok {
 			return
 		}
+
 		a.desk.hide(f.w)
+
 		name := a.name.ask()
 		a.g.NewGame(file, name)
 		a.sync()
@@ -176,6 +192,7 @@ func newNameDialog(a *App) *nameDialog {
 	d := &nameDialog{a: a, w: newWindow(a.desk, &layout.OKRightDlg)}
 	d.edit = get[*edit](d.w, "Edit1")
 	a.desk.add(d.w)
+
 	return d
 }
 
@@ -183,5 +200,6 @@ func newNameDialog(a *App) *nameDialog {
 // the handler's goroutine.
 func (d *nameDialog) ask() string {
 	d.a.modal(d.w)
+
 	return d.edit.text()
 }

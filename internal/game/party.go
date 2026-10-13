@@ -18,20 +18,27 @@ func (g *Game) AddPKMN(species int, name string, level uint8) {
 	if species == 150 {
 		g.message(Information, "NOTE: You can only catch one Mewtwo at a time. You must release the one(s) you already have if you want to catch another.")
 	}
+
 	g.hideItems()
+
 	g.Main.Go = false
 	i := 1 // the starter takes the list's placeholder item
+
 	if !g.Main.Starters {
 		i = len(g.Party()) + 1
 	}
+
 	if !g.InDex[species] {
 		g.log(name + " has been added to the POKéDEX!")
 		g.ShowDex(species - 1)
+
 		g.InDex[species] = true
 	}
+
 	if i > len(g.Owned) {
 		return
 	}
+
 	l := uint32(level)
 	*g.member(i) = save.Slot{Species: int32(species), Level: level, XP: l * l * l}
 }
@@ -40,13 +47,16 @@ func (g *Game) AddPKMN(species int, name string, level uint8) {
 // on the party evolves.
 func (g *Game) toggleEvolveMode() {
 	modes := []string{"ReleasePKMN1", "Tournaments1", "FightTrainer1", "Buy1", "FightWild1"}
+
 	if !g.EvolveMode {
 		g.menu["Evolve1"].Checked = true
 		g.EvolveMode = true
 		g.enable(false, modes...)
 		g.message(Information, "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled.")
+
 		return
 	}
+
 	g.menu["Evolve1"].Checked = false
 	g.EvolveMode = false
 	g.enable(true, modes...)
@@ -58,16 +68,21 @@ func (g *Game) toggleEvolveMode() {
 func (g *Game) toggleReleaseMode() {
 	if len(g.Party()) < 2 {
 		g.message(Warning, "You can't release your last POKéMON!")
+
 		return
 	}
+
 	modes := []string{"Evolve1", "Tournaments1", "FightTrainer1", "Buy1", "FightWild1"}
+
 	if !g.ReleaseMode {
 		g.menu["ReleasePKMN1"].Checked = true
 		g.ReleaseMode = true
 		g.enable(false, modes...)
 		g.message(Information, "Doubleclick a POKéMON in the Statistics window to release it. Once you have doubleclicked on a POKéMON, Release Mode will be disabled.")
+
 		return
 	}
+
 	g.menu["ReleasePKMN1"].Checked = false
 	g.ReleaseMode = false
 	g.enable(true, modes...)
@@ -97,6 +112,7 @@ func (g *Game) evolve(i int) {
 	name := sp.Name
 	level := uint8(sp.EvolveLevel) // a Byte in the original
 	handled := false
+
 	switch {
 	case level == 0:
 		g.message(Information, name+" can't evolve.")
@@ -105,6 +121,7 @@ func (g *Game) evolve(i int) {
 	default:
 		if b, ok := branches[s]; ok {
 			g.message(Information, "Please select what you would like to evolve your "+b.from+" to.")
+
 			g.Main.Choices = append([]string{"Don't evolve"}, b.targets...)
 			g.Main.Choice = 0
 			g.EvolveIndex = i
@@ -116,7 +133,9 @@ func (g *Game) evolve(i int) {
 				m.Species = 291
 				g.InDex[291] = true
 				g.message(Information, g.name(290)+" evolved into "+g.name(291)+"!")
+
 				handled = true
+
 				if g.Rand.Random(4) == 0 {
 					g.message(Information, "Shedinja didn't appear.")
 				} else {
@@ -125,6 +144,7 @@ func (g *Game) evolve(i int) {
 				}
 			}
 		}
+
 		if !handled { // every other species, and Nincada after a No
 			t := sp.EvolveTo
 			if g.confirm("Your " + name + " can evolve into " + g.name(t) + ". Do you want to evolve it?") {
@@ -134,6 +154,7 @@ func (g *Game) evolve(i int) {
 			}
 		}
 	}
+
 	g.menu["Evolve1"].Checked = false
 	g.EvolveMode = false
 	g.enable(true, "Tournaments1", "ReleasePKMN1", "FightTrainer1", "Buy1", "FightWild1")
@@ -151,9 +172,11 @@ func (g *Game) Evolve() {
 	if len(g.Main.Choices) == 0 {
 		return
 	}
+
 	g.Stats.PartyEnabled = true
 	if g.Main.Choice > 0 {
 		from := "" // Wurmple and Clamperl have none: " evolved into Silcoon!"
+
 		switch g.Main.Choices[1] {
 		case "Vileplume":
 			from = "Gloom"
@@ -166,19 +189,24 @@ func (g *Game) Evolve() {
 		case "Hitmonlee":
 			from = "Tyrouge"
 		}
+
 		t := 0 // the last species of that name
+
 		for s := 1; s <= len(g.Data.Species); s++ {
 			if g.name(s) == g.Main.Choices[g.Main.Choice] {
 				t = s
 			}
 		}
+
 		g.member(g.EvolveIndex).Species = int32(t)
 		g.InDex[t] = true
 		g.message(Information, from+" evolved into "+g.name(t)+"!")
 	}
+
 	if g.Main.Choice == 0 {
 		g.message(Information, "Evolution cancelled.")
 	}
+
 	g.Main.Choices = nil
 }
 
@@ -188,6 +216,7 @@ func (g *Game) release(i, n int) {
 	if !g.confirm("Once released, " + name + " will not come back. Release " + name + "?") {
 		return
 	}
+
 	k := i - 1
 	g.Owned[k] = save.Slot{}
 	// Compact the party: the members after it, and the empty slot after
@@ -201,5 +230,6 @@ func (g *Game) release(i, n int) {
 			}
 		}
 	}
+
 	g.message(Information, name+" was released. Bye, "+name+"!")
 }

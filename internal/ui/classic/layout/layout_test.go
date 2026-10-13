@@ -13,11 +13,13 @@ func TestAllForms(t *testing.T) {
 	if len(All) != 11 {
 		t.Fatalf("got %d forms, want 11", len(All))
 	}
+
 	seen := map[string]bool{}
 	for _, f := range All {
 		if seen[f.Name] {
 			t.Errorf("form %s listed twice", f.Name)
 		}
+
 		seen[f.Name] = true
 		if f.Class != "T"+f.Name {
 			t.Errorf("form %s has class %s", f.Name, f.Class)
@@ -48,11 +50,13 @@ func TestWindowArrangement(t *testing.T) {
 
 func TestMainMenu(t *testing.T) {
 	items := 0
+
 	Form4.Walk(func(c *Component) {
 		if c.Class == "TMenuItem" {
 			items++
 		}
 	})
+
 	if items != 86 {
 		t.Errorf("got %d menu items, want 86", items)
 	}
@@ -61,15 +65,19 @@ func TestMainMenu(t *testing.T) {
 	if fight == nil {
 		t.Fatal("no FightTrainer1 menu")
 	}
+
 	var trainers []string
+
 	fight.Walk(func(c *Component) {
 		if c.Class == "TMenuItem" && c.Events["OnClick"] != "" {
 			trainers = append(trainers, c.Caption)
 		}
 	})
+
 	if len(trainers) != 45 {
 		t.Errorf("got %d trainers, want 45: %v", len(trainers), trainers)
 	}
+
 	for _, name := range []string{"Brock", "Gary", "Clair", "Wallace", "Tate && Liza", "Me"} {
 		if !slices.Contains(trainers, name) {
 			t.Errorf("trainer %q missing", name)
@@ -80,15 +88,19 @@ func TestMainMenu(t *testing.T) {
 func TestComponents(t *testing.T) {
 	starters := Form4.Find("ListView1")
 	want := []ListItem{{"Bulbasaur", 0}, {"Charmander", 3}, {"Squirtle", 6}}
+
 	if starters == nil || !slices.Equal(starters.List, want) {
 		t.Errorf("starters: got %+v, want %+v", starters, want)
 	}
+
 	if b := Form4.Find("EvolveButton"); b == nil || b.Events["OnClick"] != "EvolveButtonClick" || !b.Hidden {
 		t.Errorf("EvolveButton: got %+v", b)
 	}
+
 	if e := OKRightDlg.Find("Edit1"); e == nil || e.Caption != "Ash" {
 		t.Errorf("name dialog default: got %+v", e)
 	}
+
 	if Form4.Find("NoSuchComponent") != nil {
 		t.Error("Find returned a component for an unknown name")
 	}
@@ -97,6 +109,7 @@ func TestComponents(t *testing.T) {
 // Image lists and pictures point at embedded asset files.
 func TestAssetReferences(t *testing.T) {
 	refs := 0
+
 	for _, f := range All {
 		f.Walk(func(c *Component) {
 			for _, prop := range []string{"Bitmap", "Picture"} {
@@ -104,13 +117,16 @@ func TestAssetReferences(t *testing.T) {
 				if !ok {
 					continue
 				}
+
 				refs++
+
 				if _, err := assets.FS.Open(path); err != nil {
 					t.Errorf("%s.%s.%s: %v", f.Name, c.Name, prop, err)
 				}
 			}
 		})
 	}
+
 	if refs != 5 {
 		t.Errorf("got %d asset references, want 5", refs)
 	}

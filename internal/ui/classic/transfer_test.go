@@ -21,18 +21,23 @@ type fakeTransfers struct {
 func (x *fakeTransfers) upload(dir string) <-chan []string {
 	x.uploadedTo = dir
 	out := make(chan []string, 1)
+
 	var names []string
+
 	for n, data := range x.pick {
 		if x.files.WriteFile(x.files.Join(dir, n), []byte(data)) == nil {
 			names = append(names, n)
 		}
 	}
+
 	out <- names
+
 	return out
 }
 
 func (x *fakeTransfers) download(name string, data []byte) error {
 	x.downloads[name] = string(data)
+
 	return nil
 }
 
@@ -45,27 +50,35 @@ func TestTransfers(t *testing.T) {
 	ta.wait(80)
 	ta.clickOn(ta.start.w, "LoadButton")
 	ta.wait(1)
+
 	f := ta.fileDlg
 	if f == nil || f.uploadButton == nil {
 		t.Fatal("no upload button")
 	}
+
 	ta.shot("50-transfers")
 	ta.click(widgetOrigin(f.uploadButton).Add(image.Pt(10, 10)))
 	ta.wait(1)
+
 	if fx.uploadedTo != f.dir || f.name.text() != "ash.pgs" || f.view.selected < 0 {
 		t.Fatalf("uploaded to %q, name %q, selected %d", fx.uploadedTo, f.name.text(), f.view.selected)
 	}
+
 	ta.click(widgetOrigin(f.downloadButton).Add(image.Pt(10, 10)))
+
 	if fx.downloads["ash.pgs"] != "save" {
 		t.Errorf("downloads %q", fx.downloads)
 	}
 
 	ta.frame(input{dropped: fstest.MapFS{"song.ogg": {Data: []byte("OggS")}, "sub/x": {Data: []byte("x")}}})
+
 	if f.name.text() != "song.ogg" {
 		t.Errorf("after the drop, the name box has %q", f.name.text())
 	}
+
 	if b, err := ta.files.ReadFile(ta.files.Join(f.dir, "song.ogg")); err != nil || string(b) != "OggS" {
 		t.Errorf("dropped file: %q, %v", b, err)
 	}
+
 	ta.shot("51-dropped")
 }

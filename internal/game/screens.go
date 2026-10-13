@@ -116,6 +116,7 @@ func (g *Game) martTotal() uint32 {
 	if g.Mart.Item < 0 {
 		return 0
 	}
+
 	return uint32(g.Mart.Quantity) * MartPrices[g.Mart.Item]
 }
 
@@ -124,6 +125,7 @@ func (g *Game) SelectMartItem(k int) {
 	if k < 0 || k >= len(MartPrices) {
 		return
 	}
+
 	g.Mart.Item = k
 	g.updateMart()
 }
@@ -154,6 +156,7 @@ func (g *Game) MartDescription() (string, string) {
 	case 4:
 		return "Restores 100HP in battle.", ""
 	}
+
 	return "", ""
 }
 
@@ -162,6 +165,7 @@ func (g *Game) Buy() {
 	if !g.Mart.Visible || !g.Mart.BuyEnabled || g.Mart.Item < 0 {
 		return
 	}
+
 	t := g.martTotal()
 	g.Money -= t
 	*[]*uint32{&g.PokeBalls, &g.GreatBalls, &g.UltraBalls, &g.Potions, &g.SuperPotions}[g.Mart.Item] += t / MartPrices[g.Mart.Item]
@@ -220,38 +224,54 @@ func (g *Game) Draw() {
 	if !g.Corner.Visible {
 		return
 	}
+
 	bet := g.Corner.Bet
 	if bet < 0 || uint32(bet) > g.Money {
 		return // silently
 	}
+
 	if g.Corner.Prize == -1 {
 		g.message(Warning, "Please select something to play for.")
+
 		return
 	}
+
 	if g.Corner.Number == -1 {
 		g.message(Warning, "Please select a number to bet on.")
+
 		return
 	}
+
 	g.Money -= uint32(bet)
+
 	var draws []int
+
 	if g.OnDraws != nil {
 		draws = make([]int, 0, 10000)
 	}
+
 	for range 10000 { // the animation: the last draw counts
 		g.Corner.Drawn = g.Rand.Random(10)
 		if draws != nil {
 			draws = append(draws, g.Corner.Drawn)
 		}
 	}
+
 	if g.OnDraws != nil {
 		g.OnDraws(draws)
 	}
+
 	if g.Corner.Number != g.Corner.Drawn {
 		return
 	}
+
 	g.message(Information, "Congratulations! You won! And your prize is...")
-	var won uint32
-	var msg string
+
+	var (
+		won uint32
+		msg string
+	)
+
 	if g.Corner.Prize == 0 { // "Money (Pays out 10:1¥)"
 		won = uint32(bet) * 10
 		msg = strconv.FormatUint(uint64(won), 10) + "¥!"
@@ -260,15 +280,19 @@ func (g *Game) Draw() {
 		n := bet / p.Price
 		won = uint32(bet%p.Price) * 10
 		msg = strconv.Itoa(n) + " " + p.Name
+
 		if n > 1 {
 			msg += "s"
 		}
+
 		if won != 0 {
 			msg += " and " + strconv.FormatUint(uint64(won), 10) + "¥"
 		}
+
 		msg += "!"
 		*[]*uint32{&g.PokeBalls, &g.GreatBalls, &g.UltraBalls, &g.MasterBalls, &g.Potions, &g.SuperPotions}[g.Corner.Prize-1] += uint32(n)
 	}
+
 	g.Money += won
 	g.message(Information, msg)
 }
@@ -286,8 +310,10 @@ func (g *Game) WinPercent() (percent string, ok bool) {
 	if n == 0 {
 		return "", false
 	}
+
 	w := delphi.NewExtended(float64(g.Wins))
 	x := w.Quo(delphi.NewExtended(float64(n))).Mul(delphi.NewExtended(10000)).Int()
+
 	return delphi.FloatToStr(x.Quo(delphi.NewExtended(100)).Float64()), true
 }
 
@@ -295,10 +321,12 @@ func (g *Game) WinPercent() (percent string, ok bool) {
 // species 1–251 only.
 func (g *Game) DexCount() int {
 	n := 0
+
 	for s := 1; s <= 251; s++ {
 		if g.InDex[s] {
 			n++
 		}
 	}
+
 	return n
 }

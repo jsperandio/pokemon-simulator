@@ -17,6 +17,7 @@ func TestEGLForX11(t *testing.T) {
 	} {
 		t.Setenv("EGL_PLATFORM", c.value)
 		EGLForX11()
+
 		if got := os.Getenv("EGL_PLATFORM"); got != c.want {
 			t.Errorf("EGL_PLATFORM %q: became %q, want %q", c.value, got, c.want)
 		}

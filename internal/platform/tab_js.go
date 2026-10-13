@@ -8,14 +8,17 @@ import "syscall/js"
 func openTab(page []byte) error {
 	arr := js.Global().Get("Uint8Array").New(len(page))
 	js.CopyBytesToJS(arr, page)
+
 	blob := js.Global().Get("Blob").New([]any{arr}, map[string]any{"type": "text/html"})
 	url := js.Global().Get("URL").Call("createObjectURL", blob)
 	js.Global().Call("open", url, "_blank")
+
 	return nil
 }
 
 // openURL opens an address in a new tab.
 func openURL(url string) error {
 	js.Global().Call("open", url, "_blank", "noopener")
+
 	return nil
 }

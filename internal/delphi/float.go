@@ -23,10 +23,12 @@ func FloatToStr(x float64) string {
 	case x == 0:
 		return "0"
 	}
+
 	sign := ""
 	if x < 0 {
 		sign, x = "-", -x
 	}
+
 	// 15 significant digits: d.dddddddddddddde±x
 	mant, exp, _ := strings.Cut(strconv.FormatFloat(x, 'e', 14, 64), "e")
 	e, _ := strconv.Atoi(exp)
@@ -35,6 +37,7 @@ func FloatToStr(x float64) string {
 	// before the point; scientific otherwise ("1.5E-7", "1E20").
 	if x >= 0.00001 && e < 15 {
 		var s string
+
 		switch {
 		case e < 0:
 			s = "0." + strings.Repeat("0", -e-1) + digits
@@ -43,12 +46,15 @@ func FloatToStr(x float64) string {
 		default:
 			s = digits[:e+1] + "." + digits[e+1:]
 		}
+
 		return sign + s
 	}
+
 	s := digits[:1]
 	if len(digits) > 1 {
 		s += "." + digits[1:]
 	}
+
 	return sign + s + "E" + strconv.Itoa(e)
 }
 
@@ -62,6 +68,7 @@ type Extended struct{ f big.Float }
 func NewExtended(x float64) *Extended {
 	e := &Extended{}
 	e.f.SetPrec(64).SetMode(big.ToNearestEven).SetFloat64(x)
+
 	return e
 }
 
@@ -69,6 +76,7 @@ func NewExtended(x float64) *Extended {
 func (e *Extended) Quo(y *Extended) *Extended {
 	r := NewExtended(0)
 	r.f.Quo(&e.f, &y.f)
+
 	return r
 }
 
@@ -76,6 +84,7 @@ func (e *Extended) Quo(y *Extended) *Extended {
 func (e *Extended) Mul(y *Extended) *Extended {
 	r := NewExtended(0)
 	r.f.Mul(&e.f, &y.f)
+
 	return r
 }
 
@@ -84,11 +93,13 @@ func (e *Extended) Int() *Extended {
 	i, _ := e.f.Int(nil)
 	r := NewExtended(0)
 	r.f.SetInt(i)
+
 	return r
 }
 
 // Float64 rounds e to a Double, as storing it in a Double variable does.
 func (e *Extended) Float64() float64 {
 	x, _ := e.f.Float64()
+
 	return x
 }

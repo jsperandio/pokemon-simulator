@@ -39,6 +39,7 @@ func TestExtended(t *testing.T) {
 	if got := q.Float64(); got != 7799 {
 		t.Errorf("Int(39/50 × 10000) = %v, want 7799", got)
 	}
+
 	if got := NewExtended(7799).Quo(NewExtended(100)).Float64(); FloatToStr(got) != "77.99" {
 		t.Errorf("7799/100 prints %q", FloatToStr(got))
 	}

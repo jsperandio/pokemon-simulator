@@ -50,6 +50,7 @@ func (w *watchedApp) Update() error {
 		w.up = true
 		close(w.shown)
 	}
+
 	return w.App.Update()
 }
 
@@ -57,11 +58,15 @@ func (w *watchedApp) Update() error {
 func watchWindow(app *classic.App) ebiten.Game {
 	w := &watchedApp{App: app, shown: make(chan struct{})}
 	restarted := os.Getenv(noFrameEnv) != ""
+
 	if restarted {
 		ebiten.SetWindowDecorated(false)
+
 		go platform.Alert(game.Title, noFrameText)
 	}
+
 	go watch(w.shown, showTimeout, !restarted && platform.GNOMEFrames(), restart)
+
 	return w
 }
 
@@ -73,11 +78,14 @@ func watch(shown <-chan struct{}, timeout time.Duration, frames bool, restart fu
 		return
 	case <-time.After(timeout):
 	}
+
 	if frames {
 		log.Printf("The window hasn't shown after %v: starting again without a title bar.", timeout)
 		restart()
+
 		return
 	}
+
 	log.Printf("The window hasn't shown after %v.", timeout)
 }
 
@@ -87,5 +95,6 @@ func restart() {
 	if err == nil {
 		err = syscall.Exec(exe, os.Args, append(os.Environ(), noFrameEnv+"=1"))
 	}
+
 	log.Printf("Starting again failed: %v", err)
 }

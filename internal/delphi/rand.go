@@ -20,9 +20,11 @@ type Rand struct {
 func (r *Rand) Random(n int) int {
 	r.Seed = r.Seed*0x08088405 + 1
 	v := int(uint64(r.Seed) * uint64(uint32(n)) >> 32)
+
 	if r.OnCall != nil {
 		r.OnCall(n, v)
 	}
+
 	return v
 }
 

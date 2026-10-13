@@ -11,9 +11,11 @@ func Alert(title, text string) {
 	if err != nil {
 		return
 	}
+
 	m, err := windows.UTF16PtrFromString(text)
 	if err != nil {
 		return
 	}
+
 	windows.MessageBox(0, m, t, windows.MB_OK|windows.MB_ICONERROR) //nolint:errcheck // there is nothing else to tell it with
 }

@@ -11,7 +11,9 @@ func StrToInt(s string) (n int32, ok bool) {
 	for i < len(s) && s[i] == ' ' {
 		i++
 	}
+
 	neg, base := false, uint64(10)
+
 	if i < len(s) {
 		switch s[i] {
 		case '$', 'x', 'X':
@@ -29,13 +31,18 @@ func StrToInt(s string) (n int32, ok bool) {
 			i++
 		}
 	}
+
 	if i >= len(s) {
 		return 0, false
 	}
+
 	var v uint64
+
 	for ; i < len(s); i++ {
 		c := s[i]
+
 		var d uint64
+
 		switch {
 		case '0' <= c && c <= '9':
 			d = uint64(c - '0')
@@ -44,11 +51,13 @@ func StrToInt(s string) (n int32, ok bool) {
 		default:
 			return 0, false
 		}
+
 		v = v*base + d
 		if v > 1<<32 {
 			return 0, false
 		}
 	}
+
 	switch {
 	case base == 16 && v <= 1<<32-1:
 		return int32(uint32(v)), true // "$FFFFFFFF" is -1
@@ -57,5 +66,6 @@ func StrToInt(s string) (n int32, ok bool) {
 	case !neg && v <= 1<<31-1:
 		return int32(v), true
 	}
+
 	return 0, false
 }

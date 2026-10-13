@@ -19,6 +19,7 @@ func TestPage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	got := Page(Info{
 		Player: "Probe",
 		Party: []Member{
@@ -33,19 +34,24 @@ func TestPage(t *testing.T) {
 	if bytes.Equal(got, want) {
 		return
 	}
+
 	g := strings.Split(string(got), "\r\n")
 	w := strings.Split(string(want), "\r\n")
+
 	for i := range max(len(g), len(w)) {
 		var a, b string
 		if i < len(g) {
 			a = g[i]
 		}
+
 		if i < len(w) {
 			b = w[i]
 		}
+
 		if a != b {
 			t.Fatalf("line %d:\nport:     %q\noriginal: %q", i+1, a, b)
 		}
 	}
+
 	t.Fatal("the pages differ")
 }

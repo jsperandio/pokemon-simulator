@@ -23,16 +23,21 @@ func (g *Game) ClickMenu(name string) bool {
 	if !g.available(name) {
 		return false
 	}
+
 	if t, ok := trainers[name]; ok {
 		g.fightTrainer(name, t)
+
 		return true
 	}
+
 	for tier, t := range tiers {
 		if t.item == name {
 			g.enterTournament(tier)
+
 			return true
 		}
 	}
+
 	switch name {
 	case "FindPKMN1":
 		g.FindPKMN()
@@ -106,6 +111,7 @@ type menuDef struct {
 // buildMenu creates the main menu as designed.
 func (g *Game) buildMenu() {
 	g.menu = map[string]*MenuItem{}
+
 	var build func(defs []menuDef) []*MenuItem
 	build = func(defs []menuDef) []*MenuItem {
 		var items []*MenuItem
@@ -121,6 +127,7 @@ func (g *Game) buildMenu() {
 			g.menu[m.Name] = m
 			items = append(items, m)
 		}
+
 		return items
 	}
 	g.Menu = build(mainMenu)

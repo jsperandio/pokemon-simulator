@@ -45,16 +45,19 @@ func (c *Component) Find(name string) *Component {
 		if ch.Name == name {
 			return ch
 		}
+
 		if found := ch.Find(name); found != nil {
 			return found
 		}
 	}
+
 	return nil
 }
 
 // Walk calls fn for c and every descendant, depth first.
 func (c *Component) Walk(fn func(*Component)) {
 	fn(c)
+
 	for i := range c.Children {
 		c.Children[i].Walk(fn)
 	}

@@ -57,6 +57,7 @@ func (f *File) Party() []Slot {
 			return f.Owned[:i]
 		}
 	}
+
 	return f.Owned[:]
 }
 
@@ -68,30 +69,38 @@ func Read(b []byte) (*File, error) {
 	f := &File{}
 	f.PlayerName = r.text()
 	v2 := f.PlayerName == Header
+
 	if v2 {
 		f.PlayerName = r.text()
 	}
+
 	f.BeatLance, f.BeatAsh, f.BeatLink = r.boolean(), r.boolean(), r.boolean()
 	if v2 {
 		f.GotJirachi, f.GotDeoxys = r.boolean(), r.boolean()
 	}
+
 	f.GymProgress = uint8(r.number())
 	for _, c := range f.counters() {
 		*c = uint32(r.number())
 	}
+
 	dex := v1Species
 	if v2 {
 		dex = NumSpecies
 	}
+
 	for s := 1; s <= dex; s++ {
 		f.InDex[s] = r.boolean()
 	}
+
 	for i := range f.Owned {
 		f.Owned[i] = Slot{Species: int32(r.number()), Level: uint8(r.number()), XP: uint32(r.number())}
 	}
+
 	if r.err != nil {
 		return nil, r.err
 	}
+
 	return f, nil
 }
 
@@ -99,6 +108,7 @@ func Read(b []byte) (*File, error) {
 func (f *File) Bytes() []byte {
 	var b bytes.Buffer
 	b.Grow(3 * Slots * 4)
+
 	line := func(s string) { b.WriteString(s); b.WriteString("\r\n") }
 	boolean := func(v bool) {
 		if v {
@@ -107,31 +117,40 @@ func (f *File) Bytes() []byte {
 			line("FALSE")
 		}
 	}
+
 	line(Header)
 	b.Write(delphi.EncodeANSI(f.PlayerName))
 	b.WriteString("\r\n")
+
 	for _, v := range []bool{f.BeatLance, f.BeatAsh, f.BeatLink, f.GotJirachi, f.GotDeoxys} {
 		boolean(v)
 	}
+
 	line(strconv.Itoa(int(f.GymProgress)))
+
 	for _, c := range f.counters() {
 		line(strconv.FormatUint(uint64(*c), 10))
 	}
+
 	for s := 1; s <= NumSpecies; s++ {
 		boolean(f.InDex[s])
 	}
+
 	for _, s := range f.Owned {
 		line(strconv.Itoa(int(s.Species)))
 		line(strconv.Itoa(int(s.Level)))
 		line(strconv.FormatUint(uint64(s.XP), 10))
 	}
+
 	return b.Bytes()
 }
 
 // counters lists the Cardinal fields in file order.
 func (f *File) counters() []*uint32 {
-	return []*uint32{&f.Money, &f.Wins, &f.Losses, &f.Fights, &f.Catches,
-		&f.PokeBalls, &f.GreatBalls, &f.UltraBalls, &f.MasterBalls, &f.Potions, &f.SuperPotions}
+	return []*uint32{
+		&f.Money, &f.Wins, &f.Losses, &f.Fights, &f.Catches,
+		&f.PokeBalls, &f.GreatBalls, &f.UltraBalls, &f.MasterBalls, &f.Potions, &f.SuperPotions,
+	}
 }
 
 // reader hands out the lines one value at a time and keeps the first error.
@@ -145,11 +164,15 @@ func (r *reader) text() string {
 	if r.err != nil {
 		return ""
 	}
+
 	if r.n >= len(r.lines) {
 		r.err = fmt.Errorf("save: the file ends at line %d", r.n+1)
+
 		return ""
 	}
+
 	r.n++
+
 	return delphi.DecodeANSI([]byte(r.lines[r.n-1]))
 }
 
@@ -162,9 +185,11 @@ func (r *reader) number() int64 {
 	if r.err != nil {
 		return 0
 	}
+
 	v, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
 	if err != nil {
 		r.err = fmt.Errorf("save: line %d: want a whole number, got %q", r.n, s)
 	}
+
 	return v
 }

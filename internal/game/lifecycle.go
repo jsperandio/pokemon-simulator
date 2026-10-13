@@ -24,8 +24,10 @@ func (g *Game) NewGame(file, name string) {
 	g.GreatBalls, g.UltraBalls, g.MasterBalls, g.Potions, g.SuperPotions = 0, 0, 0, 0, 0
 	g.Start.Visible = false
 	g.setPlayer(name)
+
 	g.Main.Visible = true
 	g.show(MainForm)
+
 	g.InDex = [save.NumSpecies + 1]bool{}
 	g.Main.Starters = true
 	g.enable(false, "File1", "Action1")
@@ -47,10 +49,13 @@ func (g *Game) ChooseStarter(k int) {
 	if !g.Main.Starters || k < 0 || k >= len(Starters) {
 		return
 	}
+
 	s := Starters[k]
 	g.AddPKMN(s, g.name(s), 5)
+
 	g.Main.Starters = false
 	g.enable(true, "File1", "Action1")
+
 	g.Stats.Visible = true
 	g.show(StatsForm)
 	g.show(MainForm)
@@ -72,10 +77,12 @@ func (g *Game) Load(file string, b []byte) error {
 	g.Main.Caption = Title + " - " + g.PlayerName + " [" + fileName(file) + "]"
 	g.Stats.Name = g.PlayerName
 	g.unlockAll()
+
 	g.Stats.Visible = true
 	g.Main.Visible = true
 	g.show(StatsForm)
 	g.show(MainForm)
+
 	g.Start.Visible = false
 
 	return nil

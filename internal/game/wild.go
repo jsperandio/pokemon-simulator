@@ -32,6 +32,7 @@ func (g *Game) wildAllowed(s int) bool {
 		slices.Contains(neverWild, s):
 		return false
 	}
+
 	return true
 }
 
@@ -40,10 +41,12 @@ func (g *Game) wildAllowed(s int) bool {
 func (g *Game) FindPKMN() {
 	if g.partyHas(150) {
 		g.enable(false, "Action1")
+
 		g.Main.Picker = true
 		g.Main.PickSpecies = -1
 		g.Main.PickLevel = 100
 		g.message(Information, "Using Mewtwo's psychic powers, you can fight any POKéMON you want to, and at any level. Please select which POKéMON to fight against, or click Random to face a random POKéMON.")
+
 		return
 	}
 
@@ -104,6 +107,7 @@ func (g *Game) PickGo() {
 	if !g.Main.Picker || g.Main.PickSpecies < 0 {
 		return
 	}
+
 	g.StartWildBattle(g.Main.PickSpecies+1, g.Main.PickLevel)
 }
 
@@ -112,7 +116,9 @@ func (g *Game) PickCancel() {
 	if !g.Main.Picker {
 		return
 	}
+
 	g.enable(true, "Action1")
+
 	g.Main.Picker = false
 }
 
@@ -122,7 +128,9 @@ func (g *Game) PickRandom() {
 	if !g.Main.Picker {
 		return
 	}
+
 	g.enable(true, "Action1")
+
 	s := g.Rand.Random(386) + 1
 	l := g.Rand.Random(11) + 90
 	g.BattleType = 2

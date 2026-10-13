@@ -23,18 +23,22 @@ import (
 
 func main() {
 	platform.EGLForX11()
+
 	raw, err := assets.FS.ReadFile("pokegame.dat")
 	if err != nil {
 		fail(err)
 	}
+
 	data, err := gamedata.Load(raw)
 	if err != nil {
 		fail(err)
 	}
+
 	app, err := classic.New(data, platform.Default(), platform.Args())
 	if err != nil {
 		fail(err)
 	}
+
 	ebiten.SetWindowSize(classic.WindowSize())
 	ebiten.SetWindowTitle(game.Title)
 	ebiten.SetWindowIcon([]image.Image{app.Icon()})
@@ -47,6 +51,7 @@ func main() {
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMinimum) //nolint:staticcheck // still the way to run frames on demand
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 	ebiten.SetScreenClearedEveryFrame(false)
+
 	if err := ebiten.RunGame(watchWindow(app)); err != nil && !errors.Is(err, ebiten.Termination) {
 		fail(err)
 	}

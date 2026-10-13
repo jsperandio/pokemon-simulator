@@ -55,9 +55,11 @@ func newMainForm(a *App) *mainForm {
 	f.evolveButton = get[*button](w, "EvolveButton")
 	f.pickCombo = get[*comboBox](w, "ComboBox1")
 	f.pickLevel = get[*spinEdit](w, "SpinEdit1")
+
 	for _, n := range []string{"Label10", "Label11", "ComboBox1", "SpinEdit1", "Button2", "Button3", "Button4"} {
 		f.picker = append(f.picker, w.find(n))
 	}
+
 	f.arena = get[*groupBox](w, "GroupBox1")
 	f.ownLabel = get[*label](w, "Label2")
 	f.enemyLabel = get[*label](w, "Label3")
@@ -68,9 +70,11 @@ func newMainForm(a *App) *mainForm {
 	f.pokeball = get[*picture](w, "Image1")
 	f.attacks = get[*radioGroup](w, "RadioGroup1")
 	f.enemyAttacks = get[*groupBox](w, "GroupBox2")
+
 	for i := range f.enemyMoves {
 		f.enemyMoves[i] = get[*label](w, "Label"+itoa(4+i))
 	}
+
 	f.goButton = get[*button](w, "Button1")
 	f.ownImage = get[*listView](w, "ListView2")
 	f.enemyImage = get[*listView](w, "ListView3")
@@ -80,6 +84,7 @@ func newMainForm(a *App) *mainForm {
 	f.starters.onClick = f.starterClick
 	f.evolveChoice.onClick = func() { g.ChooseEvolution(f.evolveChoice.index) }
 	f.evolveButton.onClick = func() { a.call(g.Evolve) }
+
 	f.pickCombo.items = a.dexItems() // FormShow
 	f.pickCombo.onSelect = func(i int) { g.PickSpecies(i) }
 	f.pickLevel.onChangeValue = func(v int) { g.PickLevel(v) }
@@ -93,7 +98,9 @@ func newMainForm(a *App) *mainForm {
 
 	m := newMenuBar(w, g.Menu, layout.Form4.Find("MainMenu1"))
 	m.onCommand = f.menuCommand
+
 	a.desk.add(w)
+
 	return f
 }
 
@@ -103,6 +110,7 @@ func (f *mainForm) starterClick() {
 	if k < 0 {
 		return
 	}
+
 	a := f.a
 	a.call(func() { a.g.ChooseStarter(k) })
 }
@@ -110,6 +118,7 @@ func (f *mainForm) starterClick() {
 // menuCommand runs a menu item: the user interface's own, or the game's.
 func (f *mainForm) menuCommand(e *menuEntry) {
 	a := f.a
+
 	switch e.name() {
 	case "ExportPOKMONinformation1":
 		a.call(f.export)
@@ -138,6 +147,7 @@ func (f *mainForm) formClose() {
 				a.Message(game.Error, false, err.Error())
 			}
 		}
+
 		a.exit()
 	})
 }
@@ -147,14 +157,18 @@ func (f *mainForm) formClose() {
 func (f *mainForm) export() {
 	a := f.a
 	file, ok := a.openFile(fileOptions{save: true, filter: "HTML Files (*.htm)|*.htm", defExt: "htm", overwrite: true})
+
 	if !ok {
 		return
 	}
+
 	page := a.g.ExportPage(time.Now())
 	if err := a.files.WriteFile(file, page); err != nil {
 		a.Message(game.Error, false, err.Error())
+
 		return
 	}
+
 	if a.g.Exported(file) {
 		if err := platform.OpenPage(file, page); err != nil {
 			a.Message(game.Error, false, err.Error())
@@ -180,13 +194,16 @@ const musicFilter = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.ogg;*.wav
 func (f *mainForm) openMusic() {
 	a := f.a
 	file, ok := a.openFile(fileOptions{filter: musicFilter, mustExist: true})
+
 	if !ok {
 		return
 	}
+
 	b, err := a.files.ReadFile(file)
 	if err == nil {
 		err = a.music.Open(a.files.Base(file), b)
 	}
+
 	switch {
 	case errors.Is(err, audio.ErrFormat):
 		a.showException("Cannot play " + a.files.Base(file) + ". Only MP3, Ogg Vorbis and WAV files can be played")
@@ -204,6 +221,7 @@ func (f *mainForm) stopMusic() {
 		if errors.Is(err, audio.ErrNotOpen) {
 			msg = "No MCI device open"
 		}
+
 		a.call(func() { a.showException(msg) })
 	}
 }
@@ -212,16 +230,19 @@ func (f *mainForm) stopMusic() {
 func (f *mainForm) sync() {
 	a, g := f.a, f.a.g
 	m := &g.Main
+
 	if f.w.caption != m.Caption {
 		f.w.caption = m.Caption
 		a.desk.dirty = true
 	}
+
 	f.starterLabel.setVisible(m.Starters)
 	f.starters.setVisible(m.Starters)
 
 	evolving := len(m.Choices) > 0
 	f.evolveChoice.setVisible(evolving)
 	f.evolveButton.setVisible(evolving)
+
 	if evolving {
 		setRadioItems(f.evolveChoice, m.Choices)
 		f.evolveChoice.setIndex(m.Choice)
@@ -230,9 +251,11 @@ func (f *mainForm) sync() {
 	for _, k := range f.picker {
 		k.base().setVisible(m.Picker)
 	}
+
 	if m.Picker && !f.pickerShown {
 		f.pickLevel.tb.set(itoa(m.PickLevel))
 	}
+
 	f.pickerShown = m.Picker
 	f.pickCombo.setIndex(m.PickSpecies)
 
@@ -251,6 +274,7 @@ func (f *mainForm) sync() {
 		f.enemyAttacks.setCaption("Enemy " + name + "'s Attacks:")
 		f.enemyGauge.set(e.Level*10, e.HP, gaugeColors[m.EnemyColor])
 	}
+
 	if e := m.EnemyMoves; e.Species != 0 {
 		sp := g.Data.SpeciesByID(e.Species)
 		for i, l := range f.enemyMoves {
@@ -258,6 +282,7 @@ func (f *mainForm) sync() {
 				l.setCaption(mv.Name)
 			}
 		}
+
 		// Gauge2 sits after Label3, as that fighter's caption sized it.
 		f.placeGauge(f.enemyGauge, "Enemy "+sp.Name+" L."+itoa(e.Level))
 	}
@@ -267,10 +292,13 @@ func (f *mainForm) sync() {
 	f.ownLabel.setVisible(shown)
 	f.ownHP.setVisible(shown)
 	f.ownGauge.setVisible(shown)
+
 	if !shown {
 		f.ownImage.setItems([]listItem{{"", -1}})
+
 		return
 	}
+
 	sp := g.Data.SpeciesByID(o.Species)
 	f.ownImage.setItems([]listItem{{"", o.Species - 1}})
 	f.ownLabel.setCaption(sp.Name + " L." + itoa(o.Level))
@@ -278,12 +306,15 @@ func (f *mainForm) sync() {
 	f.ownGauge.set(o.Level*10, o.HP, gaugeColors[m.OwnColor])
 	f.placeGauge(f.ownGauge, sp.Name+" L."+itoa(o.Level))
 	f.attacks.setCaption(sp.Name + "'s attacks:")
+
 	items := make([]string, 0, 5)
+
 	for _, id := range sp.Moves {
 		if mv := g.Data.MoveByID(id); mv != nil {
 			items = append(items, mv.Name+" ("+g.Data.TypeName(mv.Type)+")")
 		}
 	}
+
 	setRadioItems(f.attacks, append(items, "Run!"))
 }
 

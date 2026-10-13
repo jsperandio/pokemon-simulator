@@ -19,33 +19,46 @@ import (
 func TestStatsHint(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
+
 	l := ta.stats.party
 	ta.mouse = widgetOrigin(l).Add(image.Pt(60, 100))
 	ta.wait(29) // under half a second
+
 	if !ta.desk.hint.r.Empty() {
 		t.Fatal("the hint shows before HintPause")
 	}
+
 	ta.wait(4)
+
 	h := ta.desk.hint
 	ta.shot("50-stats-hint")
+
 	if h.text != "Doubleclick a POKéMON to see its statistics." {
 		t.Fatalf("hint %q", h.text)
 	}
+
 	// Under the cursor, and moved left to end at the screen's edge.
 	size := image.Pt(ta.res.sans.width(h.text)+6, ta.res.sans.height()+6)
 	o := image.Pt(screenWidth-size.X, ta.mouse.Y+hintCursorMargin)
+
 	if want := (image.Rectangle{Min: o, Max: o.Add(size)}); h.r != want {
 		t.Errorf("hint at %v, want %v", h.r, want)
 	}
+
 	ta.wait(140) // under three seconds on the list
+
 	if ta.desk.hint.r.Empty() {
 		t.Fatal("the hint hid before HintHidePause")
 	}
+
 	ta.wait(10)
+
 	if !ta.desk.hint.r.Empty() {
 		t.Fatal("the hint stays after HintHidePause")
 	}
+
 	ta.wait(60)
+
 	if !ta.desk.hint.r.Empty() {
 		t.Fatal("the hint came back on the same control")
 	}
@@ -53,18 +66,24 @@ func TestStatsHint(t *testing.T) {
 	// Off the list and back: it shows again, and a click hides it.
 	ta.mouse = image.Pt(10, 10)
 	ta.wait(1)
+
 	ta.mouse = widgetOrigin(l).Add(image.Pt(60, 100))
 	ta.wait(33)
+
 	if ta.desk.hint.r.Empty() {
 		t.Fatal("no hint on coming back")
 	}
+
 	ta.frame(input{down: true, pressed: true})
 	ta.frame(input{released: true})
+
 	if !ta.desk.hint.r.Empty() {
 		t.Fatal("a click leaves the hint")
 	}
+
 	ta.mouse = image.Pt(10, 10)
 	ta.wait(40)
+
 	if !ta.desk.hint.r.Empty() {
 		t.Fatal("a hint off the list")
 	}
@@ -75,19 +94,24 @@ func TestStatsHint(t *testing.T) {
 func TestSpinIncrement(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
+
 	ta.g.Money = 1000
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
+
 	s := get[*spinEdit](ta.corner.w, "SpinEdit1")
 	up, down := s.buttons()
 	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
 	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
+
 	if ta.g.Corner.Bet != 100 {
 		t.Errorf("bet %d after two clicks up, want 100", ta.g.Corner.Bet)
 	}
+
 	ta.click(widgetOrigin(s).Add(down.Min).Add(down.Size().Div(2)))
 	ta.key(ebiten.KeyUp)
 	ta.key(ebiten.KeyUp)
+
 	if ta.g.Corner.Bet != 150 || s.tb.String() != "150" {
 		t.Errorf("bet %d, text %q, want 150", ta.g.Corner.Bet, s.tb.String())
 	}
@@ -99,11 +123,14 @@ func TestMinimize(t *testing.T) {
 	n := 0
 	ta.desk.onMinimize = func() { n++ }
 	ta.wait(80)
+
 	w := ta.start.w
 	if !w.minBox {
 		t.Fatal("the start screen has no minimize button")
 	}
+
 	ta.click(w.captionButton(capMin).Min.Add(image.Pt(4, 4)))
+
 	if n != 1 || !w.visible {
 		t.Errorf("%d minimizes, start screen shown: %t", n, w.visible)
 	}
@@ -115,9 +142,11 @@ func TestMinimize(t *testing.T) {
 func TestCornerDraws(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
+
 	ta.g.Money = 1000
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
+
 	c := ta.corner
 	radio := func(g *radioGroup, k int) {
 		r := g.buttonRect(k)
@@ -131,33 +160,45 @@ func TestCornerDraws(t *testing.T) {
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
 	ta.typeText("100")
 	ta.clickOn(c.w, "Button1") // Draw number!
+
 	if ta.draws == nil {
 		t.Fatal("no draws show")
 	}
+
 	if got := ta.stats.counts["MoneyLbl"].caption; got != "900" {
 		t.Errorf("Statistics shows %s¥ during the draws, want the bet paid", got)
 	}
+
 	seen := map[int]bool{}
 	frames := 0
+
 	for ; ta.draws != nil && frames < 120; frames++ {
 		seen[c.drawn.index] = true
+
 		if frames == 20 {
 			ta.shot("51-corner-draws")
 			ta.clickOn(c.w, "Button2") // Close: no input meanwhile
+
 			frames += 2
 		}
+
 		ta.wait(1)
 	}
+
 	if frames < 57 || frames > 63 {
 		t.Errorf("the draws showed for %d frames, want about a second", frames)
 	}
+
 	if len(seen) < 8 {
 		t.Errorf("%d numbers shown", len(seen))
 	}
+
 	if !c.w.visible {
 		t.Error("Close worked during the draws")
 	}
+
 	ta.wait(1)
+
 	if c.drawn.index != ta.g.Corner.Drawn {
 		t.Errorf("%d shows, the game drew %d", c.drawn.index, ta.g.Corner.Drawn)
 	}
@@ -171,6 +212,7 @@ func TestLoadingFits(t *testing.T) {
 	if w.client != image.Pt(511, 157) || w.pos.X != (screenWidth-510)/2 {
 		t.Errorf("client %v at %v, want 511×157 centred as 510 wide", w.client, w.pos)
 	}
+
 	for name, x := range map[string]int{"Label1": 216, "Label2": 265, "Label3": 12, "Label4": 29} {
 		if got := w.find(name).base().r.Min.X; got != x {
 			t.Errorf("%s at x=%d, want %d", name, got, x)
@@ -188,31 +230,39 @@ func TestDexFits(t *testing.T) {
 	f.InDex[4] = true
 	dir := t.TempDir()
 	file := filepath.Join(dir, "dex.pgs")
+
 	if err := os.WriteFile(file, f.Bytes(), 0o644); err != nil {
 		t.Fatal(err)
 	}
+
 	ta := newTestAppIn(t, dir, []string{file})
 	ta.wait(80)
 	ta.menu("Action1", "ViewDEX1")
 	ta.wait(1)
+
 	dex := ta.dex
 	if dex.w.client != image.Pt(241, 25) {
 		t.Errorf("client %v with no selection, want 241×25", dex.w.client)
 	}
+
 	c := dex.combo
 	b := c.button()
 	ta.click(widgetOrigin(c).Add(b.Min).Add(b.Size().Div(2)))
 	ta.click(c.dropped.r.Min.Add(image.Pt(5, 1+3*c.itemHeight+c.itemHeight/2)))
 	ta.wait(1)
+
 	if dex.w.client != image.Pt(241, 161) || c.index != 3 {
 		t.Errorf("client %v with species %d, want 241×161 with Charmander", dex.w.client, c.index+1)
 	}
+
 	ta.clickOn(dex.w, "Button1")
 	ta.menu("Action1", "ViewDEX1")
 	ta.wait(1)
+
 	if from, to := c.tb.sel(); from != to || c.tb.String() != "Charmander (#004)" {
 		t.Errorf("text %q, selected from %d to %d; want Charmander's, unselected", c.tb.String(), from, to)
 	}
+
 	if dex.w.focus != dex.w.find("Button1") {
 		t.Error("the focus left the button")
 	}

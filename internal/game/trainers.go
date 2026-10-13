@@ -70,6 +70,7 @@ var trainers = map[string]trainer{
 // fightTrainer is a trainer's menu item (TForm4.<Name>Click).
 func (g *Game) fightTrainer(item string, t trainer) {
 	g.StartTrainerBattle(t.species, t.level, t.name)
+
 	g.BattleType = t.battle
 	switch {
 	case t.gym >= 0 && int(g.GymProgress) == t.gym:
@@ -96,12 +97,15 @@ func (g *Game) unlockAll() {
 			g.enable(true, gymUnlocks[n])
 		}
 	}
+
 	if g.BeatLance {
 		g.enable(true, "JohtoGymLeaders1")
 	}
+
 	if g.BeatAsh {
 		g.enable(true, "Me1")
 	}
+
 	if g.BeatLink {
 		g.enable(true, "Mewtwo1", "HoennGymLeaders1")
 	}
@@ -113,38 +117,49 @@ func (g *Game) rewards() {
 	if g.BattleType == 3 {
 		g.GymProgress++
 		g.message(Information, "You earned the "+g.badge(int(g.GymProgress))+"!")
+
 		if int(g.GymProgress) < len(gymUnlocks) {
 			g.enable(true, gymUnlocks[g.GymProgress])
 		}
+
 		switch g.GymProgress {
 		case 8:
 			g.message(Information, "You beat Gary, the final Kanto leader! You can now battle the Elite Four! Also, you get a 2500¥ bonus!")
+
 			g.Money += 2500
 		case 16:
 			g.message(Information, "You beat Clair, the final Johto leader! You can now battle Ash! Also, you get a 3000¥ bonus!")
+
 			g.Money += 3000
 		case 24:
 			g.message(Information, "You beat Wallace, the final Hoenn leader! You can now battle the R/B/Y and Ru/Sa Elites! Also, you get a 5000¥ bonus!")
+
 			g.Money += 5000
 		}
 	}
+
 	if g.BattleType == 8 && !g.BeatLance {
 		g.BeatLance = true
 		g.message(Information, "You beat Lance, the Elite Four champion! You can now battle the Johto Gym Leaders! Also, you get a Master Ball!")
+
 		g.MasterBalls++
 		g.message(Information, "This Ball will catch any POKéMON at any HP. Use it wisely.")
 		g.enable(true, "JohtoGymLeaders1")
 	}
+
 	if g.BattleType == 9 {
 		g.message(Information, "You beat Ash! You can now battle me! Also, you get a Celebi at L.5!")
 		g.AddPKMN(251, "Celebi", 5)
 		g.enable(true, "Me1")
+
 		g.BeatAsh = true
 	}
+
 	if g.BattleType == 10 {
 		g.message(Information, "You beat me! You can now battle and/or catch Mewtwo! You can also fight the Hoenn Gym Leaders! And as if that wasn't enough, you also get a Mew at L.10!")
 		g.AddPKMN(151, "Mew", 10)
 		g.enable(true, "Mewtwo1", "HoennGymLeaders1")
+
 		g.BeatLink = true
 	}
 }
@@ -154,6 +169,7 @@ func (g *Game) badge(n int) string {
 	if n < 1 || n > len(g.Data.Badges) {
 		return ""
 	}
+
 	return g.Data.Badges[n-1]
 }
 
@@ -191,6 +207,7 @@ var eliteChains = []eliteStep{
 func (g *Game) eliteFour() {
 	if g.BattleType == 85 {
 		g.message(Information, "You beat Steven, the Ru/Sa Elite Four champion! You get a bonus of 7500¥!")
+
 		g.Money += 7500
 		if !g.GotDeoxys {
 			g.GotDeoxys = true
@@ -198,11 +215,14 @@ func (g *Game) eliteFour() {
 			g.AddPKMN(386, "Deoxys", 5)
 		}
 	}
+
 	for _, s := range eliteChains[:4] {
 		g.eliteStep(s)
 	}
+
 	if g.BattleType == 75 {
 		g.message(Information, "You beat Gary, the R/B/Y Elite Four champion! You get a bonus of 7500¥!")
+
 		g.Money += 7500
 		if !g.GotJirachi {
 			g.GotJirachi = true
@@ -210,6 +230,7 @@ func (g *Game) eliteFour() {
 			g.AddPKMN(385, "Jirachi", 5)
 		}
 	}
+
 	for _, s := range eliteChains[4:] {
 		g.eliteStep(s)
 	}
@@ -220,8 +241,10 @@ func (g *Game) eliteStep(s eliteStep) {
 	if g.BattleType != s.after {
 		return
 	}
+
 	g.message(Information, s.message)
 	g.StartTrainerBattle(s.species, s.level, s.trainer)
+
 	g.BattleType = s.next
 	if s.after == 7 && g.menu["JohtoGymLeaders1"].Enabled {
 		g.BattleType = 2 // Lance beaten before: no second Master Ball

@@ -29,31 +29,38 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		result  int
 	}
 	buttons := []btn{{"OK", mrOk}}
+
 	if yesNo {
 		buttons = []btn{{"&Yes", mrYes}, {"&No", mrNo}}
 	}
+
 	for _, b := range buttons {
 		buttonWidth = max(buttonWidth, f.width(plain(b.caption))+8)
 	}
 
 	lines := wrap(f, text, screenWidth/2)
 	textW := 0
+
 	for _, l := range lines {
 		textW = max(textW, f.width(l))
 	}
+
 	textH := len(lines) * dy
 	iconTextW, iconTextH := textW, textH
 	icon := res.dlgIcons[kind]
+
 	if icon != nil {
 		iconTextW += 32 + horzSpacing
 		iconTextH = max(iconTextH, 32)
 	}
+
 	n := len(buttons)
 	groupW := buttonWidth*n + buttonSpacing*(n-1)
 	clientW := max(iconTextW, groupW) + 2*horzMargin
 	clientH := iconTextH + buttonHeight + vertSpacing + 2*vertMargin
 
 	title := game.Title
+
 	switch kind {
 	case game.Warning:
 		title = "Warning"
@@ -64,6 +71,7 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 	case game.Confirmation:
 		title = "Confirm"
 	}
+
 	comp := layout.Component{
 		Class:   "TMessageForm",
 		Name:    "MessageForm",
@@ -80,12 +88,14 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 			Bounds: layout.Rect{X: horzMargin, Y: vertMargin, W: 32, H: 32},
 		})
 	}
+
 	comp.Children = append(comp.Children, layout.Component{
 		Class: "TLabel", Name: "Message", Caption: text,
 		Bounds: layout.Rect{X: iconTextW - textW + horzMargin, Y: vertMargin, W: textW, H: textH},
 		Props:  map[string]string{"AutoSize": "False", "WordWrap": "True"},
 	})
 	x := (clientW - groupW) / 2
+
 	for i, b := range buttons {
 		props := map[string]string{
 			"ModalResult": strconv.Itoa(b.result),
@@ -94,9 +104,11 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		if i == 0 {
 			props["Default"] = "True" // OK or Yes
 		}
+
 		if i == n-1 {
 			props["Cancel"] = "True" // OK or No
 		}
+
 		comp.Children = append(comp.Children, layout.Component{
 			Class: "TButton", Name: "Button" + strconv.Itoa(i+1), Caption: b.caption,
 			Bounds: layout.Rect{X: x, Y: iconTextH + vertMargin + vertSpacing, W: buttonWidth, H: buttonHeight},
@@ -104,13 +116,16 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		})
 		x += buttonWidth + buttonSpacing
 	}
+
 	w := newWindow(d, &comp)
 	if p, ok := w.find("Image").(*picture); ok {
 		p.img, p.alpha = icon, true
 	}
+
 	// Left := Screen.Width div 2 − Width div 2, and the same for Top.
 	s := w.size()
 	w.pos.X, w.pos.Y = screenWidth/2-s.X/2, screenHeight/2-s.Y/2
 	d.add(w)
+
 	return w
 }

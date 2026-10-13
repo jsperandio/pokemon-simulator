@@ -5,6 +5,7 @@ package classic
 import (
 	"image"
 	"image/color"
+	"slices"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -94,6 +95,7 @@ func (c *ctl) shown() bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -105,6 +107,7 @@ func (c *ctl) usable() bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -112,6 +115,7 @@ func parentOf(c *ctl) *ctl {
 	if c.parent == nil {
 		return nil
 	}
+
 	return c.parent.base()
 }
 
@@ -122,6 +126,7 @@ func (c *ctl) origin() image.Point {
 	for w := parentOf(c); w != nil; w = parentOf(w) {
 		p = p.Add(w.r.Min)
 	}
+
 	return p
 }
 
@@ -139,6 +144,7 @@ func (c *ctl) setCaption(s string) {
 	if c.caption != s {
 		c.caption = s
 		c.invalidate()
+
 		if a, ok := c.self.(interface{ autoSize() }); ok {
 			a.autoSize()
 		}
@@ -149,9 +155,11 @@ func (c *ctl) setVisible(v bool) {
 	if c.visible != v {
 		c.visible = v
 		c.invalidate()
+
 		if !v && c.win != nil && c.win.focus != nil && !c.win.focus.base().shown() {
 			c.win.focus = nil
 		}
+
 		c.refit()
 	}
 }
@@ -160,10 +168,12 @@ func (c *ctl) setEnabled(v bool) {
 	if c.enabled != v {
 		c.enabled = v
 		c.invalidate()
+
 		if w := c.win; !v && w != nil && w.focus != nil && !w.focus.base().usable() {
 			// A disabled window can't have the focus: Windows takes it
 			// away, to no window.
 			w.setFocus(nil, false)
+
 			w.noFocus = true
 		}
 	}
@@ -193,6 +203,7 @@ func (c *ctl) propInt(name string, def int) int {
 	if v, err := strconv.Atoi(c.props[name]); err == nil {
 		return v
 	}
+
 	return def
 }
 
@@ -200,6 +211,7 @@ func (c *ctl) propInt(name string, def int) int {
 // for the non-visual ones (menus, timers, dialogs, image lists).
 func build(win *window, parent widget, comp *layout.Component) widget {
 	var w widget
+
 	switch comp.Class {
 	case "TLabel":
 		w = &label{}
@@ -232,6 +244,7 @@ func build(win *window, parent widget, comp *layout.Component) widget {
 	default:
 		return nil
 	}
+
 	c := w.base()
 	c.self = w
 	c.win = win
@@ -246,25 +259,32 @@ func build(win *window, parent widget, comp *layout.Component) widget {
 	c.tabOrder = c.propInt("TabOrder", 0)
 	c.font, c.fontColor = win.res.sans, colText
 	pc := win.color
+
 	if parent != nil {
 		pc = parent.base().color
 	}
+
 	c.color = pc
 	if c.prop("ParentColor") != "True" {
 		c.color = vclColor(c.prop("Color"), pc)
 	}
+
 	if f := win.res.fontFor(c.props); f != nil {
 		c.font = f
 	}
+
 	c.fontColor = vclColor(c.prop("Font.Color"), colText)
+
 	if s, ok := w.(interface{ setup(*layout.Component) }); ok {
 		s.setup(comp)
 	}
+
 	for i := range comp.Children {
 		if k := build(win, w, &comp.Children[i]); k != nil {
 			c.kids = append(c.kids, k)
 		}
 	}
+
 	return w
 }
 
@@ -275,8 +295,10 @@ func paintTree(cv canvas, w widget) {
 	if !c.visible {
 		return
 	}
+
 	sub := cv.sub(c.r)
 	w.paint(sub)
+
 	for _, windowed := range []bool{false, true} {
 		for _, k := range c.kids {
 			if k.base().windowed == windowed {
@@ -284,6 +306,7 @@ func paintTree(cv canvas, w widget) {
 			}
 		}
 	}
+
 	if p, ok := w.(interface{ paintOver(canvas) }); ok {
 		p.paintOver(sub)
 	}
@@ -296,18 +319,20 @@ func hit(w widget, p image.Point) widget {
 	if !c.visible || !p.In(c.r) {
 		return nil
 	}
+
 	q := p.Sub(c.r.Min)
 	for _, windowed := range []bool{true, false} {
-		for i := len(c.kids) - 1; i >= 0; i-- {
-			k := c.kids[i]
+		for _, k := range slices.Backward(c.kids) {
 			if k.base().windowed != windowed {
 				continue
 			}
+
 			if h := hit(k, q); h != nil {
 				return h
 			}
 		}
 	}
+
 	return w
 }
 
@@ -335,14 +360,17 @@ func (l *label) autoSize() {
 	if !l.auto {
 		return
 	}
+
 	s := plain(l.caption)
 	if s == "" {
 		s = " "
 	}
+
 	w := l.font.width(s)
 	if mw := l.propInt("Constraints.MaxWidth", 0); mw > 0 && w > mw {
 		w = mw
 	}
+
 	l.setBounds(image.Rect(l.r.Min.X, l.r.Min.Y, l.r.Min.X+w, l.r.Min.Y+l.font.height()))
 }
 
@@ -350,10 +378,12 @@ func (l *label) paint(cv canvas) {
 	if !l.transparent {
 		cv.fill(l.local(), l.color)
 	}
+
 	lines := []string{l.caption}
 	if l.wordWrap {
 		lines = wrap(l.font, l.caption, l.r.Dx())
 	}
+
 	for i, s := range lines {
 		x, y := 0, i*l.font.height()
 		switch l.align {
@@ -362,6 +392,7 @@ func (l *label) paint(cv canvas) {
 		case "taRightJustify":
 			x = l.r.Dx() - l.font.width(plain(s))
 		}
+
 		if l.usable() {
 			drawCaption(cv, l.font, x, y, s, l.fontColor)
 		} else {
@@ -400,21 +431,27 @@ func (b *button) looksDefault() bool {
 	if b.focused() {
 		return true
 	}
+
 	if !b.isDefault || b.win == nil {
 		return false
 	}
+
 	_, other := b.win.focus.(*button)
+
 	return !other && b.win.active
 }
 
 func (b *button) paint(cv canvas) {
 	r := b.local()
 	cv.fill(r, colFace)
+
 	def := b.looksDefault()
 	if def {
 		cv.frame(r, colFrame)
+
 		r = r.Inset(1)
 	}
+
 	switch {
 	case b.pushed() && def:
 		cv.frame(r, colShadow)
@@ -423,17 +460,21 @@ func (b *button) paint(cv canvas) {
 	default:
 		cv.raisedSoft(r)
 	}
+
 	text := plain(b.caption)
 	x := (b.r.Dx() - b.font.width(text)) / 2
 	y := (b.r.Dy() - b.font.height()) / 2
+
 	if b.pushed() {
 		x, y = x+1, y+1
 	}
+
 	if b.usable() {
 		drawCaption(cv, b.font, x, y, b.caption, b.fontColor)
 	} else {
 		drawDisabled(cv, b.font, x, y, b.caption)
 	}
+
 	if b.focused() && b.win.active {
 		cv.focusRect(b.local().Inset(3))
 	}
@@ -455,6 +496,7 @@ func (b *button) mouseUp(p image.Point) {
 	click := b.down && p.In(b.local())
 	b.down = false
 	b.invalidate()
+
 	if click {
 		b.click()
 	}
@@ -464,8 +506,10 @@ func (b *button) key(k ebiten.Key, m mods) bool {
 	if k == ebiten.KeySpace {
 		b.keyDown = true
 		b.invalidate()
+
 		return true
 	}
+
 	return false
 }
 
@@ -486,9 +530,11 @@ func (b *button) click() {
 	if !b.usable() || !b.shown() {
 		return
 	}
+
 	if b.onClick != nil {
 		b.onClick()
 	}
+
 	if b.modalResult != 0 && b.win != nil {
 		b.win.endModal(b.modalResult)
 	}
@@ -510,6 +556,7 @@ func paintGroupFrame(cv canvas, r image.Rectangle, f face, caption string, bg, f
 	top := f.height()/2 - 1
 	cv.frame(image.Rect(r.Min.X+1, top+1, r.Max.X, r.Max.Y), colHighlight)
 	cv.frame(image.Rect(r.Min.X, top, r.Max.X-1, r.Max.Y-1), colShadow)
+
 	if caption != "" {
 		w := f.width(plain(caption))
 		cv.fill(image.Rect(8, 0, 8+w, f.height()), bg)
@@ -531,6 +578,7 @@ type radioGroup struct {
 func (g *radioGroup) setup(comp *layout.Component) {
 	g.windowed = true
 	g.tabStop = g.prop("TabStop") == "True"
+
 	g.items = append([]string(nil), comp.Items...)
 	g.index = g.propInt("ItemIndex", -1)
 	g.columns = max(g.propInt("Columns", 1), 1)
@@ -562,12 +610,14 @@ func (g *radioGroup) buttonRect(i int) image.Rectangle {
 	top := th + 1 + space%perCol/2
 	x := i/perCol*w + 8
 	y := i%perCol*h + top
+
 	return image.Rect(x, y, x+w, y+h)
 }
 
 func (g *radioGroup) paint(cv canvas) {
 	cv.fill(g.local(), g.color)
 	paintGroupFrame(cv, g.local(), g.font, g.caption, g.color, g.fontColor)
+
 	for i, item := range g.items {
 		r := g.buttonRect(i)
 		paintRadio(cv.sub(r), r.Size(), g.font, item, i == g.index,
@@ -607,23 +657,29 @@ const radioDot = `
 func paintRadio(cv canvas, size image.Point, f face, caption string, checked, pushed, enabled, focus bool, fg color.RGBA) {
 	gy := (size.Y - 13 + 1) >> 1
 	inside := colWindow
+
 	if pushed || !enabled {
 		inside = colFace
 	}
+
 	cv.pattern(1, gy, radioGlyph, map[byte]color.RGBA{'s': colShadow, 'k': colDkShadow, 'w': colHighlight, 'l': colLight, 'i': inside})
+
 	if checked {
 		dot := colText
 		if !enabled {
 			dot = colShadow
 		}
+
 		cv.pattern(5, gy+4, radioDot, map[byte]color.RGBA{'#': dot})
 	}
+
 	ty := size.Y/2 - f.height()/2
 	if enabled {
 		drawCaption(cv, f, 17, ty, caption, fg)
 	} else {
 		drawDisabled(cv, f, 17, ty, caption)
 	}
+
 	if focus {
 		w := f.width(plain(caption))
 		cv.focusRect(image.Rect(16, ty-1, 17+w+1, ty+f.height()))
@@ -636,6 +692,7 @@ func (g *radioGroup) at(p image.Point) int {
 			return i
 		}
 	}
+
 	return -1
 }
 
@@ -649,6 +706,7 @@ func (g *radioGroup) mouseDrag(p image.Point) {
 	if g.pressing < 0 {
 		return
 	}
+
 	if in := p.In(g.buttonRect(g.pressing)); in != g.inside {
 		g.inside = in
 		g.invalidate()
@@ -659,6 +717,7 @@ func (g *radioGroup) mouseUp(p image.Point) {
 	k := g.pressing
 	g.pressing = -1
 	g.invalidate()
+
 	if k >= 0 && p.In(g.buttonRect(k)) {
 		g.choose(k)
 	}
@@ -670,7 +729,9 @@ func (g *radioGroup) choose(k int) {
 	if k == g.index || !g.usable() {
 		return
 	}
+
 	g.setIndex(k)
+
 	if g.onClick != nil {
 		g.onClick()
 	}
@@ -681,6 +742,7 @@ func (g *radioGroup) key(k ebiten.Key, m mods) bool {
 	if n == 0 {
 		return false
 	}
+
 	switch k {
 	case ebiten.KeyUp, ebiten.KeyLeft:
 		g.choose((max(g.index, 0) + n - 1) % n)
@@ -689,6 +751,7 @@ func (g *radioGroup) key(k ebiten.Key, m mods) bool {
 	default:
 		return false
 	}
+
 	return true
 }
 
@@ -702,9 +765,11 @@ func (p *panel) setup(*layout.Component) { p.windowed = true }
 func (p *panel) paint(cv canvas) {
 	r := p.local()
 	cv.fill(r, p.color)
+
 	if p.prop("BevelOuter") != "bvNone" {
 		cv.edge(r, colHighlight, colShadow)
 	}
+
 	if p.caption != "" {
 		w := p.font.width(plain(p.caption))
 		drawCaption(cv, p.font, (r.Dx()-w)/2, (r.Dy()-p.font.height())/2, p.caption, p.fontColor)
@@ -717,9 +782,11 @@ type bevel struct{ ctl }
 func (b *bevel) paint(cv canvas) {
 	r := b.local()
 	c1, c2 := colShadow, colHighlight
+
 	if b.prop("Style") == "bsRaised" {
 		c1, c2 = c2, c1
 	}
+
 	// BevelRect(0, 0, W−1, H−1): two polylines, the second one ending
 	// before its last point.
 	w, h := r.Dx()-1, r.Dy()-1
@@ -781,6 +848,7 @@ var oneHundredth = delphi.NewExtended(1).Quo(delphi.NewExtended(100))
 // solveForX is Gauges.SolveForX: Trunc(z × (y × 0.01)), on the x87.
 func solveForX(y, z int) int {
 	p := delphi.NewExtended(float64(y)).Mul(oneHundredth)
+
 	return int(delphi.NewExtended(float64(z)).Mul(p).Int().Float64())
 }
 
@@ -789,27 +857,33 @@ func (g *gauge) percent() int {
 	if g.max == g.min {
 		return 0
 	}
+
 	return (g.progress - g.min) * 100 / (g.max - g.min)
 }
 
 func (g *gauge) paint(cv canvas) {
 	r := g.local()
 	cv.fill(r, colDkShadow) // the image starts black
-	in := r.Inset(1)        // bsSingle
+
+	in := r.Inset(1) // bsSingle
 	cv.fill(in, g.back)
+
 	// PaintAsBar: W is one pixel wider than the inside, and the bar's right
 	// edge is FillSize itself.
 	w := in.Dx() + 1
 	fill := min(solveForX(g.percent(), w), w)
+
 	if fill > 0 {
 		cv.fill(image.Rect(in.Min.X, in.Min.Y, fill, in.Max.Y).Intersect(in), g.fore)
 	}
+
 	// PaintAsText: white text XORed over the image, clipped to the inside.
 	s := strconv.Itoa(g.percent()) + "%"
 	x := (w - g.font.width(s)) / 2
 	y := (in.Dy() + 1 - g.font.height()) / 2
 	tmp := image.NewRGBA(image.Rectangle{Max: r.Size()})
 	g.font.draw(newCanvas(tmp), x, y, s, colHighlight)
+
 	for py := in.Min.Y; py < in.Max.Y; py++ {
 		for px := in.Min.X; px < in.Max.X; px++ {
 			if tmp.RGBAAt(px, py).A != 0 {

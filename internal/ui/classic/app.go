@@ -82,6 +82,7 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 	if err != nil {
 		return nil, err
 	}
+
 	a := &App{
 		res:      res,
 		desk:     newDesktop(res),
@@ -95,12 +96,15 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 	if platform.Transfers {
 		a.xfer = browser{files}
 	}
+
 	a.desk.onMinimize = ebiten.MinimizeWindow
 	a.g = game.New(data, a)
 	a.buildForms()
+
 	a.g.OnShow = a.show
 	a.g.OnDraws = a.showDraws
 	a.load.begin()
+
 	return a, nil
 }
 
@@ -114,12 +118,16 @@ func (a *App) call(f func()) {
 	if a.running {
 		return
 	}
+
 	a.running = true
 	a.done = make(chan struct{})
+
 	go func() {
 		defer close(a.done)
+
 		f()
 	}()
+
 	a.wait()
 }
 
@@ -139,14 +147,18 @@ func (a *App) wait() {
 // closes. It runs on the handler's goroutine.
 func (a *App) modal(w *window) int {
 	result := make(chan int)
+
 	a.requests <- func() {
 		w.onModal = func(r int) {
 			w.onModal = nil
+
 			result <- r
+
 			a.wait()
 		}
 		a.desk.showModal(w)
 	}
+
 	return <-result
 }
 
@@ -160,6 +172,7 @@ func (a *App) showException(msg string) {
 	if msg != "" && msg[len(msg)-1] > '.' {
 		msg += "."
 	}
+
 	w := messageDialog(a.desk, game.Error, false, msg)
 	w.caption = appTitle
 	a.modal(w)
@@ -171,6 +184,7 @@ func (a *App) Message(kind game.DialogKind, yesNo bool, text string) bool {
 	w := messageDialog(a.desk, kind, yesNo, text)
 	r := a.modal(w)
 	a.desk.remove(w)
+
 	return r == mrOk || r == mrYes
 }
 
@@ -209,6 +223,7 @@ func (a *App) sync() {
 			a.desk.hide(f.w)
 		}
 	}
+
 	a.syncForms()
 }
 
@@ -227,25 +242,34 @@ func (a *App) syncForms() {
 func (a *App) Update() error {
 	if a.quit {
 		platform.WarnOnLeave(false)
+
 		return ErrQuit
 	}
+
 	a.pace.wait()
+
 	if ebiten.IsWindowBeingClosed() && a.desk.topModal() == nil {
 		a.closeProgram()
 	}
+
 	in, now := a.input(), time.Now()
 	a.step(in, now)
 	// On the web, leaving the page doesn't save the game, as quitting does.
 	platform.WarnOnLeave(a.main.w.visible && !a.quit)
+
 	if a.desk.cursor != a.shown {
 		a.shown = a.desk.cursor
 		ebiten.SetCursorShape(a.shown)
 	}
+
 	if a.quit {
 		platform.WarnOnLeave(false)
+
 		return ErrQuit
 	}
+
 	a.pace.next(&in, a.desk.dirty, a.music.Playing(), now)
+
 	return nil
 }
 
@@ -253,17 +277,22 @@ func (a *App) Update() error {
 func (a *App) step(in input, now time.Time) {
 	if a.draws != nil {
 		a.draws.tick(a, now) // and no input
+
 		return
 	}
+
 	a.desk.update(&in, now)
 	a.load.tick()
 	a.music.Update(a.g.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
+
 	if a.xfer != nil && in.dropped != nil {
 		a.importDropped(in.dropped)
 	}
+
 	if a.fileDlg != nil {
 		a.fileDlg.poll()
 	}
+
 	if !a.running {
 		a.sync()
 		a.stats.freshen()
@@ -280,24 +309,29 @@ func (a *App) input() input {
 	in.released = inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft)
 	_, dy := ebiten.Wheel()
 	a.wheel += dy
+
 	if n := math.Trunc(a.wheel); n != 0 {
 		in.wheel = int(n)
 		a.wheel -= n
 	}
+
 	in.mods = mods{
 		shift: ebiten.IsKeyPressed(ebiten.KeyShift),
 		ctrl:  ebiten.IsKeyPressed(ebiten.KeyControl),
 		alt:   ebiten.IsKeyPressed(ebiten.KeyAlt),
 	}
+
 	for _, k := range inpututil.AppendPressedKeys(nil) {
 		d := inpututil.KeyPressDuration(k)
 		if d == 1 || d >= repeatDelay && (d-repeatDelay)%repeatInterval == 0 {
 			in.keys = append(in.keys, k)
 		}
 	}
+
 	in.keysUp = inpututil.AppendJustReleasedKeys(nil)
 	in.chars = ebiten.AppendInputChars(nil)
 	in.dropped = ebiten.DroppedFiles()
+
 	return in
 }
 
@@ -310,12 +344,14 @@ func (a *App) Draw(screen *ebiten.Image) {
 		a.img = ebiten.NewImage(screenWidth, screenHeight)
 		a.desk.dirty = true
 	}
+
 	if a.desk.dirty {
 		a.desk.paint(a.frame)
 		a.img.WritePixels(a.frame.Pix)
 	} else if screen == a.screen {
 		return
 	}
+
 	a.screen = screen
 	screen.DrawImage(a.img, nil)
 }
@@ -327,8 +363,10 @@ func (a *App) Layout(int, int) (int, int) { return screenWidth, screenHeight }
 func (a *App) closeProgram() {
 	if a.main.w.visible {
 		a.main.formClose()
+
 		return
 	}
+
 	a.quit = true
 }
 
@@ -340,9 +378,11 @@ func WindowSize() (int, int) {
 	if m == nil {
 		return screenWidth, screenHeight
 	}
+
 	mw, mh := m.Size()
 	s := math.Floor(min(0.9*float64(mw)/screenWidth, 0.9*float64(mh)/screenHeight)*2) / 2
 	s = max(s, 1)
+
 	return int(screenWidth * s), int(screenHeight * s)
 }
 

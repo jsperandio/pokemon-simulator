@@ -38,6 +38,7 @@ func (b bitmapFace) width(s string) int { return b.f.Width(s, b.bold) }
 
 func (b bitmapFace) draw(cv canvas, x, y int, s string, c color.RGBA) int {
 	p := image.Pt(x, y).Add(cv.org)
+
 	return b.f.Draw(cv.img, cv.clip, p.X, p.Y, s, c, b.bold) - cv.org.X
 }
 
@@ -56,8 +57,10 @@ func newTrueType(f *opentype.Font, px int) (*trueTypeFace, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	m := ff.Metrics()
 	asc, desc := m.Ascent.Ceil(), m.Descent.Ceil()
+
 	return &trueTypeFace{f: ff, asc: asc, hgt: asc + desc}, nil
 }
 
@@ -66,10 +69,12 @@ func (t *trueTypeFace) ascent() int { return t.asc }
 
 func (t *trueTypeFace) width(s string) int {
 	w := 0
+
 	for _, r := range s {
 		a, _ := t.f.GlyphAdvance(r)
 		w += a.Round()
 	}
+
 	return w
 }
 
@@ -78,15 +83,19 @@ func (t *trueTypeFace) draw(cv canvas, x, y int, s string, c color.RGBA) int {
 	if !ok || dst.Rect.Empty() {
 		return x + t.width(s)
 	}
+
 	src := image.NewUniform(c)
+
 	for _, r := range s {
 		dot := fixed.P(cv.org.X+x, cv.org.Y+y+t.asc)
 		if dr, mask, mp, _, ok := t.f.Glyph(dot, r); ok {
 			draw.DrawMask(dst, dr, src, image.Point{}, mask, mp, draw.Over)
 		}
+
 		a, _ := t.f.GlyphAdvance(r)
 		x += a.Round()
 	}
+
 	return x
 }
 
@@ -98,13 +107,17 @@ func plain(s string) string {
 	if !strings.Contains(s, "&") {
 		return s
 	}
+
 	var b strings.Builder
+
 	for i := 0; i < len(s); i++ {
 		if s[i] == '&' && i+1 < len(s) {
 			i++
 		}
+
 		b.WriteByte(s[i])
 	}
+
 	return b.String()
 }
 
@@ -114,11 +127,14 @@ func accel(s string) rune {
 		if s[i] != '&' {
 			continue
 		}
+
 		if s[i+1] != '&' {
 			return []rune(strings.ToLower(s[i+1:]))[0]
 		}
+
 		i++
 	}
+
 	return 0
 }
 
@@ -130,19 +146,25 @@ func drawCaption(cv canvas, f face, x, y int, s string, c color.RGBA) int {
 		if i < 0 || i+1 >= len(s) {
 			return f.draw(cv, x, y, s, c)
 		}
+
 		x = f.draw(cv, x, y, s[:i], c)
 		s = s[i+1:]
+
 		if s[0] == '&' {
 			x = f.draw(cv, x, y, "&", c)
 			s = s[1:]
+
 			continue
 		}
+
 		n := len(string([]rune(s)[0]))
 		x0 := x
 		x = f.draw(cv, x, y, s[:n], c)
 		cv.hline(x0, x, y+f.ascent()+1, c)
+
 		s = s[n:]
 	}
+
 	return x
 }
 
@@ -150,6 +172,7 @@ func drawCaption(cv canvas, f face, x, y int, s string, c color.RGBA) int {
 // in white one pixel down and right, then in the shadow colour.
 func drawDisabled(cv canvas, f face, x, y int, s string) int {
 	drawCaption(cv, f, x+1, y+1, s, colHighlight)
+
 	return drawCaption(cv, f, x, y, s, colShadow)
 }
 
@@ -157,17 +180,22 @@ func drawDisabled(cv canvas, f face, x, y int, s string) int {
 // DT_WORDBREAK does; a word too long for a line stays whole.
 func wrap(f face, text string, w int) []string {
 	var lines []string
-	for _, para := range strings.Split(text, "\n") {
+
+	for para := range strings.SplitSeq(text, "\n") {
 		para = strings.TrimSuffix(para, "\r")
 		line := ""
+
 		for _, word := range strings.SplitAfter(para, " ") {
 			if line != "" && f.width(strings.TrimRight(line+word, " ")) > w {
 				lines = append(lines, strings.TrimRight(line, " "))
 				line = ""
 			}
+
 			line += word
 		}
+
 		lines = append(lines, strings.TrimRight(line, " "))
 	}
+
 	return lines
 }

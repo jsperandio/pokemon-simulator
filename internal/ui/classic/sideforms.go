@@ -27,16 +27,21 @@ func newStatsForm(a *App) *statsForm {
 	w := newWindow(a.desk, &layout.Form5)
 	f := &statsForm{a: a, w: w, counts: map[string]*label{}}
 	f.party = get[*listView](w, "ListView1")
+
 	for i := range f.items {
 		k := i
 		f.items[i] = get[*button](w, "Button"+itoa(i+1))
 		f.items[i].onClick = func() { a.call(func() { a.g.UseItem(k) }) }
 	}
-	for _, n := range []string{"PlayerNameLbl", "MoneyLbl", "FightsLbl", "WinsLbl", "CapturesLbl", "LossesLbl",
+
+	for _, n := range []string{
+		"PlayerNameLbl", "MoneyLbl", "FightsLbl", "WinsLbl", "CapturesLbl", "LossesLbl",
 		"Percent", "OwnedPKMNLbl", "PokeBallsLbl", "GreatBallsLbl", "UltraBallsLbl", "MasterBallsLbl",
-		"PotionsLbl", "SuperPotionsLbl"} {
+		"PotionsLbl", "SuperPotionsLbl",
+	} {
 		f.counts[n] = get[*label](w, n)
 	}
+
 	f.party.onDblClick = func() {
 		if k := f.party.selected; k >= 0 {
 			a.call(func() { a.g.ClickParty(k) })
@@ -49,12 +54,14 @@ func newStatsForm(a *App) *statsForm {
 		}
 	}
 	a.desk.add(w)
+
 	return f
 }
 
 func (f *statsForm) sync() {
 	g := f.a.g
 	f.counts["PlayerNameLbl"].setCaption(g.Stats.Name)
+
 	party := g.Party()
 	if len(party) != len(f.items0) || !slices.EqualFunc(party, f.items0, func(m save.Slot, it listItem) bool {
 		return it.image == int(m.Species)-1
@@ -63,16 +70,20 @@ func (f *statsForm) sync() {
 		for i, m := range party {
 			items[i] = listItem{f.a.speciesName(int(m.Species)), int(m.Species) - 1}
 		}
+
 		f.items0 = items
 		f.party.setItems(items)
 	}
+
 	if f.party.enabled != g.Stats.PartyEnabled {
 		f.party.setEnabled(g.Stats.PartyEnabled)
+
 		f.party.color = colWindow
 		if !g.Stats.PartyEnabled {
 			f.party.color = colFace
 		}
 	}
+
 	for i, b := range f.items {
 		b.setVisible(g.Stats.Items)
 		b.setEnabled(g.Stats.ItemEnabled[i])
@@ -86,6 +97,7 @@ func (f *statsForm) freshen() {
 	if !f.w.visible {
 		return
 	}
+
 	g := f.a.g
 	for n, v := range map[string]uint32{
 		"PokeBallsLbl": g.PokeBalls, "GreatBallsLbl": g.GreatBalls, "UltraBallsLbl": g.UltraBalls,
@@ -94,10 +106,13 @@ func (f *statsForm) freshen() {
 	} {
 		f.counts[n].setCaption(strconv.FormatUint(uint64(v), 10))
 	}
+
 	if p, ok := g.WinPercent(); ok {
 		f.counts["Percent"].setCaption(p)
 	}
+
 	f.counts["OwnedPKMNLbl"].setCaption(itoa(g.DexCount()))
+
 	if f.w.active && f.w.focus == nil && !f.w.noFocus && f.a.main.w.visible && f.a.desk.topModal() == nil {
 		f.a.desk.activate(f.a.main.w)
 	}
@@ -114,6 +129,7 @@ func newInfoForm(a *App) *infoForm {
 	f := &infoForm{a: a, w: newWindow(a.desk, &layout.Form7)}
 	f.memo = get[*memo](f.w, "Memo1")
 	a.desk.add(f.w)
+
 	return f
 }
 
@@ -138,6 +154,7 @@ func newDexForm(a *App) *dexForm {
 	f.combo.onSelect = func(i int) { a.g.SelectDex(i) }
 	get[*button](f.w, "Button1").onClick = func() { a.g.CloseDex() }
 	a.desk.add(f.w)
+
 	return f
 }
 
@@ -146,35 +163,45 @@ func newDexForm(a *App) *dexForm {
 func (f *dexForm) sync() {
 	g := f.a.g
 	f.combo.setIndex(g.Dex.Index)
+
 	if g.Dex.Index < 0 {
 		return
 	}
+
 	s := g.Dex.Index + 1
 	sp := g.Data.SpeciesByID(s)
 	w := f.w
 	l2, l3 := get[*label](w, "Label2"), get[*label](w, "Label3")
 	l2.setCaption(g.Data.TypeName(sp.Types[0]))
 	l3.setVisible(sp.Types[1] != 0)
+
 	r3 := l3.r // Label3.Left = Label2.Left + Label2.Width
 	l3.setBounds(image.Rect(l2.r.Max.X, r3.Min.Y, l2.r.Max.X+r3.Dx(), r3.Max.Y))
+
 	if sp.Types[1] != 0 {
 		l3.setCaption("/" + g.Data.TypeName(sp.Types[1]))
 	}
+
 	f.image.setItems([]listItem{{"", s - 1}})
 	get[*label](w, "Label1").setCaption(f.combo.items[s-1])
+
 	shown := g.DexMovesShown(s)
+
 	for i, n := range []string{"Label6", "Label10", "Label11", "Label12"} {
 		name, typ := "???", "???"
 		if mv := g.Data.MoveByID(sp.Moves[i]); shown && mv != nil {
 			name, typ = mv.Name, g.Data.TypeName(mv.Type)
 		}
+
 		get[*label](w, n).setCaption(name)
 		get[*label](w, "Label"+itoa(13+i)).setCaption(typ)
 	}
+
 	evolve := "Does not evolve."
 	if sp.EvolveLevel != 0 {
 		evolve = "Can evolve at level " + itoa(sp.EvolveLevel) + "."
 	}
+
 	get[*label](w, "Label4").setCaption(evolve)
 	f.panel.setVisible(true)
 }
@@ -200,8 +227,10 @@ func newMartForm(a *App) *martForm {
 	f.radio.onClick = func() { g.SelectMartItem(f.radio.index) }
 	f.buy.onClick = func() { a.call(g.Buy) }
 	get[*button](f.w, "Button2").onClick = func() { g.LeaveMart() }
+
 	f.w.onShow = func() { f.spin.tb.set(itoa(g.Mart.Quantity)) } // FormShow, before the focus comes in
 	a.desk.add(f.w)
+
 	return f
 }
 
@@ -210,6 +239,7 @@ func (f *martForm) sync() {
 	f.radio.setIndex(g.Mart.Item)
 	f.total.tb.set(g.Mart.Total)
 	f.buy.setEnabled(g.Mart.BuyEnabled)
+
 	a, b := g.MartDescription()
 	get[*label](f.w, "Label2").setCaption(a)
 	get[*label](f.w, "Label3").setCaption(b)
@@ -228,16 +258,20 @@ func newTypesForm(a *App) *typesForm {
 	f.species = get[*comboBox](f.w, "ComboBox1")
 	f.attack = get[*comboBox](f.w, "ComboBox2")
 	g := a.g
+
 	for _, sp := range g.Data.Species { // FormShow
 		item := sp.Name + ", " + g.Data.TypeName(sp.Types[0])
 		if sp.Types[1] != 0 {
 			item += "/" + g.Data.TypeName(sp.Types[1])
 		}
+
 		f.species.items = append(f.species.items, item)
 	}
+
 	for _, mv := range g.Data.Moves {
 		f.attack.items = append(f.attack.items, mv.Name+", "+g.Data.TypeName(mv.Type))
 	}
+
 	f.w.onShow = func() {
 		f.species.reselect()
 		f.attack.reselect()
@@ -246,6 +280,7 @@ func newTypesForm(a *App) *typesForm {
 	f.attack.onSelect = func(i int) { g.SelectTypes(g.Types.Species, i) }
 	get[*button](f.w, "Button1").onClick = func() { g.CloseTypes() }
 	a.desk.add(f.w)
+
 	return f
 }
 
@@ -254,12 +289,16 @@ func (f *typesForm) sync() {
 	g := f.a.g
 	f.species.setIndex(g.Types.Species)
 	f.attack.setIndex(g.Types.Attack)
+
 	first, second, total, ok := g.TypeMultipliers()
 	w := f.w
+
 	if !ok {
 		return
 	}
+
 	two := g.Data.SpeciesByID(g.Types.Species + 1).Types[1] != 0
+
 	get[*label](w, "Label1").setVisible(true)
 	get[*label](w, "Label2").setVisible(two)
 	get[*label](w, "Label3").setVisible(true)
@@ -293,11 +332,13 @@ func newCornerForm(a *App) *cornerForm {
 	f.number.onClick = func() { g.SelectNumber(f.number.index) }
 	get[*button](f.w, "Button1").onClick = func() { a.call(g.Draw) }
 	get[*button](f.w, "Button2").onClick = func() { g.CloseCorner() }
+
 	f.w.onShow = func() { // FormShow, before the focus comes in and selects the bet
 		f.bet.maxValue = g.Corner.MaxBet
 		f.bet.tb.set(itoa(g.Corner.Bet))
 	}
 	a.desk.add(f.w)
+
 	return f
 }
 
@@ -319,13 +360,16 @@ const drawTime = time.Second
 // user interface takes no input meanwhile, as the original's didn't.
 func (a *App) showDraws(draws []int) {
 	done := make(chan struct{})
+
 	a.requests <- func() {
 		a.stats.freshen() // Form5.Freshen: the bet paid
+
 		a.draws = &drawShow{draws: draws, start: a.desk.now, done: func() {
 			close(done)
 			a.wait()
 		}}
 	}
+
 	<-done
 }
 
@@ -340,13 +384,17 @@ type drawShow struct {
 func (s *drawShow) tick(a *App, now time.Time) {
 	t := now.Sub(s.start)
 	i := len(s.draws) - 1
+
 	if t < drawTime {
 		i = int(int64(len(s.draws)) * int64(t) / int64(drawTime))
 	}
+
 	a.corner.drawn.setIndex(s.draws[i])
+
 	a.desk.dirty = true
 	if t >= drawTime {
 		a.draws = nil
+
 		s.done()
 	}
 }

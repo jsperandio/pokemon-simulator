@@ -24,10 +24,12 @@ func TestScenarios(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	data, err := gamedata.Load(raw)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	direct := func(*testing.T) scenario.Driver { return &scenario.Direct{} }
 	scenario.Run(t, filepath.Join("testdata", "scenarios"), data, direct, *saveDir)
 }

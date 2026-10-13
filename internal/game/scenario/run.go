@@ -17,13 +17,16 @@ import (
 // written there, for the original to load (portsave).
 func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testing.T) Driver, saves string) {
 	t.Helper()
+
 	paths, err := filepath.Glob(filepath.Join(dir, "*.txt"))
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	if len(paths) == 0 {
 		t.Fatal("no scenarios")
 	}
+
 	for _, path := range paths {
 		name := strings.TrimSuffix(filepath.Base(path), ".txt")
 		t.Run(name, func(t *testing.T) {
@@ -31,6 +34,7 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 			if err != nil {
 				t.Fatal(err)
 			}
+
 			p := &Player{
 				Name:      name,
 				Dir:       dir,
@@ -38,11 +42,14 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 				NewDriver: func() Driver { return newDriver(t) },
 				Saves:     saves,
 			}
+
 			want, err := p.Play(string(src))
 			if err != nil {
 				t.Errorf("%v\n%s", err, tail(p.out, 8))
+
 				return
 			}
+
 			compare(t, want, p.out)
 		})
 	}
@@ -52,17 +59,21 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 // original's.
 func compare(t *testing.T, want, got []string) {
 	t.Helper()
+
 	for i := range max(len(want), len(got)) {
 		w, g := "(end)", "(end)"
 		if i < len(want) {
 			w = want[i]
 		}
+
 		if i < len(got) {
 			g = got[i]
 		}
+
 		if w != g {
 			t.Errorf("line %d differs:\noriginal: %s\nport:     %s\nthe port's trace before it:\n%s",
 				i+1, w, g, tail(got[:min(i, len(got))], 8))
+
 			return
 		}
 	}

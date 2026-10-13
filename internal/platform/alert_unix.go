@@ -19,8 +19,10 @@ func Alert(title, text string) {
 	if runtime.GOOS == "darwin" {
 		script := fmt.Sprintf("display alert %s message %s as critical", appleScriptString(title), appleScriptString(text))
 		exec.Command("osascript", "-e", script).Run() //nolint:errcheck // there is nothing else to tell it with
+
 		return
 	}
+
 	// The notification's body is markup in GNOME's and KDE's.
 	markup := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;").Replace(text)
 	for _, cmd := range [][]string{

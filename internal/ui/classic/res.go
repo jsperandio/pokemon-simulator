@@ -38,33 +38,41 @@ func loadResources() (*resources, error) {
 		pictures: map[string]*image.NRGBA{},
 		dlgIcons: map[game.DialogKind]*image.NRGBA{},
 	}
+
 	b, err := assets.FS.ReadFile("wine/sserife.fon")
 	if err != nil {
 		return nil, err
 	}
+
 	fonts, err := winfont.Parse(b)
 	if err != nil {
 		return nil, err
 	}
+
 	r.sans = bitmapFace{f: fonts[0]}
 	r.bold = bitmapFace{f: fonts[0], bold: true}
+
 	for st, name := range []string{"Regular", "Bold", "Italic"} {
 		b, err := assets.FS.ReadFile("liberation/LiberationSans-" + name + ".ttf")
 		if err != nil {
 			return nil, err
 		}
+
 		if r.ttf[st], err = opentype.Parse(b); err != nil {
 			return nil, fmt.Errorf("liberation sans %s: %w", name, err)
 		}
 	}
+
 	// GetAveCharSize: the width of A–Z and a–z, over 52.
 	var az strings.Builder
 	for c := 'A'; c <= 'Z'; c++ {
 		az.WriteRune(c)
 	}
+
 	for c := 'a'; c <= 'z'; c++ {
 		az.WriteRune(c)
 	}
+
 	r.charWidth = r.sans.width(az.String()) / 52
 
 	for _, l := range []struct {
@@ -80,16 +88,19 @@ func loadResources() (*resources, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		il := &imageList{img: img, size: l.size, cols: img.Rect.Dx() / l.size}
 		for _, n := range l.names {
 			r.lists[n] = il
 		}
 	}
+
 	for _, p := range []string{"sprites/pokeball.png", "sprites/icon.png"} {
 		if r.pictures[p], err = loadPNG(p); err != nil {
 			return nil, err
 		}
 	}
+
 	for kind, p := range map[game.DialogKind]string{
 		game.Warning:      "wine/oic_bang.png",
 		game.Error:        "wine/oic_hand.png",
@@ -100,7 +111,9 @@ func loadResources() (*resources, error) {
 			return nil, err
 		}
 	}
+
 	r.appIcon = shrink(r.pictures["sprites/icon.png"])
+
 	return r, nil
 }
 
@@ -109,12 +122,15 @@ func loadPNG(path string) (*image.NRGBA, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	img, err := png.Decode(bytes.NewReader(b))
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+
 	out := image.NewNRGBA(img.Bounds())
 	draw.Draw(out, out.Rect, img, img.Bounds().Min, draw.Src)
+
 	return out, nil
 }
 
@@ -123,11 +139,13 @@ func loadPNG(path string) (*image.NRGBA, error) {
 func shrink(src *image.NRGBA) *image.NRGBA {
 	b := src.Rect
 	out := image.NewNRGBA(image.Rect(0, 0, b.Dx()/2, b.Dy()/2))
+
 	for y := range out.Rect.Dy() {
 		for x := range out.Rect.Dx() {
 			out.SetNRGBA(x, y, src.NRGBAAt(b.Min.X+2*x, b.Min.Y+2*y))
 		}
 	}
+
 	return out
 }
 
@@ -137,10 +155,12 @@ func (r *resources) fontFor(props map[string]string) face {
 	if props["Font.Name"] != "Arial" {
 		return nil
 	}
+
 	h, err := strconv.Atoi(props["Font.Height"])
 	if err != nil {
 		return nil
 	}
+
 	return r.arial(-h, plainStyle)
 }
 
@@ -165,11 +185,14 @@ func (r *resources) arial(px int, style fontStyle) face {
 	if f, ok := r.arials[k]; ok {
 		return f
 	}
+
 	f, err := newTrueType(r.ttf[style], px)
 	if err != nil { // a size no font has
 		return r.sans
 	}
+
 	r.arials[k] = f
+
 	return f
 }
 
@@ -186,6 +209,7 @@ type imageList struct {
 
 func (l *imageList) frame(i int) image.Rectangle {
 	x, y := i%l.cols*l.size, i/l.cols*l.size
+
 	return image.Rect(x, y, x+l.size, y+l.size)
 }
 
@@ -195,11 +219,14 @@ func (l *imageList) drawFrame(cv canvas, x, y, i int, selected bool) {
 	if i < 0 || i >= l.cols*(l.img.Rect.Dy()/l.size) {
 		return
 	}
+
 	fr := l.frame(i)
 	cv.draw(x, y, l.img, fr)
+
 	if !selected {
 		return
 	}
+
 	for sy := fr.Min.Y; sy < fr.Max.Y; sy++ {
 		for sx := fr.Min.X; sx < fr.Max.X; sx++ {
 			if l.img.NRGBAAt(sx, sy).A >= 0x80 && (sx+sy)&1 == 1 {

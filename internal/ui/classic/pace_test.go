@@ -45,15 +45,20 @@ func TestPace(t *testing.T) {
 	var p pacer
 	now := time.Now()
 	p.next(&input{mouse: image.Pt(10, 10)}, false, false, now)
+
 	if !p.busyUntil.Equal(now.Add(busyFor)) || time.Duration(p.idle.Load()) != idleFrame {
 		t.Errorf("mouse moved: busy for %v, idle frames every %v", p.busyUntil.Sub(now), time.Duration(p.idle.Load()))
 	}
+
 	later := now.Add(busyFor + time.Second)
 	p.next(&input{mouse: image.Pt(10, 10)}, false, true, later)
+
 	if !p.busyUntil.Equal(now.Add(busyFor)) || time.Duration(p.idle.Load()) != musicFrame {
 		t.Errorf("music playing: busy until %v, idle frames every %v", p.busyUntil.Sub(now), time.Duration(p.idle.Load()))
 	}
+
 	p.next(&input{mouse: image.Pt(10, 10)}, true, false, later)
+
 	if !p.busyUntil.Equal(later.Add(busyFor)) || time.Duration(p.idle.Load()) != idleFrame {
 		t.Errorf("desktop changed: busy for %v, idle frames every %v", p.busyUntil.Sub(later), time.Duration(p.idle.Load()))
 	}

@@ -18,6 +18,7 @@ import (
 func GNOMEFrames() bool {
 	return gnomeFrames(os.Getenv, func(path string) bool {
 		_, err := os.Stat(path)
+
 		return err == nil
 	})
 }
@@ -31,5 +32,6 @@ var framesHelpers = []string{
 
 func gnomeFrames(getenv func(string) string, exists func(string) bool) bool {
 	desktops := strings.Split(strings.ToUpper(getenv("XDG_CURRENT_DESKTOP")), ":")
+
 	return slices.Contains(desktops, "GNOME") && slices.ContainsFunc(framesHelpers, exists)
 }
