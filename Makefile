@@ -58,12 +58,11 @@ vet:
 	go vet ./...
 
 # lint checks every platform's code, as the build tags give Windows and the
-# web files of their own; the web's tests build only in internal/platform.
+# web files of their own.
 lint:
 	GOOS=linux $(LINT)
 	GOOS=windows $(LINT)
-	GOOS=js GOARCH=wasm $(LINT) --tests=false
-	GOOS=js GOARCH=wasm $(LINT) ./internal/platform/
+	GOOS=js GOARCH=wasm $(LINT)
 
 build:
 	go build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/$(BINARY) .
