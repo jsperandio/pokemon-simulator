@@ -17,13 +17,13 @@ import (
 
 const (
 	// Header starts a version 2 file.
-	Header = "VERSION2SAVEFILEIDENTIFIER"
+	Header string = "VERSION2SAVEFILEIDENTIFIER"
 	// Slots is the size of the party arrays, all of which are saved.
-	Slots = 10000
+	Slots int = 10000
 	// NumSpecies is the number of POKéDEX entries in version 2.
-	NumSpecies = 386
+	NumSpecies int = 386
 	// v1Species is the number of POKéDEX entries in version 1.
-	v1Species = 251
+	v1Species int = 251
 )
 
 // File is a save. The counters are Cardinals, as in the game.

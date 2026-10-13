@@ -19,9 +19,9 @@ import (
 // The menus are the VCL's owner-drawn menus, as a main menu with Images
 // draws them on Windows 98.
 const (
-	menuItemHeight = 19 // the image's 16 pixels and 3
-	menuFrame      = 3  // a raised edge and a line of face
-	menuShowDelay  = 400 * time.Millisecond
+	menuItemHeight int           = 19 // the image's 16 pixels and 3
+	menuFrame      int           = 3  // a raised edge and a line of face
+	menuShowDelay  time.Duration = 400 * time.Millisecond
 )
 
 // menuEntry is a menu item as the classic UI draws it; its flags are the
@@ -135,7 +135,7 @@ func newMenuBar(w *window, items []*game.MenuItem, design *layout.Component) *me
 
 // shortcutKey decodes a TShortCut without modifiers: a function key.
 func shortcutKey(v int) (key ebiten.Key, name string) {
-	const vkF1 = 0x70
+	const vkF1 int = 0x70
 	if vk := v & 0xff; v < 0x100 && vk >= vkF1 && vk < vkF1+12 {
 		n := vk - vkF1
 
@@ -708,7 +708,7 @@ func (m *menuBar) shortcut(k ebiten.Key, mm mods) bool {
 
 // The menus' glyphs: the check mark and the submenu arrow.
 const (
-	menuCheck = `
+	menuCheck string = `
 ......#
 .....##
 #...###
@@ -717,7 +717,7 @@ const (
 .###...
 ..#....
 `
-	menuArrow = `
+	menuArrow string = `
 #...
 ##..
 ###.

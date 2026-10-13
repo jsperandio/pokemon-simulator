@@ -99,7 +99,7 @@ func (g *Game) enable(on bool, names ...string) {
 
 // The menu's flags as designed (the DFM).
 const (
-	disabled = 1 << iota
+	disabled int = 1 << iota
 	hidden
 	checked
 )

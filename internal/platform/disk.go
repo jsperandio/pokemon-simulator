@@ -174,7 +174,7 @@ func Args() []string {
 }
 
 // Transfers is false: the game's files are the player's own, on the disk.
-const Transfers = false
+const Transfers bool = false
 
 // Upload does nothing on the disk; see Transfers.
 func Upload(Files, string) <-chan []string {

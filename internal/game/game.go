@@ -23,7 +23,7 @@ import (
 
 // Title is the start screen's caption; the game window adds the player's
 // name and save file to it.
-const Title = "POKéMON Simulator V4.5"
+const Title string = "POKéMON Simulator V4.5"
 
 // DialogKind is a message dialog's icon and title (Delphi's TMsgDlgType).
 type DialogKind int
@@ -347,7 +347,7 @@ func (g *Game) recomputeLevels() {
 }
 
 // maxXP is level 100's XP, the most a POKéMON can have.
-const maxXP = 1000000
+const maxXP uint32 = 1000000
 
 // fileName is a path's last element, as the original cuts a file name
 // after its last "\"; the port accepts "/" too.

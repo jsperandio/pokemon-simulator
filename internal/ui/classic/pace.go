@@ -19,10 +19,10 @@ import (
 // changes, and for busyFor after; otherwise one every idleFrame, for the
 // clocks, or every musicFrame while music plays, so it repeats on time.
 const (
-	frameTime  = time.Second / 60       // the most frames a second, as with vsync
-	busyFor    = 4 * time.Second        // past a hint's 3 seconds
-	idleFrame  = 500 * time.Millisecond // between frames otherwise
-	musicFrame = 100 * time.Millisecond // ... while music plays
+	frameTime  time.Duration = time.Second / 60       // the most frames a second, as with vsync
+	busyFor    time.Duration = 4 * time.Second        // past a hint's 3 seconds
+	idleFrame  time.Duration = 500 * time.Millisecond // between frames otherwise
+	musicFrame time.Duration = 100 * time.Millisecond // ... while music plays
 )
 
 // pacer asks Ebitengine for the frames the game needs.

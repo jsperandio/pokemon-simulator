@@ -16,11 +16,11 @@ import (
 
 // Window metrics of Windows 98's standard scheme.
 const (
-	captionHeight      = 19 // SM_CYCAPTION: an 18-pixel bar and a line
-	smallCaptionHeight = 16 // SM_CYSMCAPTION
-	menuHeight         = 19 // SM_CYMENU
-	captionButtonW     = 16
-	captionButtonH     = 14
+	captionHeight      int = 19 // SM_CYCAPTION: an 18-pixel bar and a line
+	smallCaptionHeight int = 16 // SM_CYSMCAPTION
+	menuHeight         int = 19 // SM_CYMENU
+	captionButtonW     int = 16
+	captionButtonH     int = 14
 )
 
 // borderStyle is a form's BorderStyle.
@@ -36,7 +36,7 @@ const (
 
 // Caption buttons.
 const (
-	capNone = iota
+	capNone int = iota
 	capMin
 	capMax
 	capClose
@@ -342,7 +342,7 @@ func (w *window) captionButton(b int) image.Rectangle {
 
 // The caption buttons' glyphs.
 const (
-	glyphClose = `
+	glyphClose string = `
 ##....##
 .##..##.
 ..####..
@@ -351,11 +351,11 @@ const (
 .##..##.
 ##....##
 `
-	glyphMin = `
+	glyphMin string = `
 ######
 ######
 `
-	glyphMax = `
+	glyphMax string = `
 #########
 #########
 #.......#
@@ -366,7 +366,7 @@ const (
 #.......#
 #########
 `
-	glyphRestore = `
+	glyphRestore string = `
 ..######
 ..######
 ..#....#
@@ -786,11 +786,11 @@ func (w *window) close() {
 
 // Modal results.
 const (
-	mrNone   = 0
-	mrOk     = 1
-	mrCancel = 2
-	mrYes    = 6
-	mrNo     = 7
+	mrNone   int = 0
+	mrOk     int = 1
+	mrCancel int = 2
+	mrYes    int = 6
+	mrNo     int = 7
 )
 
 // toggleMaximize maximizes the window to the screen, or restores it.

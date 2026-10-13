@@ -25,7 +25,7 @@ import (
 
 // sampleRate is the output's, to which the decoders convert: most MP3
 // files'.
-const sampleRate = 44100
+const sampleRate int = 44100
 
 var (
 	// ErrNotOpen is Stop's error when no music is open, where the

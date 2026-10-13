@@ -22,8 +22,8 @@ import (
 // Keyboard auto-repeat, in ticks at 60 per second: Windows' default delay
 // of half a second, then about 30 repeats a second.
 const (
-	repeatDelay    = 30
-	repeatInterval = 2
+	repeatDelay    int = 30
+	repeatInterval int = 2
 )
 
 // App is the classic user interface: an ebiten.Game that shows the
@@ -165,7 +165,7 @@ func (a *App) modal(w *window) int {
 }
 
 // appTitle is the program's title (Application.Title).
-const appTitle = "POKéMON Simulator"
+const appTitle string = "POKéMON Simulator"
 
 // showException shows an error as Application.ShowException does: its
 // message, ending in a full stop, in a box captioned with the program's
@@ -384,10 +384,11 @@ func WindowSize() (w, h int) {
 	}
 
 	mw, mh := m.Size()
-	s := math.Floor(min(0.9*float64(mw)/screenWidth, 0.9*float64(mh)/screenHeight)*2) / 2
+	deskW, deskH := float64(screenWidth), float64(screenHeight)
+	s := math.Floor(min(0.9*float64(mw)/deskW, 0.9*float64(mh)/deskH)*2) / 2
 	s = max(s, 1)
 
-	return int(screenWidth * s), int(screenHeight * s)
+	return int(deskW * s), int(deskH * s)
 }
 
 // Icon returns the program's icon, for the window.

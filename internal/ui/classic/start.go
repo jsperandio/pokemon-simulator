@@ -31,7 +31,7 @@ var loadSteps = []struct {
 
 // loadPerTick is how many items the loading screen shows read per tick:
 // the 4260 items take about a second.
-const loadPerTick = 71
+const loadPerTick int = 71
 
 // loadForm is the loading screen (TForm3), the program's main form. The
 // port has read the data already; the screen plays the original's
@@ -149,7 +149,7 @@ func newStartForm(a *App) *startForm {
 }
 
 // saveFilter is the save dialogs' filter.
-const saveFilter = "Saved Games (*.PGS)|*.pgs"
+const saveFilter string = "Saved Games (*.PGS)|*.pgs"
 
 // newButtonClick is "Start a new game!": the save file first, then the
 // name, then the starter.

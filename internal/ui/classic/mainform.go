@@ -186,7 +186,7 @@ type musicPlayer interface {
 
 // musicFilter is Music → Open file...'s. The original's offered what
 // Windows Media Player played; these are what the port plays.
-const musicFilter = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.ogg;*.wav|" +
+const musicFilter string = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.ogg;*.wav|" +
 	"MPEG Audio Files (*.mp3)|*.mp3|Ogg Vorbis Files (*.ogg)|*.ogg|Wave Files (*.wav)|*.wav|All files (*.*)|*.*"
 
 // openMusic is Music → Open file... (TForm4.Openfile1Click): the music

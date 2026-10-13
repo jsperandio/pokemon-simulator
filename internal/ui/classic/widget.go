@@ -658,7 +658,7 @@ func (g *radioGroup) paint(cv canvas) {
 
 // radioGlyph is Windows 98's radio button (DFCS_BUTTONRADIO): s shadow, k
 // dark shadow, w highlight, l light, i the inside.
-const radioGlyph = `
+const radioGlyph string = `
 ....ssss....
 ..sskkkkss..
 .skkiiiikkw.
@@ -673,7 +673,7 @@ skiiiiiiiilw
 ....wwww....
 `
 
-const radioDot = `
+const radioDot string = `
 .##.
 ####
 ####

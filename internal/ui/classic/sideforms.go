@@ -352,7 +352,7 @@ func (f *cornerForm) sync() {
 // drawTime is how long a play's draws show. The original repainted the
 // window for each of its 10,000 draws, which took a while; the port shows
 // them in a second.
-const drawTime = time.Second
+const drawTime time.Duration = time.Second
 
 // showDraws shows a play's draws in "Lucky number", one after another, as
 // the original's loop did, before the game tells the result. It runs on

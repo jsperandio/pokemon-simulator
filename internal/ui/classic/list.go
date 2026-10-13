@@ -13,13 +13,13 @@ import (
 )
 
 // scrollSize is a scroll bar's thickness (SM_CXVSCROLL, SM_CYHSCROLL).
-const scrollSize = 16
+const scrollSize int = 16
 
 // Scroll bar parts.
 const (
-	partNone = iota
-	partLess // the up or left arrow
-	partMore // the down or right arrow
+	partNone int = iota
+	partLess     // the up or left arrow
+	partMore     // the down or right arrow
 	partPageLess
 	partPageMore
 	partThumb
@@ -266,7 +266,7 @@ func (s *scrollBar) span(track image.Rectangle, a, b int) image.Rectangle {
 
 // Arrow directions.
 const (
-	arrowUp = iota
+	arrowUp int = iota
 	arrowDown
 	arrowLeft
 	arrowRight

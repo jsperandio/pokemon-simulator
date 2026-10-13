@@ -96,7 +96,7 @@ type fileDialog struct {
 // The view's icons, the look-in list's drive and the toolbar's glyph: o
 // outline, y yellow, w white, k black, s shadow, c face, g green.
 const (
-	iconFolder = `
+	iconFolder string = `
 ................
 ................
 ..ooooo.........
@@ -114,7 +114,7 @@ okkkkkkkkkkkkkk.
 ................
 ................
 `
-	iconDocument = `
+	iconDocument string = `
 ..ssssssss......
 ..swwwwwwss.....
 ..swwwwwwsws....
@@ -132,7 +132,7 @@ okkkkkkkkkkkkkk.
 ...kkkkkkkkkkk..
 ................
 `
-	iconDrive = `
+	iconDrive string = `
 ................
 ................
 ................
@@ -150,7 +150,7 @@ kssssssssssssssk
 ................
 ................
 `
-	glyphUp = `
+	glyphUp string = `
 ..ooooo.........
 .oyyyyyo........
 oyyyyyyyoooooo..
@@ -172,7 +172,7 @@ var iconColors = map[byte]color.RGBA{
 
 // The file icons' frames.
 const (
-	fileIconFolder = iota
+	fileIconFolder int = iota
 	fileIconDocument
 	fileIconDrive
 )
@@ -309,7 +309,7 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 }
 
 // lookInIndent is the look-in list's indent for each level of folders.
-const lookInIndent = 10
+const lookInIndent int = 10
 
 // navigate shows a folder.
 func (f *fileDialog) navigate(dir string) {

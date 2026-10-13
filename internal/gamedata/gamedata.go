@@ -15,12 +15,12 @@ import (
 
 // Number of entries in each section of POKéGAME.dat.
 const (
-	NumTypes        = 17
-	NumSpecies      = 386
-	NumBadges       = 24
-	NumMoves        = 119
-	NumPrizes       = 18
-	NumTrainerNames = 64
+	NumTypes        int = 17
+	NumSpecies      int = 386
+	NumBadges       int = 24
+	NumMoves        int = 119
+	NumPrizes       int = 18
+	NumTrainerNames int = 64
 )
 
 // Type is a POKéMON or move type. NoType marks the missing second type of a

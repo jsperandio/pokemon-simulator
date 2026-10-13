@@ -39,16 +39,16 @@ var (
 )
 
 const (
-	helpBannerText = "POKéMON Simulator" // the first line of every topic
+	helpBannerText string = "POKéMON Simulator" // the first line of every topic
 
-	helpTextPx   = 13 // Arial 10 pt, at 96 dpi
-	helpBannerPx = 24 // 18 pt
-	helpTitlePx  = 19 // 14 pt
+	helpTextPx   int = 13 // Arial 10 pt, at 96 dpi
+	helpBannerPx int = 24 // 18 pt
+	helpTitlePx  int = 19 // 14 pt
 
-	helpBarHeight = 29 // the buttons' bar
-	helpMargin    = 6  // the topic's, left and right
-	helpIndent    = 18 // a list item's text, from the margin
-	helpPad       = 4  // inside a port note's box and a table's cells
+	helpBarHeight int = 29 // the buttons' bar
+	helpMargin    int = 6  // the topic's, left and right
+	helpIndent    int = 18 // a list item's text, from the margin
+	helpPad       int = 4  // inside a port note's box and a table's cells
 )
 
 var (
@@ -89,7 +89,7 @@ func (a *App) help() {
 func newHelpWindow(a *App) *helpWindow {
 	h := &helpWindow{a: a, pages: map[string]*help.Page{}, pictures: map[string]*image.RGBA{}, openURL: platform.OpenURL}
 
-	const frame = 4 // sizeable
+	const frame int = 4 // sizeable
 	comp := layout.Component{
 		Class: "THelpWindow", Name: "Help", Caption: helpBannerText,
 		Bounds: layout.Rect{X: helpPos.X, Y: helpPos.Y},
@@ -857,7 +857,7 @@ func (l *helpFlow) put(p helpPiece, x, top, base, bottom int) {
 
 // helpIcon is the help window's icon: a book with a question mark.
 func helpIcon() *image.NRGBA {
-	const rows = `
+	const rows string = `
 ................
 ...kkkkkkkkkkk..
 ..kbbbbbbbbbbbk.

@@ -12,7 +12,7 @@ import (
 // 10 HP and four fixed attacks that always hit; the enemy picks its attack
 // at random.
 
-const choosePrompt = "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice."
+const choosePrompt string = "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice."
 
 // StartTrainerBattle starts a battle against a trainer's POKéMON. The
 // caller sets BattleType afterwards.

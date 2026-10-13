@@ -226,4 +226,4 @@ func Args() []string {
 
 // Transfers is true: the game's files live in the browser, and the player
 // uploads and downloads them.
-const Transfers = true
+const Transfers bool = true

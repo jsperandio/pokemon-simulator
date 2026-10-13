@@ -468,7 +468,7 @@ func (s *spinEdit) buttons() (up, down image.Rectangle) {
 
 // The SPINUP and SPINDOWN glyphs.
 const (
-	glyphSpinUp = `
+	glyphSpinUp string = `
 .........
 ....#....
 ...###...
@@ -476,7 +476,7 @@ const (
 .#######.
 .........
 `
-	glyphSpinDown = `
+	glyphSpinDown string = `
 .........
 .#######.
 ..#####..

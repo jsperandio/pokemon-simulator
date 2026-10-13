@@ -16,15 +16,15 @@ import (
 // The logical screen: the 800×600 desktop the author laid the windows out
 // for.
 const (
-	screenWidth  = 800
-	screenHeight = 600
+	screenWidth  int = 800
+	screenHeight int = 600
 )
 
 // Double clicks, as Windows' defaults have them.
 const (
-	doubleClickTime = 500 * time.Millisecond
-	doubleClickDist = 4 // SM_CXDOUBLECLK, SM_CYDOUBLECLK
-	caretBlink      = 530 * time.Millisecond
+	doubleClickTime time.Duration = 500 * time.Millisecond
+	doubleClickDist int           = 4 // SM_CXDOUBLECLK, SM_CYDOUBLECLK
+	caretBlink      time.Duration = 530 * time.Millisecond
 )
 
 // A popup is a window above all others that takes the mouse first: a
@@ -945,9 +945,9 @@ func (d *desktop) paint(img *image.RGBA) {
 // cursor's height below its hot spot, which a hint shows under
 // (GetCursorHeightMargin).
 const (
-	hintPause        = 500 * time.Millisecond
-	hintHidePause    = 2500 * time.Millisecond
-	hintCursorMargin = 20
+	hintPause        time.Duration = 500 * time.Millisecond
+	hintHidePause    time.Duration = 2500 * time.Millisecond
+	hintCursorMargin int           = 20
 )
 
 // hint is the hint window (THintWindow) of a control with ShowHint and a

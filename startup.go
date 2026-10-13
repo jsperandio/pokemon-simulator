@@ -25,13 +25,13 @@ import (
 // with a window without a title bar, which GNOME shows at once.
 
 // noFrameEnv is set for the game started again without a title bar.
-const noFrameEnv = "POKEMON_SIMULATOR_NO_FRAME"
+const noFrameEnv string = "POKEMON_SIMULATOR_NO_FRAME"
 
 // showTimeout is how long the window may take to show.
-const showTimeout = 5 * time.Second
+const showTimeout time.Duration = 5 * time.Second
 
 // noFrameText tells the player why the window has no title bar.
-const noFrameText = "GNOME didn't show the game's window, as happens when its helper for the title bars " +
+const noFrameText string = "GNOME didn't show the game's window, as happens when its helper for the title bars " +
 	"of X11 windows, mutter-x11-frames, isn't working. The game now runs without a title bar: move it " +
 	"with the Super key and the mouse, and close it with Alt+F4 or File → Quit. If other programs have " +
 	"lost their title bars too, logging out and in again brings them back."

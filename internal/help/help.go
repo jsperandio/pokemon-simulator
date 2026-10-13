@@ -10,7 +10,7 @@ import "strings"
 
 // Contents is the manual's contents page, the topic the original opens
 // (Application.HelpJump("Index")).
-const Contents = "index.md"
+const Contents string = "index.md"
 
 // Page is a page of the manual.
 type Page struct {

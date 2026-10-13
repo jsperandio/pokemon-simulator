@@ -15,9 +15,9 @@ type database struct {
 }
 
 const (
-	dbName    = "pokemon-simulator"
-	dbVersion = 1
-	dbStore   = "files"
+	dbName    string = "pokemon-simulator"
+	dbVersion int    = 1
+	dbStore   string = "files"
 )
 
 // openDatabase opens the database, making its store the first time.

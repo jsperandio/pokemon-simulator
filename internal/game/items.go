@@ -7,7 +7,7 @@ package game
 
 // The item buttons, in the Statistics window's order.
 const (
-	PokeBall = iota
+	PokeBall int = iota
 	GreatBall
 	UltraBall
 	MasterBall
