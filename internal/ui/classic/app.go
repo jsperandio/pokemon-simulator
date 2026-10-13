@@ -36,10 +36,12 @@ type App struct {
 	args    []string // the command line's arguments, as the original's ParamStr
 	lastDir string   // the file dialogs' folder: the last file chosen's
 
-	frame *image.RGBA
-	img   *ebiten.Image
-	shown ebiten.CursorShapeType
-	wheel float64 // the wheel's movement not yet a whole notch
+	frame  *image.RGBA
+	img    *ebiten.Image
+	screen *ebiten.Image // the screen Draw drew on last
+	shown  ebiten.CursorShapeType
+	wheel  float64 // the wheel's movement not yet a whole notch
+	pace   *pacer
 
 	start  *startForm
 	load   *loadForm
@@ -88,6 +90,7 @@ func New(data *gamedata.Data, files platform.Files, args []string) (*App, error)
 		frame:    image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight)),
 		requests: make(chan func()),
 		music:    &audio.Music{},
+		pace:     newPacer(),
 	}
 	if platform.Transfers {
 		a.xfer = browser{files}
@@ -226,10 +229,12 @@ func (a *App) Update() error {
 		platform.WarnOnLeave(false)
 		return ErrQuit
 	}
+	a.pace.wait()
 	if ebiten.IsWindowBeingClosed() && a.desk.topModal() == nil {
 		a.closeProgram()
 	}
-	a.step(a.input(), time.Now())
+	in, now := a.input(), time.Now()
+	a.step(in, now)
 	// On the web, leaving the page doesn't save the game, as quitting does.
 	platform.WarnOnLeave(a.main.w.visible && !a.quit)
 	if a.desk.cursor != a.shown {
@@ -240,6 +245,7 @@ func (a *App) Update() error {
 		platform.WarnOnLeave(false)
 		return ErrQuit
 	}
+	a.pace.next(&in, a.desk.dirty, a.music.Playing(), now)
 	return nil
 }
 
@@ -295,7 +301,10 @@ func (a *App) input() input {
 	return in
 }
 
-// Draw draws the desktop (ebiten.Game).
+// Draw draws the desktop when it has changed, or on a new screen
+// (ebiten.Game). The screen keeps the last frame otherwise, as main turns
+// its clearing off, and Ebitengine stops presenting frames that change
+// nothing.
 func (a *App) Draw(screen *ebiten.Image) {
 	if a.img == nil {
 		a.img = ebiten.NewImage(screenWidth, screenHeight)
@@ -304,7 +313,10 @@ func (a *App) Draw(screen *ebiten.Image) {
 	if a.desk.dirty {
 		a.desk.paint(a.frame)
 		a.img.WritePixels(a.frame.Pix)
+	} else if screen == a.screen {
+		return
 	}
+	a.screen = screen
 	screen.DrawImage(a.img, nil)
 }
 

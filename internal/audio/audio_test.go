@@ -60,7 +60,7 @@ func TestMusic(t *testing.T) {
 		t.Fatal(err)
 	}
 	p := players[0]
-	if !p.playing || p.plays != 1 {
+	if !p.playing || p.plays != 1 || !m.Playing() {
 		t.Fatal("not playing")
 	}
 	// The resampled stream holds 16-bit stereo at the output's rate.
@@ -72,7 +72,7 @@ func TestMusic(t *testing.T) {
 	p.playing = false
 	p.pos = 400
 	m.Update(false) // at its end, repeat off
-	if p.playing {
+	if p.playing || m.Playing() {
 		t.Error("played again with repeat off")
 	}
 	m.Update(true) // repeat turned on after the end
@@ -85,7 +85,7 @@ func TestMusic(t *testing.T) {
 		t.Errorf("Stop: %v, playing %v, at %d", err, p.playing, p.pos)
 	}
 	m.Update(true)
-	if p.playing {
+	if p.playing || m.Playing() {
 		t.Error("stopped music played again")
 	}
 

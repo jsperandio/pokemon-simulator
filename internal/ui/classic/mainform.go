@@ -167,6 +167,7 @@ type musicPlayer interface {
 	Open(name string, data []byte) error
 	Stop() error
 	Update(repeat bool)
+	Playing() bool
 }
 
 // musicFilter is Music → Open file...'s. The original's offered what

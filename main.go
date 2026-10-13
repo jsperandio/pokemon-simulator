@@ -39,6 +39,13 @@ func main() {
 	ebiten.SetWindowIcon([]image.Image{app.Icon()})
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowClosingHandled(true)
+	// A frame runs only on input or when the game asks for one (classic's
+	// pacer), with one tick each. The screen keeps its last frame, which the
+	// game draws over only when the desktop changes, and Ebitengine presents
+	// only frames that do.
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMinimum) //nolint:staticcheck // still the way to run frames on demand
+	ebiten.SetTPS(ebiten.SyncWithFPS)
+	ebiten.SetScreenClearedEveryFrame(false)
 	if err := ebiten.RunGame(watchWindow(app)); err != nil && !errors.Is(err, ebiten.Termination) {
 		fail(err)
 	}

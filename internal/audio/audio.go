@@ -96,6 +96,12 @@ func (m *Music) Update(repeat bool) {
 	}
 }
 
+// Playing reports whether the music plays: open, not stopped, and not at
+// its end.
+func (m *Music) Playing() bool {
+	return m.p != nil && !m.stopped && m.p.IsPlaying()
+}
+
 func (m *Music) close() {
 	if m.p != nil {
 		_ = m.p.Close()
