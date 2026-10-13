@@ -22,6 +22,7 @@ import (
 )
 
 func main() {
+	platform.EGLForX11()
 	raw, err := assets.FS.ReadFile("pokegame.dat")
 	if err != nil {
 		fail(err)
