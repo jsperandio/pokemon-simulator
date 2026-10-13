@@ -59,7 +59,7 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 	clientW := max(iconTextW, groupW) + 2*horzMargin
 	clientH := iconTextH + buttonHeight + vertSpacing + 2*vertMargin
 
-	title := game.Title
+	var title string
 
 	switch kind {
 	case game.Warning:
@@ -70,6 +70,8 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		title = "Information"
 	case game.Confirmation:
 		title = "Confirm"
+	default: // Custom
+		title = game.Title
 	}
 
 	comp := layout.Component{

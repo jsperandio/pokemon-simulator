@@ -139,12 +139,14 @@ func accel(s string) rune {
 }
 
 // drawCaption draws a caption at (x, y), underlining its accelerator one
-// pixel below the baseline, and returns the x after it.
-func drawCaption(cv canvas, f face, x, y int, s string, c color.RGBA) int {
-	for len(s) > 0 {
+// pixel below the baseline.
+func drawCaption(cv canvas, f face, x, y int, s string, c color.RGBA) {
+	for s != "" {
 		i := strings.IndexByte(s, '&')
 		if i < 0 || i+1 >= len(s) {
-			return f.draw(cv, x, y, s, c)
+			f.draw(cv, x, y, s, c)
+
+			return
 		}
 
 		x = f.draw(cv, x, y, s[:i], c)
@@ -164,16 +166,13 @@ func drawCaption(cv canvas, f face, x, y int, s string, c color.RGBA) int {
 
 		s = s[n:]
 	}
-
-	return x
 }
 
 // drawDisabled draws a caption as Windows draws disabled text: embossed,
 // in white one pixel down and right, then in the shadow colour.
-func drawDisabled(cv canvas, f face, x, y int, s string) int {
+func drawDisabled(cv canvas, f face, x, y int, s string) {
 	drawCaption(cv, f, x+1, y+1, s, colHighlight)
-
-	return drawCaption(cv, f, x, y, s, colShadow)
+	drawCaption(cv, f, x, y, s, colShadow)
 }
 
 // wrap breaks text into lines no wider than w, at spaces, as DrawText's

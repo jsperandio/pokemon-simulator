@@ -42,19 +42,16 @@ func (p *inliner) text(t string, st style) {
 	p.spans = append(p.spans, Span{Text: t, Bold: st.bold, Italic: st.italic, Link: st.link})
 }
 
+// run adds the spans of s, whose text takes style st.
 func (p *inliner) run(s string, st style) {
 	var buf strings.Builder
-	flush := func() {
-		p.text(buf.String(), st)
-		buf.Reset()
-	}
 
 	for i := 0; i < len(s); {
 		c := s[i]
 		switch {
 		case c == '\\' && i+1 < len(s) && s[i+1] == '\n':
 			// A backslash at the end of a line breaks it.
-			flush()
+			p.flush(&buf, st)
 
 			p.spans = append(p.spans, Span{Break: true})
 			i = skipSpaces(s, i+2)
@@ -70,7 +67,7 @@ func (p *inliner) run(s string, st style) {
 			buf.WriteString(strings.TrimRight(t, " "))
 
 			if strings.HasSuffix(t, "  ") {
-				flush()
+				p.flush(&buf, st)
 
 				p.spans = append(p.spans, Span{Break: true})
 			} else {
@@ -78,70 +75,10 @@ func (p *inliner) run(s string, st style) {
 			}
 
 			i = skipSpaces(s, i+1)
-		case c == '!' && i+1 < len(s) && s[i+1] == '[':
-			text, target, n, ok := linkAt(s, i+1)
-			if !ok {
-				buf.WriteByte(c)
-
-				i++
-
-				continue
-			}
-
-			flush()
-
-			p.spans = append(p.spans, Span{Text: text, Image: target, Link: st.link})
-			i += 1 + n
-		case c == '[':
-			text, target, n, ok := linkAt(s, i)
-			if !ok {
-				buf.WriteByte(c)
-
-				i++
-
-				continue
-			}
-
-			flush()
-
-			in := st
-			in.link = target
-			p.run(text, in)
-
-			i += n
+		case c == '!' && i+1 < len(s) && s[i+1] == '[', c == '[':
+			i = p.link(s, i, st, &buf)
 		case c == '*':
-			n := runLength(s, i, '*')
-			if n >= 2 {
-				if j := closer(s, i+2, "**"); j >= 0 {
-					flush()
-
-					in := st
-					in.bold = true
-					p.run(s[i+2:j], in)
-
-					i = j + 2
-
-					continue
-				}
-			}
-
-			if n == 1 {
-				if j := closer(s, i+1, "*"); j >= 0 {
-					flush()
-
-					in := st
-					in.italic = true
-					p.run(s[i+1:j], in)
-
-					i = j + 1
-
-					continue
-				}
-			}
-
-			buf.WriteString(s[i : i+n])
-
-			i += n
+			i = p.emphasis(s, i, st, &buf)
 		default:
 			buf.WriteByte(c)
 
@@ -149,7 +86,76 @@ func (p *inliner) run(s string, st style) {
 		}
 	}
 
-	flush()
+	p.flush(&buf, st)
+}
+
+// flush adds the text in buf, in style st, and empties buf.
+func (p *inliner) flush(buf *strings.Builder, st style) {
+	p.text(buf.String(), st)
+	buf.Reset()
+}
+
+// link adds the image or the link at s[i] after the text in buf, and
+// returns the index after it. A "!" or a "[" that starts neither is text.
+func (p *inliner) link(s string, i int, st style, buf *strings.Builder) int {
+	image := s[i] == '!'
+
+	start := i
+	if image {
+		start++
+	}
+
+	text, target, n, ok := linkAt(s, start)
+	if !ok {
+		buf.WriteByte(s[i])
+
+		return i + 1
+	}
+
+	p.flush(buf, st)
+
+	if image {
+		p.spans = append(p.spans, Span{Text: text, Image: target, Link: st.link})
+	} else {
+		in := st
+		in.link = target
+		p.run(text, in)
+	}
+
+	return start + n
+}
+
+// emphasis adds the bold or italic text at s[i] after the text in buf, and
+// returns the index after it. Stars that start neither are text.
+func (p *inliner) emphasis(s string, i int, st style, buf *strings.Builder) int {
+	n := runLength(s, i, '*')
+	if n >= 2 {
+		if j := closer(s, i+2, "**"); j >= 0 {
+			p.flush(buf, st)
+
+			in := st
+			in.bold = true
+			p.run(s[i+2:j], in)
+
+			return j + 2
+		}
+	}
+
+	if n == 1 {
+		if j := closer(s, i+1, "*"); j >= 0 {
+			p.flush(buf, st)
+
+			in := st
+			in.italic = true
+			p.run(s[i+1:j], in)
+
+			return j + 1
+		}
+	}
+
+	buf.WriteString(s[i : i+n])
+
+	return i + n
 }
 
 func skipSpaces(s string, i int) int {

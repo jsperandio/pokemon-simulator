@@ -18,7 +18,7 @@ import (
 func Alert(title, text string) {
 	if runtime.GOOS == "darwin" {
 		script := fmt.Sprintf("display alert %s message %s as critical", appleScriptString(title), appleScriptString(text))
-		exec.Command("osascript", "-e", script).Run() //nolint:errcheck // there is nothing else to tell it with
+		exec.Command("osascript", "-e", script).Run() //nolint:errcheck,gosec // the script quotes the text, and there is nothing else to tell it with
 
 		return
 	}
@@ -30,7 +30,7 @@ func Alert(title, text string) {
 		{"zenity", "--error", "--no-markup", "--title=" + title, "--text=" + text},
 		{"kdialog", "--title", title, "--error", text},
 	} {
-		if exec.Command(cmd[0], cmd[1:]...).Run() == nil {
+		if exec.Command(cmd[0], cmd[1:]...).Run() == nil { //nolint:gosec // the programs above, with the text as an argument
 			return
 		}
 	}

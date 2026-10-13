@@ -19,7 +19,7 @@ type Rand struct {
 // seed × N, both unsigned.
 func (r *Rand) Random(n int) int {
 	r.Seed = r.Seed*0x08088405 + 1
-	v := int(uint64(r.Seed) * uint64(uint32(n)) >> 32)
+	v := int(uint64(r.Seed) * uint64(uint32(n)) >> 32) //nolint:gosec // N's 32 bits, read unsigned
 
 	if r.OnCall != nil {
 		r.OnCall(n, v)
@@ -31,5 +31,5 @@ func (r *Rand) Random(n int) int {
 // Randomize seeds the generator from the clock, as Randomize does (the
 // original takes the performance counter's low 32 bits).
 func (r *Rand) Randomize() {
-	r.Seed = uint32(time.Now().UnixNano())
+	r.Seed = uint32(time.Now().UnixNano()) //nolint:gosec // the clock's low 32 bits
 }

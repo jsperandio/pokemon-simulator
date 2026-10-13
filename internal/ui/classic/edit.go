@@ -45,7 +45,7 @@ func (t *textBox) selectAll() {
 	t.blink = time.Now()
 }
 
-func (t *textBox) sel() (int, int) { return min(t.anchor, t.caret), max(t.anchor, t.caret) }
+func (t *textBox) sel() (from, to int) { return min(t.anchor, t.caret), max(t.anchor, t.caret) }
 
 func (t *textBox) changed() {
 	t.blink = time.Now()
@@ -108,19 +108,21 @@ func (t *textBox) key(k ebiten.Key, m mods) bool {
 
 	switch k {
 	case ebiten.KeyLeft:
-		if !m.shift && a != b {
+		switch {
+		case !m.shift && a != b:
 			move(a)
-		} else if m.ctrl {
+		case m.ctrl:
 			move(t.wordLeft())
-		} else {
+		default:
 			move(t.caret - 1)
 		}
 	case ebiten.KeyRight:
-		if !m.shift && a != b {
+		switch {
+		case !m.shift && a != b:
 			move(b)
-		} else if m.ctrl {
+		case m.ctrl:
 			move(t.wordRight())
-		} else {
+		default:
 			move(t.caret + 1)
 		}
 	case ebiten.KeyHome:
@@ -128,38 +130,48 @@ func (t *textBox) key(k ebiten.Key, m mods) bool {
 	case ebiten.KeyEnd:
 		move(len(t.text))
 	case ebiten.KeyBackspace:
-		if t.readOnly {
-			return true
-		}
-
-		if a == b {
-			if a == 0 {
-				return true
-			}
-
-			t.anchor = a - 1
-		}
-
-		t.replace("")
+		t.backspace()
 	case ebiten.KeyDelete:
-		if t.readOnly {
-			return true
-		}
-
-		if a == b {
-			if b == len(t.text) {
-				return true
-			}
-
-			t.caret = b + 1
-		}
-
-		t.replace("")
+		t.del()
 	default:
 		return false
 	}
 
 	return true
+}
+
+// backspace deletes the selection, or the character before the caret.
+func (t *textBox) backspace() {
+	if t.readOnly {
+		return
+	}
+
+	if a, b := t.sel(); a == b {
+		if a == 0 {
+			return
+		}
+
+		t.anchor = a - 1
+	}
+
+	t.replace("")
+}
+
+// del deletes the selection, or the character after the caret.
+func (t *textBox) del() {
+	if t.readOnly {
+		return
+	}
+
+	if a, b := t.sel(); a == b {
+		if b == len(t.text) {
+			return
+		}
+
+		t.caret = b + 1
+	}
+
+	t.replace("")
 }
 
 func (t *textBox) wordLeft() int {
@@ -252,7 +264,7 @@ func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, foc
 	}
 }
 
-func (t *textBox) press(f face, x int, double bool, shift bool) {
+func (t *textBox) press(f face, x int, double, shift bool) {
 	if double {
 		t.anchor = t.at(f, x)
 		t.caret = t.anchor
@@ -348,7 +360,7 @@ func (e *edit) mouseDrag(p image.Point) {
 	e.invalidate()
 }
 
-func (e *edit) mouseUp(p image.Point) { e.tb.dragging = false }
+func (e *edit) mouseUp(image.Point) { e.tb.dragging = false }
 
 func (e *edit) key(k ebiten.Key, m mods) bool {
 	if e.tb.key(k, m) {
@@ -698,7 +710,7 @@ func (m *memo) paint(cv canvas) {
 	m.scroll.paint(cv)
 }
 
-func (m *memo) mouseDown(p image.Point, double bool) {
+func (m *memo) mouseDown(p image.Point, _ bool) {
 	if m.scroll.press(p) {
 		m.invalidate()
 	}
@@ -857,7 +869,7 @@ func (c *comboBox) button() image.Rectangle {
 	return image.Rect(in.Max.X-scrollSize, in.Min.Y, in.Max.X, in.Max.Y)
 }
 
-func (c *comboBox) gotFocus(byMouse bool) {
+func (c *comboBox) gotFocus(bool) {
 	c.tb.selectAll()
 	c.invalidate()
 }
@@ -959,26 +971,14 @@ func (c *comboBox) mouseDrag(p image.Point) {
 	}
 }
 
-func (c *comboBox) mouseUp(p image.Point) {
+func (c *comboBox) mouseUp(image.Point) {
 	c.pressing = false
 	c.tb.dragging = false
 	c.invalidate()
 }
 
 func (c *comboBox) key(k ebiten.Key, m mods) bool {
-	if c.dropped != nil && (k == ebiten.KeyEscape || k == ebiten.KeyF4 || m.alt && (k == ebiten.KeyUp || k == ebiten.KeyDown)) {
-		c.closeUp()
-
-		return true
-	}
-
-	if c.dropped != nil && c.dropped.key(k) {
-		if k == ebiten.KeyEnter || k == ebiten.KeyNumpadEnter {
-			c.closeUp()
-		}
-
-		c.invalidate()
-
+	if c.dropped != nil && c.droppedKey(k, m) {
 		return true
 	}
 
@@ -999,28 +999,51 @@ func (c *comboBox) key(k ebiten.Key, m mods) bool {
 			return false
 		}
 	case k == ebiten.KeyBackspace:
-		// AutoComplete deletes the completed part first.
-		if a, b := c.tb.sel(); a != b {
-			c.tb.replace("")
-		} else if a > 0 {
-			c.tb.anchor = a - 1
-			c.tb.replace("")
-		}
-
-		c.typedText()
+		c.backspace()
 	default:
-		if c.tb.key(k, m) {
-			c.invalidate()
-
-			return true
+		if !c.tb.key(k, m) {
+			return false
 		}
-
-		return false
 	}
 
 	c.invalidate()
 
 	return true
+}
+
+// droppedKey gives a key to the dropped-down list, and reports whether it
+// took it. Escape, F4 and Alt with an arrow close the list up, as Enter
+// does after the list takes it.
+func (c *comboBox) droppedKey(k ebiten.Key, m mods) bool {
+	if k == ebiten.KeyEscape || k == ebiten.KeyF4 || m.alt && (k == ebiten.KeyUp || k == ebiten.KeyDown) {
+		c.closeUp()
+
+		return true
+	}
+
+	if !c.dropped.key(k) {
+		return false
+	}
+
+	if k == ebiten.KeyEnter || k == ebiten.KeyNumpadEnter {
+		c.closeUp()
+	}
+
+	c.invalidate()
+
+	return true
+}
+
+// backspace deletes as AutoComplete does: the completed part first.
+func (c *comboBox) backspace() {
+	if a, b := c.tb.sel(); a != b {
+		c.tb.replace("")
+	} else if a > 0 {
+		c.tb.anchor = a - 1
+		c.tb.replace("")
+	}
+
+	c.typedText()
 }
 
 // char types a character with AutoComplete: the text so far plus the
@@ -1055,26 +1078,28 @@ func (c *comboBox) char(r rune) {
 	prefix := string(c.tb.text[:a]) + string(r)
 
 	for i, item := range c.items {
-		if strings.HasPrefix(strings.ToLower(item), strings.ToLower(prefix)) {
-			c.tb.set(prefix + string([]rune(item)[len([]rune(prefix)):]))
-
-			c.tb.anchor, c.tb.caret = len([]rune(prefix)), len(c.tb.text)
-			if i != c.index {
-				c.index = i
-				if c.onSelect != nil {
-					c.onSelect(i)
-				}
-			}
-
-			if c.dropped != nil {
-				c.dropped.hot = i
-				c.dropped.show(i)
-			}
-
-			c.invalidate()
-
-			return
+		if !strings.HasPrefix(strings.ToLower(item), strings.ToLower(prefix)) {
+			continue
 		}
+
+		c.tb.set(prefix + string([]rune(item)[len([]rune(prefix)):]))
+
+		c.tb.anchor, c.tb.caret = len([]rune(prefix)), len(c.tb.text)
+		if i != c.index {
+			c.index = i
+			if c.onSelect != nil {
+				c.onSelect(i)
+			}
+		}
+
+		if c.dropped != nil {
+			c.dropped.hot = i
+			c.dropped.show(i)
+		}
+
+		c.invalidate()
+
+		return
 	}
 
 	c.tb.typed(r)

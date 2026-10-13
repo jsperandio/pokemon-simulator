@@ -11,7 +11,7 @@ import (
 
 // rgb is a colour written as 0xRRGGBB.
 func rgb(v uint32) color.RGBA {
-	return color.RGBA{R: uint8(v >> 16), G: uint8(v >> 8), B: uint8(v), A: 0xff}
+	return color.RGBA{R: uint8(v >> 16 & 0xff), G: uint8(v >> 8 & 0xff), B: uint8(v & 0xff), A: 0xff}
 }
 
 // Windows 98's standard colour scheme.
@@ -147,24 +147,16 @@ func (cv canvas) edge(r image.Rectangle, tl, br color.RGBA) {
 	cv.vline(r.Max.X-1, r.Min.Y, r.Max.Y, br)
 }
 
-// The 3D borders: two one-pixel edges, the outer one first. They return
-// the rectangle inside them.
-func (cv canvas) raised(r image.Rectangle) image.Rectangle { // windows, panels
+// The 3D borders: two one-pixel edges, the outer one first. sunken returns
+// the rectangle inside it.
+func (cv canvas) raised(r image.Rectangle) { // windows, panels
 	cv.edge(r, colLight, colDkShadow)
-
-	r = r.Inset(1)
-	cv.edge(r, colHighlight, colShadow)
-
-	return r.Inset(1)
+	cv.edge(r.Inset(1), colHighlight, colShadow)
 }
 
-func (cv canvas) raisedSoft(r image.Rectangle) image.Rectangle { // buttons
+func (cv canvas) raisedSoft(r image.Rectangle) { // buttons
 	cv.edge(r, colHighlight, colDkShadow)
-
-	r = r.Inset(1)
-	cv.edge(r, colLight, colShadow)
-
-	return r.Inset(1)
+	cv.edge(r.Inset(1), colLight, colShadow)
 }
 
 func (cv canvas) sunken(r image.Rectangle) image.Rectangle { // edit boxes, lists
@@ -176,13 +168,9 @@ func (cv canvas) sunken(r image.Rectangle) image.Rectangle { // edit boxes, list
 	return r.Inset(1)
 }
 
-func (cv canvas) sunkenSoft(r image.Rectangle) image.Rectangle { // pushed buttons
+func (cv canvas) sunkenSoft(r image.Rectangle) { // pushed buttons
 	cv.edge(r, colDkShadow, colHighlight)
-
-	r = r.Inset(1)
-	cv.edge(r, colShadow, colLight)
-
-	return r.Inset(1)
+	cv.edge(r.Inset(1), colShadow, colLight)
 }
 
 // focusRect inverts every other pixel of r's outline, as DrawFocusRect
@@ -225,7 +213,7 @@ func (cv canvas) gradient(r image.Rectangle, a, b color.RGBA) {
 			t = x * 256 / (w - 1)
 		}
 
-		mix := func(p, q uint8) uint8 { return uint8((int(p)*(256-t) + int(q)*t) / 256) }
+		mix := func(p, q uint8) uint8 { return uint8((int(p)*(256-t) + int(q)*t) / 256) } //nolint:gosec // a weighted mean of two uint8s
 		cv.vline(r.Min.X+x, r.Min.Y, r.Max.Y, color.RGBA{mix(a.R, b.R), mix(a.G, b.G), mix(a.B, b.B), 0xff})
 	}
 }
@@ -270,7 +258,7 @@ func (cv canvas) blend(x, y int, src *image.NRGBA, sr image.Rectangle) {
 			px, py := x+sx-sr.Min.X, y+sy-sr.Min.Y
 			d := cv.at(px, py)
 			a := int(c.A)
-			mix := func(s, d uint8) uint8 { return uint8((int(s)*a + int(d)*(255-a) + 127) / 255) }
+			mix := func(s, d uint8) uint8 { return uint8((int(s)*a + int(d)*(255-a) + 127) / 255) } //nolint:gosec // a weighted mean of two uint8s
 			cv.pix(px, py, color.RGBA{mix(c.R, d.R), mix(c.G, d.G), mix(c.B, d.B), 0xff})
 		}
 	}

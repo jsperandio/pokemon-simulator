@@ -121,7 +121,7 @@ func (m *Music) close() {
 // The sound card's context: Oto allows one.
 var (
 	card     *oto.Context
-	cardErr  error
+	errCard  error
 	cardOnce sync.Once
 )
 
@@ -129,14 +129,14 @@ var (
 // the first music opened.
 func soundCard(src io.Reader) (player, error) {
 	cardOnce.Do(func() {
-		card, _, cardErr = oto.NewContext(&oto.NewContextOptions{
+		card, _, errCard = oto.NewContext(&oto.NewContextOptions{
 			SampleRate: sampleRate, ChannelCount: 2, Format: oto.FormatSignedInt16LE,
 			ApplicationName: "POKéMON Simulator",
 		})
 	})
 
-	if cardErr != nil {
-		return nil, cardErr
+	if errCard != nil {
+		return nil, errCard
 	}
 
 	if err := card.Err(); err != nil {

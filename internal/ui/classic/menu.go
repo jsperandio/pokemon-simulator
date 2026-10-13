@@ -105,7 +105,7 @@ func newMenuBar(w *window, items []*game.MenuItem, design *layout.Component) *me
 
 	var build func(items []*game.MenuItem) []*menuEntry
 	build = func(items []*game.MenuItem) []*menuEntry {
-		var out []*menuEntry
+		out := make([]*menuEntry, 0, len(items))
 
 		for _, it := range items {
 			e := &menuEntry{item: it, caption: it.Caption, image: -1, key: -1}
@@ -132,7 +132,7 @@ func newMenuBar(w *window, items []*game.MenuItem, design *layout.Component) *me
 }
 
 // shortcutKey decodes a TShortCut without modifiers: a function key.
-func shortcutKey(v int) (ebiten.Key, string) {
+func shortcutKey(v int) (key ebiten.Key, name string) {
 	const vkF1 = 0x70
 	if vk := v & 0xff; v < 0x100 && vk >= vkF1 && vk < vkF1+12 {
 		n := vk - vkF1
@@ -151,7 +151,7 @@ func autoHotkeys(entries []*menuEntry) {
 
 	for _, e := range entries {
 		if a := accel(e.caption); a != 0 && a < 0x80 {
-			used[byte(strings.ToUpper(string(a))[0])] = true
+			used[strings.ToUpper(string(a))[0]] = true
 		}
 	}
 
@@ -373,7 +373,7 @@ func (m *menuBar) run(e *menuEntry) {
 }
 
 // popupAt returns the level and item under p, or -1 for the level.
-func (m *menuBar) popupAt(p image.Point) (int, int) {
+func (m *menuBar) popupAt(p image.Point) (level, item int) {
 	for l, v := range slices.Backward(m.open) {
 		if p.In(v.r) {
 			return l, v.itemAt(p)
@@ -507,7 +507,7 @@ func (m *menuBar) tick(now time.Time) {
 func (m *menuBar) char(rune) {}
 
 // key handles a key in menu mode.
-func (m *menuBar) key(k ebiten.Key, mm mods) {
+func (m *menuBar) key(k ebiten.Key) {
 	d := m.win.desk
 	d.dirty = true
 	n := len(m.open)
@@ -535,36 +535,17 @@ func (m *menuBar) key(k ebiten.Key, mm mods) {
 			m.selectFirst()
 		}
 	case ebiten.KeyRight:
-		if p != nil && p.sel >= 0 && len(p.items[p.sel].kids) > 0 && p.items[p.sel].item.Enabled {
+		if p != nil && p.opensSubmenu() {
 			m.openChild(n-1, p.sel)
 			m.selectFirst()
 		} else {
 			m.selectBar(m.nextBar(m.sel, 1), n > 0)
 			m.selectFirst()
 		}
-	case ebiten.KeyUp, ebiten.KeyDown:
-		if p == nil {
-			m.selectBar(m.sel, true)
-			m.selectFirst()
-
-			return
-		}
-
-		dir := 1
-		if k == ebiten.KeyUp {
-			dir = -1
-		}
-
-		if c := len(p.items); c > 0 {
-			i := p.sel
-			if i < 0 && dir < 0 {
-				i = 0
-			}
-
-			m.selectItem(n-1, (i+dir+c)%c)
-
-			p.pending = -1
-		}
+	case ebiten.KeyUp:
+		m.upDown(p, -1)
+	case ebiten.KeyDown:
+		m.upDown(p, 1)
 	case ebiten.KeyEnter, ebiten.KeyNumpadEnter:
 		if p == nil {
 			m.selectBar(m.sel, true)
@@ -575,31 +556,63 @@ func (m *menuBar) key(k ebiten.Key, mm mods) {
 
 		m.activateItem(n - 1)
 	default:
-		r := keyRune(k)
-		if r == 0 {
-			return
+		if r := keyRune(k); r != 0 {
+			m.letter(p, r)
+		}
+	}
+}
+
+// opensSubmenu reports whether the popup's selected item opens a submenu.
+func (p *menuPopup) opensSubmenu() bool {
+	return p.sel >= 0 && len(p.items[p.sel].kids) > 0 && p.items[p.sel].item.Enabled
+}
+
+// upDown moves the selection of the deepest open popup p by dir, round
+// its items, or drops the bar item's menu down when no popup is open.
+func (m *menuBar) upDown(p *menuPopup, dir int) {
+	if p == nil {
+		m.selectBar(m.sel, true)
+		m.selectFirst()
+
+		return
+	}
+
+	if c := len(p.items); c > 0 {
+		i := p.sel
+		if i < 0 && dir < 0 {
+			i = 0
 		}
 
-		if p == nil {
-			for i, e := range m.entries {
-				if e.item.Visible && accel(e.caption) == r {
-					m.selectBar(i, true)
-					m.selectFirst()
+		m.selectItem(len(m.open)-1, (i+dir+c)%c)
 
-					return
-				}
-			}
+		p.pending = -1
+	}
+}
 
-			return
-		}
-
-		for i, e := range p.items {
-			if accel(e.caption) == r {
-				m.selectItem(n-1, i)
-				m.activateItem(n - 1)
+// letter selects the item whose accelerator r is: on the bar, which drops
+// its menu down, while no popup is open, or else in the deepest open popup
+// p, where it also activates it.
+func (m *menuBar) letter(p *menuPopup, r rune) {
+	if p == nil {
+		for i, e := range m.entries {
+			if e.item.Visible && accel(e.caption) == r {
+				m.selectBar(i, true)
+				m.selectFirst()
 
 				return
 			}
+		}
+
+		return
+	}
+
+	for i, e := range p.items {
+		if accel(e.caption) == r {
+			l := len(m.open) - 1
+			m.selectItem(l, i)
+			m.activateItem(l)
+
+			return
 		}
 	}
 }

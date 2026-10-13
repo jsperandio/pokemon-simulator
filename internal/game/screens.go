@@ -117,7 +117,7 @@ func (g *Game) martTotal() uint32 {
 		return 0
 	}
 
-	return uint32(g.Mart.Quantity) * MartPrices[g.Mart.Item]
+	return uint32(g.Mart.Quantity) * MartPrices[g.Mart.Item] //nolint:gosec // the original's Cardinal arithmetic
 }
 
 // SelectMartItem is a click on item k (TForm9.RadioGroup1Click).
@@ -143,7 +143,7 @@ func (g *Game) updateMart() {
 }
 
 // MartDescription is the selected item's two lines of description.
-func (g *Game) MartDescription() (string, string) {
+func (g *Game) MartDescription() (line1, line2 string) {
 	switch g.Mart.Item {
 	case 0:
 		return "A standard POKéBALL.", "Used for catching POKéMON."
@@ -188,7 +188,7 @@ type CornerWindow struct {
 // CornerPrizes are what the Game Corner pays in, after money: each item's
 // price there and its name.
 var CornerPrizes = [6]struct {
-	Price int
+	Price uint32
 	Name  string
 }{{100, "POKéBall"}, {300, "Great Ball"}, {600, "Ultra Ball"}, {2500, "Master Ball"}, {200, "Potion"}, {500, "Super Potion"}}
 
@@ -225,10 +225,11 @@ func (g *Game) Draw() {
 		return
 	}
 
-	bet := g.Corner.Bet
-	if bet < 0 || uint32(bet) > g.Money {
+	if g.Corner.Bet < 0 || g.Corner.Bet > int(g.Money) {
 		return // silently
 	}
+
+	bet := uint32(g.Corner.Bet) //nolint:gosec // between 0 and Money, checked above
 
 	if g.Corner.Prize == -1 {
 		g.message(Warning, "Please select something to play for.")
@@ -242,7 +243,7 @@ func (g *Game) Draw() {
 		return
 	}
 
-	g.Money -= uint32(bet)
+	g.Money -= bet
 
 	var draws []int
 
@@ -273,13 +274,13 @@ func (g *Game) Draw() {
 	)
 
 	if g.Corner.Prize == 0 { // "Money (Pays out 10:1¥)"
-		won = uint32(bet) * 10
+		won = bet * 10
 		msg = strconv.FormatUint(uint64(won), 10) + "¥!"
 	} else {
 		p := CornerPrizes[g.Corner.Prize-1]
 		n := bet / p.Price
-		won = uint32(bet%p.Price) * 10
-		msg = strconv.Itoa(n) + " " + p.Name
+		won = bet % p.Price * 10
+		msg = strconv.FormatUint(uint64(n), 10) + " " + p.Name
 
 		if n > 1 {
 			msg += "s"
@@ -290,7 +291,7 @@ func (g *Game) Draw() {
 		}
 
 		msg += "!"
-		*[]*uint32{&g.PokeBalls, &g.GreatBalls, &g.UltraBalls, &g.MasterBalls, &g.Potions, &g.SuperPotions}[g.Corner.Prize-1] += uint32(n)
+		*[]*uint32{&g.PokeBalls, &g.GreatBalls, &g.UltraBalls, &g.MasterBalls, &g.Potions, &g.SuperPotions}[g.Corner.Prize-1] += n
 	}
 
 	g.Money += won

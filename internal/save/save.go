@@ -79,9 +79,9 @@ func Read(b []byte) (*File, error) {
 		f.GotJirachi, f.GotDeoxys = r.boolean(), r.boolean()
 	}
 
-	f.GymProgress = uint8(r.number())
+	f.GymProgress = uint8(r.number()) //nolint:gosec // the game keeps the low bits
 	for _, c := range f.counters() {
-		*c = uint32(r.number())
+		*c = uint32(r.number()) //nolint:gosec // the game keeps the low bits
 	}
 
 	dex := v1Species
@@ -94,7 +94,7 @@ func Read(b []byte) (*File, error) {
 	}
 
 	for i := range f.Owned {
-		f.Owned[i] = Slot{Species: int32(r.number()), Level: uint8(r.number()), XP: uint32(r.number())}
+		f.Owned[i] = Slot{Species: int32(r.number()), Level: uint8(r.number()), XP: uint32(r.number())} //nolint:gosec // the game keeps the low bits
 	}
 
 	if r.err != nil {

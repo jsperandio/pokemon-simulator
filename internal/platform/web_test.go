@@ -38,8 +38,8 @@ func TestMemory(t *testing.T) {
 		t.Errorf("stat the folder: %+v, %v", e, err)
 	}
 
-	var names []string
 	entries, _ := m.List("/")
+	names := make([]string, 0, len(entries))
 
 	for _, e := range entries {
 		names = append(names, e.Name)
@@ -50,8 +50,10 @@ func TestMemory(t *testing.T) {
 	if !slices.Equal(names, []string{"saves", "song.ogg"}) {
 		t.Errorf("listed %q", names)
 	}
+}
 
-	// The database's records come back with the folders they are in.
+// The database's records come back with the folders they are in.
+func TestMemoryRestore(t *testing.T) {
 	r := newMemory()
 	when := time.UnixMilli(1_000_000)
 	r.restore("/a/b/c.pgs", false, when, []byte("c"))

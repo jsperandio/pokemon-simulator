@@ -231,7 +231,7 @@ func TestDexFits(t *testing.T) {
 	dir := t.TempDir()
 	file := filepath.Join(dir, "dex.pgs")
 
-	if err := os.WriteFile(file, f.Bytes(), 0o644); err != nil {
+	if err := os.WriteFile(file, f.Bytes(), 0o600); err != nil {
 		t.Fatal(err)
 	}
 

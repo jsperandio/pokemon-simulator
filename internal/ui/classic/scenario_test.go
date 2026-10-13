@@ -80,7 +80,7 @@ func (d *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook fun
 	if save != nil {
 		// The probe started the original with the save on its command line.
 		path := filepath.Join(dir, winBase(file))
-		if err := os.WriteFile(path, save, 0o644); err != nil {
+		if err := os.WriteFile(path, save, 0o600); err != nil {
 			return err
 		}
 
@@ -421,7 +421,7 @@ func (d *uiDriver) New(file, name string) error {
 
 func (d *uiDriver) Load(file string, save []byte) error {
 	ta := d.ta
-	if err := os.WriteFile(filepath.Join(ta.dir, winBase(file)), save, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(ta.dir, winBase(file)), save, 0o600); err != nil {
 		return err
 	}
 

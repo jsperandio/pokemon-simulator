@@ -10,6 +10,22 @@ import (
 	"testing"
 )
 
+// ancestry returns dir's ancestors from its root down, then dir.
+func ancestry(dir string) []string {
+	var chain []string
+
+	for d := dir; ; d = filepath.Dir(d) {
+		chain = append(chain, d)
+		if filepath.Dir(d) == d {
+			break
+		}
+	}
+
+	slices.Reverse(chain)
+
+	return chain
+}
+
 // The look-in list shows the roots with a drive's icon and the folder's
 // ancestors under its root, each with a folder's icon and indented under
 // its parent; choosing one opens it.
@@ -17,7 +33,7 @@ func TestLookIn(t *testing.T) {
 	ta := newTestApp(t)
 	dir := filepath.Join(ta.dir, "saves", "old")
 
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		t.Fatal(err)
 	}
 
@@ -32,17 +48,7 @@ func TestLookIn(t *testing.T) {
 	}
 
 	c := f.lookIn
-
-	var chain []string
-
-	for d := dir; ; d = filepath.Dir(d) {
-		chain = append(chain, d)
-		if filepath.Dir(d) == d {
-			break
-		}
-	}
-
-	slices.Reverse(chain)
+	chain := ancestry(dir)
 
 	if len(c.items) != len(chain) || c.index != len(chain)-1 {
 		t.Fatalf("look in %q, item %d", c.items, c.index)

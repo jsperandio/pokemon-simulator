@@ -21,7 +21,7 @@ import (
 func original(t *testing.T, name string) []byte {
 	t.Helper()
 
-	gz, err := os.ReadFile(filepath.Join("testdata", name+".pgs.gz"))
+	gz, err := os.ReadFile(filepath.Join("testdata", name+".pgs.gz")) //nolint:gosec // a save in testdata
 	if err != nil {
 		t.Fatal(err)
 	}

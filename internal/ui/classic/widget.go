@@ -207,44 +207,33 @@ func (c *ctl) propInt(name string, def int) int {
 	return def
 }
 
+// classes make the widgets of the classes of components that have one.
+var classes = map[string]func() widget{
+	"TLabel":       func() widget { return &label{} },
+	"TButton":      func() widget { return &button{} },
+	"TGroupBox":    func() widget { return &groupBox{} },
+	"TRadioGroup":  func() widget { return &radioGroup{} },
+	"TPanel":       func() widget { return &panel{} },
+	"TBevel":       func() widget { return &bevel{} },
+	"TImage":       func() widget { return &picture{} },
+	"TGauge":       func() widget { return &gauge{} },
+	"TListView":    func() widget { return &listView{} },
+	"TComboBox":    func() widget { return &comboBox{} },
+	"TSpinEdit":    func() widget { return &spinEdit{} },
+	"TEdit":        func() widget { return &edit{} },
+	"TMemo":        func() widget { return &memo{} },
+	"TMediaPlayer": func() widget { return &panel{} }, // hidden for good
+}
+
 // build makes the widget for a component and its children, or returns nil
 // for the non-visual ones (menus, timers, dialogs, image lists).
 func build(win *window, parent widget, comp *layout.Component) widget {
-	var w widget
-
-	switch comp.Class {
-	case "TLabel":
-		w = &label{}
-	case "TButton":
-		w = &button{}
-	case "TGroupBox":
-		w = &groupBox{}
-	case "TRadioGroup":
-		w = &radioGroup{}
-	case "TPanel":
-		w = &panel{}
-	case "TBevel":
-		w = &bevel{}
-	case "TImage":
-		w = &picture{}
-	case "TGauge":
-		w = &gauge{}
-	case "TListView":
-		w = &listView{}
-	case "TComboBox":
-		w = &comboBox{}
-	case "TSpinEdit":
-		w = &spinEdit{}
-	case "TEdit":
-		w = &edit{}
-	case "TMemo":
-		w = &memo{}
-	case "TMediaPlayer":
-		w = &panel{} // hidden for good
-	default:
+	newWidget, ok := classes[comp.Class]
+	if !ok {
 		return nil
 	}
 
+	w := newWidget()
 	c := w.base()
 	c.self = w
 	c.win = win
@@ -347,7 +336,7 @@ type label struct {
 	focusControl widget
 }
 
-func (l *label) setup(comp *layout.Component) {
+func (l *label) setup(*layout.Component) {
 	l.align = l.prop("Alignment")
 	l.auto = l.prop("AutoSize") != "False"
 	l.transparent = l.prop("Transparent") == "True"
@@ -411,7 +400,7 @@ type button struct {
 	keyDown             bool // the space bar is pressing it
 }
 
-func (b *button) setup(comp *layout.Component) {
+func (b *button) setup(*layout.Component) {
 	b.windowed = true
 	b.tabStop = b.prop("TabStop") != "False"
 	b.isDefault = b.prop("Default") == "True"
@@ -480,7 +469,7 @@ func (b *button) paint(cv canvas) {
 	}
 }
 
-func (b *button) mouseDown(p image.Point, double bool) {
+func (b *button) mouseDown(image.Point, bool) {
 	b.down, b.inside = true, true
 	b.invalidate()
 }
@@ -502,7 +491,7 @@ func (b *button) mouseUp(p image.Point) {
 	}
 }
 
-func (b *button) key(k ebiten.Key, m mods) bool {
+func (b *button) key(k ebiten.Key, _ mods) bool {
 	if k == ebiten.KeySpace {
 		b.keyDown = true
 		b.invalidate()
@@ -696,7 +685,7 @@ func (g *radioGroup) at(p image.Point) int {
 	return -1
 }
 
-func (g *radioGroup) mouseDown(p image.Point, double bool) {
+func (g *radioGroup) mouseDown(p image.Point, _ bool) {
 	g.pressing = g.at(p)
 	g.inside = true
 	g.invalidate()
@@ -737,7 +726,7 @@ func (g *radioGroup) choose(k int) {
 	}
 }
 
-func (g *radioGroup) key(k ebiten.Key, m mods) bool {
+func (g *radioGroup) key(k ebiten.Key, _ mods) bool {
 	n := len(g.items)
 	if n == 0 {
 		return false

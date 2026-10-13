@@ -162,8 +162,8 @@ func TestTournamentPrizes(t *testing.T) {
 				want[" POKéMON"] = 1
 			} else {
 				n, unit, _ := strings.Cut(strings.TrimSuffix(strings.TrimSuffix(prize, "s"), "¥"), " ")
-				if before0, ok := strings.CutSuffix(prize, "¥"); ok {
-					n, unit = before0, ""
+				if amount, ok := strings.CutSuffix(prize, "¥"); ok {
+					n, unit = amount, ""
 				}
 
 				v, err := strconv.Atoi(n)

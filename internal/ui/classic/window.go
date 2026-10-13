@@ -84,31 +84,18 @@ type window struct {
 	capInside  bool
 }
 
+// borderStyles are the BorderStyles a form may have besides the default.
+var borderStyles = map[string]borderStyle{
+	"bsNone": bsNone, "bsSingle": bsSingle, "bsDialog": bsDialog, "bsToolWindow": bsToolWindow,
+}
+
 // newWindow makes a form and its controls from its layout.
 func newWindow(d *desktop, comp *layout.Component) *window {
 	w := &window{desk: d, res: d.res, name: comp.Name, caption: comp.Caption, visible: false}
 	props := comp.Props
-
-	switch props["BorderStyle"] {
-	case "bsNone":
-		w.style = bsNone
-	case "bsSingle":
-		w.style = bsSingle
-	case "bsDialog":
-		w.style = bsDialog
-	case "bsToolWindow":
-		w.style = bsToolWindow
-	}
-
-	icons := props["BorderIcons"]
-	if icons == "" {
-		icons = "[biSystemMenu, biMinimize, biMaximize]"
-	}
-
-	w.sysMenu = strings.Contains(icons, "biSystemMenu")
-	w.minBox = w.sysMenu && strings.Contains(icons, "biMinimize") && w.style != bsDialog && w.style != bsToolWindow
-	w.maxBox = w.sysMenu && strings.Contains(icons, "biMaximize") && w.style != bsDialog && w.style != bsToolWindow
+	w.style = borderStyles[props["BorderStyle"]]
 	w.color = vclColor(props["Color"], colFace)
+	w.setIcons(props["BorderIcons"])
 
 	for i := range comp.Children {
 		if k := build(w, nil, &comp.Children[i]); k != nil {
@@ -138,22 +125,36 @@ func newWindow(d *desktop, comp *layout.Component) *window {
 	// The labels measure their captions as they load (TCustomLabel.Loaded).
 	// The form's AutoSize applies once it has a window, after Position
 	// placed it: the loading screen grows to the right, to its title.
-	var measure func(ws []widget)
-	measure = func(ws []widget) {
-		for _, k := range ws {
-			if l, ok := k.(*label); ok && l.prop("Align") == "" {
-				l.autoSize()
-			}
-
-			measure(k.base().kids)
-		}
-	}
-	measure(w.kids)
+	measureLabels(w.kids)
 
 	w.fits = props["AutoSize"] == "True"
 	w.fit()
 
 	return w
+}
+
+// setIcons sets the caption's icon and buttons from BorderIcons: dialogs
+// and tool windows have no minimize and maximize buttons.
+func (w *window) setIcons(icons string) {
+	if icons == "" {
+		icons = "[biSystemMenu, biMinimize, biMaximize]"
+	}
+
+	w.sysMenu = strings.Contains(icons, "biSystemMenu")
+	w.minBox = w.sysMenu && strings.Contains(icons, "biMinimize") && w.style != bsDialog && w.style != bsToolWindow
+	w.maxBox = w.sysMenu && strings.Contains(icons, "biMaximize") && w.style != bsDialog && w.style != bsToolWindow
+}
+
+// measureLabels sizes the labels among ws and their children to their
+// captions, but the aligned ones.
+func measureLabels(ws []widget) {
+	for _, k := range ws {
+		if l, ok := k.(*label); ok && l.prop("Align") == "" {
+			l.autoSize()
+		}
+
+		measureLabels(k.base().kids)
+	}
 }
 
 // extent is the size that holds the visible controls.
@@ -249,9 +250,9 @@ func (w *window) frameWidth() int {
 		return 0
 	case bsSizeable:
 		return 4 // SM_CXFRAME
+	default:
+		return 3 // SM_CXFIXEDFRAME
 	}
-
-	return 3 // SM_CXFIXEDFRAME
 }
 
 func (w *window) captionH() int {
@@ -260,9 +261,9 @@ func (w *window) captionH() int {
 		return 0
 	case bsToolWindow:
 		return smallCaptionHeight
+	default:
+		return captionHeight
 	}
-
-	return captionHeight
 }
 
 func (w *window) menuH() int {
@@ -317,13 +318,13 @@ func (w *window) captionButton(b int) image.Rectangle {
 	}
 
 	cr := w.captionRect()
-	close := image.Rect(cr.Max.X-2-captionButtonW, cr.Min.Y+2, cr.Max.X-2, cr.Min.Y+2+captionButtonH)
-	maxB := close.Sub(image.Pt(captionButtonW+2, 0))
+	closeB := image.Rect(cr.Max.X-2-captionButtonW, cr.Min.Y+2, cr.Max.X-2, cr.Min.Y+2+captionButtonH)
+	maxB := closeB.Sub(image.Pt(captionButtonW+2, 0))
 	minB := maxB.Sub(image.Pt(captionButtonW, 0))
 
 	switch b {
 	case capClose:
-		return close
+		return closeB
 	case capMax:
 		if w.maxBox || w.minBox {
 			return maxB
@@ -386,84 +387,7 @@ func (w *window) paint(cv canvas) {
 
 	if w.style != bsNone {
 		cv.raised(r)
-
-		cr := w.captionRect()
-		a, b, fg := colInactive, colInactive2, colInactiveText
-
-		if w.active {
-			a, b, fg = colCaption, colCaption2, colCaptionText
-		}
-
-		cv.gradient(cr, a, b)
-
-		x := cr.Min.X + 2
-		icon := w.icon
-
-		if icon == nil {
-			icon = w.res.appIcon
-		}
-
-		if w.sysMenu && w.style != bsDialog && w.style != bsToolWindow && icon != nil {
-			cv.blend(x, cr.Min.Y+1, icon, icon.Rect)
-
-			x += 18
-		}
-
-		textEnd := cr.Max.X
-
-		for _, b := range []int{capMin, capMax, capClose} {
-			if br := w.captionButton(b); !br.Empty() {
-				textEnd = min(textEnd, br.Min.X-2)
-			}
-		}
-
-		tc := cv.sub(image.Rect(cr.Min.X, cr.Min.Y, textEnd, cr.Max.Y))
-		w.res.bold.draw(tc, x-cr.Min.X, (cr.Dy()-w.res.bold.height())/2, w.caption, fg)
-
-		for _, b := range []int{capMin, capMax, capClose} {
-			br := w.captionButton(b)
-			if br.Empty() {
-				continue
-			}
-
-			pushed := w.capPressed == b && w.capInside
-
-			cv.fill(br, colFace)
-
-			off := 0
-
-			if pushed {
-				cv.sunkenSoft(br)
-
-				off = 1
-			} else {
-				cv.raisedSoft(br)
-			}
-
-			glyph, gx, gy := glyphClose, 4, 3
-
-			switch b {
-			case capMin:
-				glyph, gx, gy = glyphMin, 4, 9
-			case capMax:
-				glyph, gx, gy = glyphMax, 3, 2
-				if w.maximized {
-					glyph = glyphRestore
-				}
-			}
-
-			enabled := b != capMax || w.maxBox
-			if b == capMin {
-				enabled = w.minBox
-			}
-
-			if enabled {
-				cv.pattern(br.Min.X+gx+off, br.Min.Y+gy+off, glyph, map[byte]color.RGBA{'#': colText})
-			} else {
-				cv.pattern(br.Min.X+gx+1, br.Min.Y+gy+1, glyph, map[byte]color.RGBA{'#': colHighlight})
-				cv.pattern(br.Min.X+gx, br.Min.Y+gy, glyph, map[byte]color.RGBA{'#': colShadow})
-			}
-		}
+		w.paintCaption(cv)
 	}
 
 	if w.menu != nil {
@@ -481,6 +405,91 @@ func (w *window) paint(cv canvas) {
 				paintTree(sub, k)
 			}
 		}
+	}
+}
+
+// paintCaption paints the caption bar: its gradient, the icon, the
+// caption and the caption buttons.
+func (w *window) paintCaption(cv canvas) {
+	cr := w.captionRect()
+	a, b, fg := colInactive, colInactive2, colInactiveText
+
+	if w.active {
+		a, b, fg = colCaption, colCaption2, colCaptionText
+	}
+
+	cv.gradient(cr, a, b)
+
+	x := cr.Min.X + 2
+	icon := w.icon
+
+	if icon == nil {
+		icon = w.res.appIcon
+	}
+
+	if w.sysMenu && w.style != bsDialog && w.style != bsToolWindow && icon != nil {
+		cv.blend(x, cr.Min.Y+1, icon, icon.Rect)
+
+		x += 18
+	}
+
+	textEnd := cr.Max.X
+
+	for _, b := range []int{capMin, capMax, capClose} {
+		if br := w.captionButton(b); !br.Empty() {
+			textEnd = min(textEnd, br.Min.X-2)
+		}
+	}
+
+	tc := cv.sub(image.Rect(cr.Min.X, cr.Min.Y, textEnd, cr.Max.Y))
+	w.res.bold.draw(tc, x-cr.Min.X, (cr.Dy()-w.res.bold.height())/2, w.caption, fg)
+
+	for _, b := range []int{capMin, capMax, capClose} {
+		if br := w.captionButton(b); !br.Empty() {
+			w.paintCaptionButton(cv, b, br)
+		}
+	}
+}
+
+// paintCaptionButton paints caption button b in its rectangle br: pushed
+// while the mouse holds it, and greyed out when it does nothing.
+func (w *window) paintCaptionButton(cv canvas, b int, br image.Rectangle) {
+	pushed := w.capPressed == b && w.capInside
+
+	cv.fill(br, colFace)
+
+	off := 0
+
+	if pushed {
+		cv.sunkenSoft(br)
+
+		off = 1
+	} else {
+		cv.raisedSoft(br)
+	}
+
+	glyph, gx, gy := glyphClose, 4, 3
+
+	switch b {
+	case capMin:
+		glyph, gx, gy = glyphMin, 4, 9
+	case capMax:
+		glyph, gx, gy = glyphMax, 3, 2
+		if w.maximized {
+			glyph = glyphRestore
+		}
+	}
+
+	enabled := b != capMax || w.maxBox
+	if b == capMin {
+		enabled = w.minBox
+	}
+
+	if enabled {
+		cv.pattern(br.Min.X+gx+off, br.Min.Y+gy+off, glyph, map[byte]color.RGBA{'#': colText})
+	} else {
+		cv.pattern(br.Min.X+gx+1, br.Min.Y+gy+1, glyph, map[byte]color.RGBA{'#': colHighlight})
+		cv.pattern(br.Min.X+gx, br.Min.Y+gy, glyph, map[byte]color.RGBA{'#': colShadow})
 	}
 }
 
@@ -642,26 +651,42 @@ func (w *window) key(k ebiten.Key, m mods) bool {
 
 		return true
 	case ebiten.KeyEnter, ebiten.KeyNumpadEnter:
-		if b, ok := w.focus.(*button); ok {
+		return w.clickDefault()
+	case ebiten.KeyEscape:
+		return w.clickCancel()
+	default:
+		return false
+	}
+}
+
+// clickDefault is Enter: it clicks the focused button, or else the default
+// button, and reports whether there is one.
+func (w *window) clickDefault() bool {
+	if b, ok := w.focus.(*button); ok {
+		b.click()
+
+		return true
+	}
+
+	for _, b := range w.buttons() {
+		if b.isDefault {
 			b.click()
 
 			return true
 		}
+	}
 
-		for _, b := range w.buttons() {
-			if b.isDefault {
-				b.click()
+	return false
+}
 
-				return true
-			}
-		}
-	case ebiten.KeyEscape:
-		for _, b := range w.buttons() {
-			if b.isCancel {
-				b.click()
+// clickCancel is Escape: it clicks the cancel button, and reports whether
+// there is one.
+func (w *window) clickCancel() bool {
+	for _, b := range w.buttons() {
+		if b.isCancel {
+			b.click()
 
-				return true
-			}
+			return true
 		}
 	}
 
@@ -670,7 +695,7 @@ func (w *window) key(k ebiten.Key, m mods) bool {
 
 // char handles a typed character: the focused control's, or a button's
 // accelerator when the focused control takes no text, as dialogs do.
-func (w *window) char(r rune, m mods) {
+func (w *window) char(r rune) {
 	switch w.focus.(type) {
 	case *edit, *spinEdit, *comboBox:
 		w.focus.(keyer).char(r)

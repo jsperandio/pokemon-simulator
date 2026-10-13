@@ -141,7 +141,11 @@ func Load(raw []byte) (*Data, error) {
 		return nil, r.err
 	}
 
-	return d, d.validate()
+	if err := d.validate(); err != nil {
+		return nil, err
+	}
+
+	return d, nil
 }
 
 // validate checks that every reference points at an existing entry, so

@@ -64,66 +64,84 @@ var notInEasyTiers = []int{134, 135, 136, 196, 197, 45, 182, 186, 62, 80, 199, 2
 func (g *Game) setUpTournament(tier int) {
 	g.MinLevel, g.MaxLevel = tiers[tier].lo, tiers[tier].hi
 
-	for {
-		ok := true
-
-		for i := range g.TournamentTrainers {
-			g.TournamentTrainers[i] = uint8(g.Rand.Random(64) + 1)
-		}
-
-		for i, a := range g.TournamentTrainers {
-			for _, b := range g.TournamentTrainers[i+1:] {
-				if a == b {
-					ok = false
-				}
-			}
-		}
-
-		if ok {
-			for i := range g.TournamentSpecies {
-				s := g.Rand.Random(386) + 4 // so 1–3 never come, and 387–389 can
-				g.TournamentSpecies[i] = s
-
-				if slices.Contains(notInTournaments, s) {
-					ok = false
-				}
-			}
-		}
-
-		if ok {
-			lo, hi := int(g.MinLevel), int(g.MaxLevel)
-			for i := range g.TournamentLevels {
-				l := g.Rand.Random(hi-lo+5) + lo // hi comes 5 times as often
-				g.TournamentLevels[i] = uint8(min(max(l, lo), hi))
-			}
-		}
-
-		if ok && tier < 3 { // unevolved species only
-			for _, s := range g.TournamentSpecies {
-				if g.isEvolved(s) || slices.Contains(notInEasyTiers, s) {
-					ok = false
-				}
-			}
-		}
-
-		// Species 387–389 don't exist, and a set the original accepts with
-		// one crashes it (tournament-387). The port draws again then, and
-		// only then, so the draws stay the original's.
-		for _, s := range g.TournamentSpecies {
-			if ok && s > len(g.Data.Species) {
-				ok = false
-			}
-		}
-
-		if ok {
-			break
-		}
+	for !g.drawTournament(tier) {
 	}
 
-	g.BattleType = uint8(tier*10 + 1)
+	g.BattleType = uint8(tier*10 + 1) //nolint:gosec // tiers 1–6 make 11–61
 	g.StartTrainerBattle(g.TournamentSpecies[0], int(g.TournamentLevels[0]), g.trainerName(0))
 
 	g.InTournament = true
+}
+
+// drawTournament draws a set of opponents and reports whether it is
+// allowed. Each part is drawn only while the parts before it are allowed.
+func (g *Game) drawTournament(tier int) bool {
+	if !g.drawTrainers() || !g.drawSpecies() {
+		return false
+	}
+
+	g.drawLevels()
+
+	if tier < 3 { // unevolved species only
+		for _, s := range g.TournamentSpecies {
+			if g.isEvolved(s) || slices.Contains(notInEasyTiers, s) {
+				return false
+			}
+		}
+	}
+
+	// Species 387–389 don't exist, and a set the original accepts with
+	// one crashes it (tournament-387). The port draws again then, and
+	// only then, so the draws stay the original's.
+	for _, s := range g.TournamentSpecies {
+		if s > len(g.Data.Species) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// drawTrainers draws the eight trainers and reports whether they are
+// distinct.
+func (g *Game) drawTrainers() bool {
+	for i := range g.TournamentTrainers {
+		g.TournamentTrainers[i] = uint8(g.Rand.Random(64) + 1) //nolint:gosec // 1–64
+	}
+
+	for i, a := range g.TournamentTrainers {
+		if slices.Contains(g.TournamentTrainers[i+1:], a) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// drawSpecies draws the trainers' species and reports whether every
+// trainer may have its own; all eight are drawn either way.
+func (g *Game) drawSpecies() bool {
+	ok := true
+
+	for i := range g.TournamentSpecies {
+		s := g.Rand.Random(386) + 4 // so 1–3 never come, and 387–389 can
+		g.TournamentSpecies[i] = s
+
+		if slices.Contains(notInTournaments, s) {
+			ok = false
+		}
+	}
+
+	return ok
+}
+
+// drawLevels draws the trainers' levels in the tournament's range.
+func (g *Game) drawLevels() {
+	lo, hi := int(g.MinLevel), int(g.MaxLevel)
+	for i := range g.TournamentLevels {
+		l := g.Rand.Random(hi-lo+5) + lo                   // hi comes 5 times as often
+		g.TournamentLevels[i] = uint8(min(max(l, lo), hi)) //nolint:gosec // between two Bytes
+	}
 }
 
 // isEvolved reports whether some species evolves into s.
@@ -183,47 +201,40 @@ func (g *Game) handleTournament() {
 
 	g.message(Information, "You won "+g.prize(tier, roll)+"!")
 
-	switch (tier-1)*3 + roll {
-	case 1:
-		g.PokeBalls += 3
-	case 2:
-		g.Potions += 2
-	case 3:
-		g.Money += 2500
-	case 4:
-		g.Potions += 3
-	case 5:
-		g.PokeBalls += 5
-	case 6:
-		g.Money += 4000
-	case 7:
-		g.GreatBalls += 3
-	case 8:
-		g.UltraBalls++
-	case 9:
-		g.SuperPotions++
-	case 10:
-		g.SuperPotions += 3
-	case 11:
-		g.GreatBalls += 5
-	case 12:
-		g.Money += 10000
-	case 13:
-		g.UltraBalls += 3
-	case 14:
-		g.Money += 15000
-	case 15:
-		g.GreatBalls += 10
-	case 16:
-		g.MasterBalls++
-	case 17:
-		g.Money += 30000
-	case 18:
-		s := g.Rand.Random(386) + 1
-		l := uint8(g.Rand.Random(99) + 2)
-		g.AddPKMN(s, g.name(s), l)
-		g.message(Information, fmt.Sprintf("You won a L.%d %s!", l, g.name(s)))
+	if k := (tier-1)*3 + roll; k >= 1 && k < len(tournamentPrizes) {
+		tournamentPrizes[k](g)
 	}
+}
+
+// tournamentPrizes give the prizes, by (tier−1)×3 + roll.
+var tournamentPrizes = [...]func(g *Game){
+	1:  func(g *Game) { g.PokeBalls += 3 },
+	2:  func(g *Game) { g.Potions += 2 },
+	3:  func(g *Game) { g.Money += 2500 },
+	4:  func(g *Game) { g.Potions += 3 },
+	5:  func(g *Game) { g.PokeBalls += 5 },
+	6:  func(g *Game) { g.Money += 4000 },
+	7:  func(g *Game) { g.GreatBalls += 3 },
+	8:  func(g *Game) { g.UltraBalls++ },
+	9:  func(g *Game) { g.SuperPotions++ },
+	10: func(g *Game) { g.SuperPotions += 3 },
+	11: func(g *Game) { g.GreatBalls += 5 },
+	12: func(g *Game) { g.Money += 10000 },
+	13: func(g *Game) { g.UltraBalls += 3 },
+	14: func(g *Game) { g.Money += 15000 },
+	15: func(g *Game) { g.GreatBalls += 10 },
+	16: func(g *Game) { g.MasterBalls++ },
+	17: func(g *Game) { g.Money += 30000 },
+	18: (*Game).winPokemon,
+}
+
+// winPokemon is the Prime Cup's last prize: a random POKéMON at a random
+// level.
+func (g *Game) winPokemon() {
+	s := g.Rand.Random(386) + 1
+	l := uint8(g.Rand.Random(99) + 2) //nolint:gosec // 2–100
+	g.AddPKMN(s, g.name(s), l)
+	g.message(Information, fmt.Sprintf("You won a L.%d %s!", l, g.name(s)))
 }
 
 // prize is TournamentPrizes[tier][roll], the prize's name; its effect is

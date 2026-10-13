@@ -92,7 +92,7 @@ func (a *App) speciesName(s int) string {
 
 // dexItems are the species lists' items: "Bulbasaur (#001)".
 func (a *App) dexItems() []string {
-	var out []string
+	out := make([]string, 0, len(a.g.Data.Species))
 	for _, sp := range a.g.Data.Species {
 		out = append(out, fmt.Sprintf("%s (#%03d)", sp.Name, sp.ID))
 	}

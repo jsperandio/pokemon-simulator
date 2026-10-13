@@ -15,6 +15,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/jsperandio/pokemon-simulator/internal/game/scenario"
+	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
@@ -83,74 +84,7 @@ func TestReferenceScreens(t *testing.T) {
 	dir := filepath.Join("..", "..", "game", "testdata", "scenarios")
 
 	for name, shots := range referenceShots {
-		t.Run(name, func(t *testing.T) {
-			src, err := os.ReadFile(filepath.Join(dir, name+".txt"))
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			var (
-				d       *uiDriver
-				dialogs []string
-			)
-			p := &scenario.Player{Name: name, Dir: dir, Data: data}
-			p.NewDriver = func() scenario.Driver {
-				d = &uiDriver{t: t}
-				d.modal = func(w *window) {
-					if len(dialogs) > 0 {
-						shootWindow(t, name+"-"+dialogs[0], w)
-
-						dialogs = dialogs[1:]
-					}
-				}
-
-				return d
-			}
-			taken, times := map[string]bool{}, map[string]int{}
-			p.After = func(action string) {
-				if times[action]++; times[action] > 1 {
-					action += " #" + itoa(times[action])
-				}
-
-				s, ok := shots[action]
-				if !ok {
-					return
-				}
-
-				taken[action] = true
-
-				d.settle()
-
-				for _, ws := range s.windows {
-					form, label, _ := strings.Cut(ws, " ")
-					w := d.form(form)
-
-					if !w.visible {
-						t.Errorf("%s: %s isn't shown", label, form)
-
-						continue
-					}
-
-					shootWindow(t, name+"-"+label, w)
-				}
-
-				if len(dialogs) > 0 {
-					t.Errorf("after %s, no dialog showed for %q", action, dialogs)
-				}
-
-				dialogs = s.dialogs
-			}
-
-			if _, err := p.Play(string(src)); err != nil {
-				t.Fatalf("%v\n%s", err, strings.Join(p.Trace(), "\n"))
-			}
-
-			for action := range shots {
-				if !taken[action] {
-					t.Errorf("no %q in the scenario", action)
-				}
-			}
-		})
+		t.Run(name, func(t *testing.T) { shootScenario(t, data, dir, name, shots) })
 	}
 
 	// The loading screen, which the original shows for about a second: its
@@ -164,56 +98,131 @@ func TestReferenceScreens(t *testing.T) {
 		shootWindow(t, "screens-start-loading", l.w)
 	})
 
-	// The menus, opened with the keyboard as the probe did (Alt and the
-	// accelerator, then the arrows), with the first item selected.
-	t.Run("screens-menus", func(t *testing.T) {
-		f := save.File{PlayerName: "Probe", PokeBalls: 3}
-		f.Owned[0] = save.Slot{Species: 25, Level: 5, XP: 125}
-		f.InDex[25] = true
-		dir := t.TempDir()
-		file := filepath.Join(dir, "probe-screens-menus.pgs")
+	t.Run("screens-menus", shootMenus)
+}
 
-		if err := os.WriteFile(file, f.Bytes(), 0o644); err != nil {
-			t.Fatal(err)
-		}
+// shootScenario plays scenario name, in dir, through the classic
+// interface, and takes the port's screenshots after its actions in shots.
+func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots map[string]refShots) {
+	src, err := os.ReadFile(filepath.Join(dir, name+".txt")) //nolint:gosec // a scenario in testdata
+	if err != nil {
+		t.Fatal(err)
+	}
 
-		ta := newTestAppIn(t, dir, []string{file})
-		ta.wait(80)
+	var (
+		d       *uiDriver
+		dialogs []string
+	)
+	p := &scenario.Player{Name: name, Dir: dir, Data: data}
+	p.NewDriver = func() scenario.Driver {
+		d = &uiDriver{t: t}
+		d.modal = func(w *window) {
+			if len(dialogs) > 0 {
+				shootWindow(t, name+"-"+dialogs[0], w)
 
-		arrows := map[string]ebiten.Key{"left": ebiten.KeyLeft, "right": ebiten.KeyRight, "up": ebiten.KeyUp, "down": ebiten.KeyDown}
-
-		for _, m := range []string{
-			"f menu-file", "a menu-actions", "a right menu-fight", "a right right menu-trainers",
-			"a right right right menu-beginner", "a right down down down right menu-johto",
-			"a down menu-wild", "m menu-music", "h menu-help",
-		} {
-			keys := strings.Fields(m)
-			label := keys[len(keys)-1]
-			letter := ebiten.KeyA + ebiten.Key(keys[0][0]-'a')
-			ta.frame(input{keys: []ebiten.Key{ebiten.KeyAltLeft}, mods: mods{alt: true}})
-			ta.frame(input{keys: []ebiten.Key{letter}, chars: []rune{rune(keys[0][0])}, mods: mods{alt: true}})
-			ta.frame(input{keysUp: []ebiten.Key{letter, ebiten.KeyAltLeft}})
-
-			for _, k := range keys[1 : len(keys)-1] {
-				ta.key(arrows[k])
-			}
-
-			bar := ta.main.w.menu
-			if !bar.active() || len(bar.open) == 0 {
-				t.Fatalf("%s: no menu open", label)
-			}
-
-			shootWindow(t, "screens-menus-"+label, ta.main.w)
-
-			for range len(bar.open) + 2 {
-				ta.key(ebiten.KeyEscape)
-			}
-
-			if bar.active() {
-				t.Fatalf("%s: the menu stays open", label)
+				dialogs = dialogs[1:]
 			}
 		}
-	})
+
+		return d
+	}
+	taken, times := map[string]bool{}, map[string]int{}
+	p.After = func(action string) {
+		times[action]++
+		if times[action] > 1 {
+			action += " #" + itoa(times[action])
+		}
+
+		s, ok := shots[action]
+		if !ok {
+			return
+		}
+
+		taken[action] = true
+
+		d.settle()
+
+		for _, ws := range s.windows {
+			form, label, _ := strings.Cut(ws, " ")
+			w := d.form(form)
+
+			if !w.visible {
+				t.Errorf("%s: %s isn't shown", label, form)
+
+				continue
+			}
+
+			shootWindow(t, name+"-"+label, w)
+		}
+
+		if len(dialogs) > 0 {
+			t.Errorf("after %s, no dialog showed for %q", action, dialogs)
+		}
+
+		dialogs = s.dialogs
+	}
+
+	if _, err := p.Play(string(src)); err != nil {
+		t.Fatalf("%v\n%s", err, strings.Join(p.Trace(), "\n"))
+	}
+
+	for action := range shots {
+		if !taken[action] {
+			t.Errorf("no %q in the scenario", action)
+		}
+	}
+}
+
+// shootMenus takes the menus' screenshots, opened with the keyboard as the
+// probe did (Alt and the accelerator, then the arrows), with the first item
+// selected.
+func shootMenus(t *testing.T) {
+	f := save.File{PlayerName: "Probe", PokeBalls: 3}
+	f.Owned[0] = save.Slot{Species: 25, Level: 5, XP: 125}
+	f.InDex[25] = true
+	dir := t.TempDir()
+	file := filepath.Join(dir, "probe-screens-menus.pgs")
+
+	if err := os.WriteFile(file, f.Bytes(), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	ta := newTestAppIn(t, dir, []string{file})
+	ta.wait(80)
+
+	arrows := map[string]ebiten.Key{"left": ebiten.KeyLeft, "right": ebiten.KeyRight, "up": ebiten.KeyUp, "down": ebiten.KeyDown}
+
+	for _, m := range []string{
+		"f menu-file", "a menu-actions", "a right menu-fight", "a right right menu-trainers",
+		"a right right right menu-beginner", "a right down down down right menu-johto",
+		"a down menu-wild", "m menu-music", "h menu-help",
+	} {
+		keys := strings.Fields(m)
+		label := keys[len(keys)-1]
+		letter := ebiten.KeyA + ebiten.Key(keys[0][0]-'a')
+		ta.frame(input{keys: []ebiten.Key{ebiten.KeyAltLeft}, mods: mods{alt: true}})
+		ta.frame(input{keys: []ebiten.Key{letter}, chars: []rune{rune(keys[0][0])}, mods: mods{alt: true}})
+		ta.frame(input{keysUp: []ebiten.Key{letter, ebiten.KeyAltLeft}})
+
+		for _, k := range keys[1 : len(keys)-1] {
+			ta.key(arrows[k])
+		}
+
+		bar := ta.main.w.menu
+		if !bar.active() || len(bar.open) == 0 {
+			t.Fatalf("%s: no menu open", label)
+		}
+
+		shootWindow(t, "screens-menus-"+label, ta.main.w)
+
+		for range len(bar.open) + 2 {
+			ta.key(ebiten.KeyEscape)
+		}
+
+		if bar.active() {
+			t.Fatalf("%s: the menu stays open", label)
+		}
+	}
 }
 
 // shotArea is the part of w on the desktop that Wine's X11 window for it
@@ -283,7 +292,7 @@ func savePNG(t *testing.T, name string, img image.Image) {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(filepath.Join(dir, name+".png"), b.Bytes(), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, name+".png"), b.Bytes(), 0o600); err != nil { //nolint:gosec // the folder $CLASSIC_SHOTS names
 		t.Fatal(err)
 	}
 }

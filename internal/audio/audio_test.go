@@ -34,10 +34,10 @@ func (f *fakePlayer) Seek(offset int64, whence int) (int64, error) {
 }
 
 // wavFile returns a WAV file of n silent 16-bit mono samples at 22050 Hz.
-func wavFile(n int) []byte {
+func wavFile(n uint32) []byte {
 	b := make([]byte, 44+2*n)
 	copy(b, "RIFF")
-	binary.LittleEndian.PutUint32(b[4:], uint32(36+2*n))
+	binary.LittleEndian.PutUint32(b[4:], 36+2*n)
 	copy(b[8:], "WAVEfmt ")
 	binary.LittleEndian.PutUint32(b[16:], 16)
 	binary.LittleEndian.PutUint16(b[20:], 1) // PCM
@@ -47,12 +47,16 @@ func wavFile(n int) []byte {
 	binary.LittleEndian.PutUint16(b[32:], 2)
 	binary.LittleEndian.PutUint16(b[34:], 16)
 	copy(b[36:], "data")
-	binary.LittleEndian.PutUint32(b[40:], uint32(2*n))
+	binary.LittleEndian.PutUint32(b[40:], 2*n)
 
 	return b
 }
 
-func TestMusic(t *testing.T) {
+// openSong opens a short WAV file on a fake sound card, and returns the
+// music and the player it plays on.
+func openSong(t *testing.T) (*Music, *fakePlayer) {
+	t.Helper()
+
 	var players []*fakePlayer
 	m := &Music{newPlayer: func(src io.Reader) (player, error) {
 		p := &fakePlayer{src: src}
@@ -60,10 +64,6 @@ func TestMusic(t *testing.T) {
 
 		return p, nil
 	}}
-
-	if err := m.Stop(); !errors.Is(err, ErrNotOpen) {
-		t.Errorf("Stop with nothing open: %v", err)
-	}
 
 	if err := m.Open("song.wav", wavFile(100)); err != nil {
 		t.Fatal(err)
@@ -74,10 +74,24 @@ func TestMusic(t *testing.T) {
 		t.Fatal("not playing")
 	}
 
+	return m, p
+}
+
+func TestMusic(t *testing.T) {
+	if err := new(Music).Stop(); !errors.Is(err, ErrNotOpen) {
+		t.Errorf("Stop with nothing open: %v", err)
+	}
+
+	_, p := openSong(t)
+
 	// The resampled stream holds 16-bit stereo at the output's rate.
 	if n, _ := io.Copy(io.Discard, p.src); n != 4*200 {
 		t.Errorf("decoded %d bytes", n)
 	}
+}
+
+func TestMusicRepeat(t *testing.T) {
+	m, p := openSong(t)
 
 	m.Update(true) // still playing
 
@@ -95,6 +109,10 @@ func TestMusic(t *testing.T) {
 	if !p.playing || p.plays != 2 || p.pos != 0 {
 		t.Errorf("repeat: playing %v, %d plays, at %d", p.playing, p.plays, p.pos)
 	}
+}
+
+func TestMusicStop(t *testing.T) {
+	m, p := openSong(t)
 
 	p.pos = 100
 	if err := m.Stop(); err != nil || p.playing || p.pos != 0 {
@@ -106,8 +124,12 @@ func TestMusic(t *testing.T) {
 	if p.playing || m.Playing() {
 		t.Error("stopped music played again")
 	}
+}
 
-	// A file that can't play closes the one before.
+// A file that can't play closes the one before.
+func TestMusicBadFile(t *testing.T) {
+	m, p := openSong(t)
+
 	if err := m.Open("song.wma", []byte("0&\xb2\x75\x8e\x66\xcf\x11")); !errors.Is(err, ErrFormat) {
 		t.Errorf("Open WMA: %v", err)
 	}

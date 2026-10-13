@@ -119,44 +119,6 @@ func TestManual(t *testing.T) {
 		t.Fatalf("no %s", Contents)
 	}
 
-	walk := func(page string, spans []Span) {
-		for _, s := range spans {
-			switch {
-			case s.Image != "":
-				if _, err := fs.Stat(assets.FS, "help/"+s.Image); err != nil {
-					t.Errorf("%s: image %s: %v", page, s.Image, err)
-				}
-			case s.Link == "":
-			case strings.HasPrefix(s.Link, "http://"), strings.HasPrefix(s.Link, "https://"),
-				strings.HasPrefix(s.Link, "mailto:"):
-			case pages[s.Link] == nil:
-				t.Errorf("%s: link to %s", page, s.Link)
-			}
-
-			if strings.Contains(s.Text, "**") || strings.Contains(s.Text, "](") || strings.Contains(s.Text, `\`) {
-				t.Errorf("%s: markup left in %q", page, s.Text)
-			}
-		}
-	}
-
-	var blocks func(page string, bs []Block)
-	blocks = func(page string, bs []Block) {
-		for _, b := range bs {
-			walk(page, b.Spans)
-			blocks(page, b.Blocks)
-
-			for _, it := range b.Items {
-				walk(page, it.Spans)
-			}
-
-			for _, row := range b.Rows {
-				for _, c := range row {
-					walk(page, c)
-				}
-			}
-		}
-	}
-
 	for name, p := range pages {
 		if p.Title == "" {
 			t.Errorf("%s has no title", name)
@@ -166,6 +128,51 @@ func TestManual(t *testing.T) {
 			t.Errorf("%s is empty", name)
 		}
 
-		blocks(name, p.Blocks)
+		checkBlocks(t, pages, name, p.Blocks)
+	}
+}
+
+// checkBlocks checks the spans of blocks, and of the blocks, items and
+// cells in them, on a page of the manual.
+func checkBlocks(t *testing.T, pages map[string]*Page, page string, bs []Block) {
+	t.Helper()
+
+	for _, b := range bs {
+		checkSpans(t, pages, page, b.Spans)
+		checkBlocks(t, pages, page, b.Blocks)
+
+		for _, it := range b.Items {
+			checkSpans(t, pages, page, it.Spans)
+		}
+
+		for _, row := range b.Rows {
+			for _, c := range row {
+				checkSpans(t, pages, page, c)
+			}
+		}
+	}
+}
+
+// checkSpans checks that spans' images and links lead somewhere, and that
+// no markup is left in their text.
+func checkSpans(t *testing.T, pages map[string]*Page, page string, spans []Span) {
+	t.Helper()
+
+	for _, s := range spans {
+		switch {
+		case s.Image != "":
+			if _, err := fs.Stat(assets.FS, "help/"+s.Image); err != nil {
+				t.Errorf("%s: image %s: %v", page, s.Image, err)
+			}
+		case s.Link == "":
+		case strings.HasPrefix(s.Link, "http://"), strings.HasPrefix(s.Link, "https://"),
+			strings.HasPrefix(s.Link, "mailto:"):
+		case pages[s.Link] == nil:
+			t.Errorf("%s: link to %s", page, s.Link)
+		}
+
+		if strings.Contains(s.Text, "**") || strings.Contains(s.Text, "](") || strings.Contains(s.Text, `\`) {
+			t.Errorf("%s: markup left in %q", page, s.Text)
+		}
 	}
 }

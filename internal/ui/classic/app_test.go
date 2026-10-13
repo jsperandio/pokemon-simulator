@@ -119,14 +119,12 @@ func (ta *testApp) typeText(s string) {
 
 // shot paints the screen and, when $CLASSIC_SHOTS names a folder, saves
 // it there as name.png.
-func (ta *testApp) shot(name string) *image.RGBA {
+func (ta *testApp) shot(name string) {
 	ta.t.Helper()
 
 	img := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
 	ta.desk.paint(img)
 	savePNG(ta.t, name, img)
-
-	return img
 }
 
 // TestNewGame plays the start of a game: loading, the start screen, the
@@ -428,7 +426,7 @@ func TestMusicMenu(t *testing.T) {
 
 	ta.answer("No MCI device open.")
 
-	if err := os.WriteFile(filepath.Join(ta.dir, "song.ogg"), []byte("OggS"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(ta.dir, "song.ogg"), []byte("OggS"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 

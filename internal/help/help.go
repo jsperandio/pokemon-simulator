@@ -221,8 +221,8 @@ func trimLines(lines []string) []string {
 // parseList reads a list from line i, and returns the line after it. A
 // list goes on across blank lines while its items do, and an item takes
 // the lines that follow it up to the next block.
-func parseList(lines []string, i int) (Block, int) {
-	b := Block{Kind: List}
+func parseList(lines []string, i int) (b Block, next int) {
+	b = Block{Kind: List}
 	ordered := isOrdered(listMarker(lines[i]))
 
 	for i < len(lines) {
@@ -285,9 +285,9 @@ func isTable(lines []string, i int) bool {
 }
 
 // parseTable reads a table from line i, and returns the line after it.
-func parseTable(lines []string, i int) (Block, int) {
+func parseTable(lines []string, i int) (b Block, next int) {
 	cols := len(splitRow(lines[i+1]))
-	b := Block{Kind: Table}
+	b = Block{Kind: Table}
 	row := func(line string) []Cell {
 		cells := make([]Cell, cols)
 		for k, c := range splitRow(line) {

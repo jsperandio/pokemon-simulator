@@ -357,7 +357,7 @@ func (a *App) Draw(screen *ebiten.Image) {
 }
 
 // Layout returns the logical screen's size (ebiten.Game).
-func (a *App) Layout(int, int) (int, int) { return screenWidth, screenHeight }
+func (a *App) Layout(int, int) (w, h int) { return screenWidth, screenHeight }
 
 // closeProgram ends the program as closing the main form does.
 func (a *App) closeProgram() {
@@ -373,7 +373,7 @@ func (a *App) closeProgram() {
 // WindowSize returns the window's default size: the desktop at the
 // largest scale, in steps of a half, that fits 90 % of the monitor. With
 // no monitor, it is the desktop's size; ebiten.RunGame then says why.
-func WindowSize() (int, int) {
+func WindowSize() (w, h int) {
 	m := ebiten.Monitor()
 	if m == nil {
 		return screenWidth, screenHeight

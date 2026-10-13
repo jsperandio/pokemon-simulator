@@ -19,7 +19,7 @@ const choosePrompt = "Select a POKéMON from the Statistics Window. You'll be as
 func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.enable(false, "Action1")
 
-	g.EnemyLevel, g.EnemySpecies = uint8(level), species
+	g.EnemyLevel, g.EnemySpecies = uint8(level), species //nolint:gosec // a Byte in the original
 	g.Main.Battle = true
 	g.InTrainerBattle = true
 	g.EnemyHP = level * 10
@@ -45,7 +45,7 @@ func (g *Game) StartWildBattle(species, level int) {
 	g.enable(false, "Action1")
 
 	g.EnemyHP = level * 10
-	g.EnemyLevel = uint8(level)
+	g.EnemyLevel = uint8(level) //nolint:gosec // a Byte in the original
 	g.log("Wild " + g.name(species) + " appeared!")
 
 	g.Main.Enemy = Shown{species, level, level * 10}
@@ -290,11 +290,11 @@ func (g *Game) victory() {
 	own := g.name(int(m.Species))
 	g.log("Enemy " + g.name(g.EnemySpecies) + " fainted!")
 
-	e := int64(g.EnemyLevel)
+	e := uint32(g.EnemyLevel)
 	gain := e*e*e - (e-1)*(e-1)*(e-1)
-	g.logf("%s gained %d experience points!", own, int32(gain))
+	g.logf("%s gained %d experience points!", own, gain)
 
-	m.XP = uint32(int64(m.XP) + gain)
+	m.XP += gain
 	old := m.Level
 	// No levels mid-tournament or in the R/B/Y and Ru/Sa Elite Four:
 	// they catch up at the next win, loss or tournament end.
@@ -345,7 +345,7 @@ func (g *Game) quitTournament() {
 	if g.OwnIndex >= 1 { // the original reads out of its tables if no one fought yet
 		m := g.member(g.OwnIndex)
 		own := g.name(int(m.Species))
-		lost := (m.XP + 10) / 20 // Int(XP/20 + 0.5)
+		lost := (m.XP + 10) / 20 // rounded, as the original's Int(XP/20 + 0.5) is
 		g.logf("Quit the tournament! %s lost %d experience points!", own, lost)
 
 		m.XP -= lost

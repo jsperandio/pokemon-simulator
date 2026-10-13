@@ -42,7 +42,7 @@ type scrollBar struct {
 }
 
 // enabled reports whether there is anything to scroll.
-func (s *scrollBar) enabled() bool { return s.max-s.min+1 > s.page }
+func (s *scrollBar) enabled() bool { return s.max-s.min >= s.page }
 
 // limit is the largest position.
 func (s *scrollBar) limit() int { return max(s.max-s.page+1, s.min) }
@@ -70,7 +70,7 @@ func (s *scrollBar) arrow() int { return min(scrollSize, s.length()/2) }
 
 // thumb returns the thumb's start and length along the bar, or a length
 // of 0 when there is none.
-func (s *scrollBar) thumb() (int, int) {
+func (s *scrollBar) thumb() (start, length int) {
 	a := s.arrow()
 	track := s.length() - 2*a
 
@@ -197,20 +197,15 @@ func (s *scrollBar) paint(cv canvas) {
 	en := s.enabled()
 	a := s.arrow()
 
-	var less, more image.Rectangle
+	var less, more, track image.Rectangle
 
 	if s.vertical {
 		less = image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+a)
 		more = image.Rect(r.Min.X, r.Max.Y-a, r.Max.X, r.Max.Y)
+		track = image.Rect(r.Min.X, less.Max.Y, r.Max.X, more.Min.Y)
 	} else {
 		less = image.Rect(r.Min.X, r.Min.Y, r.Min.X+a, r.Max.Y)
 		more = image.Rect(r.Max.X-a, r.Min.Y, r.Max.X, r.Max.Y)
-	}
-
-	track := image.Rect(less.Max.X, less.Max.Y, more.Min.X, more.Min.Y)
-	if s.vertical {
-		track = image.Rect(r.Min.X, less.Max.Y, r.Max.X, more.Min.Y)
-	} else {
 		track = image.Rect(less.Max.X, r.Min.Y, more.Min.X, r.Max.Y)
 	}
 
@@ -491,47 +486,52 @@ func (l *listView) paint(cv canvas) {
 	in.org = cv.org // keep the list's coordinates, clipped to the inside
 	focus := l.focused() && l.win.active
 
-	for i, it := range l.items {
-		ir := l.itemRect(i)
-		if !ir.Overlaps(c) {
-			continue
-		}
-
-		sel := i == l.selected
-		if l.images != nil && it.image >= 0 {
-			l.images.drawFrame(in, ir.Min.X, ir.Min.Y, it.image, sel && focus)
-		}
-
-		tx := ir.Min.X + icon.X + 2
-		ty := ir.Min.Y + (ir.Dy()-l.font.height())/2
-		tw := l.font.width(it.caption)
-		fg := l.fontColor
-		label := image.Rect(tx-2, ty, tx+tw+2, ty+l.font.height())
-
-		if sel && focus {
-			in.fill(label, colSelection)
-
-			fg = colSelText
-		}
-
-		if l.hotTrack && i == l.hot && l.usable() {
-			if !sel || !focus {
-				fg = rgb(0x0000FF)
-			}
-
-			l.font.draw(in, tx, ty, it.caption, fg)
-			in.hline(tx, tx+tw, ty+l.font.ascent()+1, fg)
-		} else {
-			l.font.draw(in, tx, ty, it.caption, fg)
-		}
-
-		if sel && focus {
-			in.focusRect(label)
+	for i := range l.items {
+		if ir := l.itemRect(i); ir.Overlaps(c) {
+			l.paintItem(in, i, ir, icon, focus)
 		}
 	}
 
 	if l.scroll.r != (image.Rectangle{}) {
 		l.scroll.paint(cv)
+	}
+}
+
+// paintItem paints item i in its rectangle: its icon, then its caption,
+// selected or hot-tracked.
+func (l *listView) paintItem(in canvas, i int, ir image.Rectangle, icon image.Point, focus bool) {
+	it := l.items[i]
+
+	sel := i == l.selected
+	if l.images != nil && it.image >= 0 {
+		l.images.drawFrame(in, ir.Min.X, ir.Min.Y, it.image, sel && focus)
+	}
+
+	tx := ir.Min.X + icon.X + 2
+	ty := ir.Min.Y + (ir.Dy()-l.font.height())/2
+	tw := l.font.width(it.caption)
+	fg := l.fontColor
+	label := image.Rect(tx-2, ty, tx+tw+2, ty+l.font.height())
+
+	if sel && focus {
+		in.fill(label, colSelection)
+
+		fg = colSelText
+	}
+
+	if l.hotTrack && i == l.hot && l.usable() {
+		if !sel || !focus {
+			fg = rgb(0x0000FF)
+		}
+
+		l.font.draw(in, tx, ty, it.caption, fg)
+		in.hline(tx, tx+tw, ty+l.font.ascent()+1, fg)
+	} else {
+		l.font.draw(in, tx, ty, it.caption, fg)
+	}
+
+	if sel && focus {
+		in.focusRect(label)
 	}
 }
 
@@ -565,7 +565,7 @@ func (l *listView) mouseDrag(p image.Point) {
 	}
 }
 
-func (l *listView) mouseUp(p image.Point) {
+func (l *listView) mouseUp(image.Point) {
 	if l.scroll.pressed != partNone {
 		l.scroll.release()
 		l.invalidate()
@@ -607,7 +607,7 @@ func (l *listView) tick(now time.Time) {
 	}
 }
 
-func (l *listView) key(k ebiten.Key, m mods) bool {
+func (l *listView) key(k ebiten.Key, _ mods) bool {
 	n := len(l.items)
 	if n == 0 {
 		return false

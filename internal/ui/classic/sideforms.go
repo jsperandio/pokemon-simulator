@@ -175,7 +175,7 @@ func (f *dexForm) sync() {
 	l2.setCaption(g.Data.TypeName(sp.Types[0]))
 	l3.setVisible(sp.Types[1] != 0)
 
-	r3 := l3.r // Label3.Left = Label2.Left + Label2.Width
+	r3 := l3.r // the original puts Label3 at Label2's left plus its width
 	l3.setBounds(image.Rect(l2.r.Max.X, r3.Min.Y, l2.r.Max.X+r3.Dx(), r3.Max.Y))
 
 	if sp.Types[1] != 0 {

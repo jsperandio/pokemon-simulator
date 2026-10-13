@@ -68,6 +68,38 @@ func TestHelp(t *testing.T) {
 		t.Errorf("help window at %v", got)
 	}
 
+	followHelpLinks(t, ta)
+
+	// Tab chooses the first hotspot, the port note's link, and Enter
+	// follows it out to the browser.
+	ta.key(ebiten.KeyTab)
+	ta.shot("32-help-tab")
+	ta.key(ebiten.KeyEnter)
+
+	if len(opened) != 1 || !strings.HasSuffix(opened[0], "/pokemon-simulator/issues") {
+		t.Errorf("opened %q", opened)
+	}
+
+	ta.click(h.w.captionButton(capMax).Min.Add(image.Pt(4, 4)))
+	ta.wait(1)
+	ta.shot("34-help-maximized")
+
+	if !h.w.maximized || h.view.laid != h.view.r.Size() || h.view.r.Dx() != screenWidth {
+		t.Errorf("maximized: %v, the topic %v laid out for %v", h.w.maximized, h.view.r, h.view.laid)
+	}
+
+	ta.click(h.w.captionButton(capClose).Min.Add(image.Pt(4, 4)))
+	ta.wait(1)
+
+	if h.w.visible || len(h.history) != 0 {
+		t.Error("the help window didn't close")
+	}
+}
+
+// followHelpLinks follows two links in the manual from its contents, one
+// after the wheel scrolled, then goes Back to the contents.
+func followHelpLinks(t *testing.T, ta *testApp) {
+	h := ta.helpWin
 	ta.click(ta.spotPoint("playing.md"))
 	ta.wait(1)
 
@@ -110,33 +142,10 @@ func TestHelp(t *testing.T) {
 	if h.view.name != "index.md" || h.back.enabled {
 		t.Errorf("Back went to %s, Back %v", h.view.name, h.back.enabled)
 	}
+}
 
-	// Tab chooses the first hotspot, the port note's link, and Enter
-	// follows it out to the browser.
-	ta.key(ebiten.KeyTab)
-	ta.shot("32-help-tab")
-	ta.key(ebiten.KeyEnter)
-
-	if len(opened) != 1 || !strings.HasSuffix(opened[0], "/pokemon-simulator/issues") {
-		t.Errorf("opened %q", opened)
-	}
-
-	ta.click(h.w.captionButton(capMax).Min.Add(image.Pt(4, 4)))
-	ta.wait(1)
-	ta.shot("34-help-maximized")
-
-	if !h.w.maximized || h.view.laid != h.view.r.Size() || h.view.r.Dx() != screenWidth {
-		t.Errorf("maximized: %v, the topic %v laid out for %v", h.w.maximized, h.view.r, h.view.laid)
-	}
-
-	ta.click(h.w.captionButton(capClose).Min.Add(image.Pt(4, 4)))
-	ta.wait(1)
-
-	if h.w.visible || len(h.history) != 0 {
-		t.Error("the help window didn't close")
-	}
-
-	// F1 in the game window opens it again.
+// F1 in the game window opens the help.
+func TestHelpF1(t *testing.T) {
 	tb := newTestApp(t)
 	tb.startGame()
 	tb.key(ebiten.KeyF1)

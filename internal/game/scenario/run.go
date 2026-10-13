@@ -30,7 +30,7 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 	for _, path := range paths {
 		name := strings.TrimSuffix(filepath.Base(path), ".txt")
 		t.Run(name, func(t *testing.T) {
-			src, err := os.ReadFile(path)
+			src, err := os.ReadFile(path) //nolint:gosec // a scenario the glob found
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -40,7 +40,7 @@ func (g *Game) AddPKMN(species int, name string, level uint8) {
 	}
 
 	l := uint32(level)
-	*g.member(i) = save.Slot{Species: int32(species), Level: level, XP: l * l * l}
+	*g.member(i) = save.Slot{Species: int32(species), Level: level, XP: l * l * l} //nolint:gosec // a species number
 }
 
 // toggleEvolveMode is Actions → Evolve a POKéMON: the next double click
@@ -110,7 +110,7 @@ func (g *Game) evolve(i int) {
 	s := int(m.Species)
 	sp := g.species(s)
 	name := sp.Name
-	level := uint8(sp.EvolveLevel) // a Byte in the original
+	level := uint8(sp.EvolveLevel) //nolint:gosec // a Byte in the original
 	handled := false
 
 	switch {
@@ -148,7 +148,7 @@ func (g *Game) evolve(i int) {
 		if !handled { // every other species, and Nincada after a No
 			t := sp.EvolveTo
 			if g.confirm("Your " + name + " can evolve into " + g.name(t) + ". Do you want to evolve it?") {
-				m.Species = int32(t)
+				m.Species = int32(t) //nolint:gosec // a species number
 				g.InDex[t] = true
 				g.message(Information, name+" evolved into "+g.name(t)+"!")
 			}

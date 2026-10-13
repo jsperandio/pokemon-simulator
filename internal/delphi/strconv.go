@@ -2,44 +2,64 @@
 
 package delphi
 
+import "strings"
+
 // StrToInt parses s as Delphi's StrToInt does: leading spaces, an optional
 // sign, then decimal digits, or hexadecimal ones after "$", "x" or "0x",
 // within an Integer's range. ok is false where StrToInt raises
 // EConvertError.
 func StrToInt(s string) (n int32, ok bool) {
-	i := 0
-	for i < len(s) && s[i] == ' ' {
-		i++
-	}
-
-	neg, base := false, uint64(10)
-
-	if i < len(s) {
-		switch s[i] {
-		case '$', 'x', 'X':
-			base = 16
-			i++
-		case '0':
-			if i+1 < len(s) && s[i+1]|0x20 == 'x' {
-				base = 16
-				i += 2
-			}
-		case '-':
-			neg = true
-			i++
-		case '+':
-			i++
-		}
-	}
-
-	if i >= len(s) {
+	neg, base, digits := splitNumber(s)
+	if digits == "" {
 		return 0, false
 	}
 
-	var v uint64
+	v, ok := parseDigits(digits, base)
+	if !ok {
+		return 0, false
+	}
 
-	for ; i < len(s); i++ {
-		c := s[i]
+	switch {
+	case base == 16 && v < 1<<32:
+		return int32(uint32(v)), true //nolint:gosec // the bits, signed: "$FFFFFFFF" is -1
+	case neg && v <= 1<<31:
+		return int32(-int64(v)), true
+	case !neg && v < 1<<31:
+		return int32(v), true
+	}
+
+	return 0, false
+}
+
+// splitNumber skips StrToInt's leading spaces, and the sign or the
+// hexadecimal prefix after them.
+func splitNumber(s string) (neg bool, base uint64, digits string) {
+	s = strings.TrimLeft(s, " ")
+	if s == "" {
+		return false, 10, ""
+	}
+
+	switch s[0] {
+	case '$', 'x', 'X':
+		return false, 16, s[1:]
+	case '0':
+		if len(s) > 1 && s[1]|0x20 == 'x' {
+			return false, 16, s[2:]
+		}
+	case '-':
+		return true, 10, s[1:]
+	case '+':
+		return false, 10, s[1:]
+	}
+
+	return false, 10, s
+}
+
+// parseDigits reads digits in base 10 or 16, as long as the value stays
+// within 2³².
+func parseDigits(digits string, base uint64) (v uint64, ok bool) {
+	for i := range len(digits) {
+		c := digits[i]
 
 		var d uint64
 
@@ -58,14 +78,5 @@ func StrToInt(s string) (n int32, ok bool) {
 		}
 	}
 
-	switch {
-	case base == 16 && v <= 1<<32-1:
-		return int32(uint32(v)), true // "$FFFFFFFF" is -1
-	case neg && v <= 1<<31:
-		return int32(-int64(v)), true
-	case !neg && v <= 1<<31-1:
-		return int32(v), true
-	}
-
-	return 0, false
+	return v, true
 }

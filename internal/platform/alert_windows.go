@@ -17,5 +17,5 @@ func Alert(title, text string) {
 		return
 	}
 
-	windows.MessageBox(0, m, t, windows.MB_OK|windows.MB_ICONERROR) //nolint:errcheck // there is nothing else to tell it with
+	windows.MessageBox(0, m, t, windows.MB_OK|windows.MB_ICONERROR) //nolint:errcheck,gosec // there is nothing else to tell it with
 }

@@ -104,36 +104,54 @@ func parseFNT(b []byte) (*Font, error) {
 		return nil, errors.New("winfont: truncated font")
 	}
 
-	u16 := func(o int) int { return int(binary.LittleEndian.Uint16(b[o:])) }
-	u32 := func(o int) int { return int(binary.LittleEndian.Uint32(b[o:])) }
-	version := u16(0)
+	version := u16(b, 0)
 
 	if version != 0x200 && version != 0x300 {
 		return nil, fmt.Errorf("winfont: FNT version %#x", version)
 	}
 
-	if u16(66)&1 != 0 {
+	if u16(b, 66)&1 != 0 {
 		return nil, errors.New("winfont: a vector font")
 	}
 
 	f := &Font{
-		Points: u16(68),
-		Ascent: u16(74),
-		Height: u16(88),
+		Name:   faceName(b, u32(b, 105)),
+		Points: u16(b, 68),
+		Ascent: u16(b, 74),
+		Height: u16(b, 88),
 		first:  b[95],
 		last:   b[96],
 	}
 	f.dflt = f.first + b[97]
 
-	if face := u32(105); face > 0 && face < len(b) {
-		end := face
-		for end < len(b) && b[end] != 0 {
-			end++
-		}
-
-		f.Name = string(b[face:end])
+	if err := f.readGlyphs(b, version); err != nil {
+		return nil, err
 	}
 
+	return f, nil
+}
+
+func u16(b []byte, o int) int { return int(binary.LittleEndian.Uint16(b[o:])) }
+func u32(b []byte, o int) int { return int(binary.LittleEndian.Uint32(b[o:])) }
+
+// faceName reads the face name that starts at face, ended by a NUL, or
+// returns "" for none.
+func faceName(b []byte, face int) string {
+	if face <= 0 || face >= len(b) {
+		return ""
+	}
+
+	end := face
+	for end < len(b) && b[end] != 0 {
+		end++
+	}
+
+	return string(b[face:end])
+}
+
+// readGlyphs reads the character table of an FNT resource of the given
+// version, and the glyphs' bitmaps it points at.
+func (f *Font) readGlyphs(b []byte, version int) error {
 	table, entry := 118, 4
 	if version == 0x300 {
 		table, entry = 148, 6
@@ -141,25 +159,25 @@ func parseFNT(b []byte) (*Font, error) {
 
 	n := int(f.last) - int(f.first) + 1
 	if n <= 0 || table+n*entry > len(b) || f.Height <= 0 {
-		return nil, errors.New("winfont: bad character table")
+		return errors.New("winfont: bad character table")
 	}
 
 	f.glyphs = make([]glyph, n)
 	for i := range f.glyphs {
 		e := table + i*entry
-		w := u16(e)
+		w := u16(b, e)
 
 		var off int
 
 		if version == 0x300 {
-			off = u32(e + 2)
+			off = u32(b, e+2)
 		} else {
-			off = u16(e + 2)
+			off = u16(b, e+2)
 		}
 
 		cols := (w + 7) / 8
 		if w > 32 || off+cols*f.Height > len(b) {
-			return nil, fmt.Errorf("winfont: glyph %d out of range", int(f.first)+i)
+			return fmt.Errorf("winfont: glyph %d out of range", int(f.first)+i)
 		}
 
 		g := glyph{width: w, rows: make([]uint32, f.Height)}
@@ -173,7 +191,7 @@ func parseFNT(b []byte) (*Font, error) {
 		f.glyphs[i] = g
 	}
 
-	return f, nil
+	return nil
 }
 
 func (f *Font) glyph(c byte) *glyph {

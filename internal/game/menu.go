@@ -114,7 +114,7 @@ func (g *Game) buildMenu() {
 
 	var build func(defs []menuDef) []*MenuItem
 	build = func(defs []menuDef) []*MenuItem {
-		var items []*MenuItem
+		items := make([]*MenuItem, 0, len(defs))
 		for _, d := range defs {
 			m := &MenuItem{
 				Name:    d.name,

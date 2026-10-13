@@ -93,7 +93,7 @@ func watch(shown <-chan struct{}, timeout time.Duration, frames bool, restart fu
 func restart() {
 	exe, err := os.Executable()
 	if err == nil {
-		err = syscall.Exec(exe, os.Args, append(os.Environ(), noFrameEnv+"=1"))
+		err = syscall.Exec(exe, os.Args, append(os.Environ(), noFrameEnv+"=1")) //nolint:gosec // the game itself, with its own arguments
 	}
 
 	log.Printf("Starting again failed: %v", err)

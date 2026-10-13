@@ -319,7 +319,7 @@ func (v *helpView) spotAt(p image.Point) int {
 	return -1
 }
 
-func (v *helpView) mouseDown(p image.Point, double bool) {
+func (v *helpView) mouseDown(p image.Point, _ bool) {
 	if v.scroll.enabled() && v.scroll.press(p) {
 		v.invalidate()
 
@@ -665,11 +665,10 @@ func (l *helpFlow) measure(spans []help.Span, bold bool) int {
 // flow lays spans out from y in lines between x0 and x1, breaking them at
 // spaces, and returns the y under them and the first line's baseline.
 // Bold sets all of them in bold.
-func (l *helpFlow) flow(spans []help.Span, x0, x1, y int, bold bool) (int, int) {
+func (l *helpFlow) flow(spans []help.Span, x0, x1, y int, bold bool) (bottom, baseline int) {
 	words := l.words(spans, bold)
 	first := -1
-
-	var line []helpWord
+	line := make([]helpWord, 0, len(words))
 	w := 0
 
 	for _, wd := range words {
@@ -698,29 +697,41 @@ func (l *helpFlow) flow(spans []help.Span, x0, x1, y int, bold bool) (int, int) 
 	return y, first
 }
 
-// words splits spans into words, and gives each link a hotspot.
-func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
-	var (
-		words []helpWord
-		cur   helpWord
-	)
-	end := func(space helpPiece, brk bool) {
-		if len(cur.pieces) == 0 {
-			// Spaces in a row count as one.
-			if n := len(words); n > 0 {
-				words[n-1].brk = words[n-1].brk || brk
-				if words[n-1].space.w == 0 {
-					words[n-1].space = space
-				}
-			}
+// wordBuilder builds words out of pieces.
+type wordBuilder struct {
+	words []helpWord
+	cur   helpWord
+}
 
-			return
+// add adds a piece to the current word.
+func (b *wordBuilder) add(p helpPiece) {
+	b.cur.pieces = append(b.cur.pieces, p)
+	b.cur.w += p.w
+}
+
+// end ends the current word with a space, or a line break after it.
+func (b *wordBuilder) end(space helpPiece, brk bool) {
+	if len(b.cur.pieces) == 0 {
+		// Spaces in a row count as one.
+		if n := len(b.words); n > 0 {
+			b.words[n-1].brk = b.words[n-1].brk || brk
+			if b.words[n-1].space.w == 0 {
+				b.words[n-1].space = space
+			}
 		}
 
-		cur.space, cur.brk = space, brk
-		words = append(words, cur)
-		cur = helpWord{}
+		return
 	}
+
+	b.cur.space, b.cur.brk = space, brk
+	b.words = append(b.words, b.cur)
+	b.cur = helpWord{}
+}
+
+// words splits spans into words, and gives each link a hotspot.
+func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
+	var b wordBuilder
+
 	link, spot := "", -1
 
 	for _, s := range spans {
@@ -734,11 +745,10 @@ func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 
 		switch {
 		case s.Break:
-			end(helpPiece{}, true)
+			b.end(helpPiece{}, true)
 		case s.Image != "":
 			if img := l.h.picture(s.Image); img != nil {
-				cur.pieces = append(cur.pieces, helpPiece{img: img, spot: spot, w: img.Rect.Dx()})
-				cur.w += img.Rect.Dx()
+				b.add(helpPiece{img: img, spot: spot, w: img.Rect.Dx()})
 			}
 		default:
 			f := l.face(bold || s.Bold, s.Italic)
@@ -750,21 +760,19 @@ func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 
 			for i, part := range strings.Split(s.Text, " ") {
 				if i > 0 {
-					end(helpPiece{f: f, c: c, spot: spot, w: f.width(" ")}, false)
+					b.end(helpPiece{f: f, c: c, spot: spot, w: f.width(" ")}, false)
 				}
 
 				if part != "" {
-					p := helpPiece{text: part, f: f, c: c, spot: spot, w: f.width(part)}
-					cur.pieces = append(cur.pieces, p)
-					cur.w += p.w
+					b.add(helpPiece{text: part, f: f, c: c, spot: spot, w: f.width(part)})
 				}
 			}
 		}
 	}
 
-	end(helpPiece{}, false)
+	b.end(helpPiece{}, false)
 
-	return words
+	return b.words
 }
 
 // place puts a line's words on it from x0, the line's top at y, each piece

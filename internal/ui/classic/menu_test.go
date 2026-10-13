@@ -97,7 +97,7 @@ func TestEveryMenuCommand(t *testing.T) {
 			dir := t.TempDir()
 			file := filepath.Join(dir, "all.pgs")
 
-			if err := os.WriteFile(file, b, 0o644); err != nil {
+			if err := os.WriteFile(file, b, 0o600); err != nil {
 				t.Fatal(err)
 			}
 

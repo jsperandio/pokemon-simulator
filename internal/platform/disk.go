@@ -19,10 +19,16 @@ type disk struct {
 }
 
 // Default returns the platform's storage: here, the disk.
-func Default() Files { return disk{} }
+func Default() Files {
+	return disk{}
+}
 
 // Disk returns the disk with the dialogs starting in home.
-func Disk(home string) Files { return disk{home} }
+func Disk(home string) Files {
+	return disk{
+		home,
+	}
+}
 
 // Home is the current folder, as the original's dialogs opened there, or
 // the user's home folder when the program runs from the file system's
@@ -99,11 +105,11 @@ func (disk) Stat(path string) (Entry, error) {
 	return Entry{Name: st.Name(), Dir: st.IsDir(), Size: st.Size(), ModTime: st.ModTime()}, nil
 }
 
-func (disk) ReadFile(path string) ([]byte, error) { return os.ReadFile(path) }
+func (disk) ReadFile(path string) ([]byte, error) { return os.ReadFile(path) } //nolint:gosec // the file the player chose
 
-func (disk) WriteFile(path string, data []byte) error { return os.WriteFile(path, data, 0o644) }
+func (disk) WriteFile(path string, data []byte) error { return os.WriteFile(path, data, 0o600) }
 
-func (disk) Mkdir(path string) error { return os.Mkdir(path, 0o755) }
+func (disk) Mkdir(path string) error { return os.Mkdir(path, 0o750) }
 
 func (disk) Join(dir, name string) string { return filepath.Join(dir, name) }
 func (disk) Dir(path string) string       { return filepath.Dir(path) }
@@ -122,6 +128,7 @@ func OpenURL(url string) error { return start(url) }
 func start(target string) error {
 	var cmd *exec.Cmd
 
+	//nolint:gosec // the programs are fixed, and target is the game's page or address
 	switch runtime.GOOS {
 	case "windows":
 		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", target)

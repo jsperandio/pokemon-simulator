@@ -400,7 +400,7 @@ func (f *fileDialog) list() {
 	slices.SortFunc(dirs, byName)
 	slices.SortFunc(files, byName)
 
-	f.entries = append(dirs, files...)
+	f.entries = slices.Concat(dirs, files)
 	items := make([]listItem, len(f.entries))
 
 	for i, e := range f.entries {
@@ -486,14 +486,27 @@ func (f *fileDialog) okClick() {
 		return
 	}
 
-	base := f.files.Base(p)
-	if !strings.Contains(base, ".") && f.opts.defExt != "" {
-		withExt := p + "." + strings.TrimPrefix(f.opts.defExt, ".")
-		if _, err := f.files.Stat(withExt); f.opts.save || err == nil {
-			p = withExt
-		}
+	f.choose(f.withDefExt(p))
+}
+
+// withDefExt adds the default extension to a file name without one, when
+// the dialog saves or a file has that name.
+func (f *fileDialog) withDefExt(p string) string {
+	if strings.Contains(f.files.Base(p), ".") || f.opts.defExt == "" {
+		return p
 	}
 
+	withExt := p + "." + strings.TrimPrefix(f.opts.defExt, ".")
+	if _, err := f.files.Stat(withExt); f.opts.save || err == nil {
+		return withExt
+	}
+
+	return p
+}
+
+// choose checks a file's path as the dialog's options ask, then chooses
+// it.
+func (f *fileDialog) choose(p string) {
 	if st, err := f.files.Stat(f.files.Dir(p)); err != nil || !st.Dir {
 		f.alert(false, p+"\nPath does not exist.\nPlease verify the correct path was given.", nil)
 
@@ -567,7 +580,7 @@ func (b *toolButton) paint(cv canvas) {
 	cv.pattern(gx, gy, b.glyph, iconColors)
 }
 
-func (b *toolButton) mouseDown(p image.Point, double bool) {
+func (b *toolButton) mouseDown(image.Point, bool) {
 	b.down, b.inside = true, true
 	b.invalidate()
 }
@@ -589,7 +602,7 @@ func (b *toolButton) mouseUp(p image.Point) {
 	}
 }
 
-func (b *toolButton) hover(p image.Point, out bool) {
+func (b *toolButton) hover(_ image.Point, out bool) {
 	if b.hot != !out {
 		b.hot = !out
 		b.invalidate()

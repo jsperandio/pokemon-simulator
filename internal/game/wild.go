@@ -16,21 +16,33 @@ var neverWild = []int{134, 135, 136, 150, 151, 196, 197, 251, 385, 386}
 // Huntail, Gorebyss.
 var branchedEvolutions = []int{45, 62, 80, 182, 186, 199, 266, 268, 292, 367, 368}
 
+// heldBack are the species that don't appear in the wild up to a badge
+// count.
+var heldBack = []struct {
+	badges  uint8
+	species []int
+}{
+	{4, []int{106, 107, 237}},  // the Hitmons
+	{8, []int{143}},            // Snorlax
+	{10, []int{243, 244, 245}}, // Raikou, Entei, Suicune
+	{12, []int{144, 145, 146}}, // Articuno, Zapdos, Moltres
+	{13, []int{249, 250}},      // Lugia, Ho-Oh
+	{19, []int{382, 383, 384}}, // Kyogre, Groudon, Rayquaza
+	{21, []int{380, 381}},      // Latias, Latios
+}
+
 // wildAllowed reports whether species s can be met at the current badge
 // count.
 func (g *Game) wildAllowed(s int) bool {
 	gp := g.GymProgress
-	switch {
-	case gp <= 3 && (g.isEvolved(s) || slices.Contains(branchedEvolutions, s)),
-		gp <= 4 && (s == 106 || s == 107 || s == 237), // the Hitmons
-		gp <= 8 && s == 143,                           // Snorlax
-		gp <= 10 && 243 <= s && s <= 245,              // Raikou, Entei, Suicune
-		gp <= 12 && 144 <= s && s <= 146,              // Articuno, Zapdos, Moltres
-		gp <= 13 && (s == 249 || s == 250),            // Lugia, Ho-Oh
-		gp <= 19 && 382 <= s && s <= 384,              // Kyogre, Groudon, Rayquaza
-		gp <= 21 && (s == 380 || s == 381),            // Latias, Latios
-		slices.Contains(neverWild, s):
+	if slices.Contains(neverWild, s) || gp <= 3 && (g.isEvolved(s) || slices.Contains(branchedEvolutions, s)) {
 		return false
+	}
+
+	for _, h := range heldBack {
+		if gp <= h.badges && slices.Contains(h.species, s) {
+			return false
+		}
 	}
 
 	return true
