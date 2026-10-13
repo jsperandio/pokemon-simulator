@@ -9,6 +9,9 @@ import (
 	"time"
 )
 
+// ErrNotExist is returned for a path that doesn't exist.
+var ErrNotExist = errors.New("file does not exist")
+
 // Files is the storage the game's files live in: the disk, or the
 // browser's storage on the web. Paths are the storage's own.
 type Files interface {
@@ -36,6 +39,3 @@ type Entry struct {
 	Size    int64
 	ModTime time.Time
 }
-
-// ErrNotExist is returned for a path that doesn't exist.
-var ErrNotExist = errors.New("file does not exist")
