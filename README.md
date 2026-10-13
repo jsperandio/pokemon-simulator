@@ -27,7 +27,7 @@ The game plays as the original did, and its manual is under Help → Contents (F
 
 ## Building
 
-You need Go 1.25 or later. No C compiler is needed, because every build uses `CGO_ENABLED=0`.
+You need Go 1.26 or later. No C compiler is needed, because every build uses `CGO_ENABLED=0`.
 
 | Command | What it does |
 |---|---|
