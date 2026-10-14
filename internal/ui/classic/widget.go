@@ -162,7 +162,7 @@ func (c *ctl) setVisible(v bool) {
 		c.visible = v
 		c.invalidate()
 
-		if !v && c.win != nil && c.win.focus != nil && !c.win.focus.base().shown() {
+		if !v && c.win != nil && c.win.focusHidden() {
 			c.win.focus = nil
 		}
 
@@ -175,7 +175,7 @@ func (c *ctl) setEnabled(v bool) {
 		c.enabled = v
 		c.invalidate()
 
-		if w := c.win; !v && w != nil && w.focus != nil && !w.focus.base().usable() {
+		if w := c.win; !v && w != nil && w.focusDisabled() {
 			// A disabled window can't have the focus: Windows takes it
 			// away, to no window.
 			w.setFocus(nil, false)
@@ -399,6 +399,12 @@ func (l *label) autoSize() {
 	l.setBounds(image.Rect(l.r.Min.X, l.r.Min.Y, l.r.Min.X+w, l.r.Min.Y+l.font.height()))
 }
 
+// isAccelTarget reports whether accelerator lr focuses l's control: l is
+// shown, has a control and its caption's accelerator is lr.
+func (l *label) isAccelTarget(lr rune) bool {
+	return l.focusControl != nil && l.shown() && accel(l.caption) == lr
+}
+
 func (l *label) paint(cv canvas) {
 	if !l.transparent {
 		cv.fill(l.local(), l.color)
@@ -446,7 +452,7 @@ func (b *button) focusable() bool {
 
 // pushed reports whether it is drawn pushed in.
 func (b *button) pushed() bool {
-	return b.down && b.inside || b.keyDown
+	return (b.down && b.inside) || b.keyDown
 }
 
 // looksDefault reports whether it has the default button's black frame:
@@ -645,8 +651,11 @@ func (g *radioGroup) paint(cv canvas) {
 
 	for i, item := range g.items {
 		r := g.buttonRect(i)
-		paintRadio(cv.sub(r), r.Size(), g.font, item, i == g.index,
-			g.pressing == i && g.inside, g.usable(), g.focused() && g.win.active && (i == g.index || g.index < 0 && i == 0), g.fontColor)
+		pushed := g.pressing == i && g.inside
+		// The focus is on the checked item, or on the first when none is.
+		current := i == g.index || (g.index < 0 && i == 0)
+		focus := g.focused() && g.win.active && current
+		paintRadio(cv.sub(r), r.Size(), g.font, item, i == g.index, pushed, g.usable(), focus, g.fontColor)
 	}
 }
 

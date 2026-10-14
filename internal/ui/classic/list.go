@@ -188,7 +188,9 @@ func (s *scrollBar) release() {
 // tick repeats a held arrow or page click; it reports whether anything
 // moved.
 func (s *scrollBar) tick(now time.Time) bool {
-	if s.pressed == partNone || s.pressed == partThumb || !s.inside || now.Before(s.next) {
+	// Only an arrow or the track repeats, with the mouse on it.
+	notHeld := s.pressed == partNone || s.pressed == partThumb || !s.inside
+	if notHeld || now.Before(s.next) {
 		return false
 	}
 
@@ -230,7 +232,9 @@ func (s *scrollBar) paint(cv canvas) {
 	}
 
 	ts, tl := s.thumb()
-	if tl > 0 && s.pressed >= partPageLess && s.pressed <= partPageMore && s.inside {
+
+	pageHeld := s.pressed >= partPageLess && s.pressed <= partPageMore && s.inside
+	if tl > 0 && pageHeld {
 		// The held part of the track turns dark.
 		from, to := ts+tl, s.length()-a
 		if s.pressed == partPageLess {

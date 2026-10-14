@@ -96,13 +96,19 @@ func (m *Music) Stop() error {
 // repeat is on. The original's Timer1 checks on every tick, so turning
 // repeat on after the end plays it again too.
 func (m *Music) Update(repeat bool) {
-	if m.p == nil || m.stopped || !repeat || m.p.IsPlaying() {
+	if !repeat || !m.ended() {
 		return
 	}
 
 	if _, err := m.p.Seek(0, io.SeekStart); err == nil {
 		m.p.Play()
 	}
+}
+
+// ended reports whether the music has played to its end: open, not
+// stopped, and no longer playing.
+func (m *Music) ended() bool {
+	return m.p != nil && !m.stopped && !m.p.IsPlaying()
 }
 
 // Playing reports whether the music plays: open, not stopped, and not at

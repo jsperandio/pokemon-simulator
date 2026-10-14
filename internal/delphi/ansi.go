@@ -33,7 +33,7 @@ func EncodeANSI(s string) []byte {
 	b := make([]byte, 0, len(s))
 	for _, r := range s {
 		switch {
-		case r < 0x80 || r >= 0xA0 && r <= 0xFF:
+		case r < 0x80 || (r >= 0xA0 && r <= 0xFF):
 			b = append(b, byte(r)) //nolint:gosec // a string's runes aren't negative
 		case r >= 0x80 && r < 0xA0 && cp1252High[r-0x80] == 0:
 			b = append(b, byte(r)) // the undefined bytes decode to themselves

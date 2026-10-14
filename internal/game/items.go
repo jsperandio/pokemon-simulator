@@ -15,10 +15,16 @@ const (
 	SuperPotion
 )
 
+// ItemUsable reports whether item button k (0-based: PokeBall …
+// SuperPotion) is shown and enabled.
+func (g *Game) ItemUsable(k int) bool {
+	return k >= 0 && k < len(g.Stats.ItemEnabled) && g.Stats.Items && g.Stats.ItemEnabled[k]
+}
+
 // UseItem is item button k (0-based: PokeBall … SuperPotion), if it is
 // shown and enabled.
 func (g *Game) UseItem(k int) {
-	if k < 0 || k >= len(g.Stats.ItemEnabled) || !g.Stats.Items || !g.Stats.ItemEnabled[k] {
+	if !g.ItemUsable(k) {
 		return
 	}
 
@@ -128,7 +134,7 @@ func (g *Game) enableItems() {
 		noBalls() // one Mewtwo at a time
 	}
 
-	if g.InTrainerBattle || g.InWildBattle && len(g.Party()) == len(g.Owned) {
+	if g.InTrainerBattle || (g.InWildBattle && len(g.Party()) == len(g.Owned)) {
 		noBalls()
 	}
 

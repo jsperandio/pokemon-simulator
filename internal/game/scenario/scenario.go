@@ -553,6 +553,18 @@ func (p *Player) seed(arg string) error {
 	return nil
 }
 
+// partyClickable reports whether party member i (1-based) can be
+// double-clicked: the Statistics window shows, with its party enabled.
+func partyClickable(g *game.Game, i int) bool {
+	return g.Stats.Visible && g.Stats.PartyEnabled && i >= 1 && i <= len(g.Party())
+}
+
+// attackable reports whether attack k (1–4), or "Run!" (5), can be chosen:
+// the game window has the attacks up and the fight goes on.
+func attackable(g *game.Game, k int) bool {
+	return k >= 1 && k <= 5 && g.Main.Attacks && g.Main.Go
+}
+
 // choose double-clicks party member i (1-based).
 func (p *Player) choose(arg string) error {
 	i, err := number(arg)
@@ -560,8 +572,7 @@ func (p *Player) choose(arg string) error {
 		return err
 	}
 
-	g := p.G
-	if !g.Stats.Visible || !g.Stats.PartyEnabled || i < 1 || i > len(g.Party()) {
+	if !partyClickable(p.G, i) {
 		return fmt.Errorf("party member %d can't be clicked", i)
 	}
 
@@ -678,8 +689,7 @@ func (p *Player) item(arg string) error {
 		return err
 	}
 
-	g := p.G
-	if k < 1 || k > 6 || !g.Stats.Items || !g.Stats.ItemEnabled[k-1] {
+	if !p.G.ItemUsable(k - 1) {
 		return fmt.Errorf("item button %d is hidden or disabled", k)
 	}
 
@@ -786,8 +796,7 @@ func (p *Player) quit(string) error {
 
 // attack selects attack k (1–4) or "Run!" (5) and presses "Go!".
 func (p *Player) attack(k int) error {
-	g := p.G
-	if k < 1 || k > 5 || !g.Main.Attacks || !g.Main.Go {
+	if !attackable(p.G, k) {
 		return fmt.Errorf("attack %d can't be chosen", k)
 	}
 
@@ -850,7 +859,7 @@ func (p *Player) menu(path string) error {
 	}
 
 	m := chain[len(chain)-1]
-	if !p.G.Main.Visible || p.G.Main.Starters && m.Name != "Quit1" {
+	if !p.G.Main.Visible || (p.G.Main.Starters && m.Name != "Quit1") {
 		return errors.New("the game window isn't up")
 	}
 

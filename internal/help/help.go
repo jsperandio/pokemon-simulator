@@ -153,11 +153,17 @@ func headingLevel(line string) int {
 	}
 
 	n := len(t) - len(strings.TrimLeft(t, "#"))
-	if n == 0 || n > 6 || len(t) > n && t[n] != ' ' {
+	if !headingMarker(n, t) {
 		return 0
 	}
 
 	return n
+}
+
+// headingMarker reports whether the n "#"s that lead t make a heading's
+// marker: one to six of them, then a space or the end of the line.
+func headingMarker(n int, t string) bool {
+	return n >= 1 && n <= 6 && (len(t) == n || t[n] == ' ')
 }
 
 func isQuote(line string) bool {
@@ -187,11 +193,11 @@ func listMarker(line string) string {
 	case '-', '*', '+':
 		n = 1
 	default:
-		for n < len(t) && n < 9 && t[n] >= '0' && t[n] <= '9' {
+		for n < len(t) && n < 9 && isDigit(t[n]) {
 			n++
 		}
 
-		if n == 0 || n == len(t) || t[n] != '.' && t[n] != ')' {
+		if n == 0 || n == len(t) || !isOrderedDelim(t[n]) {
 			return ""
 		}
 
@@ -203,6 +209,15 @@ func listMarker(line string) string {
 	}
 
 	return t[:n]
+}
+
+func isDigit(c byte) bool {
+	return c >= '0' && c <= '9'
+}
+
+// isOrderedDelim reports whether c ends an ordered list item's number.
+func isOrderedDelim(c byte) bool {
+	return c == '.' || c == ')'
 }
 
 // startsBlock reports whether a line interrupts a paragraph.

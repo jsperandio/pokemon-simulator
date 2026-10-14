@@ -61,8 +61,16 @@ func TestFields(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if f.PlayerName != "Gary" || f.PokeBalls != 3 || f.Money != 0 || !f.InDex[4] || f.InDex[1] {
-		t.Errorf("new game: %q, %d POKéBalls, %d¥, dex[4]=%v", f.PlayerName, f.PokeBalls, f.Money, f.InDex[4])
+	if f.PlayerName != "Gary" {
+		t.Errorf("new game: player %q, want Gary", f.PlayerName)
+	}
+
+	if f.PokeBalls != 3 || f.Money != 0 {
+		t.Errorf("new game: %d POKéBalls and %d¥, want 3 and 0", f.PokeBalls, f.Money)
+	}
+
+	if !f.InDex[4] || f.InDex[1] {
+		t.Errorf("new game: POKéDEX has Charmander %t and Bulbasaur %t, want true and false", f.InDex[4], f.InDex[1])
 	}
 
 	if p := f.Party(); len(p) != 1 || p[0] != (Slot{Species: 4, Level: 5, XP: 125}) {
@@ -74,8 +82,12 @@ func TestFields(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if p := f.Party(); len(p) != 2 || p[1] != (Slot{Species: 150, Level: 29, XP: 24389}) || f.Money != 42000 || f.Wins != 8 {
-		t.Errorf("prime cup: party %v, %d¥, %d wins", p, f.Money, f.Wins)
+	if p := f.Party(); len(p) != 2 || p[1] != (Slot{Species: 150, Level: 29, XP: 24389}) {
+		t.Errorf("prime cup: party %v", p)
+	}
+
+	if f.Money != 42000 || f.Wins != 8 {
+		t.Errorf("prime cup: %d¥ and %d wins, want 42000 and 8", f.Money, f.Wins)
 	}
 }
 

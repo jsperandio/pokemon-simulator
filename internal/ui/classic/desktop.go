@@ -359,6 +359,12 @@ func (d *desktop) blocked(w *window) bool {
 	return m != nil && w != m
 }
 
+// takesInput reports whether window w gets the mouse and the keys: it
+// exists, no modal window blocks it and no popup is open.
+func (d *desktop) takesInput(w *window) bool {
+	return w != nil && !d.blocked(w) && len(d.popups) == 0
+}
+
 // update handles one frame's input.
 func (d *desktop) update(in *input, now time.Time) {
 	d.now = now
@@ -384,7 +390,7 @@ func (d *desktop) update(in *input, now time.Time) {
 
 	d.keys(in)
 
-	d.updateHint(p, in.pressed || in.released || in.wheel != 0 || len(in.keys) > 0 || len(in.keysUp) > 0)
+	d.updateHint(p, in.acted())
 	d.tick(now)
 	d.updateCursor(p)
 }
@@ -409,7 +415,8 @@ func (d *desktop) keys(in *input) {
 		menu = menu || d.menu != nil
 	}
 
-	if !in.mods.alt && !in.mods.ctrl && !menu && d.active == active {
+	shortcut := in.mods.alt || in.mods.ctrl
+	if !shortcut && !menu && d.active == active {
 		for _, r := range in.chars {
 			d.char(r)
 		}
@@ -430,8 +437,10 @@ func widgetOrigin(k widget) image.Point {
 // isDouble reports whether a press on target at p makes a double click.
 func (d *desktop) isDouble(p image.Point, target any) bool {
 	dp := p.Sub(d.lastPos)
-	double := target == d.lastTarget && d.now.Sub(d.lastClick) <= doubleClickTime &&
-		abs(dp.X) <= doubleClickDist/2 && abs(dp.Y) <= doubleClickDist/2
+	sameTarget := target == d.lastTarget
+	inTime := d.now.Sub(d.lastClick) <= doubleClickTime
+	inRange := abs(dp.X) <= doubleClickDist/2 && abs(dp.Y) <= doubleClickDist/2
+	double := sameTarget && inTime && inRange
 
 	d.lastTarget = target
 	if double {
@@ -553,8 +562,7 @@ func (d *desktop) captionDown(w *window, p image.Point) {
 	}
 
 	if d.isDouble(p, w) {
-		icon := w.sysMenu && w.style != bsDialog && w.style != bsToolWindow &&
-			p.X < w.captionRect().Min.X+20
+		icon := w.hasSysIcon() && p.X < w.captionRect().Min.X+20
 		switch {
 		case icon:
 			w.close() // a double click on the icon closes the window
@@ -597,7 +605,7 @@ func (d *desktop) mouseMove(p image.Point, down bool) {
 	}
 
 	if n := len(d.popups); n > 0 {
-		d.popups[n-1].mouseMove(p, down && d.popupPress || down && d.capture != nil)
+		d.popups[n-1].mouseMove(p, down && (d.popupPress || d.capture != nil))
 
 		d.dirty = true
 		if d.popupPress {
@@ -623,10 +631,10 @@ func (d *desktop) hoverAt(p image.Point) {
 	w := d.windowAt(p)
 
 	for _, m := range d.menuBars() {
-		m.hover(p, w == m.win && !d.blocked(w) && len(d.popups) == 0)
+		m.hover(p, w == m.win && d.takesInput(w))
 	}
 
-	if w != nil && !d.blocked(w) && len(d.popups) == 0 && p.In(w.clientRect()) {
+	if d.takesInput(w) && p.In(w.clientRect()) {
 		over = w.widgetAt(p)
 	}
 
@@ -819,7 +827,7 @@ func (d *desktop) keyUp(k ebiten.Key) {
 			return
 		}
 
-		if w := d.active; w != nil && w.menu != nil && !d.blocked(w) && len(d.popups) == 0 {
+		if w := d.active; d.takesInput(w) && w.menu != nil {
 			d.menu = w.menu
 			w.menu.enterKeyboard()
 		}
@@ -900,7 +908,7 @@ func (d *desktop) tick(now time.Time) {
 			return
 		}
 
-		if on := since%(2*caretBlink) < caretBlink; on != d.caretOn {
+		if on := blinkOn(since); on != d.caretOn {
 			d.caretOn = on
 			d.dirty = true
 		}
@@ -1013,7 +1021,7 @@ func (d *desktop) updateHint(p image.Point, cancel bool) {
 // hintTarget returns the control under the mouse if its hint may show,
 // or nil.
 func (d *desktop) hintTarget(p image.Point) widget {
-	if d.menu != nil || len(d.popups) > 0 || d.drag != nil || d.capture != nil || d.topModal() != nil {
+	if d.busy() {
 		return nil
 	}
 
@@ -1023,11 +1031,24 @@ func (d *desktop) hintTarget(p image.Point) widget {
 	}
 
 	k := w.widgetAt(p)
-	if k == nil || !k.base().shown() || k.base().prop("ShowHint") != "True" || hintText(k) == "" {
+	if !hintable(k) {
 		return nil
 	}
 
 	return k
+}
+
+// busy reports whether the desktop is in the middle of something that keeps
+// hints from showing: a menu or a popup is open, a window is dragged, a
+// control holds the mouse, or a modal window is up.
+func (d *desktop) busy() bool {
+	return d.menu != nil || len(d.popups) > 0 || d.drag != nil || d.capture != nil || d.topModal() != nil
+}
+
+// hintable reports whether control k has a hint to show: it is shown, has
+// ShowHint on and a hint.
+func hintable(k widget) bool {
+	return k != nil && k.base().shown() && k.base().prop("ShowHint") == "True" && hintText(k) != ""
 }
 
 // hintText is a control's hint, the part before a "|" (GetShortHint).

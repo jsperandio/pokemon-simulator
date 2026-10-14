@@ -24,6 +24,12 @@ func parseInline(s string) []Span {
 	return p.spans
 }
 
+// canMerge reports whether text in style st can join s: s is text of that
+// style, not a break or an image.
+func (s *Span) canMerge(st style) bool {
+	return !s.Break && s.Image == "" && s.Bold == st.bold && s.Italic == st.italic && s.Link == st.link
+}
+
 // text adds text in a style, to the last span if it has the same.
 func (p *inliner) text(t string, st style) {
 	if t == "" {
@@ -32,7 +38,7 @@ func (p *inliner) text(t string, st style) {
 
 	if n := len(p.spans); n > 0 {
 		last := &p.spans[n-1]
-		if !last.Break && last.Image == "" && last.Bold == st.bold && last.Italic == st.italic && last.Link == st.link {
+		if last.canMerge(st) {
 			last.Text += t
 
 			return

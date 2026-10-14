@@ -89,7 +89,7 @@ func TestTypeMultipliers(t *testing.T) {
 	g.SelectTypes(5, 3) // Charizard (Fire/Flying), Razor Leaf (Grass)
 
 	a, b, total, ok := g.TypeMultipliers()
-	if !ok || a != "0.5" || b != "0.5" || total != "0.25" {
+	if !ok || [3]string{a, b, total} != [3]string{"0.5", "0.5", "0.25"} {
 		t.Errorf("Razor Leaf on Charizard: %s × %s = %s", a, b, total)
 	}
 }

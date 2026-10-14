@@ -34,9 +34,15 @@ func sansSerif(t *testing.T) *Font {
 
 func TestParse(t *testing.T) {
 	f := sansSerif(t)
-	if f.Name != "MS Sans Serif" || f.Points != 8 || f.Height != 13 || f.Ascent != 11 {
+	if f.Name != "MS Sans Serif" || [3]int{f.Points, f.Height, f.Ascent} != [3]int{8, 13, 11} {
 		t.Errorf("got %q %d pt, height %d, ascent %d", f.Name, f.Points, f.Height, f.Ascent)
 	}
+}
+
+// autoSized reports whether c is a label with a caption, whose width Delphi
+// stored as measured in the form's font.
+func autoSized(c *layout.Component) bool {
+	return c.Class == "TLabel" && c.Caption != "" && c.Props["AutoSize"] != "False" && c.Props["Font.Name"] == ""
 }
 
 // Delphi stores an autosized label's width, measured with the real MS Sans
@@ -47,7 +53,7 @@ func TestLabelWidths(t *testing.T) {
 
 	for _, form := range layout.All {
 		form.Walk(func(c *layout.Component) {
-			if c.Class != "TLabel" || c.Caption == "" || c.Props["AutoSize"] == "False" || c.Props["Font.Name"] != "" {
+			if !autoSized(c) {
 				return
 			}
 

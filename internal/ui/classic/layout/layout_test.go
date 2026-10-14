@@ -41,9 +41,13 @@ func TestWindowArrangement(t *testing.T) {
 	}
 	for _, c := range checks {
 		b := c.form.Bounds
-		if b.X != c.x || b.Y != c.y || c.form.Props["ClientWidth"] != c.cw || c.form.Props["ClientHeight"] != c.ch {
-			t.Errorf("%s at (%d,%d) %sx%s, want (%d,%d) %sx%s", c.form.Name, b.X, b.Y,
-				c.form.Props["ClientWidth"], c.form.Props["ClientHeight"], c.x, c.y, c.cw, c.ch)
+		if b.X != c.x || b.Y != c.y {
+			t.Errorf("%s at (%d,%d), want (%d,%d)", c.form.Name, b.X, b.Y, c.x, c.y)
+		}
+
+		cw, ch := c.form.Props["ClientWidth"], c.form.Props["ClientHeight"]
+		if cw != c.cw || ch != c.ch {
+			t.Errorf("%s is %sx%s, want %sx%s", c.form.Name, cw, ch, c.cw, c.ch)
 		}
 	}
 }

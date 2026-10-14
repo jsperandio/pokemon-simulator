@@ -89,7 +89,13 @@ func (p *pacer) next(in *input, changed, music bool, now time.Time) {
 func (in *input) active(prev image.Point) bool {
 	desktop := image.Rect(0, 0, screenWidth, screenHeight)
 	moved := in.mouse != prev && (in.mouse.In(desktop) || prev.In(desktop))
+	typed := len(in.chars) > 0 || in.dropped != nil
 
-	return moved || in.down || in.pressed || in.released || in.wheel != 0 ||
-		len(in.keys) > 0 || len(in.keysUp) > 0 || len(in.chars) > 0 || in.dropped != nil
+	return moved || in.down || in.acted() || typed
+}
+
+// acted reports whether the frame has a mouse button or wheel event, or a
+// key that came down or went up.
+func (in *input) acted() bool {
+	return in.pressed || in.released || in.wheel != 0 || len(in.keys) > 0 || len(in.keysUp) > 0
 }

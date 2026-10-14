@@ -49,6 +49,17 @@ const (
 	Steel
 )
 
+// valid reports whether t is one of the types, Normal to Steel.
+func (t Type) valid() bool {
+	return t >= Normal && t <= Steel
+}
+
+// validOrNone reports whether t is a type or NoType, as a species' second
+// type may be.
+func (t Type) validOrNone() bool {
+	return t == NoType || t.valid()
+}
+
 // Species is a POKéMON species. IDs follow the original's "Old POKéDEX"
 // order: 1–151 Kanto, 152–251 Johto, 252–386 Hoenn.
 type Species struct {
@@ -152,7 +163,7 @@ func Load(raw []byte) (*Data, error) {
 // that a modified file fails here rather than in the middle of a battle.
 func (d *Data) validate() error {
 	for _, s := range d.Species {
-		if s.Types[0] < Normal || s.Types[0] > Steel || s.Types[1] < NoType || s.Types[1] > Steel {
+		if !s.Types[0].valid() || !s.Types[1].validOrNone() {
 			return fmt.Errorf("pokegame.dat: %s has invalid types %v", s.Name, s.Types)
 		}
 
@@ -168,7 +179,7 @@ func (d *Data) validate() error {
 	}
 
 	for _, m := range d.Moves {
-		if m.Type < Normal || m.Type > Steel {
+		if !m.Type.valid() {
 			return fmt.Errorf("pokegame.dat: move %s has invalid type %d", m.Name, m.Type)
 		}
 	}
@@ -196,7 +207,7 @@ func (d *Data) MoveByID(id int) *Move {
 
 // TypeName returns the name of t, or "" for NoType.
 func (d *Data) TypeName(t Type) string {
-	if t < Normal || t > Steel {
+	if !t.valid() {
 		return ""
 	}
 
@@ -206,7 +217,7 @@ func (d *Data) TypeName(t Type) string {
 // Effect returns the damage multiplier of an attack of type atk against a
 // defender of type def. NoType neither strengthens nor weakens (1).
 func (d *Data) Effect(atk, def Type) float64 {
-	if atk < Normal || atk > Steel || def < Normal || def > Steel {
+	if !atk.valid() || !def.valid() {
 		return 1
 	}
 

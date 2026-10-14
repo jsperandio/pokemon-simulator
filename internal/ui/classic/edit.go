@@ -87,7 +87,10 @@ func (t *textBox) replace(s string) {
 // typed handles a typed character: one cp1252 can hold, that the box
 // accepts.
 func (t *textBox) typed(r rune) {
-	if r < 0x20 || r == 0x7f || string(delphi.EncodeANSI(string(r))) == "?" && r != '?' {
+	control := r < 0x20 || r == 0x7f
+	outsideANSI := string(delphi.EncodeANSI(string(r))) == "?" && r != '?'
+
+	if control || outsideANSI {
 		return
 	}
 
@@ -238,6 +241,12 @@ func (t *textBox) fit(f face, w int) {
 	}
 }
 
+// blinkOn reports whether a caret that moved since ago shows: it is on for
+// caretBlink and off for as long.
+func blinkOn(since time.Duration) bool {
+	return since%(2*caretBlink) < caretBlink
+}
+
 // paint draws the text in r with its selection (when focused) and the
 // blinking caret.
 func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, focused bool) {
@@ -248,9 +257,9 @@ func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, foc
 	s := string(t.text)
 	a, b := t.sel()
 
-	if !focused && !t.keepSel || a == b {
-		f.draw(in, x, 0, s, fg)
-	} else {
+	// The selection shows with the focus, or always with ES_NOHIDESEL.
+	showSel := (focused || t.keepSel) && a != b
+	if showSel {
 		pre, mid, post := string(t.text[:a]), string(t.text[a:b]), string(t.text[b:])
 		x = f.draw(in, x, 0, pre, fg)
 		w := f.width(mid)
@@ -258,9 +267,12 @@ func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, foc
 
 		x = f.draw(in, x, 0, mid, colSelText)
 		f.draw(in, x, 0, post, fg)
+	} else {
+		f.draw(in, x, 0, s, fg)
 	}
 
-	if focused && a == b && !t.readOnly && time.Since(t.blink)%(1060*time.Millisecond) < 530*time.Millisecond {
+	hasCaret := focused && a == b && !t.readOnly
+	if hasCaret && blinkOn(time.Since(t.blink)) {
 		cx := f.width(string(t.text[:t.caret])) - t.scroll
 		for y := range f.height() {
 			in.invert(cx, y)
@@ -414,7 +426,7 @@ func (s *spinEdit) setup(comp *layout.Component) {
 
 	// IsValidChar: digits, signs and the decimal separator.
 	s.tb.valid = func(r rune) bool {
-		return r >= '0' && r <= '9' || r == '+' || r == '-' || r == '.'
+		return isDigit(r) || strings.ContainsRune("+-.", r)
 	}
 	s.tb.onChange = func() {
 		s.invalidate()
@@ -693,7 +705,8 @@ func (m *memo) layout() {
 }
 
 func (m *memo) paint(cv canvas) {
-	if len(m.wraps) == 0 && len(m.lines) > 0 || m.scroll.r.Empty() {
+	needsLayout := (len(m.wraps) == 0 && len(m.lines) > 0) || m.scroll.r.Empty()
+	if needsLayout {
 		m.layout()
 	}
 
@@ -991,13 +1004,27 @@ func (c *comboBox) mouseUp(image.Point) {
 	c.invalidate()
 }
 
+// opensDropDown reports whether key k with modifiers m drops the list
+// down: F4, or Alt and Down.
+func opensDropDown(k ebiten.Key, m mods) bool {
+	return k == ebiten.KeyF4 || (m.alt && k == ebiten.KeyDown)
+}
+
+// closesDropDown reports whether key k with modifiers m closes the dropped
+// list up: Escape, F4, or Alt and Up or Down.
+func closesDropDown(k ebiten.Key, m mods) bool {
+	altArrow := m.alt && (k == ebiten.KeyUp || k == ebiten.KeyDown)
+
+	return k == ebiten.KeyEscape || k == ebiten.KeyF4 || altArrow
+}
+
 func (c *comboBox) key(k ebiten.Key, m mods) bool {
 	if c.dropped != nil && c.droppedKey(k, m) {
 		return true
 	}
 
 	switch {
-	case k == ebiten.KeyF4 || m.alt && k == ebiten.KeyDown:
+	case opensDropDown(k, m):
 		c.dropDown()
 	case k == ebiten.KeyUp && !m.alt:
 		c.pick(max(c.index-1, 0))
@@ -1029,7 +1056,7 @@ func (c *comboBox) key(k ebiten.Key, m mods) bool {
 // took it. Escape, F4 and Alt with an arrow close the list up, as Enter
 // does after the list takes it.
 func (c *comboBox) droppedKey(k ebiten.Key, m mods) bool {
-	if k == ebiten.KeyEscape || k == ebiten.KeyF4 || m.alt && (k == ebiten.KeyUp || k == ebiten.KeyDown) {
+	if closesDropDown(k, m) {
 		c.closeUp()
 
 		return true

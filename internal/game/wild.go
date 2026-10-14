@@ -35,7 +35,9 @@ var heldBack = []struct {
 // count.
 func (g *Game) wildAllowed(s int) bool {
 	gp := g.GymProgress
-	if slices.Contains(neverWild, s) || gp <= 3 && (g.isEvolved(s) || slices.Contains(branchedEvolutions, s)) {
+	tooEarly := gp <= 3 && (g.isEvolved(s) || slices.Contains(branchedEvolutions, s))
+
+	if slices.Contains(neverWild, s) || tooEarly {
 		return false
 	}
 

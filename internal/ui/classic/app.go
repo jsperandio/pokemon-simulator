@@ -306,6 +306,12 @@ func (a *App) step(in input, now time.Time) {
 	}
 }
 
+// keyFires reports whether a key held for d frames acts in this one: at
+// once, then every repeatInterval frames after repeatDelay.
+func keyFires(d int) bool {
+	return d == 1 || (d >= repeatDelay && (d-repeatDelay)%repeatInterval == 0)
+}
+
 // input reads this frame's input from Ebitengine.
 func (a *App) input() input {
 	var in input
@@ -330,7 +336,7 @@ func (a *App) input() input {
 
 	for _, k := range inpututil.AppendPressedKeys(nil) {
 		d := inpututil.KeyPressDuration(k)
-		if d == 1 || d >= repeatDelay && (d-repeatDelay)%repeatInterval == 0 {
+		if keyFires(d) {
 			in.keys = append(in.keys, k)
 		}
 	}

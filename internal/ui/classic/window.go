@@ -150,10 +150,20 @@ func (w *window) setIcons(icons string) {
 	}
 
 	w.sysMenu = strings.Contains(icons, "biSystemMenu")
-	w.minBox = w.sysMenu && strings.Contains(icons, "biMinimize") &&
-		w.style != bsDialog && w.style != bsToolWindow
-	w.maxBox = w.sysMenu && strings.Contains(icons, "biMaximize") &&
-		w.style != bsDialog && w.style != bsToolWindow
+	w.minBox = w.sysMenu && strings.Contains(icons, "biMinimize") && w.fullCaption()
+	w.maxBox = w.sysMenu && strings.Contains(icons, "biMaximize") && w.fullCaption()
+}
+
+// fullCaption reports whether the window has a regular caption, which can
+// have the icon and the minimize and maximize buttons: it is neither a
+// dialog nor a tool window.
+func (w *window) fullCaption() bool {
+	return w.style != bsDialog && w.style != bsToolWindow
+}
+
+// hasSysIcon reports whether the caption shows the system menu's icon.
+func (w *window) hasSysIcon() bool {
+	return w.sysMenu && w.fullCaption()
 }
 
 // measureLabels sizes the labels among ws and their children to their
@@ -440,7 +450,7 @@ func (w *window) paintCaption(cv canvas) {
 		icon = w.res.appIcon
 	}
 
-	if w.sysMenu && w.style != bsDialog && w.style != bsToolWindow && icon != nil {
+	if w.hasSysIcon() && icon != nil {
 		cv.blend(x, cr.Min.Y+1, icon, icon.Rect)
 
 		x += 18
@@ -717,6 +727,16 @@ func (w *window) char(r rune) {
 	}
 }
 
+// focusHidden reports whether the control with the focus is hidden.
+func (w *window) focusHidden() bool {
+	return w.focus != nil && !w.focus.base().shown()
+}
+
+// focusDisabled reports whether the control with the focus is disabled.
+func (w *window) focusDisabled() bool {
+	return w.focus != nil && !w.focus.base().usable()
+}
+
 // accelerator clicks the button whose accelerator r is, or focuses the
 // control of the label whose it is; it reports whether there is one.
 func (w *window) accelerator(r rune) bool {
@@ -736,7 +756,7 @@ func (w *window) accelerator(r rune) bool {
 	)
 	walk = func(ws []widget) {
 		for _, k := range ws {
-			if l, ok := k.(*label); ok && target == nil && l.focusControl != nil && l.shown() && accel(l.caption) == lr {
+			if l, ok := k.(*label); ok && target == nil && l.isAccelTarget(lr) {
 				target = l.focusControl
 			}
 

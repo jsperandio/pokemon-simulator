@@ -84,7 +84,8 @@ func (g *Game) ClickParty(k int) {
 		g.choose(i)
 	}
 
-	if g.InTrainerBattle && g.MinLevel <= m.Level && m.Level <= g.MaxLevel && g.confirm("Choose "+name+"?") {
+	inLevelRange := g.MinLevel <= m.Level && m.Level <= g.MaxLevel
+	if g.InTrainerBattle && inLevelRange && g.confirm("Choose "+name+"?") {
 		g.choose(i)
 	}
 
@@ -245,11 +246,11 @@ func (g *Game) hit(r int, mv *gamedata.Move, level int, crit bool, def *gamedata
 	t2 := g.Data.Effect(mv.Type, def.Types[1])
 	d := Damage(r, mv.Power, level, crit, t1, t2)
 
-	if t1 == 2 && t2 >= 1 || t2 == 2 && t1 == 1 {
+	if superEffective(t1, t2) {
 		g.log("It's super effective!")
 	}
 
-	if t1 == 0.5 && t2 == 1 || t1 == 0.5 && t2 == 0.5 || t1 == 1 && t2 == 0.5 {
+	if notVeryEffective(t1, t2) {
 		g.log("It's not very effective...")
 	}
 
@@ -260,6 +261,29 @@ func (g *Game) hit(r int, mv *gamedata.Move, level int, crit bool, def *gamedata
 	}
 
 	return d
+}
+
+// superEffective reports whether the multipliers t1 and t2 of an attack
+// against a defender's two types show "It's super effective!". The
+// original tests these cases only:
+//
+//	t1   t2
+//	2    1 or 2
+//	1    2
+//
+// so a 2 against a type that resists on the other shows nothing.
+func superEffective(t1, t2 float64) bool {
+	return (t1 == 2 && t2 >= 1) || (t2 == 2 && t1 == 1)
+}
+
+// notVeryEffective reports whether the multipliers show "It's not very
+// effective...": the cases of the original are
+//
+//	t1   t2
+//	0.5  1 or 0.5
+//	1    0.5
+func notVeryEffective(t1, t2 float64) bool {
+	return (t1 == 0.5 && t2 == 1) || (t1 == 0.5 && t2 == 0.5) || (t1 == 1 && t2 == 0.5)
 }
 
 // Damage is an attack's damage, before immunity: (r − 10) + power/100 ×

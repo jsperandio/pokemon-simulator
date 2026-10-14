@@ -128,6 +128,16 @@ func TestSpecies(t *testing.T) {
 	}
 }
 
+// moveMatches reports whether got is the move want; a Power of 0 in want
+// isn't checked.
+func moveMatches(got *Move, want Move) bool {
+	if got == nil {
+		return false
+	}
+
+	return got.Name == want.Name && got.Type == want.Type && (want.Power == 0 || got.Power == want.Power)
+}
+
 func TestMoves(t *testing.T) {
 	d := loadEmbedded(t)
 	tests := []Move{
@@ -138,7 +148,7 @@ func TestMoves(t *testing.T) {
 
 	for _, want := range tests {
 		got := d.MoveByID(want.ID)
-		if got == nil || got.Name != want.Name || got.Type != want.Type || (want.Power != 0 && got.Power != want.Power) {
+		if !moveMatches(got, want) {
 			t.Errorf("move %d: got %+v, want %+v", want.ID, got, want)
 		}
 	}

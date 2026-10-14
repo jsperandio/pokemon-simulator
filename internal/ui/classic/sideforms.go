@@ -138,9 +138,19 @@ func (f *statsForm) freshen() {
 
 	f.counts["OwnedPKMNLbl"].setCaption(itoa(g.DexCount()))
 
-	if f.w.active && f.w.focus == nil && !f.w.noFocus && f.a.main.w.visible && f.a.desk.topModal() == nil {
+	if f.wantsFocusBack() {
 		f.a.desk.activate(f.a.main.w)
 	}
+}
+
+// wantsFocusBack reports whether the window is active but nothing in it has
+// the focus, while the game window shows and no modal window is up: the
+// activation goes back to the game window.
+func (f *statsForm) wantsFocusBack() bool {
+	a, w := f.a, f.w
+	nothingFocused := w.active && w.focus == nil && !w.noFocus
+
+	return nothingFocused && a.main.w.visible && a.desk.topModal() == nil
 }
 
 // infoForm is Battle Info (TForm7).

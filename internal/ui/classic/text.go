@@ -138,6 +138,11 @@ func plain(s string) string {
 	return b.String()
 }
 
+// isDigit reports whether r is an ASCII digit.
+func isDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
 // accel returns a caption's accelerator, lowercased, or 0.
 func accel(s string) rune {
 	for i := 0; i+1 < len(s); i++ {

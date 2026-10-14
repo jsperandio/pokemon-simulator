@@ -213,7 +213,8 @@ func (ta *testApp) menu(names ...string) {
 
 	m := ta.main.w.menu
 	for i, e := range m.entries {
-		if e.name() == names[0] && (!m.active() || m.sel != i || len(m.open) == 0) {
+		closed := !m.active() || m.sel != i || len(m.open) == 0
+		if e.name() == names[0] && closed {
 			r := m.barRects()[i]
 			ta.click(r.Min.Add(r.Size().Div(2)))
 		}

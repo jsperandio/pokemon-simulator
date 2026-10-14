@@ -182,7 +182,7 @@ func autoHotkeys(entries []*menuEntry) {
 				c -= 'a' - 'A'
 			}
 
-			if (c >= 'A' && c <= 'Z' || c >= '0' && c <= '9') && !used[c] {
+			if isAccelChar(c) && !used[c] {
 				used[c] = true
 				e.caption = s[:i] + "&" + s[i:]
 
@@ -190,6 +190,12 @@ func autoHotkeys(entries []*menuEntry) {
 			}
 		}
 	}
+}
+
+// isAccelChar reports whether c can be a menu item's accelerator: an
+// upper-case letter or a digit.
+func isAccelChar(c byte) bool {
+	return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
 }
 
 // barRects returns the bar items' rectangles on the screen; a hidden
@@ -237,10 +243,12 @@ func (m *menuBar) paint(cv canvas, r image.Rectangle) {
 		}
 
 		e := m.entries[i]
+
+		onSel := m.active() && i == m.sel
 		switch {
-		case m.active() && i == m.sel && len(m.open) > 0, m.active() && i == m.sel && m.pressed == i:
+		case onSel && len(m.open) > 0, onSel && m.pressed == i:
 			cv.edge(ir, colShadow, colHighlight)
-		case m.active() && i == m.sel, !m.active() && i == m.hot && m.win.active:
+		case onSel, !m.active() && i == m.hot && m.win.active:
 			cv.edge(ir, colHighlight, colShadow)
 		}
 
@@ -471,7 +479,9 @@ func (m *menuBar) mouseMove(p image.Point, down bool) {
 	}
 
 	if p.In(m.win.menuRect()) {
-		if i := m.barAt(p); i >= 0 && i != m.sel && (len(m.open) > 0 || down) {
+		// With a menu open, or the button down, the selection follows the mouse.
+		following := len(m.open) > 0 || down
+		if i := m.barAt(p); i >= 0 && i != m.sel && following {
 			m.selectBar(i, true)
 
 			if down {
