@@ -156,7 +156,12 @@ const saveFilter string = "Saved Games (*.PGS)|*.pgs"
 func (f *startForm) newButtonClick() {
 	a := f.a
 	a.call(func() {
-		file, ok := a.openFile(fileOptions{save: true, filter: saveFilter, defExt: "pgs", overwrite: true})
+		file, ok := a.openFile(fileOptions{
+			save:      true,
+			filter:    saveFilter,
+			defExt:    "pgs",
+			overwrite: true,
+		})
 		if !ok {
 			return
 		}

@@ -56,7 +56,17 @@ func newMainForm(a *App) *mainForm {
 	f.pickCombo = get[*comboBox](w, "ComboBox1")
 	f.pickLevel = get[*spinEdit](w, "SpinEdit1")
 
-	for _, n := range []string{"Label10", "Label11", "ComboBox1", "SpinEdit1", "Button2", "Button3", "Button4"} {
+	pickerNames := []string{
+		"Label10",
+		"Label11",
+		"ComboBox1",
+		"SpinEdit1",
+		"Button2",
+		"Button3",
+		"Button4",
+	}
+
+	for _, n := range pickerNames {
 		f.picker = append(f.picker, w.find(n))
 	}
 
@@ -180,7 +190,12 @@ func (f *mainForm) formClose() {
 // the player chooses, then shown if wanted.
 func (f *mainForm) export() {
 	a := f.a
-	file, ok := a.openFile(fileOptions{save: true, filter: "HTML Files (*.htm)|*.htm", defExt: "htm", overwrite: true})
+	file, ok := a.openFile(fileOptions{
+		save:      true,
+		filter:    "HTML Files (*.htm)|*.htm",
+		defExt:    "htm",
+		overwrite: true,
+	})
 
 	if !ok {
 		return

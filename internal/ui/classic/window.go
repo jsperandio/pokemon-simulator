@@ -86,12 +86,21 @@ type window struct {
 
 // borderStyles are the BorderStyles a form may have besides the default.
 var borderStyles = map[string]borderStyle{
-	"bsNone": bsNone, "bsSingle": bsSingle, "bsDialog": bsDialog, "bsToolWindow": bsToolWindow,
+	"bsNone":       bsNone,
+	"bsSingle":     bsSingle,
+	"bsDialog":     bsDialog,
+	"bsToolWindow": bsToolWindow,
 }
 
 // newWindow makes a form and its controls from its layout.
 func newWindow(d *desktop, comp *layout.Component) *window {
-	w := &window{desk: d, res: d.res, name: comp.Name, caption: comp.Caption, visible: false}
+	w := &window{
+		desk:    d,
+		res:     d.res,
+		name:    comp.Name,
+		caption: comp.Caption,
+		visible: false,
+	}
 	props := comp.Props
 	w.style = borderStyles[props["BorderStyle"]]
 	w.color = vclColor(props["Color"], colFace)
@@ -141,8 +150,10 @@ func (w *window) setIcons(icons string) {
 	}
 
 	w.sysMenu = strings.Contains(icons, "biSystemMenu")
-	w.minBox = w.sysMenu && strings.Contains(icons, "biMinimize") && w.style != bsDialog && w.style != bsToolWindow
-	w.maxBox = w.sysMenu && strings.Contains(icons, "biMaximize") && w.style != bsDialog && w.style != bsToolWindow
+	w.minBox = w.sysMenu && strings.Contains(icons, "biMinimize") &&
+		w.style != bsDialog && w.style != bsToolWindow
+	w.maxBox = w.sysMenu && strings.Contains(icons, "biMaximize") &&
+		w.style != bsDialog && w.style != bsToolWindow
 }
 
 // measureLabels sizes the labels among ws and their children to their

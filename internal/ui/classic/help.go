@@ -87,24 +87,37 @@ func (a *App) help() {
 }
 
 func newHelpWindow(a *App) *helpWindow {
-	h := &helpWindow{a: a, pages: map[string]*help.Page{}, pictures: map[string]*image.RGBA{}, openURL: platform.OpenURL}
+	h := &helpWindow{
+		a:        a,
+		pages:    map[string]*help.Page{},
+		pictures: map[string]*image.RGBA{},
+		openURL:  platform.OpenURL,
+	}
 
 	const frame int = 4 // sizeable
 	comp := layout.Component{
-		Class: "THelpWindow", Name: "Help", Caption: helpBannerText,
-		Bounds: layout.Rect{X: helpPos.X, Y: helpPos.Y},
+		Class:   "THelpWindow",
+		Name:    "Help",
+		Caption: helpBannerText,
+		Bounds:  layout.Rect{X: helpPos.X, Y: helpPos.Y},
 		Props: map[string]string{
 			"ClientWidth":  itoa(helpSize.X - 2*frame),
 			"ClientHeight": itoa(helpSize.Y - 2*frame - captionHeight),
 		},
 		Children: []layout.Component{
 			{
-				Class: "TButton", Name: "Contents", Caption: "&Contents", Bounds: layout.Rect{X: 4, Y: 3, W: 75, H: 23},
-				Props: map[string]string{"TabStop": "False"},
+				Class:   "TButton",
+				Name:    "Contents",
+				Caption: "&Contents",
+				Bounds:  layout.Rect{X: 4, Y: 3, W: 75, H: 23},
+				Props:   map[string]string{"TabStop": "False"},
 			},
 			{
-				Class: "TButton", Name: "Back", Caption: "&Back", Bounds: layout.Rect{X: 81, Y: 3, W: 75, H: 23},
-				Props: map[string]string{"TabStop": "False"},
+				Class:   "TButton",
+				Name:    "Back",
+				Caption: "&Back",
+				Bounds:  layout.Rect{X: 81, Y: 3, W: 75, H: 23},
+				Props:   map[string]string{"TabStop": "False"},
 			},
 		},
 	}
@@ -603,7 +616,12 @@ func (l *helpFlow) blocks(bs []help.Block, x0, x1, y int) int {
 					marker, x = it.Marker, x0
 				}
 
-				l.ops = append(l.ops, helpOp{r: image.Rect(x, base-text.ascent(), x, base), text: marker, f: text, c: colText})
+				l.ops = append(l.ops, helpOp{
+					r:    image.Rect(x, base-text.ascent(), x, base),
+					text: marker,
+					f:    text,
+					c:    colText,
+				})
 			}
 		case help.Table:
 			y = l.table(b.Rows, x0, y)
@@ -634,7 +652,11 @@ func (l *helpFlow) table(rows [][]help.Cell, x0, y int) int {
 
 		for c, w := range widths {
 			cw := w + 2*helpPad
-			l.ops = append(l.ops, helpOp{r: image.Rect(x, y, x+cw+1, y+rowH+1), c: colShadow, frame: true})
+			l.ops = append(l.ops, helpOp{
+				r:     image.Rect(x, y, x+cw+1, y+rowH+1),
+				c:     colShadow,
+				frame: true,
+			})
 
 			if c < len(row) {
 				l.flow(row[c], x+1+helpPad, x+1+helpPad+w, y+3, r == 0)
@@ -766,11 +788,22 @@ func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 
 			for i, part := range strings.Split(s.Text, " ") {
 				if i > 0 {
-					b.end(helpPiece{f: f, c: c, spot: spot, w: f.width(" ")}, false)
+					b.end(helpPiece{
+						f:    f,
+						c:    c,
+						spot: spot,
+						w:    f.width(" "),
+					}, false)
 				}
 
 				if part != "" {
-					b.add(helpPiece{text: part, f: f, c: c, spot: spot, w: f.width(part)})
+					b.add(helpPiece{
+						text: part,
+						f:    f,
+						c:    c,
+						spot: spot,
+						w:    f.width(part),
+					})
 				}
 			}
 		}
@@ -834,9 +867,17 @@ func (l *helpFlow) place(line []helpWord, x0, y int, first *int) int {
 func (l *helpFlow) put(p helpPiece, x, top, base, bottom int) {
 	switch {
 	case p.img != nil:
-		l.ops = append(l.ops, helpOp{r: image.Rect(x, base-p.img.Rect.Dy(), x+p.w, base), img: p.img})
+		l.ops = append(l.ops, helpOp{
+			r:   image.Rect(x, base-p.img.Rect.Dy(), x+p.w, base),
+			img: p.img,
+		})
 	case p.text != "":
-		l.ops = append(l.ops, helpOp{r: image.Rect(x, base-p.f.ascent(), x+p.w, base), text: p.text, f: p.f, c: p.c})
+		l.ops = append(l.ops, helpOp{
+			r:    image.Rect(x, base-p.f.ascent(), x+p.w, base),
+			text: p.text,
+			f:    p.f,
+			c:    p.c,
+		})
 	}
 
 	if p.spot < 0 || p.w == 0 {
@@ -881,7 +922,10 @@ func helpIcon() *image.NRGBA {
 `
 	img := image.NewRGBA(image.Rect(0, 0, 16, 16))
 	newCanvas(img).pattern(0, 0, rows, map[byte]color.RGBA{
-		'k': colText, 'b': colSelection, 'y': helpYellow, 'w': colWindow,
+		'k': colText,
+		'b': colSelection,
+		'y': helpYellow,
+		'w': colWindow,
 	})
 
 	icon := image.NewNRGBA(img.Rect)

@@ -40,13 +40,23 @@ func (g *Game) AddPKMN(species int, name string, level uint8) {
 	}
 
 	l := uint32(level)
-	*g.member(i) = save.Slot{Species: int32(species), Level: level, XP: l * l * l} //nolint:gosec // a species number
+	*g.member(i) = save.Slot{
+		Species: int32(species), //nolint:gosec // a species number
+		Level:   level,
+		XP:      l * l * l,
+	}
 }
 
 // toggleEvolveMode is Actions → Evolve a POKéMON: the next double click
 // on the party evolves.
 func (g *Game) toggleEvolveMode() {
-	modes := []string{"ReleasePKMN1", "Tournaments1", "FightTrainer1", "Buy1", "FightWild1"}
+	modes := []string{
+		"ReleasePKMN1",
+		"Tournaments1",
+		"FightTrainer1",
+		"Buy1",
+		"FightWild1",
+	}
 
 	if !g.EvolveMode {
 		g.menu["Evolve1"].Checked = true
@@ -72,7 +82,13 @@ func (g *Game) toggleReleaseMode() {
 		return
 	}
 
-	modes := []string{"Evolve1", "Tournaments1", "FightTrainer1", "Buy1", "FightWild1"}
+	modes := []string{
+		"Evolve1",
+		"Tournaments1",
+		"FightTrainer1",
+		"Buy1",
+		"FightWild1",
+	}
 
 	if !g.ReleaseMode {
 		g.menu["ReleasePKMN1"].Checked = true

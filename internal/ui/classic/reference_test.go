@@ -68,9 +68,17 @@ var referenceShots = map[string]map[string]refShots{
 // originalClients are the original's client areas in its screenshots, by
 // window, or by screenshot where the window had another.
 var originalClients = map[string]image.Point{
-	"Form1": {536, 366}, "Form3": {511, 157}, "Form4": {422, 270}, "Form5": {177, 473},
-	"Form7": {422, 159}, "Form8": {241, 161}, "Form9": {471, 65}, "FormA": {377, 41},
-	"FormB": {385, 153}, "AboutBox": {241, 98}, "OKRightDlg": {153, 25},
+	"Form1":             {536, 366},
+	"Form3":             {511, 157},
+	"Form4":             {422, 270},
+	"Form5":             {177, 473},
+	"Form7":             {422, 159},
+	"Form8":             {241, 161},
+	"Form9":             {471, 65},
+	"FormA":             {377, 41},
+	"FormB":             {385, 153},
+	"AboutBox":          {241, 98},
+	"OKRightDlg":        {153, 25},
 	"screens-dex-empty": {241, 25}, // the POKéDEX's AutoSize, without its panel
 }
 
@@ -194,18 +202,33 @@ func shootMenus(t *testing.T) {
 	ta := newTestAppIn(t, dir, []string{file})
 	ta.wait(80)
 
-	arrows := map[string]ebiten.Key{"left": ebiten.KeyLeft, "right": ebiten.KeyRight, "up": ebiten.KeyUp, "down": ebiten.KeyDown}
+	arrows := map[string]ebiten.Key{
+		"left":  ebiten.KeyLeft,
+		"right": ebiten.KeyRight,
+		"up":    ebiten.KeyUp,
+		"down":  ebiten.KeyDown,
+	}
 
 	for _, m := range []string{
-		"f menu-file", "a menu-actions", "a right menu-fight", "a right right menu-trainers",
-		"a right right right menu-beginner", "a right down down down right menu-johto",
-		"a down menu-wild", "m menu-music", "h menu-help",
+		"f menu-file",
+		"a menu-actions",
+		"a right menu-fight",
+		"a right right menu-trainers",
+		"a right right right menu-beginner",
+		"a right down down down right menu-johto",
+		"a down menu-wild",
+		"m menu-music",
+		"h menu-help",
 	} {
 		keys := strings.Fields(m)
 		label := keys[len(keys)-1]
 		letter := ebiten.KeyA + ebiten.Key(keys[0][0]-'a')
 		ta.frame(input{keys: []ebiten.Key{ebiten.KeyAltLeft}, mods: mods{alt: true}})
-		ta.frame(input{keys: []ebiten.Key{letter}, chars: []rune{rune(keys[0][0])}, mods: mods{alt: true}})
+		ta.frame(input{
+			keys:  []ebiten.Key{letter},
+			chars: []rune{rune(keys[0][0])},
+			mods:  mods{alt: true},
+		})
 		ta.frame(input{keysUp: []ebiten.Key{letter, ebiten.KeyAltLeft}})
 
 		for _, k := range keys[1 : len(keys)-1] {

@@ -101,12 +101,24 @@ func (g *Game) hideItems() {
 	g.Stats.Items = false
 }
 
+// counter returns how many of item k (PokeBall … SuperPotion) the player has.
+func (g *Game) counter(k int) *uint32 {
+	return [6]*uint32{
+		&g.PokeBalls,
+		&g.GreatBalls,
+		&g.UltraBalls,
+		&g.MasterBalls,
+		&g.Potions,
+		&g.SuperPotions,
+	}[k]
+}
+
 // enableItems enables the buttons of the items the player has, as the
 // battle allows (TForm5.EnableButtons).
 func (g *Game) enableItems() {
 	e := &g.Stats.ItemEnabled
-	for k, n := range []uint32{g.PokeBalls, g.GreatBalls, g.UltraBalls, g.MasterBalls, g.Potions, g.SuperPotions} {
-		e[k] = n != 0
+	for k := range e {
+		e[k] = *g.counter(k) != 0
 	}
 
 	noBalls := func() {

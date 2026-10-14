@@ -10,7 +10,19 @@
 package layout
 
 // All lists every form of the original game.
-var All = []*Component{&Form1, &Form3, &Form4, &Form5, &Form7, &Form8, &Form9, &FormA, &FormB, &OKRightDlg, &AboutBox}
+var All = []*Component{
+	&Form1,
+	&Form3,
+	&Form4,
+	&Form5,
+	&Form7,
+	&Form8,
+	&Form9,
+	&FormA,
+	&FormB,
+	&OKRightDlg,
+	&AboutBox,
+}
 
 // Rect is a component's Left, Top, Width and Height in pixels, relative to
 // its parent's client area. Forms store their client size in the

@@ -217,7 +217,12 @@ func TestLoadingFits(t *testing.T) {
 		t.Errorf("client %v at %v, want 511×157 centred as 510 wide", w.client, w.pos)
 	}
 
-	for name, x := range map[string]int{"Label1": 216, "Label2": 265, "Label3": 12, "Label4": 29} {
+	for name, x := range map[string]int{
+		"Label1": 216,
+		"Label2": 265,
+		"Label3": 12,
+		"Label4": 29,
+	} {
 		if got := w.find(name).base().r.Min.X; got != x {
 			t.Errorf("%s at x=%d, want %d", name, got, x)
 		}

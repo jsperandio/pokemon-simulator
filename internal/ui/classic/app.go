@@ -195,8 +195,13 @@ func (a *App) Message(kind game.DialogKind, yesNo bool, text string) bool {
 func (a *App) show(w game.Window) {
 	a.syncForms() // the controls as the game left them, before the focus comes in
 	a.desk.show(map[game.Window]*window{
-		game.MainForm: a.main.w, game.StatsForm: a.stats.w, game.InfoForm: a.info.w, game.DexForm: a.dex.w,
-		game.MartForm: a.mart.w, game.TypesForm: a.types.w, game.CornerForm: a.corner.w,
+		game.MainForm:   a.main.w,
+		game.StatsForm:  a.stats.w,
+		game.InfoForm:   a.info.w,
+		game.DexForm:    a.dex.w,
+		game.MartForm:   a.mart.w,
+		game.TypesForm:  a.types.w,
+		game.CornerForm: a.corner.w,
 	}[w])
 }
 

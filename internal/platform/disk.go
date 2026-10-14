@@ -86,7 +86,12 @@ func (disk) List(dir string) ([]Entry, error) {
 			}
 		}
 
-		out = append(out, Entry{Name: de.Name(), Dir: isDir, Size: info.Size(), ModTime: info.ModTime()})
+		out = append(out, Entry{
+			Name:    de.Name(),
+			Dir:     isDir,
+			Size:    info.Size(),
+			ModTime: info.ModTime(),
+		})
 	}
 
 	return out, nil
@@ -102,7 +107,12 @@ func (disk) Stat(path string) (Entry, error) {
 		return Entry{}, err
 	}
 
-	return Entry{Name: st.Name(), Dir: st.IsDir(), Size: st.Size(), ModTime: st.ModTime()}, nil
+	return Entry{
+		Name:    st.Name(),
+		Dir:     st.IsDir(),
+		Size:    st.Size(),
+		ModTime: st.ModTime(),
+	}, nil
 }
 
 func (disk) ReadFile(path string) ([]byte, error) {

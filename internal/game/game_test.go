@@ -57,7 +57,13 @@ func TestWinPercent(t *testing.T) {
 	for _, c := range []struct {
 		wins, losses uint32
 		want         string
-	}{{39, 11, "77.99"}, {1, 2, "33.33"}, {1, 0, "100"}, {0, 3, "0"}, {2, 1, "66.66"}} {
+	}{
+		{39, 11, "77.99"},
+		{1, 2, "33.33"},
+		{1, 0, "100"},
+		{0, 3, "0"},
+		{2, 1, "66.66"},
+	} {
 		g.Wins, g.Losses = c.wins, c.losses
 		if got, ok := g.WinPercent(); !ok || got != c.want {
 			t.Errorf("%d wins, %d losses: %q, want %q", c.wins, c.losses, got, c.want)
@@ -193,7 +199,15 @@ func TestLevelFor(t *testing.T) {
 		level uint8
 		xp    uint32
 		want  uint8
-	}{{5, 125, 5}, {5, 215, 5}, {5, 216, 6}, {5, 1000, 10}, {30, 42392, 34}, {50, 0, 50}, {1, 4294967295, 255}} {
+	}{
+		{5, 125, 5},
+		{5, 215, 5},
+		{5, 216, 6},
+		{5, 1000, 10},
+		{30, 42392, 34},
+		{50, 0, 50},
+		{1, 4294967295, 255},
+	} {
 		if got := levelFor(c.level, c.xp); got != c.want {
 			t.Errorf("levelFor(%d, %d) = %d, want %d", c.level, c.xp, got, c.want)
 		}
@@ -218,7 +232,13 @@ func TestMenu(t *testing.T) {
 		t.Errorf("%d menu items, want the original's 86", n)
 	}
 
-	for name, want := range map[string]bool{"Brock1": true, "Misty1": false, "Falkner1": false, "MakeVisible1": false, "Quit1": true} {
+	for name, want := range map[string]bool{
+		"Brock1":       true,
+		"Misty1":       false,
+		"Falkner1":     false,
+		"MakeVisible1": false,
+		"Quit1":        true,
+	} {
 		if got := g.available(name); got != want {
 			t.Errorf("%s available: %t, want %t", name, got, want)
 		}
@@ -320,7 +340,13 @@ func TestGaugeColor(t *testing.T) {
 		hp, level int
 		want      GaugeColor
 	}{
-		{50, 5, Green}, {26, 5, Green}, {25, 5, Yellow}, {13, 5, Yellow}, {12, 5, Red}, {0, 5, Red}, {-3, 5, Red},
+		{50, 5, Green},
+		{26, 5, Green},
+		{25, 5, Yellow},
+		{13, 5, Yellow},
+		{12, 5, Red},
+		{0, 5, Red},
+		{-3, 5, Red},
 	} {
 		if got := gaugeColor(c.hp, c.level); got != c.want {
 			t.Errorf("gaugeColor(%d, %d) = %d, want %d", c.hp, c.level, got, c.want)

@@ -55,7 +55,11 @@ var Form4 = Component{
 			Name:   "ListView1",
 			Bounds: Rect{147, 32, 133, 217},
 			Hidden: true,
-			List:   []ListItem{{Caption: "Bulbasaur", ImageIndex: 0}, {Caption: "Charmander", ImageIndex: 3}, {Caption: "Squirtle", ImageIndex: 6}},
+			List: []ListItem{
+				{Caption: "Bulbasaur", ImageIndex: 0},
+				{Caption: "Charmander", ImageIndex: 3},
+				{Caption: "Squirtle", ImageIndex: 6},
+			},
 			Events: map[string]string{
 				"OnClick": "ListView1Click",
 			},

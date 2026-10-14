@@ -695,7 +695,13 @@ func paintRadio(cv canvas, size image.Point, f face, caption string, checked, pu
 		inside = colFace
 	}
 
-	cv.pattern(1, gy, radioGlyph, map[byte]color.RGBA{'s': colShadow, 'k': colDkShadow, 'w': colHighlight, 'l': colLight, 'i': inside})
+	cv.pattern(1, gy, radioGlyph, map[byte]color.RGBA{
+		's': colShadow,
+		'k': colDkShadow,
+		'w': colHighlight,
+		'l': colLight,
+		'i': inside,
+	})
 
 	if checked {
 		dot := colText

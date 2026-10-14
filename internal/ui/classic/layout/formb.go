@@ -49,7 +49,15 @@ var FormB = Component{
 			Name:    "RadioGroup1",
 			Bounds:  Rect{0, 24, 193, 129},
 			Caption: "Play for:",
-			Items:   []string{"Money (Pays out 10:1¥)", "POKéBalls (Pays out 1:100¥)", "Great Balls (Pays out 1:300¥)", "Ultra Balls (Pays out 1:600¥)", "Master Balls (Pays out 1:2500¥)", "Potions (Pays out 1:200¥)", "Super Potions (Pays out 1:500¥)"},
+			Items: []string{
+				"Money (Pays out 10:1¥)",
+				"POKéBalls (Pays out 1:100¥)",
+				"Great Balls (Pays out 1:300¥)",
+				"Ultra Balls (Pays out 1:600¥)",
+				"Master Balls (Pays out 1:2500¥)",
+				"Potions (Pays out 1:200¥)",
+				"Super Potions (Pays out 1:500¥)",
+			},
 			Props: map[string]string{
 				"TabOrder": "1",
 			},

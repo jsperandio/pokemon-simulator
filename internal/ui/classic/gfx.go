@@ -11,7 +11,12 @@ import (
 
 // rgb is a colour written as 0xRRGGBB.
 func rgb(v uint32) color.RGBA {
-	return color.RGBA{R: uint8(v >> 16 & 0xff), G: uint8(v >> 8 & 0xff), B: uint8(v & 0xff), A: 0xff}
+	return color.RGBA{
+		R: uint8(v >> 16 & 0xff),
+		G: uint8(v >> 8 & 0xff),
+		B: uint8(v & 0xff),
+		A: 0xff,
+	}
 }
 
 // Windows 98's standard colour scheme.
@@ -39,16 +44,32 @@ var (
 
 // vclColors are the VCL's colour constants the forms use.
 var vclColors = map[string]color.RGBA{
-	"clBlack": rgb(0x000000), "clMaroon": rgb(0x800000), "clGreen": rgb(0x008000),
-	"clOlive": rgb(0x808000), "clNavy": rgb(0x000080), "clPurple": rgb(0x800080),
-	"clTeal": rgb(0x008080), "clGray": rgb(0x808080), "clSilver": rgb(0xC0C0C0),
-	"clRed": rgb(0xFF0000), "clLime": rgb(0x00FF00), "clYellow": rgb(0xFFFF00),
-	"clBlue": rgb(0x0000FF), "clFuchsia": rgb(0xFF00FF), "clAqua": rgb(0x00FFFF),
-	"clWhite":   rgb(0xFFFFFF),
-	"clBtnFace": colFace, "clWindow": colWindow, "clWindowText": colText,
-	"clBtnText": colText, "clBtnShadow": colShadow, "clBtnHighlight": colHighlight,
-	"clHighlight": colSelection, "clHighlightText": colSelText, "clGrayText": colGrayText,
-	"clInfoBk": colInfo,
+	"clBlack":         rgb(0x000000),
+	"clMaroon":        rgb(0x800000),
+	"clGreen":         rgb(0x008000),
+	"clOlive":         rgb(0x808000),
+	"clNavy":          rgb(0x000080),
+	"clPurple":        rgb(0x800080),
+	"clTeal":          rgb(0x008080),
+	"clGray":          rgb(0x808080),
+	"clSilver":        rgb(0xC0C0C0),
+	"clRed":           rgb(0xFF0000),
+	"clLime":          rgb(0x00FF00),
+	"clYellow":        rgb(0xFFFF00),
+	"clBlue":          rgb(0x0000FF),
+	"clFuchsia":       rgb(0xFF00FF),
+	"clAqua":          rgb(0x00FFFF),
+	"clWhite":         rgb(0xFFFFFF),
+	"clBtnFace":       colFace,
+	"clWindow":        colWindow,
+	"clWindowText":    colText,
+	"clBtnText":       colText,
+	"clBtnShadow":     colShadow,
+	"clBtnHighlight":  colHighlight,
+	"clHighlight":     colSelection,
+	"clHighlightText": colSelText,
+	"clGrayText":      colGrayText,
+	"clInfoBk":        colInfo,
 }
 
 // vclColor returns a colour property's value, or def if it is unset or

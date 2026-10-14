@@ -48,7 +48,12 @@ func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 
 	a.g.Rand.Seed = 1
 
-	return &testApp{App: a, t: t, now: time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC), dir: dir}
+	return &testApp{
+		App: a,
+		t:   t,
+		now: time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC),
+		dir: dir,
+	}
 }
 
 // testData returns the game's data.
@@ -502,7 +507,11 @@ func TestAltAndLetterInOneFrame(t *testing.T) {
 	ta := newTestApp(t)
 	ta.music = &fakeMusic{}
 	ta.startGame()
-	ta.frame(input{keys: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}, chars: []rune{'m'}, mods: mods{alt: true}})
+	ta.frame(input{
+		keys:  []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft},
+		chars: []rune{'m'},
+		mods:  mods{alt: true},
+	})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}})
 
 	if ta.desk.menu == nil {

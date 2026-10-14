@@ -60,7 +60,15 @@ func (ta *testApp) menuEffects() menuEffects {
 // the player sees: a battle, a window, a dialog, a check mark, or the
 // end. The Debug menu stays hidden, as in the original.
 func TestEveryMenuCommand(t *testing.T) {
-	f := save.File{PlayerName: "Ash", GymProgress: 24, BeatLance: true, BeatAsh: true, BeatLink: true, Money: 50000, PokeBalls: 3}
+	f := save.File{
+		PlayerName:  "Ash",
+		GymProgress: 24,
+		BeatLance:   true,
+		BeatAsh:     true,
+		BeatLink:    true,
+		Money:       50000,
+		PokeBalls:   3,
+	}
 	f.Owned[0] = save.Slot{Species: 6, Level: 100, XP: 1000000}   // Charizard
 	f.Owned[1] = save.Slot{Species: 150, Level: 100, XP: 1000000} // Mewtwo
 	f.InDex[6], f.InDex[150] = true, true

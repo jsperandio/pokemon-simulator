@@ -39,9 +39,20 @@ func newStatsForm(a *App) *statsForm {
 	}
 
 	for _, n := range []string{
-		"PlayerNameLbl", "MoneyLbl", "FightsLbl", "WinsLbl", "CapturesLbl", "LossesLbl",
-		"Percent", "OwnedPKMNLbl", "PokeBallsLbl", "GreatBallsLbl", "UltraBallsLbl", "MasterBallsLbl",
-		"PotionsLbl", "SuperPotionsLbl",
+		"PlayerNameLbl",
+		"MoneyLbl",
+		"FightsLbl",
+		"WinsLbl",
+		"CapturesLbl",
+		"LossesLbl",
+		"Percent",
+		"OwnedPKMNLbl",
+		"PokeBallsLbl",
+		"GreatBallsLbl",
+		"UltraBallsLbl",
+		"MasterBallsLbl",
+		"PotionsLbl",
+		"SuperPotionsLbl",
 	} {
 		f.counts[n] = get[*label](w, n)
 	}
@@ -106,9 +117,17 @@ func (f *statsForm) freshen() {
 
 	g := f.a.g
 	for n, v := range map[string]uint32{
-		"PokeBallsLbl": g.PokeBalls, "GreatBallsLbl": g.GreatBalls, "UltraBallsLbl": g.UltraBalls,
-		"MasterBallsLbl": g.MasterBalls, "PotionsLbl": g.Potions, "SuperPotionsLbl": g.SuperPotions,
-		"WinsLbl": g.Wins, "LossesLbl": g.Losses, "FightsLbl": g.Fights, "CapturesLbl": g.Catches, "MoneyLbl": g.Money,
+		"PokeBallsLbl":    g.PokeBalls,
+		"GreatBallsLbl":   g.GreatBalls,
+		"UltraBallsLbl":   g.UltraBalls,
+		"MasterBallsLbl":  g.MasterBalls,
+		"PotionsLbl":      g.Potions,
+		"SuperPotionsLbl": g.SuperPotions,
+		"WinsLbl":         g.Wins,
+		"LossesLbl":       g.Losses,
+		"FightsLbl":       g.Fights,
+		"CapturesLbl":     g.Catches,
+		"MoneyLbl":        g.Money,
 	} {
 		f.counts[n].setCaption(strconv.FormatUint(uint64(v), 10))
 	}
@@ -402,10 +421,14 @@ func (a *App) showDraws(draws []int) {
 	a.requests <- func() {
 		a.stats.freshen() // Form5.Freshen: the bet paid
 
-		a.draws = &drawShow{draws: draws, start: a.desk.now, done: func() {
-			close(done)
-			a.wait()
-		}}
+		a.draws = &drawShow{
+			draws: draws,
+			start: a.desk.now,
+			done: func() {
+				close(done)
+				a.wait()
+			},
+		}
 	}
 
 	<-done

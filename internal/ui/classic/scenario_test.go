@@ -188,8 +188,14 @@ func (d *uiDriver) form(name string) *window {
 	ta := d.ta
 
 	return map[string]*window{
-		"Form1": ta.start.w, "Form4": ta.main.w, "Form5": ta.stats.w, "Form7": ta.info.w,
-		"Form8": ta.dex.w, "Form9": ta.mart.w, "FormA": ta.types.w, "FormB": ta.corner.w,
+		"Form1": ta.start.w,
+		"Form4": ta.main.w,
+		"Form5": ta.stats.w,
+		"Form7": ta.info.w,
+		"Form8": ta.dex.w,
+		"Form9": ta.mart.w,
+		"FormA": ta.types.w,
+		"FormB": ta.corner.w,
 	}[name]
 }
 
@@ -447,7 +453,10 @@ func (d *uiDriver) Starter(k int) error {
 }
 
 func (d *uiDriver) Export(file string) error {
-	if err := d.Menu([]*game.MenuItem{d.ta.g.Item("File1"), d.ta.g.Item("ExportPOKMONinformation1")}); err != nil {
+	if err := d.Menu([]*game.MenuItem{
+		d.ta.g.Item("File1"),
+		d.ta.g.Item("ExportPOKMONinformation1"),
+	}); err != nil {
 		return err
 	}
 

@@ -78,7 +78,14 @@ func TestMainMenu(t *testing.T) {
 		t.Errorf("got %d trainers, want 45: %v", len(trainers), trainers)
 	}
 
-	for _, name := range []string{"Brock", "Gary", "Clair", "Wallace", "Tate && Liza", "Me"} {
+	for _, name := range []string{
+		"Brock",
+		"Gary",
+		"Clair",
+		"Wallace",
+		"Tate && Liza",
+		"Me",
+	} {
 		if !slices.Contains(trainers, name) {
 			t.Errorf("trainer %q missing", name)
 		}

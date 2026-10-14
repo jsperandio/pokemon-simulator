@@ -130,7 +130,9 @@ var (
 func soundCard(src io.Reader) (player, error) {
 	cardOnce.Do(func() {
 		card, _, errCard = oto.NewContext(&oto.NewContextOptions{
-			SampleRate: sampleRate, ChannelCount: 2, Format: oto.FormatSignedInt16LE,
+			SampleRate:      sampleRate,
+			ChannelCount:    2,
+			Format:          oto.FormatSignedInt16LE,
 			ApplicationName: "POKéMON Simulator",
 		})
 	})

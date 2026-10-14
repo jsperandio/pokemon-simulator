@@ -74,7 +74,13 @@ var Form9 = Component{
 			Name:    "RadioGroup1",
 			Bounds:  Rect{152, 0, 185, 65},
 			Caption: "Item to buy:",
-			Items:   []string{"POKéBalls", "Great Balls", "Ultra Balls", "Potions", "Super Potions"},
+			Items: []string{
+				"POKéBalls",
+				"Great Balls",
+				"Ultra Balls",
+				"Potions",
+				"Super Potions",
+			},
 			Events: map[string]string{
 				"OnClick": "RadioGroup1Click",
 			},

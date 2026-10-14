@@ -106,6 +106,15 @@ type MartWindow struct {
 // Balls, Potions, Super Potions.
 var MartPrices = [5]uint32{1000, 3000, 6000, 2000, 5000}
 
+// martItems are the items MartPrices prices; the Mart has no Master Ball.
+var martItems = [5]int{
+	PokeBall,
+	GreatBall,
+	UltraBall,
+	Potion,
+	SuperPotion,
+}
+
 // OpenMart is Actions → Buy Items.
 func (g *Game) OpenMart() {
 	g.Mart = MartWindow{Visible: true, Item: -1, Total: "0¥"}
@@ -170,7 +179,7 @@ func (g *Game) Buy() {
 
 	t := g.martTotal()
 	g.Money -= t
-	*[]*uint32{&g.PokeBalls, &g.GreatBalls, &g.UltraBalls, &g.Potions, &g.SuperPotions}[g.Mart.Item] += t / MartPrices[g.Mart.Item]
+	*g.counter(martItems[g.Mart.Item]) += t / MartPrices[g.Mart.Item]
 	g.Mart.Visible = false
 }
 
@@ -194,7 +203,14 @@ type CornerWindow struct {
 var CornerPrizes = [6]struct {
 	Price uint32
 	Name  string
-}{{100, "POKéBall"}, {300, "Great Ball"}, {600, "Ultra Ball"}, {2500, "Master Ball"}, {200, "Potion"}, {500, "Super Potion"}}
+}{
+	{100, "POKéBall"},
+	{300, "Great Ball"},
+	{600, "Ultra Ball"},
+	{2500, "Master Ball"},
+	{200, "Potion"},
+	{500, "Super Potion"},
+}
 
 // OpenCorner is Actions → Game Corner.
 func (g *Game) OpenCorner() {
@@ -297,7 +313,7 @@ func (g *Game) Draw() {
 		}
 
 		msg += "!"
-		*[]*uint32{&g.PokeBalls, &g.GreatBalls, &g.UltraBalls, &g.MasterBalls, &g.Potions, &g.SuperPotions}[g.Corner.Prize-1] += n
+		*g.counter(g.Corner.Prize - 1) += n
 	}
 
 	g.Money += won

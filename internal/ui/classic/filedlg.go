@@ -166,8 +166,13 @@ okkkkkkkkkkkkkk.
 )
 
 var iconColors = map[byte]color.RGBA{
-	'o': rgb(0x808000), 'y': rgb(0xFFFF00), 'w': rgb(0xFFFFFF), 'k': rgb(0x000000), 's': rgb(0x808080),
-	'c': rgb(0xC0C0C0), 'g': rgb(0x00FF00),
+	'o': rgb(0x808000),
+	'y': rgb(0xFFFF00),
+	'w': rgb(0xFFFFFF),
+	'k': rgb(0x000000),
+	's': rgb(0x808080),
+	'c': rgb(0xC0C0C0),
+	'g': rgb(0x00FF00),
 }
 
 // The file icons' frames.
@@ -212,7 +217,12 @@ func (a *App) openFile(opts fileOptions) (string, bool) {
 }
 
 func (a *App) newFileDialog(opts fileOptions) *fileDialog {
-	f := &fileDialog{a: a, opts: opts, files: a.files, filters: parseFilter(opts.filter)}
+	f := &fileDialog{
+		a:       a,
+		opts:    opts,
+		files:   a.files,
+		filters: parseFilter(opts.filter),
+	}
 	title, in, ok, typ := "Open", "Look &in:", "&Open", "Files of &type:"
 
 	if opts.save {
@@ -220,35 +230,79 @@ func (a *App) newFileDialog(opts fileOptions) *fileDialog {
 	}
 
 	comp := layout.Component{
-		Class: "TFileDialog", Name: "FileDialog", Caption: title,
-		Props: map[string]string{"BorderStyle": "bsDialog", "ClientWidth": "420", "ClientHeight": "240", "Position": "poScreenCenter"},
+		Class:   "TFileDialog",
+		Name:    "FileDialog",
+		Caption: title,
+		Props: map[string]string{
+			"BorderStyle":  "bsDialog",
+			"ClientWidth":  "420",
+			"ClientHeight": "240",
+			"Position":     "poScreenCenter",
+		},
 		Children: []layout.Component{
-			{Class: "TLabel", Name: "LookInLabel", Caption: in, Bounds: layout.Rect{X: 6, Y: 10, W: 50, H: 13}},
 			{
-				Class: "TComboBox", Name: "LookIn", Bounds: layout.Rect{X: 74, Y: 5, W: 198, H: 21},
-				Props: map[string]string{"Style": "csDropDownList", "ItemHeight": "16", "TabOrder": "0"},
+				Class:   "TLabel",
+				Name:    "LookInLabel",
+				Caption: in,
+				Bounds:  layout.Rect{X: 6, Y: 10, W: 50, H: 13},
 			},
 			{
-				Class: "TListView", Name: "View", Bounds: layout.Rect{X: 6, Y: 33, W: 408, H: 138},
-				Props: map[string]string{"TabOrder": "1"},
-			},
-			{Class: "TLabel", Name: "NameLabel", Caption: "File &name:", Bounds: layout.Rect{X: 8, Y: 183, W: 50, H: 13}},
-			{
-				Class: "TEdit", Name: "FileName", Bounds: layout.Rect{X: 81, Y: 179, W: 233, H: 21},
-				Props: map[string]string{"TabOrder": "2"},
-			},
-			{Class: "TLabel", Name: "TypeLabel", Caption: typ, Bounds: layout.Rect{X: 8, Y: 209, W: 70, H: 13}},
-			{
-				Class: "TComboBox", Name: "Types", Bounds: layout.Rect{X: 81, Y: 205, W: 233, H: 21},
-				Props: map[string]string{"Style": "csDropDownList", "TabOrder": "3"},
+				Class:  "TComboBox",
+				Name:   "LookIn",
+				Bounds: layout.Rect{X: 74, Y: 5, W: 198, H: 21},
+				Props: map[string]string{
+					"Style":      "csDropDownList",
+					"ItemHeight": "16",
+					"TabOrder":   "0",
+				},
 			},
 			{
-				Class: "TButton", Name: "OK", Caption: ok, Bounds: layout.Rect{X: 333, Y: 179, W: 75, H: 23},
-				Props: map[string]string{"Default": "True", "TabOrder": "4"},
+				Class:  "TListView",
+				Name:   "View",
+				Bounds: layout.Rect{X: 6, Y: 33, W: 408, H: 138},
+				Props:  map[string]string{"TabOrder": "1"},
 			},
 			{
-				Class: "TButton", Name: "Cancel", Caption: "Cancel", Bounds: layout.Rect{X: 333, Y: 205, W: 75, H: 23},
-				Props: map[string]string{"Cancel": "True", "ModalResult": strconv.Itoa(mrCancel), "TabOrder": "5"},
+				Class:   "TLabel",
+				Name:    "NameLabel",
+				Caption: "File &name:",
+				Bounds:  layout.Rect{X: 8, Y: 183, W: 50, H: 13},
+			},
+			{
+				Class:  "TEdit",
+				Name:   "FileName",
+				Bounds: layout.Rect{X: 81, Y: 179, W: 233, H: 21},
+				Props:  map[string]string{"TabOrder": "2"},
+			},
+			{
+				Class:   "TLabel",
+				Name:    "TypeLabel",
+				Caption: typ,
+				Bounds:  layout.Rect{X: 8, Y: 209, W: 70, H: 13},
+			},
+			{
+				Class:  "TComboBox",
+				Name:   "Types",
+				Bounds: layout.Rect{X: 81, Y: 205, W: 233, H: 21},
+				Props:  map[string]string{"Style": "csDropDownList", "TabOrder": "3"},
+			},
+			{
+				Class:   "TButton",
+				Name:    "OK",
+				Caption: ok,
+				Bounds:  layout.Rect{X: 333, Y: 179, W: 75, H: 23},
+				Props:   map[string]string{"Default": "True", "TabOrder": "4"},
+			},
+			{
+				Class:   "TButton",
+				Name:    "Cancel",
+				Caption: "Cancel",
+				Bounds:  layout.Rect{X: 333, Y: 205, W: 75, H: 23},
+				Props: map[string]string{
+					"Cancel":      "True",
+					"ModalResult": strconv.Itoa(mrCancel),
+					"TabOrder":    "5",
+				},
 			},
 		},
 	}

@@ -106,7 +106,9 @@ func (a *App) dexItems() []string {
 
 // gaugeColors are the HP gauges' colours.
 var gaugeColors = map[game.GaugeColor]color.RGBA{
-	game.Green: vclColors["clGreen"], game.Yellow: vclColors["clYellow"], game.Red: vclColors["clRed"],
+	game.Green:  vclColors["clGreen"],
+	game.Yellow: vclColors["clYellow"],
+	game.Red:    vclColors["clRed"],
 }
 
 // setItems replaces a radio group's items if they changed.

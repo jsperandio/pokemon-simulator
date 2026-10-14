@@ -88,15 +88,23 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 	}
 	if icon != nil {
 		comp.Children = append(comp.Children, layout.Component{
-			Class: "TImage", Name: "Image",
+			Class:  "TImage",
+			Name:   "Image",
 			Bounds: layout.Rect{X: horzMargin, Y: vertMargin, W: 32, H: 32},
 		})
 	}
 
 	comp.Children = append(comp.Children, layout.Component{
-		Class: "TLabel", Name: "Message", Caption: text,
-		Bounds: layout.Rect{X: iconTextW - textW + horzMargin, Y: vertMargin, W: textW, H: textH},
-		Props:  map[string]string{"AutoSize": "False", "WordWrap": "True"},
+		Class:   "TLabel",
+		Name:    "Message",
+		Caption: text,
+		Bounds: layout.Rect{
+			X: iconTextW - textW + horzMargin,
+			Y: vertMargin,
+			W: textW,
+			H: textH,
+		},
+		Props: map[string]string{"AutoSize": "False", "WordWrap": "True"},
 	})
 	x := (clientW - groupW) / 2
 
@@ -114,9 +122,16 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		}
 
 		comp.Children = append(comp.Children, layout.Component{
-			Class: "TButton", Name: "Button" + strconv.Itoa(i+1), Caption: b.caption,
-			Bounds: layout.Rect{X: x, Y: iconTextH + vertMargin + vertSpacing, W: buttonWidth, H: buttonHeight},
-			Props:  props,
+			Class:   "TButton",
+			Name:    "Button" + strconv.Itoa(i+1),
+			Caption: b.caption,
+			Bounds: layout.Rect{
+				X: x,
+				Y: iconTextH + vertMargin + vertSpacing,
+				W: buttonWidth,
+				H: buttonHeight,
+			},
+			Props: props,
 		})
 		x += buttonWidth + buttonSpacing
 	}

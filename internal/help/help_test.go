@@ -77,14 +77,20 @@ func TestInline(t *testing.T) {
 	}{
 		{`files (\*.mp3, \*.wav)`, []Span{{Text: "files (*.mp3, *.wav)"}}},
 		{"the word codec (*pl. codices*) is", []Span{
-			{Text: "the word codec ("}, {Text: "pl. codices", Italic: true}, {Text: ") is"},
+			{Text: "the word codec ("},
+			{Text: "pl. codices", Italic: true},
+			{Text: ") is"},
 		}},
 		{"*NOTE: **all** of it*", []Span{
-			{Text: "NOTE: ", Italic: true}, {Text: "all", Bold: true, Italic: true}, {Text: " of it", Italic: true},
+			{Text: "NOTE: ", Italic: true},
+			{Text: "all", Bold: true, Italic: true},
+			{Text: " of it", Italic: true},
 		}},
 		{"a * b ** c *", []Span{{Text: "a * b ** c *"}}},
 		{"see [**Music**](music.md).", []Span{
-			{Text: "see "}, {Text: "Music", Bold: true, Link: "music.md"}, {Text: "."},
+			{Text: "see "},
+			{Text: "Music", Bold: true, Link: "music.md"},
+			{Text: "."},
 		}},
 		{"[e-mail me.](mailto:mickeym@go.to)", []Span{{Text: "e-mail me.", Link: "mailto:mickeym@go.to"}}},
 		{"[a] (b) and [c]", []Span{{Text: "[a] (b) and [c]"}}},

@@ -47,7 +47,11 @@ func (x *fakeTransfers) download(name string, data []byte) error {
 // dropped on the game are uploaded.
 func TestTransfers(t *testing.T) {
 	ta := newTestApp(t)
-	fx := &fakeTransfers{files: ta.files, pick: map[string]string{"ash.pgs": "save"}, downloads: map[string]string{}}
+	fx := &fakeTransfers{
+		files:     ta.files,
+		pick:      map[string]string{"ash.pgs": "save"},
+		downloads: map[string]string{},
+	}
 	ta.xfer = fx
 	ta.wait(80)
 	ta.clickOn(ta.start.w, "LoadButton")
@@ -72,7 +76,10 @@ func TestTransfers(t *testing.T) {
 		t.Errorf("downloads %q", fx.downloads)
 	}
 
-	ta.frame(input{dropped: fstest.MapFS{"song.ogg": {Data: []byte("OggS")}, "sub/x": {Data: []byte("x")}}})
+	ta.frame(input{dropped: fstest.MapFS{
+		"song.ogg": {Data: []byte("OggS")},
+		"sub/x":    {Data: []byte("x")},
+	}})
 
 	if f.name.text() != "song.ogg" {
 		t.Errorf("after the drop, the name box has %q", f.name.text())

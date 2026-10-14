@@ -99,7 +99,13 @@ type menuBar struct {
 // newMenuBar builds a window's menu from the game's menu and the form's
 // design: the images and the shortcuts.
 func newMenuBar(w *window, items []*game.MenuItem, design *layout.Component) *menuBar {
-	m := &menuBar{win: w, res: w.res, hot: -1, sel: -1, pressed: -1}
+	m := &menuBar{
+		win:     w,
+		res:     w.res,
+		hot:     -1,
+		sel:     -1,
+		pressed: -1,
+	}
 	m.images = w.res.imageList(design.Props["Images"])
 	props := map[string]map[string]string{}
 
@@ -112,7 +118,12 @@ func newMenuBar(w *window, items []*game.MenuItem, design *layout.Component) *me
 		out := make([]*menuEntry, 0, len(items))
 
 		for _, it := range items {
-			e := &menuEntry{item: it, caption: it.Caption, image: -1, key: -1}
+			e := &menuEntry{
+				item:    it,
+				caption: it.Caption,
+				image:   -1,
+				key:     -1,
+			}
 			if v, err := strconv.Atoi(props[it.Name]["ImageIndex"]); err == nil {
 				e.image = v
 			}
@@ -260,7 +271,13 @@ func (m *menuBar) hover(p image.Point, inside bool) {
 // popupFor lays out the submenu of e at (x, y), kept on the screen; flip
 // gives the x to use when it doesn't fit on the right.
 func (m *menuBar) popupFor(e *menuEntry, x, y, flip int) *menuPopup {
-	p := &menuPopup{entry: e, items: e.visibleKids(), sel: -1, child: -1, pending: -1}
+	p := &menuPopup{
+		entry:   e,
+		items:   e.visibleKids(),
+		sel:     -1,
+		child:   -1,
+		pending: -1,
+	}
 	w := 0
 
 	for _, k := range p.items {

@@ -116,7 +116,11 @@ func (g *Game) ExportPage(now time.Time) []byte {
 	info := export.Info{Player: g.Stats.Name, DexCount: g.DexCount(), Date: now}
 	for _, m := range g.Party() {
 		s := int(m.Species)
-		info.Party = append(info.Party, export.Member{Entry: export.Entry{Number: s, Name: g.name(s)}, Level: m.Level, XP: m.XP})
+		info.Party = append(info.Party, export.Member{
+			Entry: export.Entry{Number: s, Name: g.name(s)},
+			Level: m.Level,
+			XP:    m.XP,
+		})
 	}
 
 	for s := 1; s < len(g.InDex); s++ {

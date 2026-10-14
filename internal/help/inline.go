@@ -39,7 +39,12 @@ func (p *inliner) text(t string, st style) {
 		}
 	}
 
-	p.spans = append(p.spans, Span{Text: t, Bold: st.bold, Italic: st.italic, Link: st.link})
+	p.spans = append(p.spans, Span{
+		Text:   t,
+		Bold:   st.bold,
+		Italic: st.italic,
+		Link:   st.link,
+	})
 }
 
 // run adds the spans of s, whose text takes style st.

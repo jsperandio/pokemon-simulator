@@ -702,8 +702,11 @@ func newDropList(c *comboBox) *dropList {
 
 	if len(c.items) > d.rows {
 		d.scroll = scrollBar{
-			vertical: true, r: image.Rect(d.r.Dx()-1-scrollSize, 1, d.r.Dx()-1, d.r.Dy()-1),
-			min: 0, max: len(c.items) - 1, page: d.rows,
+			vertical: true,
+			r:        image.Rect(d.r.Dx()-1-scrollSize, 1, d.r.Dx()-1, d.r.Dy()-1),
+			min:      0,
+			max:      len(c.items) - 1,
+			page:     d.rows,
 		}
 	}
 

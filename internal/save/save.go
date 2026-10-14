@@ -94,7 +94,11 @@ func Read(b []byte) (*File, error) {
 	}
 
 	for i := range f.Owned {
-		f.Owned[i] = Slot{Species: int32(r.number()), Level: uint8(r.number()), XP: uint32(r.number())} //nolint:gosec // the game keeps the low bits
+		f.Owned[i] = Slot{
+			Species: int32(r.number()),  //nolint:gosec // the game keeps the low bits
+			Level:   uint8(r.number()),  //nolint:gosec // the game keeps the low bits
+			XP:      uint32(r.number()), //nolint:gosec // the game keeps the low bits
+		}
 	}
 
 	if r.err != nil {
@@ -125,7 +129,15 @@ func (f *File) Bytes() []byte {
 	b.Write(delphi.EncodeANSI(f.PlayerName))
 	b.WriteString("\r\n")
 
-	for _, v := range []bool{f.BeatLance, f.BeatAsh, f.BeatLink, f.GotJirachi, f.GotDeoxys} {
+	flags := []bool{
+		f.BeatLance,
+		f.BeatAsh,
+		f.BeatLink,
+		f.GotJirachi,
+		f.GotDeoxys,
+	}
+
+	for _, v := range flags {
 		boolean(v)
 	}
 

@@ -163,7 +163,13 @@ func (p *Player) flush() {
 	}
 }
 
-var kindNames = [...]string{"warning", "error", "information", "confirmation", "custom"}
+var kindNames = [...]string{
+	"warning",
+	"error",
+	"information",
+	"confirmation",
+	"custom",
+}
 
 // Answer returns the answer the probe gave a dialog: OK, or the next
 // queued answer to a Yes/No question. It stops the scenario when none is
@@ -339,7 +345,13 @@ func (p *Player) portsave(name string) error {
 		return err
 	}
 
-	q := &Player{Name: name, Dir: p.Dir, Data: p.Data, NewDriver: p.NewDriver, Saves: p.Saves}
+	q := &Player{
+		Name:      name,
+		Dir:       p.Dir,
+		Data:      p.Data,
+		NewDriver: p.NewDriver,
+		Saves:     p.Saves,
+	}
 	if _, err := q.Play(string(src)); err != nil {
 		return fmt.Errorf("%s: %v", name, err)
 	}
@@ -412,8 +424,12 @@ func (p *Player) setupParty(nums []int) error {
 		return errors.New("want species, level and maybe XP")
 	}
 
-	l := uint32(nums[1])                                                          //nolint:gosec // a value of the original's save
-	m := save.Slot{Species: int32(nums[0]), Level: uint8(nums[1]), XP: l * l * l} //nolint:gosec // the same
+	l := uint32(nums[1]) //nolint:gosec // a value of the original's save
+	m := save.Slot{
+		Species: int32(nums[0]), //nolint:gosec // the same
+		Level:   uint8(nums[1]), //nolint:gosec // the same
+		XP:      l * l * l,
+	}
 
 	if len(nums) == 3 {
 		m.XP = uint32(nums[2]) //nolint:gosec // a value of the original's save
@@ -1005,9 +1021,24 @@ func (p *Player) state(string) error {
 
 	var flags []string
 
-	for i, on := range []bool{g.BeatLance, g.BeatAsh, g.BeatLink, g.GotJirachi, g.GotDeoxys} {
+	flagNames := []string{
+		"BeatLance",
+		"BeatAsh",
+		"BeatLink",
+		"GotJirachi",
+		"GotDeoxys",
+	}
+	flagStates := []bool{
+		g.BeatLance,
+		g.BeatAsh,
+		g.BeatLink,
+		g.GotJirachi,
+		g.GotDeoxys,
+	}
+
+	for i, on := range flagStates {
 		if on {
-			flags = append(flags, []string{"BeatLance", "BeatAsh", "BeatLink", "GotJirachi", "GotDeoxys"}[i])
+			flags = append(flags, flagNames[i])
 		}
 	}
 

@@ -74,7 +74,14 @@ func TestTypes(t *testing.T) {
 func TestSpecies(t *testing.T) {
 	d := loadEmbedded(t)
 	tests := []Species{
-		{ID: 1, Name: "Bulbasaur", Types: [2]Type{Grass, Poison}, EvolveLevel: 16, EvolveTo: 2, Moves: [4]int{1, 2, 3, 4}},
+		{
+			ID:          1,
+			Name:        "Bulbasaur",
+			Types:       [2]Type{Grass, Poison},
+			EvolveLevel: 16,
+			EvolveTo:    2,
+			Moves:       [4]int{1, 2, 3, 4},
+		},
 		{ID: 3, Name: "Venusaur", Types: [2]Type{Grass, Poison}},
 		{ID: 6, Name: "Charizard", Types: [2]Type{Fire, Flying}},
 		// The author's values differ from the official games (16 and 36).

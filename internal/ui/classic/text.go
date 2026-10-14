@@ -61,7 +61,11 @@ type trueTypeFace struct {
 // newTrueType returns a font at an em height of px pixels: a VCL font with
 // Height = -px.
 func newTrueType(f *opentype.Font, px int) (*trueTypeFace, error) {
-	ff, err := opentype.NewFace(f, &opentype.FaceOptions{Size: float64(px), DPI: 72, Hinting: font.HintingFull})
+	ff, err := opentype.NewFace(f, &opentype.FaceOptions{
+		Size:    float64(px),
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
 	if err != nil {
 		return nil, err
 	}
