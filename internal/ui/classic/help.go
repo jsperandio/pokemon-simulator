@@ -86,6 +86,11 @@ func (a *App) help() {
 	a.desk.show(a.helpWin.w)
 }
 
+// arial returns the manual's Arial at an em height of px pixels.
+func (h *helpWindow) arial(px int, style fontStyle) face {
+	return h.a.res.arial(px, style)
+}
+
 func newHelpWindow(a *App) *helpWindow {
 	h := &helpWindow{
 		a:        a,
@@ -124,32 +129,33 @@ func newHelpWindow(a *App) *helpWindow {
 	w := newWindow(a.desk, &comp)
 	h.w = w
 	w.icon = helpIcon()
-	h.view = &helpView{h: h, sel: -1, press: -1}
-	addWidget(w, h.view, image.Rect(0, helpBarHeight, w.client.X, w.client.Y))
+	view := &helpView{h: h, sel: -1, press: -1}
+	h.view = view
+	addWidget(w, view, image.Rect(0, helpBarHeight, w.client.X, w.client.Y))
 
-	h.view.windowed, h.view.tabStop, h.view.color = true, true, colWindow
-	h.view.scroll = scrollBar{vertical: true, line: a.res.arial(helpTextPx, plainStyle).height()}
-	h.view.scroll.onScroll = h.view.invalidate
-	w.focus = h.view
+	view.windowed, view.tabStop, view.color = true, true, colWindow
+	view.scroll = scrollBar{vertical: true, line: a.res.arial(helpTextPx, plainStyle).height()}
+	view.scroll.onScroll = view.invalidate
+	w.focus = view
 
 	// The buttons leave the focus in the topic, as WinHelp's do.
 	get[*button](w, "Contents").onClick = func() {
 		h.jump(help.Contents)
-		w.setFocus(h.view, false)
+		w.setFocus(view, false)
 	}
 	h.back = get[*button](w, "Back")
 	h.back.onClick = func() {
 		h.goBack()
-		w.setFocus(h.view, false)
+		w.setFocus(view, false)
 	}
 	w.onResize = func() {
-		h.view.setBounds(image.Rect(0, helpBarHeight, w.client.X, w.client.Y))
+		view.setBounds(image.Rect(0, helpBarHeight, w.client.X, w.client.Y))
 	}
 	w.onClose = func() {
 		a.desk.hide(w)
 
 		h.history = nil
-		h.view.name = ""
+		view.name = ""
 	}
 	a.desk.add(w)
 
@@ -482,10 +488,10 @@ func (h *helpWindow) layoutHead(p *help.Page, width int) *image.RGBA {
 		f    face
 		text string
 	}
-	lines := []line{{h.a.res.arial(helpBannerPx, boldStyle), helpBannerText}}
+	lines := []line{{h.arial(helpBannerPx, boldStyle), helpBannerText}}
 
 	if p.Title != "" && p.Title != helpBannerText {
-		lines = append(lines, line{h.a.res.arial(helpTitlePx, boldStyle), p.Title})
+		lines = append(lines, line{h.arial(helpTitlePx, boldStyle), p.Title})
 	}
 
 	height := 2 + 4 + 1
@@ -582,7 +588,7 @@ func (l *helpFlow) face(bold, italic bool) face {
 		st = italicStyle
 	}
 
-	return l.h.a.res.arial(helpTextPx, st)
+	return l.h.arial(helpTextPx, st)
 }
 
 // blocks lays blocks out between x0 and x1 from y, a blank line apart, and

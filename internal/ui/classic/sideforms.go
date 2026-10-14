@@ -169,7 +169,8 @@ func newInfoForm(a *App) *infoForm {
 }
 
 func (f *infoForm) sync() {
-	f.memo.setLines(f.a.g.Info.Lines)
+	g := f.a.g
+	f.memo.setLines(g.Info.Lines)
 }
 
 // dexForm is the POKéDEX (TForm8).

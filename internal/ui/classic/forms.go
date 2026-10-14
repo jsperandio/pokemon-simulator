@@ -4,6 +4,7 @@ package classic
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"slices"
 	"strconv"
@@ -45,9 +46,9 @@ func (a *App) buildForms() {
 // (dy 246) does.
 func (a *App) placeWindows(dy int) {
 	x, y := screenWidth/2-305, screenHeight/2-dy
-	a.main.w.pos.X, a.main.w.pos.Y = x, y
-	a.stats.w.pos.X, a.stats.w.pos.Y = x+428, y
-	a.info.w.pos.X, a.info.w.pos.Y = x, y+314
+	a.main.w.pos = image.Pt(x, y)
+	a.stats.w.pos = image.Pt(x+428, y)
+	a.info.w.pos = image.Pt(x, y+314)
 	a.desk.dirty = true
 }
 

@@ -437,6 +437,7 @@ func (l *listView) layout() (item, icon image.Point, perCol int) {
 
 	w = max(128, w+icon.X+12)
 	c := l.client()
+	bar := &l.scroll
 	perCol = max(c.Dy()/h, 1)
 	cols := (len(l.items) + perCol - 1) / perCol
 	// The bar shows when there are more columns than fit, at least one
@@ -444,12 +445,12 @@ func (l *listView) layout() (item, icon image.Point, perCol int) {
 	if cols > max(c.Dx()/w, 1) && c.Dy() > scrollSize {
 		perCol = max((c.Dy()-scrollSize)/h, 1)
 		cols = (len(l.items) + perCol - 1) / perCol
-		l.scroll.r = image.Rect(c.Min.X, c.Max.Y-scrollSize, c.Max.X, c.Max.Y)
-		l.scroll.min, l.scroll.max, l.scroll.page = 0, cols-1, max(c.Dx()/w, 1)
-		l.scroll.set(l.scroll.pos)
+		bar.r = image.Rect(c.Min.X, c.Max.Y-scrollSize, c.Max.X, c.Max.Y)
+		bar.min, bar.max, bar.page = 0, cols-1, max(c.Dx()/w, 1)
+		bar.set(bar.pos)
 	} else {
-		l.scroll.r = image.Rectangle{}
-		l.scroll.pos = 0
+		bar.r = image.Rectangle{}
+		bar.pos = 0
 	}
 
 	return image.Pt(w, h), icon, perCol

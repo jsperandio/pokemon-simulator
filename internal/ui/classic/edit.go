@@ -556,7 +556,8 @@ func (s *spinEdit) mouseDown(p image.Point, double bool) {
 	s.inside = true
 	s.step()
 
-	s.next = s.win.desk.now.Add(400 * time.Millisecond)
+	now := s.win.desk.now
+	s.next = now.Add(400 * time.Millisecond)
 	s.invalidate()
 }
 
@@ -763,22 +764,24 @@ func (m *memo) wheel(dy int) {
 }
 
 func (m *memo) key(k ebiten.Key, mm mods) bool {
+	bar := &m.scroll
+
 	switch k {
 	case ebiten.KeyUp:
-		m.scroll.set(m.scroll.pos - 1)
+		bar.set(bar.pos - 1)
 	case ebiten.KeyDown:
-		m.scroll.set(m.scroll.pos + 1)
+		bar.set(bar.pos + 1)
 	case ebiten.KeyPageUp:
-		m.scroll.set(m.scroll.pos - m.scroll.page)
+		bar.set(bar.pos - bar.page)
 	case ebiten.KeyPageDown:
-		m.scroll.set(m.scroll.pos + m.scroll.page)
+		bar.set(bar.pos + bar.page)
 	case ebiten.KeyHome:
 		if mm.ctrl {
-			m.scroll.set(0)
+			bar.set(0)
 		}
 	case ebiten.KeyEnd:
 		if mm.ctrl {
-			m.scroll.set(m.scroll.limit())
+			bar.set(bar.limit())
 		}
 	default:
 		return false

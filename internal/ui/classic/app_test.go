@@ -293,7 +293,8 @@ func TestWildBattle(t *testing.T) {
 		t.Fatal("no Go! button")
 	}
 
-	ta.click(widgetOrigin(ta.main.attacks).Add(ta.main.attacks.buttonRect(0).Min).Add(image.Pt(20, 5)))
+	attacks := ta.main.attacks
+	ta.click(widgetOrigin(attacks).Add(attacks.buttonRect(0).Min).Add(image.Pt(20, 5)))
 	ta.clickOn(ta.main.w, "Button1")
 	ta.wait(1)
 	ta.shot("16-turn")

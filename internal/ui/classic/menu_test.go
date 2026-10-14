@@ -119,7 +119,8 @@ func TestEveryMenuCommand(t *testing.T) {
 				t.Fatal("the game didn't load")
 			}
 
-			if ta.main.w.menu.entries[len(ta.main.w.menu.entries)-1].item.Visible {
+			bar := ta.main.w.menu
+			if bar.entries[len(bar.entries)-1].item.Visible {
 				t.Error("the Debug menu shows")
 			}
 

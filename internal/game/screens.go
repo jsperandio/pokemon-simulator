@@ -243,23 +243,25 @@ func (g *Game) SetBet(n int) {
 // Draw is "Draw number!" (TFormB.Button1Click): one number in ten wins ten
 // times the bet, in money or in items.
 func (g *Game) Draw() {
-	if !g.Corner.Visible {
+	c := &g.Corner
+
+	if !c.Visible {
 		return
 	}
 
-	if g.Corner.Bet < 0 || g.Corner.Bet > int(g.Money) {
+	if c.Bet < 0 || c.Bet > int(g.Money) {
 		return // silently
 	}
 
-	bet := uint32(g.Corner.Bet) //nolint:gosec // between 0 and Money, checked above
+	bet := uint32(c.Bet) //nolint:gosec // between 0 and Money, checked above
 
-	if g.Corner.Prize == -1 {
+	if c.Prize == -1 {
 		g.message(Warning, "Please select something to play for.")
 
 		return
 	}
 
-	if g.Corner.Number == -1 {
+	if c.Number == -1 {
 		g.message(Warning, "Please select a number to bet on.")
 
 		return
@@ -274,9 +276,9 @@ func (g *Game) Draw() {
 	}
 
 	for range 10000 { // the animation: the last draw counts
-		g.Corner.Drawn = g.Rand.Random(10)
+		c.Drawn = g.Rand.Random(10)
 		if draws != nil {
-			draws = append(draws, g.Corner.Drawn)
+			draws = append(draws, c.Drawn)
 		}
 	}
 
@@ -284,7 +286,7 @@ func (g *Game) Draw() {
 		g.OnDraws(draws)
 	}
 
-	if g.Corner.Number != g.Corner.Drawn {
+	if c.Number != c.Drawn {
 		return
 	}
 

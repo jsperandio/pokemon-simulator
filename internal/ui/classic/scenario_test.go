@@ -93,15 +93,16 @@ func (d *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook fun
 		args = []string{path}
 	}
 
-	d.ta = newTestAppIn(d.t, dir, args)
-	d.files = &writes{Files: d.ta.files}
-	d.ta.files = d.files
-	d.ta.g.UI = dialogs{d.ta.g.UI, d}
-	hook(d.ta.g)
-	d.ta.wait(80) // the loading screen
+	ta := newTestAppIn(d.t, dir, args)
+	d.ta = ta
+	d.files = &writes{Files: ta.files}
+	ta.files = d.files
+	ta.g.UI = dialogs{ta.g.UI, d}
+	hook(ta.g)
+	ta.wait(80) // the loading screen
 	d.settle()
 
-	if save != nil && !d.ta.main.w.visible {
+	if save != nil && !ta.main.w.visible {
 		return errors.New("the save didn't load")
 	}
 
@@ -180,7 +181,8 @@ func (d *uiDriver) clickAt(w *window, p image.Point) {
 
 // press clicks the middle of control k in w.
 func (d *uiDriver) press(w *window, k widget) {
-	d.clickAt(w, widgetOrigin(k).Add(k.base().r.Size().Div(2)))
+	size := k.base().r.Size()
+	d.clickAt(w, widgetOrigin(k).Add(size.Div(2)))
 }
 
 // form returns a form's window by its name, or nil.
@@ -386,11 +388,13 @@ func (d *uiDriver) Type(path string, n int) error {
 }
 
 func (d *uiDriver) Text(path string) (string, error) {
+	ta := d.ta
+
 	switch path {
 	case "Form4":
-		return d.ta.main.w.caption, nil
+		return ta.main.w.caption, nil
 	case "Form9.Edit1":
-		return d.ta.mart.total.text(), nil
+		return ta.mart.total.text(), nil
 	}
 
 	return "", fmt.Errorf("no text for %s", path)

@@ -38,8 +38,9 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 // StartWildBattle starts a battle against a wild POKéMON. BattleType is
 // left as the last battle set it: the callers that want 2 set it first.
 func (g *Game) StartWildBattle(species, level int) {
-	g.Main.Picker = false
-	g.Main.Battle = true
+	win := &g.Main
+	win.Picker = false
+	win.Battle = true
 	g.InWildBattle = true
 	g.showInfo()
 	g.enable(false, "Action1")
@@ -48,14 +49,15 @@ func (g *Game) StartWildBattle(species, level int) {
 	g.EnemyLevel = uint8(level) //nolint:gosec // a Byte in the original
 	g.log("Wild " + g.name(species) + " appeared!")
 
-	g.Main.Enemy = Shown{species, level, level * 10}
-	g.Main.EnemyImage = species - 1
+	win.Enemy = Shown{species, level, level * 10}
+	win.EnemyImage = species - 1
+
 	g.message(Information, choosePrompt)
 
-	g.Main.Attacks = false
-	g.Main.EnemyMoves = g.Main.Enemy
+	win.Attacks = false
+	win.EnemyMoves = win.Enemy
 	g.EnemySpecies = species
-	g.Main.Pokeball = g.InDex[species]
+	win.Pokeball = g.InDex[species]
 }
 
 // ClickParty is a double click on party member k (0-based) in the

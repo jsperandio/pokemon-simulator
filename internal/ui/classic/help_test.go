@@ -82,7 +82,7 @@ func TestHelp(t *testing.T) {
 		t.Errorf("opened %q", opened)
 	}
 
-	ta.click(h.w.captionButton(capMax).Min.Add(image.Pt(4, 4)))
+	ta.click(onCaptionButton(h.w, capMax))
 	ta.wait(1)
 	ta.shot("34-help-maximized")
 
@@ -90,7 +90,7 @@ func TestHelp(t *testing.T) {
 		t.Errorf("maximized: %v, the topic %v laid out for %v", h.w.maximized, h.view.r, h.view.laid)
 	}
 
-	ta.click(h.w.captionButton(capClose).Min.Add(image.Pt(4, 4)))
+	ta.click(onCaptionButton(h.w, capClose))
 	ta.wait(1)
 
 	if h.w.visible || len(h.history) != 0 {
@@ -98,51 +98,58 @@ func TestHelp(t *testing.T) {
 	}
 }
 
+// onCaptionButton is a point inside caption button b of w.
+func onCaptionButton(w *window, b int) image.Point {
+	return w.captionButton(b).Min.Add(image.Pt(4, 4))
+}
+
 // followHelpLinks follows two links in the manual from its contents, one
 // after the wheel scrolled, then goes Back to the contents.
 func followHelpLinks(t *testing.T, ta *testApp) {
 	h := ta.helpWin
+	v := h.view
+
 	ta.click(ta.spotPoint("playing.md"))
 	ta.wait(1)
 
-	if h.view.name != "playing.md" || !h.back.enabled {
-		t.Fatalf("help at %s after the link, Back %v", h.view.name, h.back.enabled)
+	if v.name != "playing.md" || !h.back.enabled {
+		t.Fatalf("help at %s after the link, Back %v", v.name, h.back.enabled)
 	}
 
 	ta.shot("31-help-playing")
 	ta.frame(input{wheel: -2})
 
-	pos := h.view.scroll.pos
-	if pos != 6*h.view.scroll.line {
+	pos := v.scroll.pos
+	if pos != 6*v.scroll.line {
 		t.Errorf("scrolled to %d by the wheel", pos)
 	}
 
 	p := ta.spotPoint("statistics.md") // scrolling to it
-	pos = h.view.scroll.pos
+	pos = v.scroll.pos
 
 	ta.click(p)
 	ta.wait(1)
 
-	if h.view.name != "statistics.md" || h.view.scroll.pos != 0 {
-		t.Fatalf("help at %s, %d", h.view.name, h.view.scroll.pos)
+	if v.name != "statistics.md" || v.scroll.pos != 0 {
+		t.Fatalf("help at %s, %d", v.name, v.scroll.pos)
 	}
 
 	ta.clickOn(h.w, "Back")
 	ta.wait(1)
 
-	if h.view.name != "playing.md" || h.view.scroll.pos != pos {
-		t.Errorf("Back went to %s at %d", h.view.name, h.view.scroll.pos)
+	if v.name != "playing.md" || v.scroll.pos != pos {
+		t.Errorf("Back went to %s at %d", v.name, v.scroll.pos)
 	}
 
-	if ta.desk.active.focus != h.view {
+	if ta.desk.active.focus != v {
 		t.Error("the buttons kept the focus")
 	}
 
 	ta.clickOn(h.w, "Back")
 	ta.wait(1)
 
-	if h.view.name != "index.md" || h.back.enabled {
-		t.Errorf("Back went to %s, Back %v", h.view.name, h.back.enabled)
+	if v.name != "index.md" || h.back.enabled {
+		t.Errorf("Back went to %s, Back %v", v.name, h.back.enabled)
 	}
 }
 

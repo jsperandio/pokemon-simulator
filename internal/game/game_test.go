@@ -294,10 +294,12 @@ func TestArenaShows(t *testing.T) {
 	g.NewGame("ash.pgs", "Ash")
 	g.ChooseStarter(1) // Charmander, L.5
 
+	win := &g.Main
+
 	var during MainWindow
 	g.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
 		if text == choosePrompt {
-			during = g.Main
+			during = *win
 		}
 
 		return true
@@ -308,34 +310,36 @@ func TestArenaShows(t *testing.T) {
 		t.Errorf("during %q: enemy %v, attacks of %v", choosePrompt, during.Enemy, during.EnemyMoves)
 	}
 
-	if g.Main.EnemyMoves != g.Main.Enemy || g.Main.Pokeball {
-		t.Errorf("after it: attacks of %v, POKéBall %v", g.Main.EnemyMoves, g.Main.Pokeball)
+	if win.EnemyMoves != win.Enemy || win.Pokeball {
+		t.Errorf("after it: attacks of %v, POKéBall %v", win.EnemyMoves, win.Pokeball)
 	}
 
 	g.ClickParty(0)
 
-	if g.Main.Own != (Shown{4, 5, 50}) {
-		t.Errorf("fighter %v", g.Main.Own)
+	if win.Own != (Shown{4, 5, 50}) {
+		t.Errorf("fighter %v", win.Own)
 	}
 
-	g.Main.AttackIndex = 0
+	win.AttackIndex = 0
+
 	g.Go()
 
-	if g.Main.Enemy.HP != g.EnemyHP || g.Main.Own.HP != g.OwnHP || g.EnemyHP == 70 {
-		t.Errorf("after a turn: shows %d and %d HP, has %d and %d", g.Main.Enemy.HP, g.Main.Own.HP, g.EnemyHP, g.OwnHP)
+	if win.Enemy.HP != g.EnemyHP || win.Own.HP != g.OwnHP || g.EnemyHP == 70 {
+		t.Errorf("after a turn: shows %d and %d HP, has %d and %d", win.Enemy.HP, win.Own.HP, g.EnemyHP, g.OwnHP)
 	}
 
-	g.Main.AttackIndex = 4 // Run!
+	win.AttackIndex = 4 // Run!
+
 	g.Go()
 	g.EndFight()
 
-	if g.Main.Own != (Shown{}) || g.Main.Enemy.Species != 25 {
-		t.Errorf("after the battle: fighter %v, enemy %v", g.Main.Own, g.Main.Enemy)
+	if win.Own != (Shown{}) || win.Enemy.Species != 25 {
+		t.Errorf("after the battle: fighter %v, enemy %v", win.Own, win.Enemy)
 	}
 
 	g.StartWildBattle(4, 5) // Charmander is in the POKéDEX
 
-	if !g.Main.Pokeball {
+	if !win.Pokeball {
 		t.Error("no POKéBall for a registered species")
 	}
 }
