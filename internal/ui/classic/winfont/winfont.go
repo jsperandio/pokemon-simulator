@@ -172,12 +172,9 @@ func (f *Font) readGlyphs(b []byte, version int) error {
 		e := table + i*entry
 		w := u16(b, e)
 
-		var off int
-
+		off := u16(b, e+2)
 		if version == 0x300 {
 			off = u32(b, e+2)
-		} else {
-			off = u16(b, e+2)
 		}
 
 		cols := (w + 7) / 8

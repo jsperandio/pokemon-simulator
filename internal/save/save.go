@@ -118,11 +118,7 @@ func (f *File) Bytes() []byte {
 		b.WriteString("\r\n")
 	}
 	boolean := func(v bool) {
-		if v {
-			line("TRUE")
-		} else {
-			line("FALSE")
-		}
+		line(boolText(v))
 	}
 
 	line(Header)
@@ -158,6 +154,15 @@ func (f *File) Bytes() []byte {
 	}
 
 	return b.Bytes()
+}
+
+// boolText is a Boolean as the file writes it.
+func boolText(v bool) string {
+	if v {
+		return "TRUE"
+	}
+
+	return "FALSE"
 }
 
 // counters lists the Cardinal fields in file order.

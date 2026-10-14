@@ -232,14 +232,12 @@ func (s *scrollBar) paint(cv canvas) {
 	ts, tl := s.thumb()
 	if tl > 0 && s.pressed >= partPageLess && s.pressed <= partPageMore && s.inside {
 		// The held part of the track turns dark.
-		var pr image.Rectangle
+		from, to := ts+tl, s.length()-a
 		if s.pressed == partPageLess {
-			pr = s.span(track, a, ts)
-		} else {
-			pr = s.span(track, ts+tl, s.length()-a)
+			from, to = a, ts
 		}
 
-		cv.fill(pr, colDkShadow)
+		cv.fill(s.span(track, from, to), colDkShadow)
 	}
 
 	dir := [2]int{arrowUp, arrowDown}
@@ -529,15 +527,15 @@ func (l *listView) paintItem(in canvas, i int, ir image.Rectangle, icon image.Po
 		fg = colSelText
 	}
 
-	if l.hotTrack && i == l.hot && l.usable() {
-		if !sel || !focus {
-			fg = rgb(0x0000FF)
-		}
+	hot := l.hotTrack && i == l.hot && l.usable()
+	if hot && (!sel || !focus) {
+		fg = rgb(0x0000FF)
+	}
 
-		l.font.draw(in, tx, ty, it.caption, fg)
+	l.font.draw(in, tx, ty, it.caption, fg)
+
+	if hot {
 		in.hline(tx, tx+tw, ty+l.font.ascent()+1, fg)
-	} else {
-		l.font.draw(in, tx, ty, it.caption, fg)
 	}
 
 	if sel && focus {
@@ -664,9 +662,10 @@ func (l *listView) ensureVisible(i int) {
 	_, _, perCol := l.metrics()
 	col := i / perCol
 
-	if col < l.scroll.pos {
+	switch {
+	case col < l.scroll.pos:
 		l.scroll.set(col)
-	} else if l.scroll.page > 0 && col >= l.scroll.pos+l.scroll.page {
+	case l.scroll.page > 0 && col >= l.scroll.pos+l.scroll.page:
 		l.scroll.set(col - l.scroll.page + 1)
 	}
 }
@@ -721,9 +720,10 @@ func newDropList(c *comboBox) *dropList {
 
 // show scrolls item i into view.
 func (d *dropList) show(i int) {
-	if i < d.top {
+	switch {
+	case i < d.top:
 		d.top = i
-	} else if i >= d.top+d.rows {
+	case i >= d.top+d.rows:
 		d.top = i - d.rows + 1
 	}
 

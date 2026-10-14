@@ -192,6 +192,17 @@ func drawDisabled(cv canvas, f face, x, y int, s string) {
 	drawCaption(cv, f, x, y, s, colShadow)
 }
 
+// drawText draws a caption in colour c, or disabled when it isn't enabled.
+func drawText(cv canvas, f face, x, y int, s string, c color.RGBA, enabled bool) {
+	if !enabled {
+		drawDisabled(cv, f, x, y, s)
+
+		return
+	}
+
+	drawCaption(cv, f, x, y, s, c)
+}
+
 // wrap breaks text into lines no wider than w, at spaces, as DrawText's
 // DT_WORDBREAK does; a word too long for a line stays whole.
 func wrap(f face, text string, w int) []string {

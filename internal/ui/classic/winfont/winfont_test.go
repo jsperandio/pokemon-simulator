@@ -93,11 +93,12 @@ func TestDraw(t *testing.T) {
 		var got strings.Builder
 
 		for x := range row {
+			pixel := byte('.')
 			if dst.RGBAAt(x, y).A != 0 {
-				got.WriteByte('#')
-			} else {
-				got.WriteByte('.')
+				pixel = '#'
 			}
+
+			got.WriteByte(pixel)
 		}
 
 		if got.String() != row {

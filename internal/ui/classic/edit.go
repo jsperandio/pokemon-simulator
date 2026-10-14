@@ -507,19 +507,7 @@ func (s *spinEdit) paint(cv canvas) {
 	// Two speed buttons, the down one painted last, each drawn by
 	// DrawFrameControl with its glyph centred inside the frame.
 	for i, b := range []image.Rectangle{up, down} {
-		pushed := s.pressed == i+1 && s.inside
-
-		cv.fill(b, colFace)
-
-		off := 0
-
-		if pushed {
-			cv.sunkenSoft(b)
-
-			off = 1
-		} else {
-			cv.raisedSoft(b)
-		}
+		off := cv.softButton(b, s.pressed == i+1 && s.inside)
 
 		glyph := glyphSpinUp
 		if i == 1 {
@@ -530,12 +518,13 @@ func (s *spinEdit) paint(cv canvas) {
 		x := in.Min.X + (in.Dx()-9+1)/2 + off
 		y := in.Min.Y + (in.Dy()-6+1)/2 + off
 
-		if s.usable() {
-			cv.pattern(x, y, glyph, map[byte]color.RGBA{'#': colText})
-		} else {
-			cv.pattern(x+1, y+1, glyph, map[byte]color.RGBA{'#': colHighlight})
-			cv.pattern(x, y, glyph, map[byte]color.RGBA{'#': colShadow})
+		if !s.usable() {
+			cv.embossed(x, y, glyph)
+
+			continue
 		}
+
+		cv.pattern(x, y, glyph, map[byte]color.RGBA{'#': colText})
 	}
 }
 
@@ -561,11 +550,12 @@ func (s *spinEdit) mouseDown(p image.Point, double bool) {
 
 // step is one click of the pressed button.
 func (s *spinEdit) step() {
+	dir := -1
 	if s.pressed == 1 {
-		s.spin(1)
-	} else {
-		s.spin(-1)
+		dir = 1
 	}
+
+	s.spin(dir)
 }
 
 // spin adds Increment, or takes it away, as UpClick and DownClick do.
@@ -911,40 +901,44 @@ func (c *comboBox) paint(cv canvas) {
 
 	b := c.button()
 	if c.listOnly {
-		// The selected item, highlighted while the box has the focus.
-		tr := image.Rect(in.Min.X+1, in.Min.Y+1, b.Min.X-1, in.Max.Y-1)
-		focus := c.focused() && c.win.active && c.dropped == nil
-		item := c.index >= 0 && c.index < len(c.items)
-		tx := 1
-
-		if c.images != nil && item {
-			// Owner-drawn: the item's icon, then its text, highlighted on
-			// its own; the box doesn't indent it.
-			c.images.drawFrame(cv, tr.Min.X+1, tr.Min.Y+(tr.Dy()-c.images.size)/2, c.icons[c.index], false)
-
-			x := tr.Min.X + c.images.size + 4
-			tr = image.Rect(x, tr.Min.Y, min(x+c.font.width(c.items[c.index])+4, tr.Max.X), tr.Max.Y)
-			tx = 2
-		}
-
-		if focus {
-			cv.fill(tr, colSelection)
-
-			fg = colSelText
-		}
-
-		if item {
-			c.font.draw(cv.sub(tr), tx, (tr.Dy()-c.font.height())/2, c.items[c.index], fg)
-		}
-
-		if focus {
-			cv.focusRect(tr)
-		}
+		c.paintSelection(cv, image.Rect(in.Min.X+1, in.Min.Y+1, b.Min.X-1, in.Max.Y-1), fg)
 	} else {
 		c.tb.paint(cv, image.Rect(3, 3, b.Min.X-1, r.Max.Y-3), c.font, fg, c.focused() && c.win.active)
 	}
 
 	paintArrowButton(cv, b, arrowDown, c.usable(), c.pressing && c.dropped != nil, 5)
+}
+
+// paintSelection paints the selected item of a list-only box in tr,
+// highlighted while the box has the focus.
+func (c *comboBox) paintSelection(cv canvas, tr image.Rectangle, fg color.RGBA) {
+	focus := c.focused() && c.win.active && c.dropped == nil
+	item := c.index >= 0 && c.index < len(c.items)
+	tx := 1
+
+	if c.images != nil && item {
+		// Owner-drawn: the item's icon, then its text, highlighted on
+		// its own; the box doesn't indent it.
+		c.images.drawFrame(cv, tr.Min.X+1, tr.Min.Y+(tr.Dy()-c.images.size)/2, c.icons[c.index], false)
+
+		x := tr.Min.X + c.images.size + 4
+		tr = image.Rect(x, tr.Min.Y, min(x+c.font.width(c.items[c.index])+4, tr.Max.X), tr.Max.Y)
+		tx = 2
+	}
+
+	if focus {
+		cv.fill(tr, colSelection)
+
+		fg = colSelText
+	}
+
+	if item {
+		c.font.draw(cv.sub(tr), tx, (tr.Dy()-c.font.height())/2, c.items[c.index], fg)
+	}
+
+	if focus {
+		cv.focusRect(tr)
+	}
 }
 
 func (c *comboBox) dropDown() {
@@ -1056,9 +1050,10 @@ func (c *comboBox) droppedKey(k ebiten.Key, m mods) bool {
 
 // backspace deletes as AutoComplete does: the completed part first.
 func (c *comboBox) backspace() {
-	if a, b := c.tb.sel(); a != b {
+	switch a, b := c.tb.sel(); {
+	case a != b:
 		c.tb.replace("")
-	} else if a > 0 {
+	case a > 0:
 		c.tb.anchor = a - 1
 		c.tb.replace("")
 	}
@@ -1154,9 +1149,10 @@ func (c *comboBox) wheel(dy int) {
 		return
 	}
 
-	if dy > 0 {
+	switch {
+	case dy > 0:
 		c.pick(max(c.index-1, 0))
-	} else if dy < 0 {
+	case dy < 0:
 		c.pick(min(c.index+1, len(c.items)-1))
 	}
 }

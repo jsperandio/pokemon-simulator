@@ -290,34 +290,38 @@ func (g *Game) Draw() {
 
 	g.message(Information, "Congratulations! You won! And your prize is...")
 
-	var (
-		won uint32
-		msg string
-	)
-
-	if g.Corner.Prize == 0 { // "Money (Pays out 10:1¥)"
-		won = bet * 10
-		msg = strconv.FormatUint(uint64(won), 10) + "¥!"
-	} else {
-		p := CornerPrizes[g.Corner.Prize-1]
-		n := bet / p.Price
-		won = bet % p.Price * 10
-		msg = strconv.FormatUint(uint64(n), 10) + " " + p.Name
-
-		if n > 1 {
-			msg += "s"
-		}
-
-		if won != 0 {
-			msg += " and " + strconv.FormatUint(uint64(won), 10) + "¥"
-		}
-
-		msg += "!"
-		*g.counter(g.Corner.Prize - 1) += n
-	}
-
+	won, msg := g.payOut(bet)
 	g.Money += won
 	g.message(Information, msg)
+}
+
+// payOut pays a winning bet's prize: the items go to the player, and it
+// returns the money that goes with them and the message that announces
+// the prize.
+func (g *Game) payOut(bet uint32) (won uint32, msg string) {
+	if g.Corner.Prize == 0 { // "Money (Pays out 10:1¥)"
+		won = bet * 10
+
+		return won, strconv.FormatUint(uint64(won), 10) + "¥!"
+	}
+
+	p := CornerPrizes[g.Corner.Prize-1]
+	n := bet / p.Price
+	won = bet % p.Price * 10
+	msg = strconv.FormatUint(uint64(n), 10) + " " + p.Name
+
+	if n > 1 {
+		msg += "s"
+	}
+
+	if won != 0 {
+		msg += " and " + strconv.FormatUint(uint64(won), 10) + "¥"
+	}
+
+	msg += "!"
+	*g.counter(g.Corner.Prize - 1) += n
+
+	return won, msg
 }
 
 // CloseCorner is the Game Corner's "Close".

@@ -162,28 +162,7 @@ func TestTournamentPrizes(t *testing.T) {
 				" Super Potion": int(g.SuperPotions) - int(before.SuperPotions),
 				" POKéMON":      len(g.Party()) - len(before.Party()),
 			}
-			want := map[string]int{}
-
-			if prize == "a random POKéMON at a random level" {
-				want[" POKéMON"] = 1
-			} else {
-				n, unit, _ := strings.Cut(strings.TrimSuffix(strings.TrimSuffix(prize, "s"), "¥"), " ")
-				if amount, ok := strings.CutSuffix(prize, "¥"); ok {
-					n, unit = amount, ""
-				}
-
-				v, err := strconv.Atoi(n)
-				if err != nil {
-					t.Fatalf("tier %d roll %d: prize %q", tier, roll, prize)
-				}
-
-				key := " " + unit
-				if unit == "" {
-					key = "¥"
-				}
-
-				want[key] = v
-			}
+			want := wantChanges(t, tier, roll, prize)
 
 			for k, v := range got {
 				if v != want[k] {
@@ -192,6 +171,32 @@ func TestTournamentPrizes(t *testing.T) {
 			}
 		}
 	}
+}
+
+// wantChanges is what a prize changes, by what it gives: the amount.
+func wantChanges(t *testing.T, tier, roll int, prize string) map[string]int {
+	t.Helper()
+
+	if prize == "a random POKéMON at a random level" {
+		return map[string]int{" POKéMON": 1}
+	}
+
+	n, unit, _ := strings.Cut(strings.TrimSuffix(strings.TrimSuffix(prize, "s"), "¥"), " ")
+	if amount, ok := strings.CutSuffix(prize, "¥"); ok {
+		n, unit = amount, ""
+	}
+
+	v, err := strconv.Atoi(n)
+	if err != nil {
+		t.Fatalf("tier %d roll %d: prize %q", tier, roll, prize)
+	}
+
+	key := " " + unit
+	if unit == "" {
+		key = "¥"
+	}
+
+	return map[string]int{key: v}
 }
 
 func TestLevelFor(t *testing.T) {

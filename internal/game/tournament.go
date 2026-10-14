@@ -5,6 +5,8 @@ package game
 import (
 	"fmt"
 	"slices"
+
+	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
 // Tournaments (notes/tournaments.md): eight random trainers in a row, an
@@ -28,25 +30,25 @@ var tiers = [...]struct {
 // range and the fee are needed.
 func (g *Game) enterTournament(tier int) {
 	t := tiers[tier]
-	ok := false
-
-	for _, m := range g.Party() {
-		if t.lo <= m.Level && m.Level <= t.hi {
-			ok = true
-		}
-	}
+	ok := slices.ContainsFunc(g.Party(), func(m save.Slot) bool {
+		return t.lo <= m.Level && m.Level <= t.hi
+	})
 
 	if !ok {
 		g.message(Warning, "None of your POKéMON meet the level requirements.")
+
+		return
 	}
 
-	if g.Money < t.fee && ok {
+	if g.Money < t.fee {
 		g.message(Information, "You don't have enough money!")
-	} else if ok {
-		g.setUpTournament(tier)
 
-		g.Money -= t.fee
+		return
 	}
+
+	g.setUpTournament(tier)
+
+	g.Money -= t.fee
 }
 
 // Species no tournament trainer has: Magikarp, Ditto, Unown, Smeargle,

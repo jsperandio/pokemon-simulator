@@ -247,11 +247,7 @@ func (m *menuBar) paint(cv canvas, r image.Rectangle) {
 		x := ir.Min.X + m.res.charWidth
 		y := ir.Min.Y + (ir.Dy()-f.height())/2
 
-		if e.item.Enabled {
-			drawCaption(cv, f, x, y, e.caption, colText)
-		} else {
-			drawDisabled(cv, f, x, y, e.caption)
-		}
+		drawText(cv, f, x, y, e.caption, colText, e.item.Enabled)
 	}
 }
 
@@ -560,11 +556,11 @@ func (m *menuBar) key(k ebiten.Key) {
 	case ebiten.KeyRight:
 		if p != nil && p.opensSubmenu() {
 			m.openChild(n-1, p.sel)
-			m.selectFirst()
 		} else {
 			m.selectBar(m.nextBar(m.sel, 1), n > 0)
-			m.selectFirst()
 		}
+
+		m.selectFirst()
 	case ebiten.KeyUp:
 		m.upDown(p, -1)
 	case ebiten.KeyDown:

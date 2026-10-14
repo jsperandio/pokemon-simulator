@@ -268,7 +268,11 @@ func (d *desktop) enter(w *window) {
 	if w.focus == nil || !canFocus(w.focus) {
 		w.focus = nil
 		w.focusFirst()
-	} else if g, ok := w.focus.(interface{ gotFocus(bool) }); ok {
+
+		return
+	}
+
+	if g, ok := w.focus.(interface{ gotFocus(bool) }); ok {
 		g.gotFocus(false)
 	}
 }
@@ -429,10 +433,9 @@ func (d *desktop) isDouble(p image.Point, target any) bool {
 	double := target == d.lastTarget && d.now.Sub(d.lastClick) <= doubleClickTime &&
 		abs(dp.X) <= doubleClickDist/2 && abs(dp.Y) <= doubleClickDist/2
 
+	d.lastTarget = target
 	if double {
 		d.lastTarget = nil // a third click starts over
-	} else {
-		d.lastTarget = target
 	}
 
 	d.lastClick, d.lastPos = d.now, p
@@ -528,7 +531,11 @@ func (d *desktop) clientDown(w *window, p image.Point) {
 	if c, ok := k.(clicker); ok {
 		d.capture = k
 		c.mouseDown(p.Sub(widgetOrigin(k)), double)
-	} else if c := k.base(); c.onClick != nil {
+
+		return
+	}
+
+	if c := k.base(); c.onClick != nil {
 		c.onClick()
 	}
 }

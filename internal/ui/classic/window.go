@@ -467,19 +467,7 @@ func (w *window) paintCaption(cv canvas) {
 // paintCaptionButton paints caption button b in its rectangle br: pushed
 // while the mouse holds it, and greyed out when it does nothing.
 func (w *window) paintCaptionButton(cv canvas, b int, br image.Rectangle) {
-	pushed := w.capPressed == b && w.capInside
-
-	cv.fill(br, colFace)
-
-	off := 0
-
-	if pushed {
-		cv.sunkenSoft(br)
-
-		off = 1
-	} else {
-		cv.raisedSoft(br)
-	}
+	off := cv.softButton(br, w.capPressed == b && w.capInside)
 
 	glyph, gx, gy := glyphClose, 4, 3
 
@@ -498,12 +486,13 @@ func (w *window) paintCaptionButton(cv canvas, b int, br image.Rectangle) {
 		enabled = w.minBox
 	}
 
-	if enabled {
-		cv.pattern(br.Min.X+gx+off, br.Min.Y+gy+off, glyph, map[byte]color.RGBA{'#': colText})
-	} else {
-		cv.pattern(br.Min.X+gx+1, br.Min.Y+gy+1, glyph, map[byte]color.RGBA{'#': colHighlight})
-		cv.pattern(br.Min.X+gx, br.Min.Y+gy, glyph, map[byte]color.RGBA{'#': colShadow})
+	if !enabled {
+		cv.embossed(br.Min.X+gx, br.Min.Y+gy, glyph)
+
+		return
 	}
+
+	cv.pattern(br.Min.X+gx+off, br.Min.Y+gy+off, glyph, map[byte]color.RGBA{'#': colText})
 }
 
 // widgetAt returns the control under p (on the desktop), or nil.
@@ -610,13 +599,14 @@ func (w *window) tab(back bool) {
 		return
 	}
 
+	step := 1
+	if back {
+		step = -1
+	}
+
 	i := slices.Index(order, w.focus)
 	for range order {
-		if back {
-			i = (i - 1 + len(order)) % len(order)
-		} else {
-			i = (i + 1) % len(order)
-		}
+		i = (i + step + len(order)) % len(order)
 
 		if canFocus(order[i]) {
 			w.setFocus(order[i], false)

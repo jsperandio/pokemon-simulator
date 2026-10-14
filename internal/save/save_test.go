@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -96,12 +97,10 @@ func TestVersion1(t *testing.T) {
 		line(strconv.Itoa(c))
 	}
 
+	dexed := []int{16, 19, 25, 249}
+
 	for s := 1; s <= 251; s++ {
-		if s == 16 || s == 19 || s == 25 || s == 249 {
-			line("TRUE")
-		} else {
-			line("FALSE")
-		}
+		line(boolText(slices.Contains(dexed, s)))
 	}
 
 	party := [][3]int{{25, 40, 64000}, {249, 70, 343000}}

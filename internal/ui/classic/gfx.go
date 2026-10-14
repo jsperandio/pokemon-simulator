@@ -201,6 +201,30 @@ func (cv canvas) sunkenSoft(r image.Rectangle) { // pushed buttons
 	cv.edge(r.Inset(1), colShadow, colLight)
 }
 
+// softButton paints a button's face in r, raised or sunken while pushed,
+// and returns how far its glyph moves: one pixel down and right when
+// pushed.
+func (cv canvas) softButton(r image.Rectangle, pushed bool) (off int) {
+	cv.fill(r, colFace)
+
+	if pushed {
+		cv.sunkenSoft(r)
+
+		return 1
+	}
+
+	cv.raisedSoft(r)
+
+	return 0
+}
+
+// embossed paints a disabled glyph: in white one pixel down and right,
+// then in the shadow colour.
+func (cv canvas) embossed(x, y int, rows string) {
+	cv.pattern(x+1, y+1, rows, map[byte]color.RGBA{'#': colHighlight})
+	cv.pattern(x, y, rows, map[byte]color.RGBA{'#': colShadow})
+}
+
 // focusRect inverts every other pixel of r's outline, as DrawFocusRect
 // does. The dots fall where x + y is even on the screen, as Windows lines
 // the patterns of all the windows up on the screen.

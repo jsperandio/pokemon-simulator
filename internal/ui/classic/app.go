@@ -352,10 +352,11 @@ func (a *App) Draw(screen *ebiten.Image) {
 		a.desk.dirty = true
 	}
 
-	if a.desk.dirty {
+	switch {
+	case a.desk.dirty:
 		a.desk.paint(a.frame)
 		a.img.WritePixels(a.frame.Pix)
-	} else if screen == a.screen {
+	case screen == a.screen:
 		return
 	}
 

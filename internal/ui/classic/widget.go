@@ -418,11 +418,7 @@ func (l *label) paint(cv canvas) {
 			x = l.r.Dx() - l.font.width(plain(s))
 		}
 
-		if l.usable() {
-			drawCaption(cv, l.font, x, y, s, l.fontColor)
-		} else {
-			drawDisabled(cv, l.font, x, y, s)
-		}
+		drawText(cv, l.font, x, y, s, l.fontColor, l.usable())
 	}
 }
 
@@ -498,11 +494,7 @@ func (b *button) paint(cv canvas) {
 		x, y = x+1, y+1
 	}
 
-	if b.usable() {
-		drawCaption(cv, b.font, x, y, b.caption, b.fontColor)
-	} else {
-		drawDisabled(cv, b.font, x, y, b.caption)
-	}
+	drawText(cv, b.font, x, y, b.caption, b.fontColor, b.usable())
 
 	if b.focused() && b.win.active {
 		cv.focusRect(b.local().Inset(3))
@@ -713,11 +705,7 @@ func paintRadio(cv canvas, size image.Point, f face, caption string, checked, pu
 	}
 
 	ty := size.Y/2 - f.height()/2
-	if enabled {
-		drawCaption(cv, f, 17, ty, caption, fg)
-	} else {
-		drawDisabled(cv, f, 17, ty, caption)
-	}
+	drawText(cv, f, 17, ty, caption, fg, enabled)
 
 	if focus {
 		w := f.width(plain(caption))
