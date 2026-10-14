@@ -307,7 +307,7 @@ func (t *textBox) drag(f face, x int) {
 
 // edit is a TEdit.
 type edit struct {
-	ctl
+	control
 	tb       textBox
 	inset    int    // the text's top-left corner, from the control's
 	onChange func() // OnChange
@@ -316,12 +316,12 @@ type edit struct {
 func (e *edit) setup(comp *layout.Component) {
 	e.windowed = true
 	e.inset = 3 // the border, and the format rectangle's pixel inside it
-	e.tabStop = e.prop("TabStop") != "False"
-	e.color = vclColor(e.prop("Color"), colWindow)
+	e.tabStop = e.property("TabStop") != "False"
+	e.color = vclColor(e.property("Color"), colWindow)
 	e.tb.set(comp.Caption)
 
-	e.tb.maxLen = e.propInt("MaxLength", 0)
-	e.tb.readOnly = e.prop("ReadOnly") == "True"
+	e.tb.maxLen = e.propertyInt("MaxLength", 0)
+	e.tb.readOnly = e.property("ReadOnly") == "True"
 	e.tb.onChange = func() {
 		e.invalidate()
 
@@ -367,7 +367,7 @@ func (e *edit) paint(cv canvas) {
 	}
 
 	cv.fill(in, e.color)
-	e.tb.paint(cv, image.Rect(e.inset, e.inset, r.Max.X-3, r.Max.Y-2), e.font, fg, e.focused() && e.win.active)
+	e.tb.paint(cv, image.Rect(e.inset, e.inset, r.Max.X-3, r.Max.Y-2), e.font, fg, e.focused() && e.wdw.active)
 }
 
 func (e *edit) mouseDown(p image.Point, double bool) {
@@ -419,10 +419,10 @@ func (s *spinEdit) setup(comp *layout.Component) {
 	s.edit.setup(comp)
 
 	s.inset = 2 // SetEditRect puts the text at the client area's corner
-	s.minValue = s.propInt("MinValue", 0)
-	s.maxValue = s.propInt("MaxValue", 0)
-	s.increment = s.propInt("Increment", 1)
-	s.tb.set(strconv.Itoa(s.propInt("Value", 0)))
+	s.minValue = s.propertyInt("MinValue", 0)
+	s.maxValue = s.propertyInt("MaxValue", 0)
+	s.increment = s.propertyInt("Increment", 1)
+	s.tb.set(strconv.Itoa(s.propertyInt("Value", 0)))
 
 	// IsValidChar: digits, signs and the decimal separator.
 	s.tb.valid = func(r rune) bool {
@@ -474,8 +474,8 @@ func (s *spinEdit) lostFocus() {
 // down button covers the up button's last row (AdjustSize).
 func (s *spinEdit) buttons() (up, down image.Rectangle) {
 	r := s.local().Inset(2)
-	x := r.Min.X + s.r.Dx() - 15 - 5
-	h := s.r.Dy() - 5
+	x := r.Min.X + s.rect.Dx() - 15 - 5
+	h := s.rect.Dy() - 5
 	up = image.Rect(x, r.Min.Y, x+15, r.Min.Y+h/2)
 	down = image.Rect(x, up.Max.Y-1, x+15, r.Min.Y+h)
 
@@ -514,7 +514,7 @@ func (s *spinEdit) paint(cv canvas) {
 	cv.fill(in, s.color)
 
 	up, down := s.buttons()
-	s.tb.paint(cv, image.Rect(s.inset, s.inset, up.Min.X-1, r.Max.Y-2), s.font, fg, s.focused() && s.win.active)
+	s.tb.paint(cv, image.Rect(s.inset, s.inset, up.Min.X-1, r.Max.Y-2), s.font, fg, s.focused() && s.wdw.active)
 
 	// Two speed buttons, the down one painted last, each drawn by
 	// DrawFrameControl with its glyph centred inside the frame.
@@ -556,7 +556,7 @@ func (s *spinEdit) mouseDown(p image.Point, double bool) {
 	s.inside = true
 	s.step()
 
-	now := s.win.desk.now
+	now := s.wdw.desk.now
 	s.next = now.Add(400 * time.Millisecond)
 	s.invalidate()
 }
@@ -644,7 +644,7 @@ func (s *spinEdit) cursor(p image.Point) ebiten.CursorShapeType {
 
 // memo is a read-only TMemo with a vertical scroll bar: Battle Info.
 type memo struct {
-	ctl
+	control
 	lines  []string // as the program set them
 	wraps  []string // wrapped to the width
 	scroll scrollBar
@@ -652,8 +652,8 @@ type memo struct {
 
 func (m *memo) setup(comp *layout.Component) {
 	m.windowed = true
-	m.tabStop = m.prop("TabStop") != "False"
-	m.color = vclColor(m.prop("Color"), colWindow)
+	m.tabStop = m.property("TabStop") != "False"
+	m.color = vclColor(m.property("Color"), colWindow)
 
 	m.lines = append([]string(nil), comp.Items...)
 	m.scroll = scrollBar{vertical: true}
@@ -798,7 +798,7 @@ func (m *memo) char(rune) {}
 // drop-down list and AutoComplete; in the csDropDownList style, the
 // selected item over the list.
 type comboBox struct {
-	ctl
+	control
 	tb         textBox
 	listOnly   bool // csDropDownList
 	items      []string
@@ -817,13 +817,13 @@ type comboBox struct {
 
 func (c *comboBox) setup(comp *layout.Component) {
 	c.windowed = true
-	c.tabStop = c.prop("TabStop") != "False"
-	c.color = vclColor(c.prop("Color"), colWindow)
-	c.listOnly = c.prop("Style") == "csDropDownList"
+	c.tabStop = c.property("TabStop") != "False"
+	c.color = vclColor(c.property("Color"), colWindow)
+	c.listOnly = c.property("Style") == "csDropDownList"
 
 	c.items = append([]string(nil), comp.Items...)
 	c.index = -1
-	c.itemHeight = c.propInt("ItemHeight", 13)
+	c.itemHeight = c.propertyInt("ItemHeight", 13)
 	c.tb.set(comp.Caption)
 
 	c.tb.keepSel = true // the combo box's edit has ES_NOHIDESEL
@@ -852,7 +852,7 @@ func (c *comboBox) setIndex(i int) {
 
 	c.tb.set(text)
 
-	if c.focused() && c.win.active {
+	if c.focused() && c.wdw.active {
 		c.tb.selectAll()
 	} else {
 		c.tb.caret, c.tb.anchor = 0, 0
@@ -919,7 +919,7 @@ func (c *comboBox) paint(cv canvas) {
 	if c.listOnly {
 		c.paintSelection(cv, image.Rect(in.Min.X+1, in.Min.Y+1, b.Min.X-1, in.Max.Y-1), fg)
 	} else {
-		c.tb.paint(cv, image.Rect(3, 3, b.Min.X-1, r.Max.Y-3), c.font, fg, c.focused() && c.win.active)
+		c.tb.paint(cv, image.Rect(3, 3, b.Min.X-1, r.Max.Y-3), c.font, fg, c.focused() && c.wdw.active)
 	}
 
 	paintArrowButton(cv, b, arrowDown, c.usable(), c.pressing && c.dropped != nil, 5)
@@ -928,7 +928,7 @@ func (c *comboBox) paint(cv canvas) {
 // paintSelection paints the selected item of a list-only box in tr,
 // highlighted while the box has the focus.
 func (c *comboBox) paintSelection(cv canvas, tr image.Rectangle, fg color.RGBA) {
-	focus := c.focused() && c.win.active && c.dropped == nil
+	focus := c.focused() && c.wdw.active && c.dropped == nil
 	item := c.index >= 0 && c.index < len(c.items)
 	tx := 1
 
@@ -963,7 +963,7 @@ func (c *comboBox) dropDown() {
 	}
 
 	c.dropped = newDropList(c)
-	c.win.desk.openPopup(c.dropped)
+	c.wdw.desk.openPopup(c.dropped)
 	c.invalidate()
 }
 
@@ -974,7 +974,7 @@ func (c *comboBox) closeUp() {
 
 	d := c.dropped
 	c.dropped = nil
-	c.win.desk.closePopup(d)
+	c.wdw.desk.closePopup(d)
 	c.invalidate()
 }
 

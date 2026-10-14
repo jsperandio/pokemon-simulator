@@ -181,7 +181,7 @@ func (d *uiDriver) clickAt(w *window, p image.Point) {
 
 // press clicks the middle of control k in w.
 func (d *uiDriver) press(w *window, k widget) {
-	size := k.base().r.Size()
+	size := k.base().rect.Size()
 	d.clickAt(w, widgetOrigin(k).Add(size.Div(2)))
 }
 
@@ -192,12 +192,12 @@ func (d *uiDriver) form(name string) *window {
 	return map[string]*window{
 		"Form1": ta.start.w,
 		"Form4": ta.main.w,
-		"Form5": ta.stats.w,
-		"Form7": ta.info.w,
-		"Form8": ta.dex.w,
-		"Form9": ta.mart.w,
-		"FormA": ta.types.w,
-		"FormB": ta.corner.w,
+		"Form5": ta.stats.wdw,
+		"Form7": ta.info.wdw,
+		"Form8": ta.dex.wdw,
+		"Form9": ta.mart.wdw,
+		"FormA": ta.types.wdw,
+		"FormB": ta.corner.wdw,
 	}[name]
 }
 
@@ -249,7 +249,7 @@ func (d *uiDriver) Choose(i int) error {
 	l := ta.stats.party
 	r := l.itemRect(i)
 	p := widgetOrigin(l).Add(r.Min).Add(r.Size().Div(2))
-	d.front(ta.stats.w, p)
+	d.front(ta.stats.wdw, p)
 	ta.doubleClick(p)
 	d.settle()
 
@@ -273,7 +273,7 @@ func (d *uiDriver) Attack(k int) error {
 
 func (d *uiDriver) Item(k int) error {
 	s := d.ta.stats
-	d.press(s.w, s.items[k])
+	d.press(s.wdw, s.items[k])
 	d.settle()
 
 	return nil
@@ -377,7 +377,7 @@ func (d *uiDriver) Type(path string, n int) error {
 	}
 
 	ta := d.ta
-	d.clickAt(w, widgetOrigin(s).Add(image.Pt(5, s.r.Dy()/2)))
+	d.clickAt(w, widgetOrigin(s).Add(image.Pt(5, s.rect.Dy()/2)))
 	ta.key(ebiten.KeyHome)
 	ta.frame(input{keys: []ebiten.Key{ebiten.KeyEnd}, mods: mods{shift: true}})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})

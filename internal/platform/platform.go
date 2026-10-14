@@ -28,6 +28,7 @@ type Files interface {
 
 	Join(dir, name string) string
 	Dir(path string) string
+	// Base returns the last element of a path.
 	Base(path string) string
 	IsAbs(path string) bool
 }

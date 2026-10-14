@@ -37,7 +37,7 @@ const loadPerTick int = 71
 // port has read the data already; the screen plays the original's
 // progress.
 type loadForm struct {
-	a       *App
+	a       *Application
 	w       *window
 	step    int // the step under way
 	done    int // its items read
@@ -45,7 +45,7 @@ type loadForm struct {
 	running bool
 }
 
-func newLoadForm(a *App) *loadForm {
+func newLoadForm(a *Application) *loadForm {
 	f := &loadForm{a: a, w: newWindow(a.desk, &layout.Form3)}
 	a.desk.add(f.w)
 
@@ -125,11 +125,11 @@ func (f *loadForm) finish() {
 
 // startForm is the start screen (TForm1).
 type startForm struct {
-	a *App
+	a *Application
 	w *window
 }
 
-func newStartForm(a *App) *startForm {
+func newStartForm(a *Application) *startForm {
 	f := &startForm{a: a, w: newWindow(a.desk, &layout.Form1)}
 	w := f.w
 	get[*button](w, "NewButton").onClick = f.newButtonClick
@@ -188,12 +188,12 @@ func (f *startForm) loadButtonClick() {
 
 // nameDialog is "Enter your name:" (TOKRightDlg).
 type nameDialog struct {
-	a    *App
+	a    *Application
 	w    *window
 	edit *edit
 }
 
-func newNameDialog(a *App) *nameDialog {
+func newNameDialog(a *Application) *nameDialog {
 	d := &nameDialog{a: a, w: newWindow(a.desk, &layout.OKRightDlg)}
 	d.edit = get[*edit](d.w, "Edit1")
 	a.desk.add(d.w)

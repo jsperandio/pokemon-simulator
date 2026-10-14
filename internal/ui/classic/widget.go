@@ -16,7 +16,7 @@ import (
 
 // A widget is a control of a window: the VCL's TControl.
 type widget interface {
-	base() *ctl
+	base() *control
 	// paint draws the control on a canvas whose origin is its top-left
 	// corner; its children are painted afterwards.
 	paint(cv canvas)
@@ -59,11 +59,12 @@ type (
 // mods are the modifier keys held.
 type mods struct{ shift, ctrl, alt bool }
 
-// ctl is what every control has.
-type ctl struct {
+// control is the state every control shares: geometry, tree links,
+// focus order and look.
+type control struct {
 	self     widget
 	name     string
-	r        image.Rectangle // in the parent's coordinates
+	rect     image.Rectangle // in the parent's coordinates
 	visible  bool
 	enabled  bool
 	windowed bool // a TWinControl: painted above its graphic siblings
@@ -71,7 +72,7 @@ type ctl struct {
 	tabOrder int
 	parent   widget
 	kids     []widget
-	win      *window
+	wdw      *window
 
 	caption   string
 	color     color.RGBA // background
@@ -83,19 +84,19 @@ type ctl struct {
 	onDblClick func()
 }
 
-func (c *ctl) base() *ctl {
+func (c *control) base() *control {
 	return c
 }
 
 // local is the control's rectangle in its own coordinates.
-func (c *ctl) local() image.Rectangle {
-	return image.Rectangle{Max: c.r.Size()}
+func (c *control) local() image.Rectangle {
+	return image.Rectangle{Max: c.rect.Size()}
 }
 
 // shown reports whether the control and its parents are visible.
-func (c *ctl) shown() bool {
-	for w := c; w != nil; w = parentOf(w) {
-		if !w.visible {
+func (c *control) shown() bool {
+	for up := c; up != nil; up = parentOf(up) {
+		if !up.visible {
 			return false
 		}
 	}
@@ -105,9 +106,9 @@ func (c *ctl) shown() bool {
 
 // usable reports whether the control and its parents are enabled, as
 // Windows disables a disabled window's children.
-func (c *ctl) usable() bool {
-	for w := c; w != nil; w = parentOf(w) {
-		if !w.enabled {
+func (c *control) usable() bool {
+	for up := c; up != nil; up = parentOf(up) {
+		if !up.enabled {
 			return false
 		}
 	}
@@ -115,7 +116,7 @@ func (c *ctl) usable() bool {
 	return true
 }
 
-func parentOf(c *ctl) *ctl {
+func parentOf(c *control) *control {
 	if c.parent == nil {
 		return nil
 	}
@@ -125,28 +126,28 @@ func parentOf(c *ctl) *ctl {
 
 // origin is the control's top-left corner in its window's client
 // coordinates.
-func (c *ctl) origin() image.Point {
-	p := c.r.Min
-	for w := parentOf(c); w != nil; w = parentOf(w) {
-		p = p.Add(w.r.Min)
+func (c *control) origin() image.Point {
+	p := c.rect.Min
+	for up := parentOf(c); up != nil; up = parentOf(up) {
+		p = p.Add(up.rect.Min)
 	}
 
 	return p
 }
 
 // focused reports whether the control has its window's focus.
-func (c *ctl) focused() bool {
-	return c.win != nil && c.win.focus == c.self
+func (c *control) focused() bool {
+	return c.wdw != nil && c.wdw.focus == c.self
 }
 
 // invalidate asks for a repaint.
-func (c *ctl) invalidate() {
-	if c.win != nil && c.win.desk != nil {
-		c.win.desk.dirty = true
+func (c *control) invalidate() {
+	if c.wdw != nil && c.wdw.desk != nil {
+		c.wdw.desk.dirty = true
 	}
 }
 
-func (c *ctl) setCaption(s string) {
+func (c *control) setCaption(s string) {
 	if c.caption != s {
 		c.caption = s
 		c.invalidate()
@@ -157,25 +158,25 @@ func (c *ctl) setCaption(s string) {
 	}
 }
 
-func (c *ctl) setVisible(v bool) {
+func (c *control) setVisible(v bool) {
 	if c.visible != v {
 		c.visible = v
 		c.invalidate()
 
-		if !v && c.win != nil && c.win.focusHidden() {
-			c.win.focus = nil
+		if !v && c.wdw != nil && c.wdw.focusHidden() {
+			c.wdw.focus = nil
 		}
 
 		c.refit()
 	}
 }
 
-func (c *ctl) setEnabled(v bool) {
+func (c *control) setEnabled(v bool) {
 	if c.enabled != v {
 		c.enabled = v
 		c.invalidate()
 
-		if w := c.win; !v && w != nil && w.focusDisabled() {
+		if w := c.wdw; !v && w != nil && w.focusDisabled() {
 			// A disabled window can't have the focus: Windows takes it
 			// away, to no window.
 			w.setFocus(nil, false)
@@ -185,9 +186,9 @@ func (c *ctl) setEnabled(v bool) {
 	}
 }
 
-func (c *ctl) setBounds(r image.Rectangle) {
-	if c.r != r {
-		c.r = r
+func (c *control) setBounds(r image.Rectangle) {
+	if c.rect != r {
+		c.rect = r
 		c.invalidate()
 		c.refit()
 	}
@@ -195,19 +196,19 @@ func (c *ctl) setBounds(r image.Rectangle) {
 
 // refit fits an AutoSize form to its controls again, after one of them
 // showed, hid or moved.
-func (c *ctl) refit() {
-	if c.parent == nil && c.win != nil {
-		c.win.fit()
+func (c *control) refit() {
+	if c.parent == nil && c.wdw != nil {
+		c.wdw.fit()
 	}
 }
 
-// prop returns a design-time property, or "".
-func (c *ctl) prop(name string) string {
+// property returns a design-time property, or "".
+func (c *control) property(name string) string {
 	return c.props[name]
 }
 
-// propInt returns an integer property, or def.
-func (c *ctl) propInt(name string, def int) int {
+// propertyInt returns an integer property, or def.
+func (c *control) propertyInt(name string, def int) int {
 	if v, err := strconv.Atoi(c.props[name]); err == nil {
 		return v
 	}
@@ -269,19 +270,19 @@ func build(win *window, parent widget, comp *layout.Component) widget {
 		return nil
 	}
 
-	w := newWidget()
-	c := w.base()
-	c.self = w
-	c.win = win
+	wdg := newWidget()
+	c := wdg.base()
+	c.self = wdg
+	c.wdw = win
 	c.parent = parent
 	c.name = comp.Name
-	b := comp.Bounds
-	c.r = image.Rect(b.X, b.Y, b.X+b.W, b.Y+b.H)
+	bds := comp.Bounds
+	c.rect = image.Rect(bds.X, bds.Y, bds.X+bds.W, bds.Y+bds.H)
 	c.visible = !comp.Hidden
 	c.enabled = !comp.Disabled
 	c.caption = comp.Caption
 	c.props = comp.Props
-	c.tabOrder = c.propInt("TabOrder", 0)
+	c.tabOrder = c.propertyInt("TabOrder", 0)
 	c.font, c.fontColor = win.res.sans, colText
 	pc := win.color
 
@@ -290,27 +291,27 @@ func build(win *window, parent widget, comp *layout.Component) widget {
 	}
 
 	c.color = pc
-	if c.prop("ParentColor") != "True" {
-		c.color = vclColor(c.prop("Color"), pc)
+	if c.property("ParentColor") != "True" {
+		c.color = vclColor(c.property("Color"), pc)
 	}
 
 	if f := win.res.fontFor(c.props); f != nil {
 		c.font = f
 	}
 
-	c.fontColor = vclColor(c.prop("Font.Color"), colText)
+	c.fontColor = vclColor(c.property("Font.Color"), colText)
 
-	if s, ok := w.(interface{ setup(*layout.Component) }); ok {
+	if s, ok := wdg.(interface{ setup(*layout.Component) }); ok {
 		s.setup(comp)
 	}
 
 	for i := range comp.Children {
-		if k := build(win, w, &comp.Children[i]); k != nil {
+		if k := build(win, wdg, &comp.Children[i]); k != nil {
 			c.kids = append(c.kids, k)
 		}
 	}
 
-	return w
+	return wdg
 }
 
 // paintTree paints w and its children: the graphic children first, then
@@ -321,7 +322,7 @@ func paintTree(cv canvas, w widget) {
 		return
 	}
 
-	sub := cv.sub(c.r)
+	sub := cv.sub(c.rect)
 	w.paint(sub)
 
 	for _, windowed := range []bool{false, true} {
@@ -341,11 +342,11 @@ func paintTree(cv canvas, w widget) {
 // coordinates), searching in the reverse of the painting order.
 func hit(w widget, p image.Point) widget {
 	c := w.base()
-	if !c.visible || !p.In(c.r) {
+	if !c.visible || !p.In(c.rect) {
 		return nil
 	}
 
-	q := p.Sub(c.r.Min)
+	q := p.Sub(c.rect.Min)
 	for _, windowed := range []bool{true, false} {
 		for _, k := range slices.Backward(c.kids) {
 			if k.base().windowed != windowed {
@@ -363,7 +364,7 @@ func hit(w widget, p image.Point) widget {
 
 // label is a TLabel.
 type label struct {
-	ctl
+	control
 	align       string // Alignment: taLeftJustify, taCenter, taRightJustify
 	auto        bool   // AutoSize
 	transparent bool
@@ -373,10 +374,10 @@ type label struct {
 }
 
 func (l *label) setup(*layout.Component) {
-	l.align = l.prop("Alignment")
-	l.auto = l.prop("AutoSize") != "False"
-	l.transparent = l.prop("Transparent") == "True"
-	l.wordWrap = l.prop("WordWrap") == "True"
+	l.align = l.property("Alignment")
+	l.auto = l.property("AutoSize") != "False"
+	l.transparent = l.property("Transparent") == "True"
+	l.wordWrap = l.property("WordWrap") == "True"
 }
 
 // autoSize resizes the label to its caption, as AutoSize does; an empty
@@ -392,11 +393,11 @@ func (l *label) autoSize() {
 	}
 
 	w := l.font.width(s)
-	if mw := l.propInt("Constraints.MaxWidth", 0); mw > 0 && w > mw {
+	if mw := l.propertyInt("Constraints.MaxWidth", 0); mw > 0 && w > mw {
 		w = mw
 	}
 
-	l.setBounds(image.Rect(l.r.Min.X, l.r.Min.Y, l.r.Min.X+w, l.r.Min.Y+l.font.height()))
+	l.setBounds(image.Rect(l.rect.Min.X, l.rect.Min.Y, l.rect.Min.X+w, l.rect.Min.Y+l.font.height()))
 }
 
 // isAccelTarget reports whether accelerator lr focuses l's control: l is
@@ -412,16 +413,16 @@ func (l *label) paint(cv canvas) {
 
 	lines := []string{l.caption}
 	if l.wordWrap {
-		lines = wrap(l.font, l.caption, l.r.Dx())
+		lines = wrap(l.font, l.caption, l.rect.Dx())
 	}
 
 	for i, s := range lines {
 		x, y := 0, i*l.font.height()
 		switch l.align {
 		case "taCenter":
-			x = (l.r.Dx() - l.font.width(plain(s))) / 2
+			x = (l.rect.Dx() - l.font.width(plain(s))) / 2
 		case "taRightJustify":
-			x = l.r.Dx() - l.font.width(plain(s))
+			x = l.rect.Dx() - l.font.width(plain(s))
 		}
 
 		drawText(cv, l.font, x, y, s, l.fontColor, l.usable())
@@ -430,7 +431,7 @@ func (l *label) paint(cv canvas) {
 
 // button is a TButton.
 type button struct {
-	ctl
+	control
 	isDefault, isCancel bool
 	modalResult         int
 	down                bool // the mouse is pressing it
@@ -440,10 +441,10 @@ type button struct {
 
 func (b *button) setup(*layout.Component) {
 	b.windowed = true
-	b.tabStop = b.prop("TabStop") != "False"
-	b.isDefault = b.prop("Default") == "True"
-	b.isCancel = b.prop("Cancel") == "True"
-	b.modalResult = b.propInt("ModalResult", 0)
+	b.tabStop = b.property("TabStop") != "False"
+	b.isDefault = b.property("Default") == "True"
+	b.isCancel = b.property("Cancel") == "True"
+	b.modalResult = b.propertyInt("ModalResult", 0)
 }
 
 func (b *button) focusable() bool {
@@ -463,13 +464,13 @@ func (b *button) looksDefault() bool {
 		return true
 	}
 
-	if !b.isDefault || b.win == nil {
+	if !b.isDefault || b.wdw == nil {
 		return false
 	}
 
-	_, other := b.win.focus.(*button)
+	_, other := b.wdw.focus.(*button)
 
-	return !other && b.win.active
+	return !other && b.wdw.active
 }
 
 func (b *button) paint(cv canvas) {
@@ -493,8 +494,8 @@ func (b *button) paint(cv canvas) {
 	}
 
 	text := plain(b.caption)
-	x := (b.r.Dx() - b.font.width(text)) / 2
-	y := (b.r.Dy() - b.font.height()) / 2
+	x := (b.rect.Dx() - b.font.width(text)) / 2
+	y := (b.rect.Dy() - b.font.height()) / 2
 
 	if b.pushed() {
 		x, y = x+1, y+1
@@ -502,7 +503,7 @@ func (b *button) paint(cv canvas) {
 
 	drawText(cv, b.font, x, y, b.caption, b.fontColor, b.usable())
 
-	if b.focused() && b.win.active {
+	if b.focused() && b.wdw.active {
 		cv.focusRect(b.local().Inset(3))
 	}
 }
@@ -562,13 +563,13 @@ func (b *button) click() {
 		b.onClick()
 	}
 
-	if b.modalResult != 0 && b.win != nil {
-		b.win.endModal(b.modalResult)
+	if b.modalResult != 0 && b.wdw != nil {
+		b.wdw.endModal(b.modalResult)
 	}
 }
 
 // groupBox is a TGroupBox.
-type groupBox struct{ ctl }
+type groupBox struct{ control }
 
 func (g *groupBox) setup(*layout.Component) {
 	g.windowed = true
@@ -596,7 +597,7 @@ func paintGroupFrame(cv canvas, r image.Rectangle, f face, caption string, bg, f
 // radioGroup is a TRadioGroup: a group box of radio buttons laid out by
 // TCustomRadioGroup.ArrangeButtons.
 type radioGroup struct {
-	ctl
+	control
 	items    []string
 	index    int // ItemIndex
 	columns  int
@@ -606,11 +607,11 @@ type radioGroup struct {
 
 func (g *radioGroup) setup(comp *layout.Component) {
 	g.windowed = true
-	g.tabStop = g.prop("TabStop") == "True"
+	g.tabStop = g.property("TabStop") == "True"
 
 	g.items = append([]string(nil), comp.Items...)
-	g.index = g.propInt("ItemIndex", -1)
-	g.columns = max(g.propInt("Columns", 1), 1)
+	g.index = g.propertyInt("ItemIndex", -1)
+	g.columns = max(g.propertyInt("Columns", 1), 1)
 	g.pressing = -1
 }
 
@@ -634,9 +635,9 @@ func (g *radioGroup) setIndex(i int) {
 func (g *radioGroup) buttonRect(i int) image.Rectangle {
 	n := len(g.items)
 	perCol := (n + g.columns - 1) / g.columns
-	w := (g.r.Dx() - 10) / g.columns
+	w := (g.rect.Dx() - 10) / g.columns
 	th := g.font.height()
-	space := g.r.Dy() - th - 5
+	space := g.rect.Dy() - th - 5
 	h := space / perCol
 	top := th + 1 + space%perCol/2
 	x := i/perCol*w + 8
@@ -654,7 +655,7 @@ func (g *radioGroup) paint(cv canvas) {
 		pushed := g.pressing == i && g.inside
 		// The focus is on the checked item, or on the first when none is.
 		current := i == g.index || (g.index < 0 && i == 0)
-		focus := g.focused() && g.win.active && current
+		focus := g.focused() && g.wdw.active && current
 		paintRadio(cv.sub(r), r.Size(), g.font, item, i == g.index, pushed, g.usable(), focus, g.fontColor)
 	}
 }
@@ -794,7 +795,7 @@ func (g *radioGroup) key(k ebiten.Key, _ mods) bool {
 func (g *radioGroup) char(rune) {}
 
 // panel is a TPanel.
-type panel struct{ ctl }
+type panel struct{ control }
 
 func (p *panel) setup(*layout.Component) {
 	p.windowed = true
@@ -804,7 +805,7 @@ func (p *panel) paint(cv canvas) {
 	r := p.local()
 	cv.fill(r, p.color)
 
-	if p.prop("BevelOuter") != "bvNone" {
+	if p.property("BevelOuter") != "bvNone" {
 		cv.edge(r, colHighlight, colShadow)
 	}
 
@@ -815,13 +816,13 @@ func (p *panel) paint(cv canvas) {
 }
 
 // bevel is a TBevel (the box shape, lowered, is all the game uses).
-type bevel struct{ ctl }
+type bevel struct{ control }
 
 func (b *bevel) paint(cv canvas) {
 	r := b.local()
 	c1, c2 := colShadow, colHighlight
 
-	if b.prop("Style") == "bsRaised" {
+	if b.property("Style") == "bsRaised" {
 		c1, c2 = c2, c1
 	}
 
@@ -836,13 +837,13 @@ func (b *bevel) paint(cv canvas) {
 
 // picture is a TImage.
 type picture struct {
-	ctl
+	control
 	img   *image.NRGBA
 	alpha bool // blend the image's alpha channel, as icons have
 }
 
 func (p *picture) setup(*layout.Component) {
-	p.img = p.win.res.picture(p.prop("Picture"))
+	p.img = p.wdw.res.picture(p.property("Picture"))
 }
 
 func (p *picture) paint(cv canvas) {
@@ -858,17 +859,17 @@ func (p *picture) paint(cv canvas) {
 // gauge is a TGauge from the Delphi samples, as a horizontal bar with its
 // percentage XORed over it.
 type gauge struct {
-	ctl
+	control
 	min, max, progress int
 	fore, back         color.RGBA
 }
 
 func (g *gauge) setup(*layout.Component) {
-	g.min = g.propInt("MinValue", 0)
-	g.max = g.propInt("MaxValue", 100)
-	g.progress = g.propInt("Progress", 0)
-	g.fore = vclColor(g.prop("ForeColor"), rgb(0x000000))
-	g.back = vclColor(g.prop("BackColor"), rgb(0xFFFFFF))
+	g.min = g.propertyInt("MinValue", 0)
+	g.max = g.propertyInt("MaxValue", 100)
+	g.progress = g.propertyInt("Progress", 0)
+	g.fore = vclColor(g.property("ForeColor"), rgb(0x000000))
+	g.back = vclColor(g.property("BackColor"), rgb(0xFFFFFF))
 }
 
 // set changes the gauge, clamping the progress as SetProgress does.

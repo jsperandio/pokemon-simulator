@@ -162,11 +162,11 @@ func (d *desktop) hide(w *window) {
 
 // release forgets the mouse and the popups of a window that goes away.
 func (d *desktop) release(w *window) {
-	if d.capture != nil && d.capture.base().win == w {
+	if d.capture != nil && d.capture.base().wdw == w {
 		d.capture = nil
 	}
 
-	if d.hover != nil && d.hover.base().win == w {
+	if d.hover != nil && d.hover.base().wdw == w {
 		d.hover = nil
 	}
 
@@ -431,7 +431,7 @@ func (d *desktop) keys(in *input) {
 func widgetOrigin(k widget) image.Point {
 	c := k.base()
 
-	return c.win.clientOrigin().Add(c.origin())
+	return c.wdw.clientOrigin().Add(c.origin())
 }
 
 // isDouble reports whether a press on target at p makes a double click.
@@ -1048,12 +1048,12 @@ func (d *desktop) busy() bool {
 // hintable reports whether control k has a hint to show: it is shown, has
 // ShowHint on and a hint.
 func hintable(k widget) bool {
-	return k != nil && k.base().shown() && k.base().prop("ShowHint") == "True" && hintText(k) != ""
+	return k != nil && k.base().shown() && k.base().property("ShowHint") == "True" && hintText(k) != ""
 }
 
 // hintText is a control's hint, the part before a "|" (GetShortHint).
 func hintText(k widget) string {
-	text, _, _ := strings.Cut(k.base().prop("Hint"), "|")
+	text, _, _ := strings.Cut(k.base().property("Hint"), "|")
 
 	return text
 }

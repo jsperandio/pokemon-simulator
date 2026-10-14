@@ -170,7 +170,7 @@ func (w *window) hasSysIcon() bool {
 // captions, but the aligned ones.
 func measureLabels(ws []widget) {
 	for _, k := range ws {
-		if l, ok := k.(*label); ok && l.prop("Align") == "" {
+		if l, ok := k.(*label); ok && l.property("Align") == "" {
 			l.autoSize()
 		}
 
@@ -184,7 +184,7 @@ func (w *window) extent() image.Point {
 
 	for _, k := range w.kids {
 		if c := k.base(); c.visible {
-			e = image.Pt(max(e.X, c.r.Max.X), max(e.Y, c.r.Max.Y))
+			e = image.Pt(max(e.X, c.rect.Max.X), max(e.Y, c.rect.Max.Y))
 		}
 	}
 
@@ -208,21 +208,21 @@ func (w *window) fit() {
 	w.client = w.client.Add(d)
 	for _, k := range w.kids {
 		c := k.base()
-		anchors := c.prop("Anchors")
+		anchors := c.property("Anchors")
 
 		if strings.Contains(anchors, "akRight") {
 			if strings.Contains(anchors, "akLeft") {
-				c.r.Max.X += d.X
+				c.rect.Max.X += d.X
 			} else {
-				c.r = c.r.Add(image.Pt(d.X, 0))
+				c.rect = c.rect.Add(image.Pt(d.X, 0))
 			}
 		}
 
 		if strings.Contains(anchors, "akBottom") {
 			if strings.Contains(anchors, "akTop") {
-				c.r.Max.Y += d.Y
+				c.rect.Max.Y += d.Y
 			} else {
-				c.r = c.r.Add(image.Pt(0, d.Y))
+				c.rect = c.rect.Add(image.Pt(0, d.Y))
 			}
 		}
 	}

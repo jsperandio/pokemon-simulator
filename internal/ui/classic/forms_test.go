@@ -108,7 +108,7 @@ func TestSpinIncrement(t *testing.T) {
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
 
-	s := get[*spinEdit](ta.corner.w, "SpinEdit1")
+	s := get[*spinEdit](ta.corner.wdw, "SpinEdit1")
 	up, down := s.buttons()
 	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
 	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
@@ -170,7 +170,7 @@ func TestCornerDraws(t *testing.T) {
 	ta.frame(input{keys: []ebiten.Key{ebiten.KeyEnd}, mods: mods{shift: true}})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
 	ta.typeText("100")
-	ta.clickOn(c.w, "Button1") // Draw number!
+	ta.clickOn(c.wdw, "Button1") // Draw number!
 
 	if ta.draws == nil {
 		t.Fatal("no draws show")
@@ -188,7 +188,7 @@ func TestCornerDraws(t *testing.T) {
 
 		if frames == 20 {
 			ta.shot("51-corner-draws")
-			ta.clickOn(c.w, "Button2") // Close: no input meanwhile
+			ta.clickOn(c.wdw, "Button2") // Close: no input meanwhile
 
 			frames += 2
 		}
@@ -204,7 +204,7 @@ func TestCornerDraws(t *testing.T) {
 		t.Errorf("%d numbers shown", len(seen))
 	}
 
-	if !c.w.visible {
+	if !c.wdw.visible {
 		t.Error("Close worked during the draws")
 	}
 
@@ -230,7 +230,7 @@ func TestLoadingFits(t *testing.T) {
 		"Label3": 12,
 		"Label4": 29,
 	} {
-		r := w.find(name).base().r
+		r := w.find(name).base().rect
 		if r.Min.X != x {
 			t.Errorf("%s at x=%d, want %d", name, r.Min.X, x)
 		}
@@ -258,8 +258,8 @@ func TestDexFits(t *testing.T) {
 	ta.wait(1)
 
 	dex := ta.dex
-	if dex.w.client != image.Pt(241, 25) {
-		t.Errorf("client %v with no selection, want 241×25", dex.w.client)
+	if dex.wdw.client != image.Pt(241, 25) {
+		t.Errorf("client %v with no selection, want 241×25", dex.wdw.client)
 	}
 
 	c := dex.combo
@@ -270,11 +270,11 @@ func TestDexFits(t *testing.T) {
 	ta.click(drop.Min.Add(image.Pt(5, 1+3*c.itemHeight+c.itemHeight/2)))
 	ta.wait(1)
 
-	if dex.w.client != image.Pt(241, 161) || c.index != 3 {
-		t.Errorf("client %v with species %d, want 241×161 with Charmander", dex.w.client, c.index+1)
+	if dex.wdw.client != image.Pt(241, 161) || c.index != 3 {
+		t.Errorf("client %v with species %d, want 241×161 with Charmander", dex.wdw.client, c.index+1)
 	}
 
-	ta.clickOn(dex.w, "Button1")
+	ta.clickOn(dex.wdw, "Button1")
 	ta.menu("Action1", "ViewDEX1")
 	ta.wait(1)
 
@@ -282,7 +282,7 @@ func TestDexFits(t *testing.T) {
 		t.Errorf("text %q, selected from %d to %d; want Charmander's, unselected", c.tb.String(), from, to)
 	}
 
-	if dex.w.focus != dex.w.find("Button1") {
+	if dex.wdw.focus != dex.wdw.find("Button1") {
 		t.Error("the focus left the button")
 	}
 }

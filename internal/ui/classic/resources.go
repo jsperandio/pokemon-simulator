@@ -164,6 +164,32 @@ func (r *resources) fontFor(props map[string]string) face {
 	return r.arial(-h, plainStyle)
 }
 
+// fileIcons returns the file dialog's image list: a folder, a document and
+// a drive.
+func (r *resources) fileIcons() *imageList {
+	if il := r.lists["fileIcons"]; il != nil {
+		return il
+	}
+
+	img := image.NewRGBA(image.Rect(0, 0, 48, 16))
+	cv := newCanvas(img)
+	cv.pattern(0, 0, iconFolder, iconColors)
+	cv.pattern(16, 0, iconDocument, iconColors)
+	cv.pattern(32, 0, iconDrive, iconColors)
+
+	nImg := image.NewNRGBA(img.Rect)
+	copy(nImg.Pix, img.Pix) // the pixels are opaque or fully transparent
+
+	il := &imageList{
+		img:  nImg,
+		size: 16,
+		cols: 3,
+	}
+	r.lists["fileIcons"] = il
+
+	return il
+}
+
 // fontStyle is a style of Liberation Sans.
 type fontStyle int
 
@@ -211,21 +237,21 @@ type imageList struct {
 	cols int
 }
 
-func (l *imageList) frame(i int) image.Rectangle {
-	x, y := i%l.cols*l.size, i/l.cols*l.size
+func (il *imageList) frame(i int) image.Rectangle {
+	x, y := i%il.cols*il.size, i/il.cols*il.size
 
-	return image.Rect(x, y, x+l.size, y+l.size)
+	return image.Rect(x, y, x+il.size, y+il.size)
 }
 
 // drawFrame draws frame i at (x, y). A selected frame is dithered with the
 // selection colour, as ILD_SELECTED draws on a 256-colour screen.
-func (l *imageList) drawFrame(cv canvas, x, y, i int, selected bool) {
-	if i < 0 || i >= l.cols*(l.img.Rect.Dy()/l.size) {
+func (il *imageList) drawFrame(cv canvas, x, y, i int, selected bool) {
+	if i < 0 || i >= il.cols*(il.img.Rect.Dy()/il.size) {
 		return
 	}
 
-	fr := l.frame(i)
-	cv.draw(x, y, l.img, fr)
+	fr := il.frame(i)
+	cv.draw(x, y, il.img, fr)
 
 	if !selected {
 		return
@@ -233,7 +259,7 @@ func (l *imageList) drawFrame(cv canvas, x, y, i int, selected bool) {
 
 	for sy := fr.Min.Y; sy < fr.Max.Y; sy++ {
 		for sx := fr.Min.X; sx < fr.Max.X; sx++ {
-			if l.img.NRGBAAt(sx, sy).A >= 0x80 && (sx+sy)&1 == 1 {
+			if il.img.NRGBAAt(sx, sy).A >= 0x80 && (sx+sy)&1 == 1 {
 				cv.pix(x+sx-fr.Min.X, y+sy-fr.Min.Y, colSelection)
 			}
 		}
@@ -242,15 +268,15 @@ func (l *imageList) drawFrame(cv canvas, x, y, i int, selected bool) {
 
 // drawDisabled draws frame i as an image list draws a disabled image: its
 // shape embossed in the highlight and shadow colours.
-func (l *imageList) drawDisabled(cv canvas, x, y, i int) {
-	fr := l.frame(i)
+func (il *imageList) drawDisabled(cv canvas, x, y, i int) {
+	fr := il.frame(i)
 	for _, pass := range []struct {
 		d int
 		c color.RGBA
 	}{{1, colHighlight}, {0, colShadow}} {
 		for sy := fr.Min.Y; sy < fr.Max.Y; sy++ {
 			for sx := fr.Min.X; sx < fr.Max.X; sx++ {
-				c := l.img.NRGBAAt(sx, sy)
+				c := il.img.NRGBAAt(sx, sy)
 				// Dark pixels make the shape, as the mask of a disabled
 				// image keeps them.
 				if c.A >= 0x80 && int(c.R)+int(c.G)+int(c.B) < 3*0xC0 {

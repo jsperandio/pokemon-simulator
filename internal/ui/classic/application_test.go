@@ -23,7 +23,7 @@ import (
 // testApp drives the user interface headlessly, a frame at a time, on a
 // clock of its own.
 type testApp struct {
-	*App
+	*Application
 	t     *testing.T
 	now   time.Time
 	dir   string // the file dialogs' folder
@@ -41,7 +41,7 @@ func newTestApp(t *testing.T) *testApp {
 func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	t.Helper()
 
-	a, err := New(testData(t), platform.Disk(dir), args)
+	a, err := NewApplication(testData(t), platform.Disk(dir), args)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,10 +49,10 @@ func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	a.g.Rand.Seed = 1
 
 	return &testApp{
-		App: a,
-		t:   t,
-		now: time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC),
-		dir: dir,
+		Application: a,
+		t:           t,
+		now:         time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC),
+		dir:         dir,
 	}
 }
 
@@ -110,7 +110,7 @@ func (ta *testApp) clickOn(w *window, name string) {
 	}
 
 	c := k.base()
-	ta.click(widgetOrigin(k).Add(c.r.Size().Div(2)))
+	ta.click(widgetOrigin(k).Add(c.rect.Size().Div(2)))
 }
 
 // key presses and releases a key.
@@ -193,8 +193,8 @@ func TestNewGame(t *testing.T) {
 		t.Fatalf("party %v", got)
 	}
 
-	if ta.desk.active != ta.main.w || !ta.stats.w.visible || !ta.dex.w.visible {
-		t.Errorf("windows: active %v, Statistics %v, POKéDEX %v", ta.desk.active, ta.stats.w.visible, ta.dex.w.visible)
+	if ta.desk.active != ta.main.w || !ta.stats.wdw.visible || !ta.dex.wdw.visible {
+		t.Errorf("windows: active %v, Statistics %v, POKéDEX %v", ta.desk.active, ta.stats.wdw.visible, ta.dex.wdw.visible)
 	}
 
 	ta.mouse = image.Pt(0, 0)
@@ -303,7 +303,7 @@ func TestWildBattle(t *testing.T) {
 		t.Errorf("Battle Info: %q", ta.g.Info.Lines)
 	}
 
-	ta.clickOn(ta.stats.w, "Button1") // a POKéBall
+	ta.clickOn(ta.stats.wdw, "Button1") // a POKéBall
 	ta.wait(1)
 	ta.shot("17-ball")
 
@@ -330,7 +330,7 @@ func TestCatchSaveLoad(t *testing.T) {
 	ta.doubleClick(widgetOrigin(ta.stats.party).Add(r.Min).Add(image.Pt(10, 10)))
 	ta.answer("# 004 Charmander")
 	ta.answer("Choose Charmander?")
-	ta.clickOn(ta.stats.w, "Button4") // the Master Ball
+	ta.clickOn(ta.stats.wdw, "Button4") // the Master Ball
 	ta.wait(1)
 	ta.shot("20-caught")
 
@@ -378,7 +378,7 @@ func TestCatchSaveLoad(t *testing.T) {
 		t.Fatalf("loaded %q with a party of %d", tb.g.PlayerName, n)
 	}
 
-	if tb.start.w.visible || !tb.main.w.visible || !tb.stats.w.visible {
+	if tb.start.w.visible || !tb.main.w.visible || !tb.stats.wdw.visible {
 		t.Error("the game windows don't show")
 	}
 

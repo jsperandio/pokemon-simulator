@@ -86,8 +86,8 @@ func TestHelp(t *testing.T) {
 	ta.wait(1)
 	ta.shot("34-help-maximized")
 
-	if !h.w.maximized || h.view.laid != h.view.r.Size() || h.view.r.Dx() != screenWidth {
-		t.Errorf("maximized: %v, the topic %v laid out for %v", h.w.maximized, h.view.r, h.view.laid)
+	if !h.w.maximized || h.view.laid != h.view.rect.Size() || h.view.rect.Dx() != screenWidth {
+		t.Errorf("maximized: %v, the topic %v laid out for %v", h.w.maximized, h.view.rect, h.view.laid)
 	}
 
 	ta.click(onCaptionButton(h.w, capClose))

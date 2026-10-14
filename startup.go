@@ -40,7 +40,7 @@ const noFrameText string = "GNOME didn't show the game's window, as happens when
 // before, if the window manager holds the window back and Ebitengine stops
 // waiting for it.
 type watchedApp struct {
-	*classic.App
+	*classic.Application
 	up    bool
 	shown chan struct{}
 }
@@ -51,12 +51,12 @@ func (w *watchedApp) Update() error {
 		close(w.shown)
 	}
 
-	return w.App.Update()
+	return w.Application.Update()
 }
 
 // watchWindow sets the window up, and watches it come.
-func watchWindow(app *classic.App) ebiten.Game {
-	w := &watchedApp{App: app, shown: make(chan struct{})}
+func watchWindow(app *classic.Application) ebiten.Game {
+	w := &watchedApp{Application: app, shown: make(chan struct{})}
 	restarted := os.Getenv(noFrameEnv) != ""
 
 	if restarted {

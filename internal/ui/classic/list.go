@@ -341,7 +341,7 @@ type listItem struct {
 // listView is a TListView in the list style (vsList): items in columns,
 // each an icon from SmallImages and a caption, scrolling sideways.
 type listView struct {
-	ctl
+	control
 	items    []listItem
 	images   *imageList
 	border   bool
@@ -359,11 +359,11 @@ type listView struct {
 
 func (l *listView) setup(comp *layout.Component) {
 	l.windowed = true
-	l.tabStop = l.prop("TabStop") != "False"
-	l.border = l.prop("BorderStyle") != "bsNone"
-	l.color = vclColor(l.prop("Color"), colWindow)
-	l.images = l.win.res.imageList(l.prop("SmallImages"))
-	l.hotTrack = l.prop("HotTrackStyles") != ""
+	l.tabStop = l.property("TabStop") != "False"
+	l.border = l.property("BorderStyle") != "bsNone"
+	l.color = vclColor(l.property("Color"), colWindow)
+	l.images = l.wdw.res.imageList(l.property("SmallImages"))
+	l.hotTrack = l.property("HotTrackStyles") != ""
 
 	for _, it := range comp.List {
 		l.items = append(l.items, listItem{it.Caption, it.ImageIndex})
@@ -497,7 +497,7 @@ func (l *listView) paint(cv canvas) {
 	_, icon, _ := l.metrics()
 	in := cv.sub(c)
 	in.org = cv.org // keep the list's coordinates, clipped to the inside
-	focus := l.focused() && l.win.active
+	focus := l.focused() && l.wdw.active
 
 	for i := range l.items {
 		if ir := l.itemRect(i); ir.Overlaps(c) {
@@ -697,11 +697,11 @@ func newDropList(c *comboBox) *dropList {
 	d := &dropList{combo: c, hot: c.index}
 	d.rows = min(len(c.items), 8)
 	h := max(d.rows, 1)*c.itemHeight + 2
-	o := c.win.clientOrigin().Add(c.origin())
-	d.r = image.Rect(o.X, o.Y+c.r.Dy(), o.X+c.r.Dx(), o.Y+c.r.Dy()+h)
+	o := c.wdw.clientOrigin().Add(c.origin())
+	d.r = image.Rect(o.X, o.Y+c.rect.Dy(), o.X+c.rect.Dx(), o.Y+c.rect.Dy()+h)
 
 	if d.r.Max.Y > screenHeight {
-		d.r = d.r.Sub(image.Pt(0, h+c.r.Dy()))
+		d.r = d.r.Sub(image.Pt(0, h+c.rect.Dy()))
 	}
 
 	if len(c.items) > d.rows {

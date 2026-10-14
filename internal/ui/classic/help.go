@@ -59,7 +59,7 @@ var (
 
 // helpWindow is the manual's window.
 type helpWindow struct {
-	a        *App
+	a        *Application
 	w        *window
 	view     *helpView
 	back     *button
@@ -75,23 +75,12 @@ type helpPlace struct {
 	pos  int
 }
 
-// help is the start screen's "Help!" and Help → Contents (F1): the manual,
-// at its contents.
-func (a *App) help() {
-	if a.helpWin == nil {
-		a.helpWin = newHelpWindow(a)
-	}
-
-	a.helpWin.jump(help.Contents)
-	a.desk.show(a.helpWin.w)
-}
-
 // arial returns the manual's Arial at an em height of px pixels.
 func (h *helpWindow) arial(px int, style fontStyle) face {
 	return h.a.res.arial(px, style)
 }
 
-func newHelpWindow(a *App) *helpWindow {
+func newHelpWindow(a *Application) *helpWindow {
 	h := &helpWindow{
 		a:        a,
 		pages:    map[string]*help.Page{},
@@ -227,7 +216,7 @@ func (h *helpWindow) picture(name string) *image.RGBA {
 // helpView shows a page: its non-scrolling region, with the banner and the
 // title, then the topic, which scrolls.
 type helpView struct {
-	ctl
+	control
 	h      *helpWindow
 	name   string // the page's file
 	page   *help.Page

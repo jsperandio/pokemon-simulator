@@ -16,7 +16,7 @@ import (
 // mainForm is the game window (TForm4): the menu, the starter choice,
 // the battle arena, the evolution choice and the Mewtwo-power picker.
 type mainForm struct {
-	a *App
+	a *Application
 	w *window
 
 	starterLabel *label
@@ -46,7 +46,7 @@ type mainForm struct {
 	endButton      *button
 }
 
-func newMainForm(a *App) *mainForm {
+func newMainForm(a *Application) *mainForm {
 	w := newWindow(a.desk, &layout.Form4)
 	f := &mainForm{a: a, w: w}
 	f.starterLabel = get[*label](w, "Label1")
@@ -363,6 +363,6 @@ func (f *mainForm) sync() {
 // width + 80, and Width = 289 − Left.
 func (f *mainForm) placeGauge(g *gauge, caption string) {
 	left := f.enemyLabel.font.width(caption) + 80
-	r := g.r
+	r := g.rect
 	g.setBounds(image.Rect(left, r.Min.Y, 289, r.Max.Y))
 }

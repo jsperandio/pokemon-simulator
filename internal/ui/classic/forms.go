@@ -26,69 +26,69 @@ func get[T widget](w *window, name string) T {
 
 // buildForms makes every form, hidden, as the original creates them all
 // at start-up.
-func (a *App) buildForms() {
-	a.load = newLoadForm(a)
-	a.start = newStartForm(a)
-	a.main = newMainForm(a)
-	a.stats = newStatsForm(a)
-	a.info = newInfoForm(a)
-	a.dex = newDexForm(a)
-	a.mart = newMartForm(a)
-	a.types = newTypesForm(a)
-	a.corner = newCornerForm(a)
-	a.name = newNameDialog(a)
-	a.about = newWindow(a.desk, &layout.AboutBox)
-	a.desk.add(a.about)
+func (app *Application) buildForms() {
+	app.load = newLoadForm(app)
+	app.start = newStartForm(app)
+	app.main = newMainForm(app)
+	app.stats = newStatsForm(app)
+	app.info = newInfoForm(app)
+	app.dex = newDexForm(app)
+	app.mart = newMartForm(app)
+	app.types = newTypesForm(app)
+	app.corner = newCornerForm(app)
+	app.name = newNameDialog(app)
+	app.about = newWindow(app.desk, &layout.AboutBox)
+	app.desk.add(app.about)
 }
 
 // placeWindows puts the game, Statistics and Battle Info windows side by
 // side around the screen's centre, as a new game (dy 236) or a loaded one
 // (dy 246) does.
-func (a *App) placeWindows(dy int) {
+func (app *Application) placeWindows(dy int) {
 	x, y := screenWidth/2-305, screenHeight/2-dy
-	a.main.w.pos = image.Pt(x, y)
-	a.stats.w.pos = image.Pt(x+428, y)
-	a.info.w.pos = image.Pt(x, y+314)
-	a.desk.dirty = true
+	app.main.w.pos = image.Pt(x, y)
+	app.stats.wdw.pos = image.Pt(x+428, y)
+	app.info.wdw.pos = image.Pt(x, y+314)
+	app.desk.dirty = true
 }
 
 // showAbout is the About box (TAboutBox.ShowModal).
-func (a *App) showAbout() {
-	a.call(func() {
-		a.modal(a.about)
+func (app *Application) showAbout() {
+	app.call(func() {
+		app.modal(app.about)
 	})
 }
 
 // exit ends the program, as closing the loading screen, the main form,
 // does.
-func (a *App) exit() {
-	a.quit = true
+func (app *Application) exit() {
+	app.quit = true
 }
 
 // loadGame loads a save (TForm1.LoadGame); it reports whether it could.
 // It runs on the handler's goroutine.
-func (a *App) loadGame(file string) bool {
-	b, err := a.files.ReadFile(file)
+func (app *Application) loadGame(file string) bool {
+	b, err := app.files.ReadFile(file)
 	if err == nil {
-		err = a.g.Load(file, b)
+		err = app.g.Load(file, b)
 	}
 
 	if err != nil {
-		a.Message(game.Error, false, err.Error())
+		app.Message(game.Error, false, err.Error())
 
 		return false
 	}
 
-	a.sync()
-	a.placeWindows(246)
-	a.desk.hide(a.start.w)
+	app.sync()
+	app.placeWindows(246)
+	app.desk.hide(app.start.w)
 
 	return true
 }
 
 // speciesName is a species' name, or "" for none.
-func (a *App) speciesName(s int) string {
-	if sp := a.g.Data.SpeciesByID(s); sp != nil {
+func (app *Application) speciesName(s int) string {
+	if sp := app.g.Data.SpeciesByID(s); sp != nil {
 		return sp.Name
 	}
 
@@ -96,9 +96,9 @@ func (a *App) speciesName(s int) string {
 }
 
 // dexItems are the species lists' items: "Bulbasaur (#001)".
-func (a *App) dexItems() []string {
-	out := make([]string, 0, len(a.g.Data.Species))
-	for _, sp := range a.g.Data.Species {
+func (app *Application) dexItems() []string {
+	out := make([]string, 0, len(app.g.Data.Species))
+	for _, sp := range app.g.Data.Species {
 		out = append(out, fmt.Sprintf("%s (#%03d)", sp.Name, sp.ID))
 	}
 
