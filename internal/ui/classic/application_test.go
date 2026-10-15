@@ -16,6 +16,7 @@ import (
 
 	"github.com/jsperandio/pokemon-simulator/assets"
 	"github.com/jsperandio/pokemon-simulator/internal/audio"
+	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
 )
@@ -134,6 +135,143 @@ func (ta *testApp) shot(name string) {
 	savePNG(ta.t, name, img)
 }
 
+// menu clicks through the game window's menu: a bar item, then submenu
+// items, by name.
+func (ta *testApp) menu(names ...string) {
+	ta.t.Helper()
+
+	m := ta.main.w.menu
+	for i, e := range m.entries {
+		closed := !m.active() || m.sel != i || len(m.open) == 0
+		if e.name() == names[0] && closed {
+			r := m.barRects()[i]
+			ta.click(r.Min.Add(r.Size().Div(2)))
+		}
+	}
+
+	for _, n := range names[1:] {
+		found := false
+
+		for _, p := range m.open {
+			for i, e := range p.items {
+				if e.name() == n {
+					r := p.itemRect(i)
+					ta.click(r.Min.Add(r.Size().Div(2)))
+
+					found = true
+				}
+			}
+		}
+
+		if !found {
+			ta.t.Fatalf("menu item %s not open", n)
+		}
+	}
+}
+
+// answer closes the modal message dialog with its default button.
+func (ta *testApp) answer(want string) {
+	ta.t.Helper()
+
+	w := ta.desk.topModal()
+	if w == nil {
+		ta.t.Fatalf("no dialog; want %q", want)
+	}
+
+	if msg := w.find("Message"); msg == nil || !strings.Contains(msg.base().caption, want) {
+		ta.t.Fatalf("dialog %q, want %q", msg.base().caption, want)
+	}
+
+	ta.key(ebiten.KeyEnter)
+	ta.wait(1)
+}
+
+// startGame plays up to the game window with a Charmander.
+func (ta *testApp) startGame() {
+	ta.wait(80)
+	ta.clickOn(ta.start.w, "NewButton")
+	ta.typeText("ash")
+	ta.key(ebiten.KeyEnter)
+	ta.typeText("Gary")
+	ta.key(ebiten.KeyEnter)
+
+	r := ta.main.starters.itemRect(1)
+	ta.click(widgetOrigin(ta.main.starters).Add(r.Min).Add(image.Pt(20, 20)))
+	ta.wait(1)
+}
+
+// hintShown reports whether the hint window shows.
+func (ta *testApp) hintShown() bool {
+	hint := ta.desk.hint
+
+	return !hint.rect.Empty()
+}
+
+// spotPoint returns a point on the screen inside a link to target, after
+// scrolling it into view.
+func (ta *testApp) spotPoint(target string) image.Point {
+	ta.t.Helper()
+
+	v := ta.helpWindow.view
+	for _, s := range v.spots {
+		if s.target != target || len(s.boxes) == 0 {
+			continue
+		}
+
+		b := s.boxes[0]
+		if b.Min.Y < v.scroll.pos || b.Max.Y > v.scroll.pos+v.scroll.page {
+			v.scroll.set(b.Min.Y)
+		}
+
+		p := b.Min.Add(image.Pt(2, v.head.Rect.Dy()-v.scroll.pos+2))
+
+		return widgetOrigin(v).Add(p)
+	}
+
+	ta.t.Fatalf("%s has no link to %s", v.name, target)
+
+	return image.Point{}
+}
+
+// menuEffects is what a menu command can change that the player sees.
+type menuEffects struct {
+	modal   string // the caption of the modal window up
+	windows string // the windows shown
+	battle  [3]bool
+	checked string // the items checked
+	quit    bool
+}
+
+func (ta *testApp) menuEffects() menuEffects {
+	e := menuEffects{quit: ta.quit}
+	if w := ta.desk.topModal(); w != nil {
+		e.modal = w.caption
+	}
+
+	for _, w := range ta.desk.windows {
+		if w.visible {
+			e.windows += w.name + " "
+		}
+	}
+
+	g := ta.g
+	e.battle = [3]bool{g.InWildBattle, g.InTrainerBattle, g.InTournament}
+
+	var walk func(items []*game.MenuItem)
+	walk = func(items []*game.MenuItem) {
+		for _, m := range items {
+			if m.Checked {
+				e.checked += m.Name + " "
+			}
+
+			walk(m.Items)
+		}
+	}
+	walk(g.Menu)
+
+	return e
+}
+
 // TestNewGame plays the start of a game: loading, the start screen, the
 // save file, the name and the starter.
 func TestNewGame(t *testing.T) {
@@ -204,71 +342,6 @@ func TestNewGame(t *testing.T) {
 	if !strings.HasSuffix(ta.g.SaveFile, "ash.pgs") {
 		t.Errorf("save file %q", ta.g.SaveFile)
 	}
-}
-
-// menu clicks through the game window's menu: a bar item, then submenu
-// items, by name.
-func (ta *testApp) menu(names ...string) {
-	ta.t.Helper()
-
-	m := ta.main.w.menu
-	for i, e := range m.entries {
-		closed := !m.active() || m.sel != i || len(m.open) == 0
-		if e.name() == names[0] && closed {
-			r := m.barRects()[i]
-			ta.click(r.Min.Add(r.Size().Div(2)))
-		}
-	}
-
-	for _, n := range names[1:] {
-		found := false
-
-		for _, p := range m.open {
-			for i, e := range p.items {
-				if e.name() == n {
-					r := p.itemRect(i)
-					ta.click(r.Min.Add(r.Size().Div(2)))
-
-					found = true
-				}
-			}
-		}
-
-		if !found {
-			ta.t.Fatalf("menu item %s not open", n)
-		}
-	}
-}
-
-// answer closes the modal message dialog with its default button.
-func (ta *testApp) answer(want string) {
-	ta.t.Helper()
-
-	w := ta.desk.topModal()
-	if w == nil {
-		ta.t.Fatalf("no dialog; want %q", want)
-	}
-
-	if msg := w.find("Message"); msg == nil || !strings.Contains(msg.base().caption, want) {
-		ta.t.Fatalf("dialog %q, want %q", msg.base().caption, want)
-	}
-
-	ta.key(ebiten.KeyEnter)
-	ta.wait(1)
-}
-
-// startGame plays up to the game window with a Charmander.
-func (ta *testApp) startGame() {
-	ta.wait(80)
-	ta.clickOn(ta.start.w, "NewButton")
-	ta.typeText("ash")
-	ta.key(ebiten.KeyEnter)
-	ta.typeText("Gary")
-	ta.key(ebiten.KeyEnter)
-
-	r := ta.main.starters.itemRect(1)
-	ta.click(widgetOrigin(ta.main.starters).Add(r.Min).Add(image.Pt(20, 20)))
-	ta.wait(1)
 }
 
 func TestWildBattle(t *testing.T) {

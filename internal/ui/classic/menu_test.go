@@ -16,45 +16,6 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
-// menuEffects is what a menu command can change that the player sees.
-type menuEffects struct {
-	modal   string // the caption of the modal window up
-	windows string // the windows shown
-	battle  [3]bool
-	checked string // the items checked
-	quit    bool
-}
-
-func (ta *testApp) menuEffects() menuEffects {
-	e := menuEffects{quit: ta.quit}
-	if w := ta.desk.topModal(); w != nil {
-		e.modal = w.caption
-	}
-
-	for _, w := range ta.desk.windows {
-		if w.visible {
-			e.windows += w.name + " "
-		}
-	}
-
-	g := ta.g
-	e.battle = [3]bool{g.InWildBattle, g.InTrainerBattle, g.InTournament}
-
-	var walk func(items []*game.MenuItem)
-	walk = func(items []*game.MenuItem) {
-		for _, m := range items {
-			if m.Checked {
-				e.checked += m.Name + " "
-			}
-
-			walk(m.Items)
-		}
-	}
-	walk(g.Menu)
-
-	return e
-}
-
 // TestEveryMenuCommand clicks each command of the game window's menu, in a
 // game where every trainer is unlocked, and checks that it does something
 // the player sees: a battle, a window, a dialog, a check mark, or the

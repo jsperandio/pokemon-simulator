@@ -241,6 +241,10 @@ func (t *textBox) fit(f face, w int) {
 	}
 }
 
+// caretBlink is how long the caret stays on, and then off, as Windows'
+// default has it.
+const caretBlink time.Duration = 530 * time.Millisecond
+
 // blinkOn reports whether a caret that moved since ago shows: it is on for
 // caretBlink and off for as long.
 func blinkOn(since time.Duration) bool {

@@ -80,6 +80,11 @@ func (p *menuPopup) itemAt(q image.Point) int {
 	return -1
 }
 
+// opensSubmenu reports whether the popup's selected item opens a submenu.
+func (p *menuPopup) opensSubmenu() bool {
+	return p.sel >= 0 && len(p.items[p.sel].kids) > 0 && p.items[p.sel].item.Enabled
+}
+
 // menuBar is a window's main menu: the bar under its caption and, while
 // it tracks the mouse or the keyboard (menu mode), its open submenus.
 type menuBar struct {
@@ -589,11 +594,6 @@ func (m *menuBar) key(k ebiten.Key) {
 			m.letter(p, r)
 		}
 	}
-}
-
-// opensSubmenu reports whether the popup's selected item opens a submenu.
-func (p *menuPopup) opensSubmenu() bool {
-	return p.sel >= 0 && len(p.items[p.sel].kids) > 0 && p.items[p.sel].item.Enabled
 }
 
 // upDown moves the selection of the deepest open popup p by dir, round

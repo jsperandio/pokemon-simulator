@@ -3,6 +3,7 @@
 package classic
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"slices"
@@ -263,6 +264,17 @@ func (w *window) find(name string) widget {
 	walk(w.kids)
 
 	return found
+}
+
+// get returns a window's control by name; the layouts are fixed, so a
+// missing one is a bug.
+func get[T widget](w *window, name string) T {
+	k, ok := w.find(name).(T)
+	if !ok {
+		panic(fmt.Sprintf("classic: %s has no %s of that kind", w.name, name))
+	}
+
+	return k
 }
 
 func (w *window) frameWidth() int {

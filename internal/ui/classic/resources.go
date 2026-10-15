@@ -164,6 +164,82 @@ func (r *resources) fontFor(props map[string]string) face {
 	return r.arial(-h, plainStyle)
 }
 
+// The view's icons and the look-in list's drive: o outline, y yellow, w
+// white, k black, s shadow, c face, g green.
+const (
+	iconFolder string = `
+................
+................
+..ooooo.........
+.oyyyyyo........
+oyyyyyyyoooooo..
+owwwwwwwwwwwwwk.
+owyyyyyyyyyyyyk.
+owyyyyyyyyyyyyk.
+owyyyyyyyyyyyyk.
+owyyyyyyyyyyyyk.
+owyyyyyyyyyyyyk.
+owyyyyyyyyyyyyk.
+okkkkkkkkkkkkkk.
+................
+................
+................
+`
+	iconDocument string = `
+..ssssssss......
+..swwwwwwss.....
+..swwwwwwsws....
+..swwwwwwskks...
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..swwwwwwwwwks..
+..sssssssssskk..
+...kkkkkkkkkkk..
+................
+`
+	iconDrive string = `
+................
+................
+................
+................
+................
+..kkkkkkkkkkkkk.
+.kwwwwwwwwwwwwsk
+kwcccccccccccssk
+kssssssssssssssk
+kwccccccccccccsk
+kwccccccccggccsk
+kwccccccccccccsk
+kssssssssssssssk
+.kkkkkkkkkkkkkk.
+................
+................
+`
+)
+
+var iconColors = map[byte]color.RGBA{
+	'o': rgb(0x808000),
+	'y': rgb(0xFFFF00),
+	'w': rgb(0xFFFFFF),
+	'k': rgb(0x000000),
+	's': rgb(0x808080),
+	'c': rgb(0xC0C0C0),
+	'g': rgb(0x00FF00),
+}
+
+// The file icons' frames.
+const (
+	fileIconFolder int = iota
+	fileIconDocument
+	fileIconDrive
+)
+
 // fileIcons returns the file dialog's image list: a folder, a document and
 // a drive.
 func (r *resources) fileIcons() *imageList {
@@ -190,20 +266,6 @@ func (r *resources) fileIcons() *imageList {
 	return il
 }
 
-// fontStyle is a style of Liberation Sans.
-type fontStyle int
-
-const (
-	plainStyle fontStyle = iota
-	boldStyle
-	italicStyle
-)
-
-type arialKey struct {
-	px    int
-	style fontStyle
-}
-
 // arial returns Liberation Sans, standing in for Arial, at an em height of
 // px pixels: a VCL font with Height = -px.
 func (r *resources) arial(px int, style fontStyle) face {
@@ -228,6 +290,20 @@ func (r *resources) imageList(name string) *imageList {
 
 func (r *resources) picture(path string) *image.NRGBA {
 	return r.pictures[path]
+}
+
+// fontStyle is a style of Liberation Sans.
+type fontStyle int
+
+const (
+	plainStyle fontStyle = iota
+	boldStyle
+	italicStyle
+)
+
+type arialKey struct {
+	px    int
+	style fontStyle
 }
 
 // imageList is a TImageList: square frames in an atlas, row by row.

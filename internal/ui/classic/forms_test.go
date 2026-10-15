@@ -15,13 +15,6 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
-// hintShown reports whether the hint window shows.
-func (ta *testApp) hintShown() bool {
-	hint := ta.desk.hint
-
-	return !hint.rect.Empty()
-}
-
 // The party list's hint shows after half a second on it, under the
 // cursor and kept on the screen, and hides after two and a half seconds,
 // when the mouse leaves the list, or at a click.

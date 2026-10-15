@@ -24,7 +24,6 @@ const (
 const (
 	doubleClickTime time.Duration = 500 * time.Millisecond
 	doubleClickDist int           = 4 // SM_CXDOUBLECLK, SM_CYDOUBLECLK
-	caretBlink      time.Duration = 530 * time.Millisecond
 )
 
 // A popup is a window above all others that takes the mouse first: a
@@ -60,6 +59,24 @@ type input struct {
 	chars    []rune
 	mods     mods
 	dropped  fs.FS // the files dropped on the game, if any
+}
+
+// active reports whether the player did anything in the frame: moved the
+// mouse on the desktop, from or to prev, or used it or the keyboard. The
+// mouse moving elsewhere on the screen doesn't count, as the original
+// heard of it only over its windows.
+func (in *input) active(prev image.Point) bool {
+	desktop := image.Rect(0, 0, screenWidth, screenHeight)
+	moved := in.mouse != prev && (in.mouse.In(desktop) || prev.In(desktop))
+	typed := len(in.chars) > 0 || in.dropped != nil
+
+	return moved || in.down || in.acted() || typed
+}
+
+// acted reports whether the frame has a mouse button or wheel event, or a
+// key that came down or went up.
+func (in *input) acted() bool {
+	return in.pressed || in.released || in.wheel != 0 || len(in.keys) > 0 || len(in.keysUp) > 0
 }
 
 // desktop is the screen: its windows in z-order, the popups, and the
@@ -956,27 +973,6 @@ func (d *desktop) paint(img *image.RGBA) {
 	d.dirty = false
 }
 
-// The application's hint delays (HintPause, HintHidePause), and the arrow
-// cursor's height below its hot spot, which a hint shows under
-// (GetCursorHeightMargin).
-const (
-	hintPause        time.Duration = 500 * time.Millisecond
-	hintHidePause    time.Duration = 2500 * time.Millisecond
-	hintCursorMargin int           = 20
-)
-
-// hint is the hint window (THintWindow) of a control with ShowHint and a
-// Hint: it shows once the mouse has been on the control for HintPause, and
-// hides after HintHidePause, when the mouse leaves the control, or at a
-// click or a key (IsHintMsg).
-type hint struct {
-	ctl   widget    // the control the mouse is on, if it has a hint
-	since time.Time // when the mouse came onto it
-	text  string
-	rect  image.Rectangle // the window, while it shows
-	done  bool            // it showed and hid: not again on this control
-}
-
 func (d *desktop) updateHint(p image.Point, cancel bool) {
 	h := &d.hint
 	k := d.hintTarget(p)
@@ -1056,6 +1052,27 @@ func hintText(k widget) string {
 	text, _, _ := strings.Cut(k.base().property("Hint"), "|")
 
 	return text
+}
+
+// The application's hint delays (HintPause, HintHidePause), and the arrow
+// cursor's height below its hot spot, which a hint shows under
+// (GetCursorHeightMargin).
+const (
+	hintPause        time.Duration = 500 * time.Millisecond
+	hintHidePause    time.Duration = 2500 * time.Millisecond
+	hintCursorMargin int           = 20
+)
+
+// hint is the hint window (THintWindow) of a control with ShowHint and a
+// Hint: it shows once the mouse has been on the control for HintPause, and
+// hides after HintHidePause, when the mouse leaves the control, or at a
+// click or a key (IsHintMsg).
+type hint struct {
+	ctl   widget    // the control the mouse is on, if it has a hint
+	since time.Time // when the mouse came onto it
+	text  string
+	rect  image.Rectangle // the window, while it shows
+	done  bool            // it showed and hid: not again on this control
 }
 
 // paint draws the hint window: a black border, the tooltip colour, and the

@@ -5,6 +5,8 @@ package classic
 import (
 	"errors"
 	"image"
+	"image/color"
+	"slices"
 	"time"
 
 	"github.com/jsperandio/pokemon-simulator/internal/audio"
@@ -215,14 +217,6 @@ func (f *mainForm) export() {
 	}
 }
 
-// musicPlayer is what the Music menu plays music with: an audio.Music.
-type musicPlayer interface {
-	Open(name string, data []byte) error
-	Stop() error
-	Update(repeat bool)
-	Playing() bool
-}
-
 // musicFilter is Music → Open file...'s. The original's offered what
 // Windows Media Player played; these are what the port plays.
 const musicFilter string = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.ogg;*.wav|" +
@@ -264,6 +258,20 @@ func (f *mainForm) stopMusic() {
 		a.call(func() {
 			a.showException(msg)
 		})
+	}
+}
+
+// gaugeColors are the HP gauges' colours.
+var gaugeColors = map[game.GaugeColor]color.RGBA{
+	game.Green:  vclColors["clGreen"],
+	game.Yellow: vclColors["clYellow"],
+	game.Red:    vclColors["clRed"],
+}
+
+// setItems replaces a radio group's items if they changed.
+func setRadioItems(g *radioGroup, items []string) {
+	if !slices.Equal(g.items, items) {
+		g.setItems(append([]string(nil), items...))
 	}
 }
 

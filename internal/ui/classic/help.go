@@ -57,6 +57,12 @@ var (
 	helpGreen  = rgb(0x008000)
 )
 
+// helpPlace is a page, and how far down it was scrolled.
+type helpPlace struct {
+	page string
+	pos  int
+}
+
 // helpWindow is the manual's window.
 type helpWindow struct {
 	a        *Application
@@ -67,12 +73,6 @@ type helpWindow struct {
 	pages    map[string]*help.Page
 	pictures map[string]*image.RGBA
 	openURL  func(url string) error
-}
-
-// helpPlace is a page, and how far down it was scrolled.
-type helpPlace struct {
-	page string
-	pos  int
 }
 
 // arial returns the manual's Arial at an em height of px pixels.
@@ -213,6 +213,72 @@ func (h *helpWindow) picture(name string) *image.RGBA {
 	return img
 }
 
+// layoutHead draws a page's non-scrolling region: the banner, then the
+// page's title, centred, and the line under them.
+func (h *helpWindow) layoutHead(p *help.Page, width int) *image.RGBA {
+	type line struct {
+		f    face
+		text string
+	}
+	lines := []line{{h.arial(helpBannerPx, boldStyle), helpBannerText}}
+
+	if p.Title != "" && p.Title != helpBannerText {
+		lines = append(lines, line{h.arial(helpTitlePx, boldStyle), p.Title})
+	}
+
+	height := 2 + 4 + 1
+	for _, l := range lines {
+		height += l.f.height()
+	}
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	cv := newCanvas(img)
+	cv.fill(img.Rect, helpYellow)
+
+	y := 2
+	for _, l := range lines {
+		l.f.draw(cv, (width-l.f.width(l.text))/2, y, l.text, helpRed)
+
+		y += l.f.height()
+	}
+
+	cv.hline(0, width, height-1, colText)
+
+	return img
+}
+
+// layoutTopic lays a page's topic out at a width and draws it.
+func (h *helpWindow) layoutTopic(p *help.Page, width int) (*image.RGBA, []helpSpot) {
+	l := &helpFlow{h: h}
+	gap := l.face(false, false).height() // a blank line
+	y := l.blocks(p.Blocks, helpMargin, width-helpMargin, gap) + gap
+	img := image.NewRGBA(image.Rect(0, 0, width, y))
+	cv := newCanvas(img)
+	cv.fill(img.Rect, colWindow)
+
+	for _, op := range l.ops {
+		switch {
+		case op.img != nil:
+			cv.copy(op.r.Min.X, op.r.Min.Y, op.img, op.img.Rect)
+		case op.f != nil:
+			op.f.draw(cv, op.r.Min.X, op.r.Min.Y, op.text, op.c)
+		case op.frame:
+			cv.frame(op.r, op.c)
+		default:
+			cv.fill(op.r, op.c)
+		}
+	}
+
+	return img, l.spots
+}
+
+// helpSpot is a hotspot: a link, and the boxes its words take in the
+// topic.
+type helpSpot struct {
+	target string
+	boxes  []image.Rectangle
+}
+
 // helpView shows a page: its non-scrolling region, with the banner and the
 // title, then the topic, which scrolls.
 type helpView struct {
@@ -227,13 +293,6 @@ type helpView struct {
 	scroll scrollBar
 	sel    int // the hotspot Tab chose, or -1
 	press  int // the hotspot the mouse pressed, or -1
-}
-
-// helpSpot is a hotspot: a link, and the boxes its words take in the
-// topic.
-type helpSpot struct {
-	target string
-	boxes  []image.Rectangle
 }
 
 // open shows a page, scrolled down to pos.
@@ -470,72 +529,6 @@ func (v *helpView) follow(k int) {
 	v.h.jump(t)
 }
 
-// layoutHead draws a page's non-scrolling region: the banner, then the
-// page's title, centred, and the line under them.
-func (h *helpWindow) layoutHead(p *help.Page, width int) *image.RGBA {
-	type line struct {
-		f    face
-		text string
-	}
-	lines := []line{{h.arial(helpBannerPx, boldStyle), helpBannerText}}
-
-	if p.Title != "" && p.Title != helpBannerText {
-		lines = append(lines, line{h.arial(helpTitlePx, boldStyle), p.Title})
-	}
-
-	height := 2 + 4 + 1
-	for _, l := range lines {
-		height += l.f.height()
-	}
-
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	cv := newCanvas(img)
-	cv.fill(img.Rect, helpYellow)
-
-	y := 2
-	for _, l := range lines {
-		l.f.draw(cv, (width-l.f.width(l.text))/2, y, l.text, helpRed)
-
-		y += l.f.height()
-	}
-
-	cv.hline(0, width, height-1, colText)
-
-	return img
-}
-
-// layoutTopic lays a page's topic out at a width and draws it.
-func (h *helpWindow) layoutTopic(p *help.Page, width int) (*image.RGBA, []helpSpot) {
-	l := &helpFlow{h: h}
-	gap := l.face(false, false).height() // a blank line
-	y := l.blocks(p.Blocks, helpMargin, width-helpMargin, gap) + gap
-	img := image.NewRGBA(image.Rect(0, 0, width, y))
-	cv := newCanvas(img)
-	cv.fill(img.Rect, colWindow)
-
-	for _, op := range l.ops {
-		switch {
-		case op.img != nil:
-			cv.copy(op.r.Min.X, op.r.Min.Y, op.img, op.img.Rect)
-		case op.f != nil:
-			op.f.draw(cv, op.r.Min.X, op.r.Min.Y, op.text, op.c)
-		case op.frame:
-			cv.frame(op.r, op.c)
-		default:
-			cv.fill(op.r, op.c)
-		}
-	}
-
-	return img, l.spots
-}
-
-// helpFlow lays a topic out: what to draw where, and the hotspots.
-type helpFlow struct {
-	h     *helpWindow
-	ops   []helpOp
-	spots []helpSpot
-}
-
 // helpOp is something to draw: text, a picture, or a box, filled or
 // outlined.
 type helpOp struct {
@@ -564,6 +557,13 @@ type helpWord struct {
 	w      int
 	space  helpPiece
 	brk    bool // a line break after it
+}
+
+// helpFlow lays a topic out: what to draw where, and the hotspots.
+type helpFlow struct {
+	h     *helpWindow
+	ops   []helpOp
+	spots []helpSpot
 }
 
 // face returns the text's font in a style; the manual has no bold italics.
@@ -720,37 +720,6 @@ func (l *helpFlow) flow(spans []help.Span, x0, x1, y int, bold bool) (bottom, ba
 	return y, first
 }
 
-// wordBuilder builds words out of pieces.
-type wordBuilder struct {
-	words []helpWord
-	cur   helpWord
-}
-
-// add adds a piece to the current word.
-func (b *wordBuilder) add(p helpPiece) {
-	b.cur.pieces = append(b.cur.pieces, p)
-	b.cur.w += p.w
-}
-
-// end ends the current word with a space, or a line break after it.
-func (b *wordBuilder) end(space helpPiece, brk bool) {
-	if len(b.cur.pieces) == 0 {
-		// Spaces in a row count as one.
-		if n := len(b.words); n > 0 {
-			b.words[n-1].brk = b.words[n-1].brk || brk
-			if b.words[n-1].space.w == 0 {
-				b.words[n-1].space = space
-			}
-		}
-
-		return
-	}
-
-	b.cur.space, b.cur.brk = space, brk
-	b.words = append(b.words, b.cur)
-	b.cur = helpWord{}
-}
-
 // words splits spans into words, and gives each link a hotspot.
 func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 	var b wordBuilder
@@ -893,6 +862,37 @@ func (l *helpFlow) put(p helpPiece, x, top, base, bottom int) {
 	}
 
 	s.boxes = append(s.boxes, box)
+}
+
+// wordBuilder builds words out of pieces.
+type wordBuilder struct {
+	words []helpWord
+	cur   helpWord
+}
+
+// add adds a piece to the current word.
+func (b *wordBuilder) add(p helpPiece) {
+	b.cur.pieces = append(b.cur.pieces, p)
+	b.cur.w += p.w
+}
+
+// end ends the current word with a space, or a line break after it.
+func (b *wordBuilder) end(space helpPiece, brk bool) {
+	if len(b.cur.pieces) == 0 {
+		// Spaces in a row count as one.
+		if n := len(b.words); n > 0 {
+			b.words[n-1].brk = b.words[n-1].brk || brk
+			if b.words[n-1].space.w == 0 {
+				b.words[n-1].space = space
+			}
+		}
+
+		return
+	}
+
+	b.cur.space, b.cur.brk = space, brk
+	b.words = append(b.words, b.cur)
+	b.cur = helpWord{}
 }
 
 // helpIcon is the help window's icon: a book with a question mark.

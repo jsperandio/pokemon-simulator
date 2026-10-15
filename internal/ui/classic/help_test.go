@@ -16,32 +16,6 @@ import (
 	"github.com/jsperandio/pokemon-simulator/assets"
 )
 
-// spotPoint returns a point on the screen inside a link to target, after
-// scrolling it into view.
-func (ta *testApp) spotPoint(target string) image.Point {
-	ta.t.Helper()
-
-	v := ta.helpWindow.view
-	for _, s := range v.spots {
-		if s.target != target || len(s.boxes) == 0 {
-			continue
-		}
-
-		b := s.boxes[0]
-		if b.Min.Y < v.scroll.pos || b.Max.Y > v.scroll.pos+v.scroll.page {
-			v.scroll.set(b.Min.Y)
-		}
-
-		p := b.Min.Add(image.Pt(2, v.head.Rect.Dy()-v.scroll.pos+2))
-
-		return widgetOrigin(v).Add(p)
-	}
-
-	ta.t.Fatalf("%s has no link to %s", v.name, target)
-
-	return image.Point{}
-}
-
 func TestHelp(t *testing.T) {
 	ta := newTestApp(t)
 	ta.wait(80)

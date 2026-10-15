@@ -4,13 +4,16 @@ package classic
 
 import (
 	"image"
-	"image/color"
 	"path"
 	"slices"
+	"strconv"
 	"strings"
+
+	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
+	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
 // The file dialogs are the port's own, after Windows 98's Open and Save
@@ -88,94 +91,153 @@ type fileDialog struct {
 	uploads                      <-chan []string // the files being uploaded
 }
 
-// The view's icons, the look-in list's drive and the toolbar's glyph: o
-// outline, y yellow, w white, k black, s shadow, c face, g green.
-const (
-	iconFolder string = `
-................
-................
-..ooooo.........
-.oyyyyyo........
-oyyyyyyyoooooo..
-owwwwwwwwwwwwwk.
-owyyyyyyyyyyyyk.
-owyyyyyyyyyyyyk.
-owyyyyyyyyyyyyk.
-owyyyyyyyyyyyyk.
-owyyyyyyyyyyyyk.
-owyyyyyyyyyyyyk.
-okkkkkkkkkkkkkk.
-................
-................
-................
-`
-	iconDocument string = `
-..ssssssss......
-..swwwwwwss.....
-..swwwwwwsws....
-..swwwwwwskks...
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..swwwwwwwwwks..
-..sssssssssskk..
-...kkkkkkkkkkk..
-................
-`
-	iconDrive string = `
-................
-................
-................
-................
-................
-..kkkkkkkkkkkkk.
-.kwwwwwwwwwwwwsk
-kwcccccccccccssk
-kssssssssssssssk
-kwccccccccccccsk
-kwccccccccggccsk
-kwccccccccccccsk
-kssssssssssssssk
-.kkkkkkkkkkkkkk.
-................
-................
-`
-	glyphUp string = `
-..ooooo.........
-.oyyyyyo........
-oyyyyyyyoooooo..
-owwwwwwkwwwwwwk.
-owyyyykkkyyyyyk.
-owyyykkkkkyyyyk.
-owyyyyykyyyyyyk.
-owyyyyykyyyyyyk.
-owyyyyykkkkkyyk.
-owyyyyyyyyyyyyk.
-okkkkkkkkkkkkkk.
-`
-)
+func newFileDialog(app *Application, opts fileOptions) *fileDialog {
+	f := &fileDialog{
+		app:     app,
+		opts:    opts,
+		files:   app.files,
+		filters: parseFilter(opts.filter),
+	}
+	title, in, ok, typ := "Open", "Look &in:", "&Open", "Files of &type:"
 
-var iconColors = map[byte]color.RGBA{
-	'o': rgb(0x808000),
-	'y': rgb(0xFFFF00),
-	'w': rgb(0xFFFFFF),
-	'k': rgb(0x000000),
-	's': rgb(0x808080),
-	'c': rgb(0xC0C0C0),
-	'g': rgb(0x00FF00),
+	if opts.save {
+		title, in, ok, typ = "Save As", "Save &in:", "&Save", "Save as &type:"
+	}
+
+	comp := layout.Component{
+		Class:   "TFileDialog",
+		Name:    "FileDialog",
+		Caption: title,
+		Props: map[string]string{
+			"BorderStyle":  "bsDialog",
+			"ClientWidth":  "420",
+			"ClientHeight": "240",
+			"Position":     "poScreenCenter",
+		},
+		Children: []layout.Component{
+			{
+				Class:   "TLabel",
+				Name:    "LookInLabel",
+				Caption: in,
+				Bounds:  layout.Rect{X: 6, Y: 10, W: 50, H: 13},
+			},
+			{
+				Class:  "TComboBox",
+				Name:   "LookIn",
+				Bounds: layout.Rect{X: 74, Y: 5, W: 198, H: 21},
+				Props: map[string]string{
+					"Style":      "csDropDownList",
+					"ItemHeight": "16",
+					"TabOrder":   "0",
+				},
+			},
+			{
+				Class:  "TListView",
+				Name:   "View",
+				Bounds: layout.Rect{X: 6, Y: 33, W: 408, H: 138},
+				Props:  map[string]string{"TabOrder": "1"},
+			},
+			{
+				Class:   "TLabel",
+				Name:    "NameLabel",
+				Caption: "File &name:",
+				Bounds:  layout.Rect{X: 8, Y: 183, W: 50, H: 13},
+			},
+			{
+				Class:  "TEdit",
+				Name:   "FileName",
+				Bounds: layout.Rect{X: 81, Y: 179, W: 233, H: 21},
+				Props:  map[string]string{"TabOrder": "2"},
+			},
+			{
+				Class:   "TLabel",
+				Name:    "TypeLabel",
+				Caption: typ,
+				Bounds:  layout.Rect{X: 8, Y: 209, W: 70, H: 13},
+			},
+			{
+				Class:  "TComboBox",
+				Name:   "Types",
+				Bounds: layout.Rect{X: 81, Y: 205, W: 233, H: 21},
+				Props:  map[string]string{"Style": "csDropDownList", "TabOrder": "3"},
+			},
+			{
+				Class:   "TButton",
+				Name:    "OK",
+				Caption: ok,
+				Bounds:  layout.Rect{X: 333, Y: 179, W: 75, H: 23},
+				Props:   map[string]string{"Default": "True", "TabOrder": "4"},
+			},
+			{
+				Class:   "TButton",
+				Name:    "Cancel",
+				Caption: "Cancel",
+				Bounds:  layout.Rect{X: 333, Y: 205, W: 75, H: 23},
+				Props: map[string]string{
+					"Cancel":      "True",
+					"ModalResult": strconv.Itoa(mrCancel),
+					"TabOrder":    "5",
+				},
+			},
+		},
+	}
+	w := newWindow(app.desk, &comp)
+	f.window = w
+	f.lookIn = w.find("LookIn").(*comboBox)
+	f.view = w.find("View").(*listView)
+	f.name = w.find("FileName").(*edit)
+	f.types = w.find("Types").(*comboBox)
+	w.find("LookInLabel").(*label).focusControl = f.lookIn
+	w.find("NameLabel").(*label).focusControl = f.name
+	w.find("TypeLabel").(*label).focusControl = f.types
+	f.view.images = app.res.fileIcons()
+	f.lookIn.images = app.res.fileIcons()
+
+	f.up = &toolButton{glyph: glyphUp, onPress: f.upOneLevel}
+	addWidget(w, f.up, image.Rect(280, 4, 303, 26))
+
+	if app.xfer != nil {
+		f.addTransfers()
+	}
+
+	for _, ft := range f.filters {
+		f.types.items = append(f.types.items, ft.name)
+	}
+
+	f.types.index = 0
+	f.types.onSelect = func(int) {
+		f.list()
+	}
+	f.lookIn.onSelect = func(i int) {
+		if i >= 0 && i < len(f.dirs) {
+			f.navigate(f.dirs[i])
+		}
+	}
+	f.view.onSelect = f.viewClick
+	f.view.onDblClick = f.open
+	w.find("OK").(*button).onClick = f.okClick
+	w.onKey = func(k ebiten.Key, m mods) bool {
+		if k == ebiten.KeyBackspace && w.focus == f.view {
+			f.upOneLevel()
+
+			return true
+		}
+
+		return false
+	}
+	dir := app.lastDir
+
+	if dir == "" {
+		dir = app.files.Home()
+	}
+
+	f.navigate(dir)
+
+	w.focus = f.name
+	app.desk.add(w)
+
+	return f
 }
-
-// The file icons' frames.
-const (
-	fileIconFolder int = iota
-	fileIconDocument
-	fileIconDrive
-)
 
 // lookInIndent is the look-in list's indent for each level of folders.
 const lookInIndent int = 10
@@ -419,8 +481,22 @@ func (fd *fileDialog) accept(p string) {
 	fd.window.endModal(mrOk)
 }
 
-// The toolbar's glyphs: an arrow out of a tray, and into one.
+// The toolbar's glyphs: the folder one level up, painted with iconColors,
+// and an arrow out of a tray, and into one.
 const (
+	glyphUp string = `
+..ooooo.........
+.oyyyyyo........
+oyyyyyyyoooooo..
+owwwwwwkwwwwwwk.
+owyyyykkkyyyyyk.
+owyyykkkkkyyyyk.
+owyyyyykyyyyyyk.
+owyyyyykyyyyyyk.
+owyyyyykkkkkyyk.
+owyyyyyyyyyyyyk.
+okkkkkkkkkkkkkk.
+`
 	glyphUpload string = `
 ......k......
 .....kkk.....

@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"strconv"
 	"strings"
 
 	"golang.org/x/image/font"
@@ -141,6 +142,10 @@ func plain(s string) string {
 // isDigit reports whether r is an ASCII digit.
 func isDigit(r rune) bool {
 	return r >= '0' && r <= '9'
+}
+
+func itoa(n int) string {
+	return strconv.Itoa(n)
 }
 
 // accel returns a caption's accelerator, lowercased, or 0.
