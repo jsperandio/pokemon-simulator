@@ -47,7 +47,7 @@ func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 		t.Fatal(err)
 	}
 
-	app.gam.Rand.Seed = 1
+	app.game.Rand.Seed = 1
 
 	return &testApp{
 		Application: app,
@@ -257,7 +257,7 @@ func (ta *testApp) menuEffects() menuEffects {
 		}
 	}
 
-	gam := ta.gam
+	gam := ta.game
 	eff.battle = [3]bool{gam.InWildBattle, gam.InTrainerBattle, gam.InTournament}
 
 	var walk func(items []*game.MenuItem)
@@ -330,7 +330,7 @@ func TestNewGame(t *testing.T) {
 	ta.wait(1)
 	ta.shot("06-chosen")
 
-	if got := ta.gam.Party(); len(got) != 1 || got[0].Species != 4 {
+	if got := ta.game.Party(); len(got) != 1 || got[0].Species != 4 {
 		t.Fatalf("party %v", got)
 	}
 
@@ -342,8 +342,8 @@ func TestNewGame(t *testing.T) {
 	ta.wait(1)
 	ta.shot("07-game")
 
-	if !strings.HasSuffix(ta.gam.SaveFile, "ash.pgs") {
-		t.Errorf("save file %q", ta.gam.SaveFile)
+	if !strings.HasSuffix(ta.game.SaveFile, "ash.pgs") {
+		t.Errorf("save file %q", ta.game.SaveFile)
 	}
 }
 
@@ -375,8 +375,8 @@ func TestWildBattle(t *testing.T) {
 	ta.wait(1)
 	ta.shot("16-turn")
 
-	if len(ta.gam.Info.Lines) < 4 {
-		t.Errorf("Battle Info: %q", ta.gam.Info.Lines)
+	if len(ta.game.Info.Lines) < 4 {
+		t.Errorf("Battle Info: %q", ta.game.Info.Lines)
 	}
 
 	ta.clickOn(ta.stats.wdw, "Button1") // a POKéBall
@@ -389,7 +389,7 @@ func TestWildBattle(t *testing.T) {
 	}
 
 	ta.shot("18-after")
-	t.Logf("log: %q", ta.gam.Info.Lines)
+	t.Logf("log: %q", ta.game.Info.Lines)
 }
 
 // TestCatchSaveLoad catches a POKéMON, quits, which saves, and loads the
@@ -398,7 +398,7 @@ func TestCatchSaveLoad(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
 
-	ta.gam.MasterBalls = 1
+	ta.game.MasterBalls = 1
 	ta.menu("Action1", "FightWild1", "FindPKMN1")
 	ta.answer("Select a POKéMON")
 
@@ -411,14 +411,14 @@ func TestCatchSaveLoad(t *testing.T) {
 	ta.shot("20-caught")
 
 	if !ta.main.endButton.shown() {
-		t.Fatalf("no End Fight; log %q", ta.gam.Info.Lines)
+		t.Fatalf("no End Fight; log %q", ta.game.Info.Lines)
 	}
 
 	ta.clickOn(ta.main.wdw, "EndButton")
 	ta.wait(1)
 	ta.shot("21-ended")
 
-	if n := len(ta.gam.Party()); n != 2 {
+	if n := len(ta.game.Party()); n != 2 {
 		t.Fatalf("party of %d", n)
 	}
 
@@ -450,8 +450,8 @@ func TestCatchSaveLoad(t *testing.T) {
 	tb.wait(1)
 	tb.shot("23-loaded")
 
-	if n := len(tb.gam.Party()); n != 2 || tb.gam.PlayerName != "Gary" {
-		t.Fatalf("loaded %q with a party of %d", tb.gam.PlayerName, n)
+	if n := len(tb.game.Party()); n != 2 || tb.game.PlayerName != "Gary" {
+		t.Fatalf("loaded %q with a party of %d", tb.game.PlayerName, n)
 	}
 
 	if tb.start.wdw.visible || !tb.main.wdw.visible || !tb.stats.wdw.visible {

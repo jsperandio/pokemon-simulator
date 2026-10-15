@@ -33,7 +33,10 @@ func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) 
 	buttons := []btn{{"OK", mrOk}}
 
 	if yesNo {
-		buttons = []btn{{"&Yes", mrYes}, {"&No", mrNo}}
+		buttons = []btn{
+			{"&Yes", mrYes},
+			{"&No", mrNo},
+		}
 	}
 
 	for _, but := range buttons {
@@ -104,7 +107,10 @@ func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) 
 			W: textW,
 			H: textH,
 		},
-		Props: map[string]string{"AutoSize": "False", "WordWrap": "True"},
+		Props: map[string]string{
+			"AutoSize": "False",
+			"WordWrap": "True",
+		},
 	})
 	x := (clientW - groupW) / 2
 

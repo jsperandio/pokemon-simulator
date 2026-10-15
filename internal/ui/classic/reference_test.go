@@ -11,6 +11,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -146,7 +147,7 @@ func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots ma
 	ply.After = func(action string) {
 		times[action]++
 		if times[action] > 1 {
-			action += " #" + itoa(times[action])
+			action += " #" + strconv.Itoa(times[action])
 		}
 
 		shs, ok := shots[action]

@@ -10,6 +10,7 @@ import (
 	"image/png"
 	"path"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -95,8 +96,8 @@ func newHelpWindow(app *Application) *helpWindow {
 		Caption: helpBannerText,
 		Bounds:  layout.Rect{X: helpPos.X, Y: helpPos.Y},
 		Props: map[string]string{
-			"ClientWidth":  itoa(helpSize.X - 2*frame),
-			"ClientHeight": itoa(helpSize.Y - 2*frame - captionHeight),
+			"ClientWidth":  strconv.Itoa(helpSize.X - 2*frame),
+			"ClientHeight": strconv.Itoa(helpSize.Y - 2*frame - captionHeight),
 		},
 		Children: []layout.Component{
 			{

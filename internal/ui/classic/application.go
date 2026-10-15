@@ -38,10 +38,19 @@ type musicPlayer interface {
 	Playing() bool
 }
 
+// transfers moves files between the game's storage and the player's
+// computer.
+type transfers interface {
+	// upload copies the files the player picks into dir; their names
+	// come on the channel once they are there.
+	upload(dir string) <-chan []string
+	download(name string, data []byte) error
+}
+
 // Application is the classic user interface: an ebiten.Game that shows the
 // desktop, and the game's game.UI.
 type Application struct {
-	gam     *game.Game
+	game    *game.Game
 	res     *resources
 	desk    *desktop
 	files   platform.Files
@@ -110,11 +119,11 @@ func NewApplication(data *gamedata.Data, files platform.Files, args []string) (*
 	}
 
 	app.desk.onMinimize = ebiten.MinimizeWindow
-	app.gam = game.New(data, app)
+	app.game = game.New(data, app)
 	app.buildForms()
 
-	app.gam.OnShow = app.show
-	app.gam.OnDraws = app.showDraws
+	app.game.OnShow = app.show
+	app.game.OnDraws = app.showDraws
 	app.load.begin()
 
 	return app, nil
@@ -122,7 +131,7 @@ func NewApplication(data *gamedata.Data, files platform.Files, args []string) (*
 
 // Game returns the game the user interface plays.
 func (app *Application) Game() *game.Game {
-	return app.gam
+	return app.game
 }
 
 // help is the start screen's "Help!" and Help → Contents (F1): the manual,
@@ -182,7 +191,7 @@ func (app *Application) exit() {
 func (app *Application) loadGame(file string) bool {
 	dat, err := app.files.ReadFile(file)
 	if err == nil {
-		err = app.gam.Load(file, dat)
+		err = app.game.Load(file, dat)
 	}
 
 	if err != nil {
@@ -200,17 +209,17 @@ func (app *Application) loadGame(file string) bool {
 
 // speciesName is a species' name, or "" for none.
 func (app *Application) speciesName(sid int) string {
-	if sp := app.gam.Data.SpeciesByID(sid); sp != nil {
+	if sp := app.game.Data.SpeciesByID(sid); sp != nil {
 		return sp.Name
 	}
 
 	return ""
 }
 
-// dexItems are the species lists' items: "Bulbasaur (#001)".
-func (app *Application) dexItems() []string {
-	out := make([]string, 0, len(app.gam.Data.Species))
-	for _, sp := range app.gam.Data.Species {
+// pokedexItems are the species lists' items: "Bulbasaur (#001)".
+func (app *Application) pokedexItems() []string {
+	out := make([]string, 0, len(app.game.Data.Species))
+	for _, sp := range app.game.Data.Species {
 		out = append(out, fmt.Sprintf("%s (#%03d)", sp.Name, sp.ID))
 	}
 
@@ -334,7 +343,7 @@ func (app *Application) showDraws(draws []int) {
 
 // sync brings the windows up to date with the game's state.
 func (app *Application) sync() {
-	gam := app.gam
+	gam := app.game
 	// The windows the game shows, in the order the original shows them
 	// when several appear at once.
 	for _, frm := range []struct {
@@ -417,7 +426,7 @@ func (app *Application) step(in input, now time.Time) {
 
 	app.desk.update(&in, now)
 	app.load.tick()
-	app.music.Update(app.gam.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
+	app.music.Update(app.game.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
 
 	if app.xfer != nil && in.dropped != nil {
 		app.importDropped(in.dropped)

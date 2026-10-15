@@ -97,8 +97,8 @@ func (ud *uiDriver) Launch(ply *scenario.Player, file string, save []byte, hook 
 	ud.ta = ta
 	ud.files = &writes{Files: ta.files}
 	ta.files = ud.files
-	ta.gam.UI = dialogs{ta.gam.UI, ud}
-	hook(ta.gam)
+	ta.game.UI = dialogs{ta.game.UI, ud}
+	hook(ta.game)
 	ta.wait(80) // the loading screen
 	ud.settle()
 
@@ -461,8 +461,8 @@ func (ud *uiDriver) Starter(idx int) error {
 
 func (ud *uiDriver) Export(file string) error {
 	if err := ud.Menu([]*game.MenuItem{
-		ud.ta.gam.Item("File1"),
-		ud.ta.gam.Item("ExportPOKMONinformation1"),
+		ud.ta.game.Item("File1"),
+		ud.ta.game.Item("ExportPOKMONinformation1"),
 	}); err != nil {
 		return err
 	}
@@ -481,7 +481,7 @@ func (ud *uiDriver) Quit() ([]byte, error) {
 		return nil, errors.New("the game didn't end")
 	}
 
-	if ud.files.path != ta.gam.SaveFile {
+	if ud.files.path != ta.game.SaveFile {
 		return nil, nil
 	}
 

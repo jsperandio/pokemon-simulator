@@ -6,7 +6,6 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"strconv"
 	"strings"
 
 	"golang.org/x/image/font"
@@ -148,11 +147,7 @@ func isDigit(chr rune) bool {
 	return chr >= '0' && chr <= '9'
 }
 
-func itoa(n int) string {
-	return strconv.Itoa(n)
-}
-
-// accel returns a caption's accelerator, lowercased, or 0.
+// accel returns a caption's accelerator(shortcut), lowercased, or 0.
 func accel(txt string) rune {
 	for i := 0; i+1 < len(txt); i++ {
 		if txt[i] != '&' {

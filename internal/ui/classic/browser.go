@@ -11,15 +11,6 @@ import (
 // computer into the folder the dialog shows, and Download gives the player
 // a copy of the file chosen. Files dropped on the game are uploaded too.
 
-// transfers moves files between the game's storage and the player's
-// computer.
-type transfers interface {
-	// upload copies the files the player picks into dir; their names
-	// come on the channel once they are there.
-	upload(dir string) <-chan []string
-	download(name string, data []byte) error
-}
-
 // browser is the browser's uploads and downloads.
 type browser struct {
 	files platform.Files

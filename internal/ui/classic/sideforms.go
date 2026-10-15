@@ -35,10 +35,10 @@ func newStatsForm(app *Application) *statsForm {
 
 	for i := range sf.items {
 		idx := i
-		sf.items[i] = get[*button](wdw, "Button"+itoa(i+1))
+		sf.items[i] = get[*button](wdw, "Button"+strconv.Itoa(i+1))
 		sf.items[i].onClick = func() {
 			app.call(func() {
-				app.gam.UseItem(idx)
+				app.game.UseItem(idx)
 			})
 		}
 	}
@@ -65,7 +65,7 @@ func newStatsForm(app *Application) *statsForm {
 	sf.party.onDblClick = func() {
 		if idx := sf.party.selected; idx >= 0 {
 			app.call(func() {
-				app.gam.ClickParty(idx)
+				app.game.ClickParty(idx)
 			})
 		}
 	}
@@ -81,7 +81,7 @@ func newStatsForm(app *Application) *statsForm {
 }
 
 func (stf *statsForm) sync() {
-	gam := stf.app.gam
+	gam := stf.app.game
 	stf.counts["PlayerNameLbl"].setCaption(gam.Stats.Name)
 
 	party := gam.Party()
@@ -120,7 +120,7 @@ func (stf *statsForm) freshen() {
 		return
 	}
 
-	gam := stf.app.gam
+	gam := stf.app.game
 	for nam, val := range map[string]uint32{
 		"PokeBallsLbl":    gam.PokeBalls,
 		"GreatBallsLbl":   gam.GreatBalls,
@@ -141,7 +141,7 @@ func (stf *statsForm) freshen() {
 		stf.counts["Percent"].setCaption(pct)
 	}
 
-	stf.counts["OwnedPKMNLbl"].setCaption(itoa(gam.DexCount()))
+	stf.counts["OwnedPKMNLbl"].setCaption(strconv.Itoa(gam.DexCount()))
 
 	if stf.wantsFocusBack() {
 		stf.app.desk.activate(stf.app.main.wdw)
@@ -177,7 +177,7 @@ func newInfoForm(app *Application) *infoForm {
 }
 
 func (inf *infoForm) sync() {
-	gam := inf.app.gam
+	gam := inf.app.game
 	inf.memo.setLines(gam.Info.Lines)
 }
 
@@ -198,13 +198,13 @@ func newPokedexForm(app *Application) *pokedexForm {
 	pf.combo = get[*comboBox](pf.wdw, "ComboBox1")
 	pf.panel = get[*panel](pf.wdw, "Panel1")
 	pf.image = get[*listView](pf.wdw, "ListView1")
-	pf.combo.items = app.dexItems() // FormShow
+	pf.combo.items = app.pokedexItems() // FormShow
 	pf.wdw.onShow = pf.combo.reselect
 	pf.combo.onSelect = func(i int) {
-		app.gam.SelectDex(i)
+		app.game.SelectDex(i)
 	}
 	get[*button](pf.wdw, "Button1").onClick = func() {
-		app.gam.CloseDex()
+		app.game.CloseDex()
 	}
 	app.desk.add(pf.wdw)
 
@@ -214,7 +214,7 @@ func newPokedexForm(app *Application) *pokedexForm {
 // sync is TForm8.UpdateDisplay: name, picture, types and evolution level
 // always; the attacks once the species is registered.
 func (pf *pokedexForm) sync() {
-	gam := pf.app.gam
+	gam := pf.app.game
 	pf.combo.setIndex(gam.Dex.Index)
 
 	if gam.Dex.Index < 0 {
@@ -247,12 +247,12 @@ func (pf *pokedexForm) sync() {
 		}
 
 		get[*label](wdw, nam).setCaption(name)
-		get[*label](wdw, "Label"+itoa(13+i)).setCaption(typ)
+		get[*label](wdw, "Label"+strconv.Itoa(13+i)).setCaption(typ)
 	}
 
 	evolve := "Does not evolve."
 	if sp.EvolveLevel != 0 {
-		evolve = "Can evolve at level " + itoa(sp.EvolveLevel) + "."
+		evolve = "Can evolve at level " + strconv.Itoa(sp.EvolveLevel) + "."
 	}
 
 	get[*label](wdw, "Label4").setCaption(evolve)
@@ -278,7 +278,7 @@ func newPokemartForm(app *Application) *pokemartForm {
 	pmf.radio = get[*radioGroup](pmf.wdw, "RadioGroup1")
 	pmf.buy = get[*button](pmf.wdw, "Button1")
 	pmf.total = get[*edit](pmf.wdw, "Edit1")
-	gam := app.gam
+	gam := app.game
 	pmf.spin.onChangeValue = func(val int) {
 		gam.SetMartQuantity(val)
 	}
@@ -293,7 +293,7 @@ func newPokemartForm(app *Application) *pokemartForm {
 	}
 
 	pmf.wdw.onShow = func() {
-		pmf.spin.tb.set(itoa(gam.Mart.Quantity)) // FormShow, before the focus comes in
+		pmf.spin.tb.set(strconv.Itoa(gam.Mart.Quantity)) // FormShow, before the focus comes in
 	}
 	app.desk.add(pmf.wdw)
 
@@ -301,7 +301,7 @@ func newPokemartForm(app *Application) *pokemartForm {
 }
 
 func (pmf *pokemartForm) sync() {
-	gam := pmf.app.gam
+	gam := pmf.app.game
 	pmf.radio.setIndex(gam.Mart.Item)
 	pmf.total.tb.set(gam.Mart.Total)
 	pmf.buy.setEnabled(gam.Mart.BuyEnabled)
@@ -326,7 +326,7 @@ func newTypesForm(app *Application) *typesForm {
 	}
 	tf.species = get[*comboBox](tf.wdw, "ComboBox1")
 	tf.attack = get[*comboBox](tf.wdw, "ComboBox2")
-	gam := app.gam
+	gam := app.game
 
 	for _, sp := range gam.Data.Species { // FormShow
 		item := sp.Name + ", " + gam.Data.TypeName(sp.Types[0])
@@ -361,7 +361,7 @@ func newTypesForm(app *Application) *typesForm {
 
 // sync is TFormA.CalculateMultipliers.
 func (tf *typesForm) sync() {
-	gam := tf.app.gam
+	gam := tf.app.game
 	tf.species.setIndex(gam.Types.Species)
 	tf.attack.setIndex(gam.Types.Attack)
 
@@ -404,7 +404,7 @@ func newGameCornerForm(app *Application) *gameCornerForm {
 	gcf.prize = get[*radioGroup](gcf.wdw, "RadioGroup1")
 	gcf.number = get[*radioGroup](gcf.wdw, "RadioGroup2")
 	gcf.drawn = get[*radioGroup](gcf.wdw, "RadioGroup3")
-	gam := app.gam
+	gam := app.game
 	gcf.bet.onChangeValue = func(val int) {
 		gam.SetBet(val)
 	}
@@ -423,7 +423,7 @@ func newGameCornerForm(app *Application) *gameCornerForm {
 
 	gcf.wdw.onShow = func() { // FormShow, before the focus comes in and selects the bet
 		gcf.bet.maxValue = gam.Corner.MaxBet
-		gcf.bet.tb.set(itoa(gam.Corner.Bet))
+		gcf.bet.tb.set(strconv.Itoa(gam.Corner.Bet))
 	}
 	app.desk.add(gcf.wdw)
 
@@ -431,7 +431,7 @@ func newGameCornerForm(app *Application) *gameCornerForm {
 }
 
 func (gcf *gameCornerForm) sync() {
-	gam := gcf.app.gam
+	gam := gcf.app.game
 	gcf.prize.setIndex(gam.Corner.Prize)
 	gcf.number.setIndex(gam.Corner.Number)
 	gcf.drawn.setIndex(gam.Corner.Drawn)

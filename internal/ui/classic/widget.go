@@ -16,6 +16,8 @@ import (
 
 // A widget is a control of a window: the VCL's TControl.
 type widget interface {
+	// base returns the control embedded in the widget: the state every
+	// control shares, such as its geometry, parent and visibility.
 	base() *control
 	// paint draws the control on a canvas whose origin is its top-left
 	// corner; its children are painted afterwards.
@@ -57,7 +59,11 @@ type (
 )
 
 // mods are the modifier keys held.
-type mods struct{ shift, ctrl, alt bool }
+type mods struct {
+	shift bool
+	ctrl  bool
+	alt   bool
+}
 
 // control is the state every control shares: geometry, tree links,
 // focus order and look.
@@ -104,6 +110,14 @@ func (c *control) shown() bool {
 	return true
 }
 
+func parentOf(ctl *control) *control {
+	if ctl.parent == nil {
+		return nil
+	}
+
+	return ctl.parent.base()
+}
+
 // usable reports whether the control and its parents are enabled, as
 // Windows disables a disabled window's children.
 func (c *control) usable() bool {
@@ -114,14 +128,6 @@ func (c *control) usable() bool {
 	}
 
 	return true
-}
-
-func parentOf(ctl *control) *control {
-	if ctl.parent == nil {
-		return nil
-	}
-
-	return ctl.parent.base()
 }
 
 // origin is the control's top-left corner in its window's client
@@ -373,59 +379,59 @@ type label struct {
 	focusControl widget
 }
 
-func (l *label) setup(*layout.Component) {
-	l.align = l.property("Alignment")
-	l.auto = l.property("AutoSize") != "False"
-	l.transparent = l.property("Transparent") == "True"
-	l.wordWrap = l.property("WordWrap") == "True"
+func (lb *label) setup(*layout.Component) {
+	lb.align = lb.property("Alignment")
+	lb.auto = lb.property("AutoSize") != "False"
+	lb.transparent = lb.property("Transparent") == "True"
+	lb.wordWrap = lb.property("WordWrap") == "True"
 }
 
 // autoSize resizes the label to its caption, as AutoSize does; an empty
 // caption measures as a space.
-func (l *label) autoSize() {
-	if !l.auto {
+func (lb *label) autoSize() {
+	if !lb.auto {
 		return
 	}
 
-	txt := plain(l.caption)
+	txt := plain(lb.caption)
 	if txt == "" {
 		txt = " "
 	}
 
-	wid := l.font.width(txt)
-	if mw := l.propertyInt("Constraints.MaxWidth", 0); mw > 0 && wid > mw {
+	wid := lb.font.width(txt)
+	if mw := lb.propertyInt("Constraints.MaxWidth", 0); mw > 0 && wid > mw {
 		wid = mw
 	}
 
-	l.setBounds(image.Rect(l.rect.Min.X, l.rect.Min.Y, l.rect.Min.X+wid, l.rect.Min.Y+l.font.height()))
+	lb.setBounds(image.Rect(lb.rect.Min.X, lb.rect.Min.Y, lb.rect.Min.X+wid, lb.rect.Min.Y+lb.font.height()))
 }
 
 // isAccelTarget reports whether accelerator lr focuses l's control: l is
 // shown, has a control and its caption's accelerator is lr.
-func (l *label) isAccelTarget(lr rune) bool {
-	return l.focusControl != nil && l.shown() && accel(l.caption) == lr
+func (lb *label) isAccelTarget(lr rune) bool {
+	return lb.focusControl != nil && lb.shown() && accel(lb.caption) == lr
 }
 
-func (l *label) paint(cv canvas) {
-	if !l.transparent {
-		cv.fill(l.local(), l.color)
+func (lb *label) paint(cv canvas) {
+	if !lb.transparent {
+		cv.fill(lb.local(), lb.color)
 	}
 
-	lines := []string{l.caption}
-	if l.wordWrap {
-		lines = wrap(l.font, l.caption, l.rect.Dx())
+	lines := []string{lb.caption}
+	if lb.wordWrap {
+		lines = wrap(lb.font, lb.caption, lb.rect.Dx())
 	}
 
 	for i, lin := range lines {
-		x, y := 0, i*l.font.height()
-		switch l.align {
+		x, y := 0, i*lb.font.height()
+		switch lb.align {
 		case "taCenter":
-			x = (l.rect.Dx() - l.font.width(plain(lin))) / 2
+			x = (lb.rect.Dx() - lb.font.width(plain(lin))) / 2
 		case "taRightJustify":
-			x = l.rect.Dx() - l.font.width(plain(lin))
+			x = lb.rect.Dx() - lb.font.width(plain(lin))
 		}
 
-		drawText(cv, l.font, x, y, lin, l.fontColor, l.usable())
+		drawText(cv, lb.font, x, y, lin, lb.fontColor, lb.usable())
 	}
 }
 
@@ -569,7 +575,9 @@ func (b *button) click() {
 }
 
 // groupBox is a TGroupBox.
-type groupBox struct{ control }
+type groupBox struct {
+	control
+}
 
 func (gb *groupBox) setup(*layout.Component) {
 	gb.windowed = true
@@ -795,7 +803,9 @@ func (rg *radioGroup) key(key ebiten.Key, _ mods) bool {
 func (rg *radioGroup) char(rune) {}
 
 // panel is a TPanel.
-type panel struct{ control }
+type panel struct {
+	control
+}
 
 func (p *panel) setup(*layout.Component) {
 	p.windowed = true
@@ -816,7 +826,9 @@ func (p *panel) paint(cv canvas) {
 }
 
 // bevel is a TBevel (the box shape, lowered, is all the game uses).
-type bevel struct{ control }
+type bevel struct {
+	control
+}
 
 func (b *bevel) paint(cv canvas) {
 	rect := b.local()

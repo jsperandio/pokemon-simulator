@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/color"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/jsperandio/pokemon-simulator/internal/audio"
@@ -87,7 +88,7 @@ func newMainForm(app *Application) *mainForm {
 	mf.enemyAttacks = get[*groupBox](wdw, "GroupBox2")
 
 	for i := range mf.enemyMoves {
-		mf.enemyMoves[i] = get[*label](wdw, "Label"+itoa(4+i))
+		mf.enemyMoves[i] = get[*label](wdw, "Label"+strconv.Itoa(4+i))
 	}
 
 	mf.goButton = get[*button](wdw, "Button1")
@@ -95,7 +96,7 @@ func newMainForm(app *Application) *mainForm {
 	mf.enemyImage = get[*listView](wdw, "ListView3")
 	mf.endButton = get[*button](wdw, "EndButton")
 
-	gam := app.gam
+	gam := app.game
 	mf.starters.onClick = mf.starterClick
 	mf.evolveChoice.onClick = func() {
 		gam.ChooseEvolution(mf.evolveChoice.index)
@@ -104,7 +105,7 @@ func newMainForm(app *Application) *mainForm {
 		app.call(gam.Evolve)
 	}
 
-	mf.pickCombo.items = app.dexItems() // FormShow
+	mf.pickCombo.items = app.pokedexItems() // FormShow
 	mf.pickCombo.onSelect = func(i int) {
 		gam.PickSpecies(i)
 	}
@@ -148,7 +149,7 @@ func (mf *mainForm) starterClick() {
 
 	app := mf.app
 	app.call(func() {
-		app.gam.ChooseStarter(idx)
+		app.game.ChooseStarter(idx)
 	})
 }
 
@@ -171,7 +172,7 @@ func (mf *mainForm) menuCommand(me *menuEntry) {
 		app.showAbout()
 	default:
 		app.call(func() {
-			app.gam.ClickMenu(me.name())
+			app.game.ClickMenu(me.name())
 		})
 	}
 }
@@ -181,8 +182,8 @@ func (mf *mainForm) menuCommand(me *menuEntry) {
 func (mf *mainForm) formClose() {
 	app := mf.app
 	app.call(func() {
-		if dat := app.gam.Close(); dat != nil {
-			if err := app.files.WriteFile(app.gam.SaveFile, dat); err != nil {
+		if dat := app.game.Close(); dat != nil {
+			if err := app.files.WriteFile(app.game.SaveFile, dat); err != nil {
 				app.Message(game.Error, false, err.Error())
 			}
 		}
@@ -206,14 +207,14 @@ func (mf *mainForm) export() {
 		return
 	}
 
-	page := app.gam.ExportPage(time.Now())
+	page := app.game.ExportPage(time.Now())
 	if err := app.files.WriteFile(file, page); err != nil {
 		app.Message(game.Error, false, err.Error())
 
 		return
 	}
 
-	if app.gam.Exported(file) {
+	if app.game.Exported(file) {
 		if err := platform.OpenPage(file, page); err != nil {
 			app.Message(game.Error, false, err.Error())
 		}
@@ -283,7 +284,7 @@ func setRadioItems(rg *radioGroup, items []string) {
 
 // sync shows the game window's state.
 func (mf *mainForm) sync() {
-	app, gam := mf.app, mf.app.gam
+	app, gam := mf.app, mf.app.game
 	mgw := &gam.Main
 
 	if mf.wdw.caption != mgw.Caption {
@@ -308,7 +309,7 @@ func (mf *mainForm) sync() {
 	}
 
 	if mgw.Picker && !mf.pickerShown {
-		mf.pickLevel.tb.set(itoa(mgw.PickLevel))
+		mf.pickLevel.tb.set(strconv.Itoa(mgw.PickLevel))
 	}
 
 	mf.pickerShown = mgw.Picker
@@ -324,8 +325,8 @@ func (mf *mainForm) sync() {
 
 	if enm := mgw.Enemy; enm.Species != 0 {
 		name := app.speciesName(enm.Species)
-		mf.enemyLabel.setCaption("Enemy " + name + " L." + itoa(enm.Level))
-		mf.enemyHP.setCaption(itoa(enm.HP) + "/" + itoa(enm.Level) + "0")
+		mf.enemyLabel.setCaption("Enemy " + name + " L." + strconv.Itoa(enm.Level))
+		mf.enemyHP.setCaption(strconv.Itoa(enm.HP) + "/" + strconv.Itoa(enm.Level) + "0")
 		mf.enemyAttacks.setCaption("Enemy " + name + "'s Attacks:")
 		mf.enemyGauge.set(enm.Level*10, enm.HP, gaugeColors[mgw.EnemyColor])
 	}
@@ -339,7 +340,7 @@ func (mf *mainForm) sync() {
 		}
 
 		// Gauge2 sits after Label3, as that fighter's caption sized it.
-		mf.placeGauge(mf.enemyGauge, "Enemy "+sp.Name+" L."+itoa(enm.Level))
+		mf.placeGauge(mf.enemyGauge, "Enemy "+sp.Name+" L."+strconv.Itoa(enm.Level))
 	}
 
 	own := mgw.Own
@@ -356,10 +357,10 @@ func (mf *mainForm) sync() {
 
 	sp := gam.Data.SpeciesByID(own.Species)
 	mf.ownImage.setItems([]listItem{{"", own.Species - 1}})
-	mf.ownLabel.setCaption(sp.Name + " L." + itoa(own.Level))
-	mf.ownHP.setCaption(itoa(own.HP) + "/" + itoa(own.Level) + "0")
+	mf.ownLabel.setCaption(sp.Name + " L." + strconv.Itoa(own.Level))
+	mf.ownHP.setCaption(strconv.Itoa(own.HP) + "/" + strconv.Itoa(own.Level) + "0")
 	mf.ownGauge.set(own.Level*10, own.HP, gaugeColors[mgw.OwnColor])
-	mf.placeGauge(mf.ownGauge, sp.Name+" L."+itoa(own.Level))
+	mf.placeGauge(mf.ownGauge, sp.Name+" L."+strconv.Itoa(own.Level))
 	mf.attacks.setCaption(sp.Name + "'s attacks:")
 
 	items := make([]string, 0, 5)

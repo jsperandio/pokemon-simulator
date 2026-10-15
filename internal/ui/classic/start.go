@@ -175,7 +175,7 @@ func (sf *startForm) newButtonClick() {
 		app.desk.hide(sf.wdw)
 
 		name := app.name.ask()
-		app.gam.NewGame(file, name)
+		app.game.NewGame(file, name)
 		app.sync()
 		app.placeWindows(236)
 	})
