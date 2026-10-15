@@ -592,11 +592,11 @@ func (w *window) setFocus(wgt widget, byMouse bool) {
 	w.focus = wgt
 	w.noFocus = false
 
-	if lfc, ok := old.(interface{ lostFocus() }); ok {
+	if lfc, ok := old.(focusLoser); ok {
 		lfc.lostFocus()
 	}
 
-	if gfc, ok := wgt.(interface{ gotFocus(bool) }); ok {
+	if gfc, ok := wgt.(focusGainer); ok {
 		gfc.gotFocus(byMouse)
 	}
 

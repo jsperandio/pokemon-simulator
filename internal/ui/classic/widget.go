@@ -52,6 +52,15 @@ type (
 	focuser interface {
 		focusable() bool
 	}
+	// focusLoser is told when it loses the focus.
+	focusLoser interface {
+		lostFocus()
+	}
+	// focusGainer is told when it gets the focus; byMouse reports that
+	// the mouse gave it.
+	focusGainer interface {
+		gotFocus(byMouse bool)
+	}
 	// cursorer chooses the mouse cursor over it.
 	cursorer interface {
 		cursor(pnt image.Point) ebiten.CursorShapeType

@@ -273,7 +273,7 @@ func (d *desktop) leave(wdw *window) {
 		d.menu.exit()
 	}
 
-	if lfc, ok := wdw.focus.(interface{ lostFocus() }); ok {
+	if lfc, ok := wdw.focus.(focusLoser); ok {
 		lfc.lostFocus()
 	}
 }
@@ -292,7 +292,7 @@ func (d *desktop) enter(wdw *window) {
 		return
 	}
 
-	if gfc, ok := wdw.focus.(interface{ gotFocus(bool) }); ok {
+	if gfc, ok := wdw.focus.(focusGainer); ok {
 		gfc.gotFocus(false)
 	}
 }
