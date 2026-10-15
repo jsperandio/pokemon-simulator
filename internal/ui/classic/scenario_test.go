@@ -64,10 +64,10 @@ type dialogs struct {
 	d *uiDriver
 }
 
-func (r dialogs) Message(kind game.DialogKind, yesNo bool, text string) bool {
-	yes := r.UI.Message(kind, yesNo, text)
-	text = strings.ReplaceAll(text, r.d.ta.dir+string(filepath.Separator), `C:\Temp\`)
-	r.d.p.Dialog(kind, text, yesNo, yes)
+func (d dialogs) Message(kind game.DialogKind, yesNo bool, text string) bool {
+	yes := d.UI.Message(kind, yesNo, text)
+	text = strings.ReplaceAll(text, d.d.ta.dir+string(filepath.Separator), `C:\Temp\`)
+	d.d.p.Dialog(kind, text, yesNo, yes)
 
 	return yes
 }
@@ -77,9 +77,9 @@ func winBase(path string) string {
 	return path[strings.LastIndex(path, `\`)+1:]
 }
 
-func (d *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook func(*game.Game)) error {
-	d.p = p
-	dir := d.t.TempDir()
+func (ud *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook func(*game.Game)) error {
+	ud.p = p
+	dir := ud.t.TempDir()
 
 	var args []string
 
@@ -93,14 +93,14 @@ func (d *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook fun
 		args = []string{path}
 	}
 
-	ta := newTestAppIn(d.t, dir, args)
-	d.ta = ta
-	d.files = &writes{Files: ta.files}
-	ta.files = d.files
-	ta.g.UI = dialogs{ta.g.UI, d}
+	ta := newTestAppIn(ud.t, dir, args)
+	ud.ta = ta
+	ud.files = &writes{Files: ta.files}
+	ta.files = ud.files
+	ta.g.UI = dialogs{ta.g.UI, ud}
 	hook(ta.g)
 	ta.wait(80) // the loading screen
-	d.settle()
+	ud.settle()
 
 	if save != nil && !ta.main.w.visible {
 		return errors.New("the save didn't load")
@@ -110,32 +110,32 @@ func (d *uiDriver) Launch(p *scenario.Player, file string, save []byte, hook fun
 }
 
 // seen shows the driver's modal hook a modal window about to be answered.
-func (d *uiDriver) seen(w *window) {
-	if d.modal != nil {
-		d.modal(w)
+func (ud *uiDriver) seen(w *window) {
+	if ud.modal != nil {
+		ud.modal(w)
 	}
 }
 
 // settle runs frames until the game waits for the player, with no
 // handler running but one waiting for a window. The game's message
 // dialogs are answered on the way, as the scenario says.
-func (d *uiDriver) settle() {
-	ta := d.ta
+func (ud *uiDriver) settle() {
+	ta := ud.ta
 	for range 1000 {
 		ta.wait(2)
 
 		top := ta.desk.topModal()
 		if top != nil && top.name == "MessageForm" {
-			d.seen(top)
+			ud.seen(top)
 
 			text := top.find("Message").base().caption
 			b := "Button1" // OK or Yes
 
-			if !d.p.Answer(top.find("Button2") != nil, text) {
+			if !ud.p.Answer(top.find("Button2") != nil, text) {
 				b = "Button2"
 			}
 
-			d.press(top, top.find(b))
+			ud.press(top, top.find(b))
 
 			continue
 		}
@@ -145,14 +145,14 @@ func (d *uiDriver) settle() {
 		}
 	}
 
-	d.t.Fatal("the game is still busy")
+	ud.t.Fatal("the game is still busy")
 }
 
 // front brings w to the front when another window covers p, by clicking
 // a part of its caption that the others leave uncovered, as the player
 // would.
-func (d *uiDriver) front(w *window, p image.Point) {
-	desk := d.ta.desk
+func (ud *uiDriver) front(w *window, p image.Point) {
+	desk := ud.ta.desk
 	if desk.windowAt(p) == w {
 		return
 	}
@@ -162,32 +162,32 @@ func (d *uiDriver) front(w *window, p image.Point) {
 
 	for x := c.Min.X + 20; x < c.Max.X-3*captionButtonW-8; x++ { // past the icon, short of the buttons
 		if q := image.Pt(x, y); desk.windowAt(q) == w {
-			d.ta.click(q)
+			ud.ta.click(q)
 
 			break
 		}
 	}
 
 	if desk.windowAt(p) != w {
-		d.t.Fatalf("%s stays behind another window", w.name)
+		ud.t.Fatalf("%s stays behind another window", w.name)
 	}
 }
 
 // clickAt clicks at p in w, brought to the front.
-func (d *uiDriver) clickAt(w *window, p image.Point) {
-	d.front(w, p)
-	d.ta.click(p)
+func (ud *uiDriver) clickAt(w *window, p image.Point) {
+	ud.front(w, p)
+	ud.ta.click(p)
 }
 
 // press clicks the middle of control k in w.
-func (d *uiDriver) press(w *window, k widget) {
+func (ud *uiDriver) press(w *window, k widget) {
 	size := k.base().rect.Size()
-	d.clickAt(w, widgetOrigin(k).Add(size.Div(2)))
+	ud.clickAt(w, widgetOrigin(k).Add(size.Div(2)))
 }
 
 // form returns a form's window by its name, or nil.
-func (d *uiDriver) form(name string) *window {
-	ta := d.ta
+func (ud *uiDriver) form(name string) *window {
+	ta := ud.ta
 
 	return map[string]*window{
 		"Form1": ta.start.w,
@@ -202,9 +202,9 @@ func (d *uiDriver) form(name string) *window {
 }
 
 // control returns a control by form and name: "Form9.Button1".
-func (d *uiDriver) control(path string) (*window, widget, error) {
+func (ud *uiDriver) control(path string) (*window, widget, error) {
 	form, name, _ := strings.Cut(path, ".")
-	w := d.form(form)
+	w := ud.form(form)
 
 	if w == nil {
 		return nil, nil, fmt.Errorf("unknown form %s", form)
@@ -222,14 +222,14 @@ func (d *uiDriver) control(path string) (*window, widget, error) {
 	return w, k, nil
 }
 
-func (d *uiDriver) Menu(path []*game.MenuItem) error {
-	ta := d.ta
+func (ud *uiDriver) Menu(path []*game.MenuItem) error {
+	ta := ud.ta
 	m := ta.main.w.menu
 
 	for i, e := range m.entries {
 		if e.name() == path[0].Name {
 			r := m.barRects()[i]
-			d.front(ta.main.w, r.Min.Add(r.Size().Div(2)))
+			ud.front(ta.main.w, r.Min.Add(r.Size().Div(2)))
 		}
 	}
 
@@ -239,79 +239,79 @@ func (d *uiDriver) Menu(path []*game.MenuItem) error {
 	}
 
 	ta.menu(names...)
-	d.settle()
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) Choose(i int) error {
-	ta := d.ta
+func (ud *uiDriver) Choose(i int) error {
+	ta := ud.ta
 	l := ta.stats.party
 	r := l.itemRect(i)
 	p := widgetOrigin(l).Add(r.Min).Add(r.Size().Div(2))
-	d.front(ta.stats.wdw, p)
+	ud.front(ta.stats.wdw, p)
 	ta.doubleClick(p)
-	d.settle()
+	ud.settle()
 
 	return nil
 }
 
 // radio clicks radio button k of g.
-func (d *uiDriver) radio(w *window, g *radioGroup, k int) {
+func (ud *uiDriver) radio(w *window, g *radioGroup, k int) {
 	r := g.buttonRect(k)
-	d.clickAt(w, widgetOrigin(g).Add(r.Min).Add(image.Pt(6, r.Dy()/2)))
+	ud.clickAt(w, widgetOrigin(g).Add(r.Min).Add(image.Pt(6, r.Dy()/2)))
 }
 
-func (d *uiDriver) Attack(k int) error {
-	m := d.ta.main
-	d.radio(m.w, m.attacks, k)
-	d.press(m.w, m.goButton)
-	d.settle()
+func (ud *uiDriver) Attack(k int) error {
+	m := ud.ta.main
+	ud.radio(m.w, m.attacks, k)
+	ud.press(m.w, m.goButton)
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) Item(k int) error {
-	s := d.ta.stats
-	d.press(s.wdw, s.items[k])
-	d.settle()
+func (ud *uiDriver) Item(k int) error {
+	s := ud.ta.stats
+	ud.press(s.wdw, s.items[k])
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) End() error {
-	m := d.ta.main
-	d.press(m.w, m.endButton)
-	d.settle()
+func (ud *uiDriver) End() error {
+	m := ud.ta.main
+	ud.press(m.w, m.endButton)
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) Click(path string) error {
-	w, k, err := d.control(path)
+func (ud *uiDriver) Click(path string) error {
+	w, k, err := ud.control(path)
 	if err != nil {
 		return err
 	}
 
-	d.press(w, k)
-	d.settle()
+	ud.press(w, k)
+	ud.settle()
 
 	if path == "Form1.AboutButton" {
-		about := d.ta.desk.topModal()
-		if about != d.ta.about {
+		about := ud.ta.desk.topModal()
+		if about != ud.ta.about {
 			return errors.New("no About box")
 		}
 
-		d.seen(about)
-		d.press(about, about.find("OKButton"))
-		d.settle()
+		ud.seen(about)
+		ud.press(about, about.find("OKButton"))
+		ud.settle()
 	}
 
 	return nil
 }
 
-func (d *uiDriver) Radio(path string, k int) error {
-	w, c, err := d.control(path)
+func (ud *uiDriver) Radio(path string, k int) error {
+	w, c, err := ud.control(path)
 	if err != nil {
 		return err
 	}
@@ -321,14 +321,14 @@ func (d *uiDriver) Radio(path string, k int) error {
 		return fmt.Errorf("%s isn't a radio group", path)
 	}
 
-	d.radio(w, g, k)
-	d.settle()
+	ud.radio(w, g, k)
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) Combo(path string, i int) error {
-	w, k, err := d.control(path)
+func (ud *uiDriver) Combo(path string, i int) error {
+	w, k, err := ud.control(path)
 	if err != nil {
 		return err
 	}
@@ -339,7 +339,7 @@ func (d *uiDriver) Combo(path string, i int) error {
 	}
 
 	b := c.button()
-	d.clickAt(w, widgetOrigin(c).Add(b.Min).Add(b.Size().Div(2)))
+	ud.clickAt(w, widgetOrigin(c).Add(b.Min).Add(b.Size().Div(2)))
 
 	l := c.dropped
 	if l == nil {
@@ -352,11 +352,11 @@ func (d *uiDriver) Combo(path string, i int) error {
 			dy = 1
 		}
 
-		d.ta.frame(input{wheel: dy})
+		ud.ta.frame(input{wheel: dy})
 	}
 
-	d.ta.click(l.rect.Min.Add(image.Pt(5, 1+(i-l.top)*c.itemHeight+c.itemHeight/2)))
-	d.settle()
+	ud.ta.click(l.rect.Min.Add(image.Pt(5, 1+(i-l.top)*c.itemHeight+c.itemHeight/2)))
+	ud.settle()
 
 	if c.index != i {
 		return fmt.Errorf("%s chose %d", path, c.index)
@@ -365,8 +365,8 @@ func (d *uiDriver) Combo(path string, i int) error {
 	return nil
 }
 
-func (d *uiDriver) Type(path string, n int) error {
-	w, k, err := d.control(path)
+func (ud *uiDriver) Type(path string, n int) error {
+	w, k, err := ud.control(path)
 	if err != nil {
 		return err
 	}
@@ -376,19 +376,19 @@ func (d *uiDriver) Type(path string, n int) error {
 		return fmt.Errorf("%s isn't a spin edit", path)
 	}
 
-	ta := d.ta
-	d.clickAt(w, widgetOrigin(s).Add(image.Pt(5, s.rect.Dy()/2)))
+	ta := ud.ta
+	ud.clickAt(w, widgetOrigin(s).Add(image.Pt(5, s.rect.Dy()/2)))
 	ta.key(ebiten.KeyHome)
 	ta.frame(input{keys: []ebiten.Key{ebiten.KeyEnd}, mods: mods{shift: true}})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
 	ta.typeText(strconv.Itoa(n))
-	d.settle()
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) Text(path string) (string, error) {
-	ta := d.ta
+func (ud *uiDriver) Text(path string) (string, error) {
+	ta := ud.ta
 
 	switch path {
 	case "Form4":
@@ -401,25 +401,25 @@ func (d *uiDriver) Text(path string) (string, error) {
 }
 
 // fileDialog fills in the file dialog that shows with name.
-func (d *uiDriver) fileDialog(caption, name string) error {
-	ta := d.ta
+func (ud *uiDriver) fileDialog(caption, name string) error {
+	ta := ud.ta
 	if top := ta.desk.topModal(); top == nil || top.caption != caption {
 		return fmt.Errorf("no %s dialog: %v", caption, top)
 	}
 
 	ta.typeText(name)
 	ta.key(ebiten.KeyEnter)
-	d.settle()
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) New(file, name string) error {
-	ta := d.ta
-	d.press(ta.start.w, ta.start.w.find("NewButton"))
-	d.settle()
+func (ud *uiDriver) New(file, name string) error {
+	ta := ud.ta
+	ud.press(ta.start.w, ta.start.w.find("NewButton"))
+	ud.settle()
 
-	if err := d.fileDialog("Save As", winBase(file)); err != nil {
+	if err := ud.fileDialog("Save As", winBase(file)); err != nil {
 		return err
 	}
 
@@ -427,60 +427,60 @@ func (d *uiDriver) New(file, name string) error {
 		return errors.New("no name dialog")
 	}
 
-	d.seen(ta.name.w)
+	ud.seen(ta.name.w)
 	ta.typeText(name) // over "Ash", all selected
 	ta.key(ebiten.KeyEnter)
-	d.settle()
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) Load(file string, save []byte) error {
-	ta := d.ta
+func (ud *uiDriver) Load(file string, save []byte) error {
+	ta := ud.ta
 	if err := os.WriteFile(filepath.Join(ta.dir, winBase(file)), save, 0o600); err != nil {
 		return err
 	}
 
-	d.press(ta.start.w, ta.start.w.find("LoadButton"))
-	d.settle()
+	ud.press(ta.start.w, ta.start.w.find("LoadButton"))
+	ud.settle()
 
-	return d.fileDialog("Open", winBase(file))
+	return ud.fileDialog("Open", winBase(file))
 }
 
-func (d *uiDriver) Starter(k int) error {
-	m := d.ta.main
+func (ud *uiDriver) Starter(k int) error {
+	m := ud.ta.main
 	r := m.starters.itemRect(k)
-	d.clickAt(m.w, widgetOrigin(m.starters).Add(r.Min).Add(r.Size().Div(2)))
-	d.settle()
+	ud.clickAt(m.w, widgetOrigin(m.starters).Add(r.Min).Add(r.Size().Div(2)))
+	ud.settle()
 
 	return nil
 }
 
-func (d *uiDriver) Export(file string) error {
-	if err := d.Menu([]*game.MenuItem{
-		d.ta.g.Item("File1"),
-		d.ta.g.Item("ExportPOKMONinformation1"),
+func (ud *uiDriver) Export(file string) error {
+	if err := ud.Menu([]*game.MenuItem{
+		ud.ta.g.Item("File1"),
+		ud.ta.g.Item("ExportPOKMONinformation1"),
 	}); err != nil {
 		return err
 	}
 
-	return d.fileDialog("Save As", winBase(file))
+	return ud.fileDialog("Save As", winBase(file))
 }
 
-func (d *uiDriver) Quit() ([]byte, error) {
-	ta := d.ta
-	d.files.path, d.files.data = "", nil
+func (ud *uiDriver) Quit() ([]byte, error) {
+	ta := ud.ta
+	ud.files.path, ud.files.data = "", nil
 	b := ta.main.w.captionButton(capClose)
-	d.clickAt(ta.main.w, b.Min.Add(b.Size().Div(2)))
-	d.settle()
+	ud.clickAt(ta.main.w, b.Min.Add(b.Size().Div(2)))
+	ud.settle()
 
 	if !ta.quit {
 		return nil, errors.New("the game didn't end")
 	}
 
-	if d.files.path != ta.g.SaveFile {
+	if ud.files.path != ta.g.SaveFile {
 		return nil, nil
 	}
 
-	return d.files.data, nil
+	return ud.files.data, nil
 }

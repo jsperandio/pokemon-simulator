@@ -31,44 +31,44 @@ type textBox struct {
 	dragging bool
 }
 
-func (t *textBox) String() string {
-	return string(t.text)
+func (tbx *textBox) String() string {
+	return string(tbx.text)
 }
 
 // set replaces the text, putting the caret at its end.
-func (t *textBox) set(s string) {
-	t.text = []rune(s)
-	t.caret, t.anchor = len(t.text), len(t.text)
-	t.blink = time.Now()
+func (tbx *textBox) set(s string) {
+	tbx.text = []rune(s)
+	tbx.caret, tbx.anchor = len(tbx.text), len(tbx.text)
+	tbx.blink = time.Now()
 }
 
-func (t *textBox) selectAll() {
-	t.anchor, t.caret = 0, len(t.text)
-	t.blink = time.Now()
+func (tbx *textBox) selectAll() {
+	tbx.anchor, tbx.caret = 0, len(tbx.text)
+	tbx.blink = time.Now()
 }
 
-func (t *textBox) sel() (from, to int) {
-	return min(t.anchor, t.caret), max(t.anchor, t.caret)
+func (tbx *textBox) sel() (from, to int) {
+	return min(tbx.anchor, tbx.caret), max(tbx.anchor, tbx.caret)
 }
 
-func (t *textBox) changed() {
-	t.blink = time.Now()
-	if t.onChange != nil {
-		t.onChange()
+func (tbx *textBox) changed() {
+	tbx.blink = time.Now()
+	if tbx.onChange != nil {
+		tbx.onChange()
 	}
 }
 
 // replace replaces the selection with s, within the length limit.
-func (t *textBox) replace(s string) {
-	if t.readOnly {
+func (tbx *textBox) replace(s string) {
+	if tbx.readOnly {
 		return
 	}
 
-	a, b := t.sel()
+	a, b := tbx.sel()
 	in := []rune(s)
 
-	if t.maxLen > 0 {
-		room := t.maxLen - (len(t.text) - (b - a))
+	if tbx.maxLen > 0 {
+		room := tbx.maxLen - (len(tbx.text) - (b - a))
 		if room < len(in) {
 			in = in[:max(room, 0)]
 		}
@@ -78,15 +78,15 @@ func (t *textBox) replace(s string) {
 		return
 	}
 
-	t.text = append(t.text[:a:a], append(in, t.text[b:]...)...)
-	t.caret = a + len(in)
-	t.anchor = t.caret
-	t.changed()
+	tbx.text = append(tbx.text[:a:a], append(in, tbx.text[b:]...)...)
+	tbx.caret = a + len(in)
+	tbx.anchor = tbx.caret
+	tbx.changed()
 }
 
 // typed handles a typed character: one cp1252 can hold, that the box
 // accepts.
-func (t *textBox) typed(r rune) {
+func (tbx *textBox) typed(r rune) {
 	control := r < 0x20 || r == 0x7f
 	outsideANSI := string(delphi.EncodeANSI(string(r))) == "?" && r != '?'
 
@@ -94,24 +94,24 @@ func (t *textBox) typed(r rune) {
 		return
 	}
 
-	if t.valid != nil && !t.valid(r) {
+	if tbx.valid != nil && !tbx.valid(r) {
 		return
 	}
 
-	t.replace(string(r))
+	tbx.replace(string(r))
 }
 
 // key handles the editing keys; it reports whether k was one.
-func (t *textBox) key(k ebiten.Key, m mods) bool {
+func (tbx *textBox) key(k ebiten.Key, m mods) bool {
 	move := func(to int) {
-		t.caret = max(min(to, len(t.text)), 0)
+		tbx.caret = max(min(to, len(tbx.text)), 0)
 		if !m.shift {
-			t.anchor = t.caret
+			tbx.anchor = tbx.caret
 		}
 
-		t.blink = time.Now()
+		tbx.blink = time.Now()
 	}
-	a, b := t.sel()
+	a, b := tbx.sel()
 
 	switch k {
 	case ebiten.KeyLeft:
@@ -119,27 +119,27 @@ func (t *textBox) key(k ebiten.Key, m mods) bool {
 		case !m.shift && a != b:
 			move(a)
 		case m.ctrl:
-			move(t.wordLeft())
+			move(tbx.wordLeft())
 		default:
-			move(t.caret - 1)
+			move(tbx.caret - 1)
 		}
 	case ebiten.KeyRight:
 		switch {
 		case !m.shift && a != b:
 			move(b)
 		case m.ctrl:
-			move(t.wordRight())
+			move(tbx.wordRight())
 		default:
-			move(t.caret + 1)
+			move(tbx.caret + 1)
 		}
 	case ebiten.KeyHome:
 		move(0)
 	case ebiten.KeyEnd:
-		move(len(t.text))
+		move(len(tbx.text))
 	case ebiten.KeyBackspace:
-		t.backspace()
+		tbx.backspace()
 	case ebiten.KeyDelete:
-		t.del()
+		tbx.del()
 	default:
 		return false
 	}
@@ -148,59 +148,59 @@ func (t *textBox) key(k ebiten.Key, m mods) bool {
 }
 
 // backspace deletes the selection, or the character before the caret.
-func (t *textBox) backspace() {
-	if t.readOnly {
+func (tbx *textBox) backspace() {
+	if tbx.readOnly {
 		return
 	}
 
-	if a, b := t.sel(); a == b {
+	if a, b := tbx.sel(); a == b {
 		if a == 0 {
 			return
 		}
 
-		t.anchor = a - 1
+		tbx.anchor = a - 1
 	}
 
-	t.replace("")
+	tbx.replace("")
 }
 
 // del deletes the selection, or the character after the caret.
-func (t *textBox) del() {
-	if t.readOnly {
+func (tbx *textBox) del() {
+	if tbx.readOnly {
 		return
 	}
 
-	if a, b := t.sel(); a == b {
-		if b == len(t.text) {
+	if a, b := tbx.sel(); a == b {
+		if b == len(tbx.text) {
 			return
 		}
 
-		t.caret = b + 1
+		tbx.caret = b + 1
 	}
 
-	t.replace("")
+	tbx.replace("")
 }
 
-func (t *textBox) wordLeft() int {
-	i := t.caret
-	for i > 0 && t.text[i-1] == ' ' {
+func (tbx *textBox) wordLeft() int {
+	i := tbx.caret
+	for i > 0 && tbx.text[i-1] == ' ' {
 		i--
 	}
 
-	for i > 0 && t.text[i-1] != ' ' {
+	for i > 0 && tbx.text[i-1] != ' ' {
 		i--
 	}
 
 	return i
 }
 
-func (t *textBox) wordRight() int {
-	i := t.caret
-	for i < len(t.text) && t.text[i] != ' ' {
+func (tbx *textBox) wordRight() int {
+	i := tbx.caret
+	for i < len(tbx.text) && tbx.text[i] != ' ' {
 		i++
 	}
 
-	for i < len(t.text) && t.text[i] == ' ' {
+	for i < len(tbx.text) && tbx.text[i] == ' ' {
 		i++
 	}
 
@@ -209,12 +209,12 @@ func (t *textBox) wordRight() int {
 
 // at returns the caret position nearest to x (relative to the text's
 // start, scroll included).
-func (t *textBox) at(f face, x int) int {
-	x += t.scroll
+func (tbx *textBox) at(f face, x int) int {
+	x += tbx.scroll
 	w := 0
 
-	for i := range t.text {
-		cw := f.width(string(t.text[i]))
+	for i := range tbx.text {
+		cw := f.width(string(tbx.text[i]))
 		if x < w+cw/2 {
 			return i
 		}
@@ -222,22 +222,22 @@ func (t *textBox) at(f face, x int) int {
 		w += cw
 	}
 
-	return len(t.text)
+	return len(tbx.text)
 }
 
 // fit scrolls the text so that the caret shows in a box w pixels wide.
-func (t *textBox) fit(f face, w int) {
-	cx := f.width(string(t.text[:t.caret]))
-	if cx-t.scroll > w-1 {
-		t.scroll = cx - w + 1 + w/4
+func (tbx *textBox) fit(f face, w int) {
+	cx := f.width(string(tbx.text[:tbx.caret]))
+	if cx-tbx.scroll > w-1 {
+		tbx.scroll = cx - w + 1 + w/4
 	}
 
-	if cx < t.scroll {
-		t.scroll = max(cx-w/4, 0)
+	if cx < tbx.scroll {
+		tbx.scroll = max(cx-w/4, 0)
 	}
 
-	if f.width(string(t.text))-t.scroll < w-1 {
-		t.scroll = max(f.width(string(t.text))-w+1, 0)
+	if f.width(string(tbx.text))-tbx.scroll < w-1 {
+		tbx.scroll = max(f.width(string(tbx.text))-w+1, 0)
 	}
 }
 
@@ -253,18 +253,18 @@ func blinkOn(since time.Duration) bool {
 
 // paint draws the text in r with its selection (when focused) and the
 // blinking caret.
-func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, focused bool) {
-	t.fit(f, r.Dx())
+func (tbx *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, focused bool) {
+	tbx.fit(f, r.Dx())
 
 	in := cv.sub(r)
-	x := -t.scroll
-	s := string(t.text)
-	a, b := t.sel()
+	x := -tbx.scroll
+	s := string(tbx.text)
+	a, b := tbx.sel()
 
 	// The selection shows with the focus, or always with ES_NOHIDESEL.
-	showSel := (focused || t.keepSel) && a != b
+	showSel := (focused || tbx.keepSel) && a != b
 	if showSel {
-		pre, mid, post := string(t.text[:a]), string(t.text[a:b]), string(t.text[b:])
+		pre, mid, post := string(tbx.text[:a]), string(tbx.text[a:b]), string(tbx.text[b:])
 		x = f.draw(in, x, 0, pre, fg)
 		w := f.width(mid)
 		in.fill(image.Rect(x, 0, x+w, f.height()), colSelection)
@@ -275,37 +275,37 @@ func (t *textBox) paint(cv canvas, r image.Rectangle, f face, fg color.RGBA, foc
 		f.draw(in, x, 0, s, fg)
 	}
 
-	hasCaret := focused && a == b && !t.readOnly
-	if hasCaret && blinkOn(time.Since(t.blink)) {
-		cx := f.width(string(t.text[:t.caret])) - t.scroll
+	hasCaret := focused && a == b && !tbx.readOnly
+	if hasCaret && blinkOn(time.Since(tbx.blink)) {
+		cx := f.width(string(tbx.text[:tbx.caret])) - tbx.scroll
 		for y := range f.height() {
 			in.invert(cx, y)
 		}
 	}
 }
 
-func (t *textBox) press(f face, x int, double, shift bool) {
+func (tbx *textBox) press(f face, x int, double, shift bool) {
 	if double {
-		t.anchor = t.at(f, x)
-		t.caret = t.anchor
-		t.anchor = t.wordLeft()
-		t.caret = t.wordRight()
+		tbx.anchor = tbx.at(f, x)
+		tbx.caret = tbx.anchor
+		tbx.anchor = tbx.wordLeft()
+		tbx.caret = tbx.wordRight()
 
 		return
 	}
 
-	t.caret = t.at(f, x)
+	tbx.caret = tbx.at(f, x)
 	if !shift {
-		t.anchor = t.caret
+		tbx.anchor = tbx.caret
 	}
 
-	t.dragging = true
-	t.blink = time.Now()
+	tbx.dragging = true
+	tbx.blink = time.Now()
 }
 
-func (t *textBox) drag(f face, x int) {
-	if t.dragging {
-		t.caret = t.at(f, x)
+func (tbx *textBox) drag(f face, x int) {
+	if tbx.dragging {
+		tbx.caret = tbx.at(f, x)
 	}
 }
 
@@ -419,42 +419,42 @@ type spinEdit struct {
 	onChangeValue      func(v int)
 }
 
-func (s *spinEdit) setup(comp *layout.Component) {
-	s.edit.setup(comp)
+func (se *spinEdit) setup(comp *layout.Component) {
+	se.edit.setup(comp)
 
-	s.inset = 2 // SetEditRect puts the text at the client area's corner
-	s.minValue = s.propertyInt("MinValue", 0)
-	s.maxValue = s.propertyInt("MaxValue", 0)
-	s.increment = s.propertyInt("Increment", 1)
-	s.tb.set(strconv.Itoa(s.propertyInt("Value", 0)))
+	se.inset = 2 // SetEditRect puts the text at the client area's corner
+	se.minValue = se.propertyInt("MinValue", 0)
+	se.maxValue = se.propertyInt("MaxValue", 0)
+	se.increment = se.propertyInt("Increment", 1)
+	se.tb.set(strconv.Itoa(se.propertyInt("Value", 0)))
 
 	// IsValidChar: digits, signs and the decimal separator.
-	s.tb.valid = func(r rune) bool {
+	se.tb.valid = func(r rune) bool {
 		return isDigit(r) || strings.ContainsRune("+-.", r)
 	}
-	s.tb.onChange = func() {
-		s.invalidate()
+	se.tb.onChange = func() {
+		se.invalidate()
 
-		if s.onChangeValue != nil {
-			s.onChangeValue(s.value())
+		if se.onChangeValue != nil {
+			se.onChangeValue(se.value())
 		}
 	}
 }
 
 // value is TSpinEdit.Value: the text as an integer, or MinValue when it
 // isn't one.
-func (s *spinEdit) value() int {
-	if v, ok := delphi.StrToInt(s.tb.String()); ok {
+func (se *spinEdit) value() int {
+	if v, ok := delphi.StrToInt(se.tb.String()); ok {
 		return int(v)
 	}
 
-	return s.minValue
+	return se.minValue
 }
 
 // check clamps v to the range, unless MaxValue = MinValue (CheckValue).
-func (s *spinEdit) check(v int) int {
-	if s.maxValue != s.minValue {
-		v = max(min(v, s.maxValue), s.minValue)
+func (se *spinEdit) check(v int) int {
+	if se.maxValue != se.minValue {
+		v = max(min(v, se.maxValue), se.minValue)
 	}
 
 	return v
@@ -462,24 +462,24 @@ func (s *spinEdit) check(v int) int {
 
 // setValue sets Value as the program does: OnChange runs if the text
 // changes.
-func (s *spinEdit) setValue(v int) {
-	s.setText(strconv.Itoa(s.check(v)))
+func (se *spinEdit) setValue(v int) {
+	se.setText(strconv.Itoa(se.check(v)))
 }
 
 // lostFocus clamps the value, as CMExit does.
-func (s *spinEdit) lostFocus() {
-	if v := s.value(); s.check(v) != v {
-		s.setValue(v)
+func (se *spinEdit) lostFocus() {
+	if v := se.value(); se.check(v) != v {
+		se.setValue(v)
 	}
 }
 
 // buttons returns the up and down buttons: TSpinButton sits inside the
 // edit's border, 15 pixels wide and 5 short of the edit's height, and its
 // down button covers the up button's last row (AdjustSize).
-func (s *spinEdit) buttons() (up, down image.Rectangle) {
-	r := s.local().Inset(2)
-	x := r.Min.X + s.rect.Dx() - 15 - 5
-	h := s.rect.Dy() - 5
+func (se *spinEdit) buttons() (up, down image.Rectangle) {
+	r := se.local().Inset(2)
+	x := r.Min.X + se.rect.Dx() - 15 - 5
+	h := se.rect.Dy() - 5
 	up = image.Rect(x, r.Min.Y, x+15, r.Min.Y+h/2)
 	down = image.Rect(x, up.Max.Y-1, x+15, r.Min.Y+h)
 
@@ -506,24 +506,24 @@ const (
 `
 )
 
-func (s *spinEdit) paint(cv canvas) {
-	r := s.local()
+func (se *spinEdit) paint(cv canvas) {
+	r := se.local()
 	in := cv.sunken(r)
-	fg := s.fontColor
+	fg := se.fontColor
 
-	if !s.usable() {
+	if !se.usable() {
 		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
 
-	cv.fill(in, s.color)
+	cv.fill(in, se.color)
 
-	up, down := s.buttons()
-	s.tb.paint(cv, image.Rect(s.inset, s.inset, up.Min.X-1, r.Max.Y-2), s.font, fg, s.focused() && s.wdw.active)
+	up, down := se.buttons()
+	se.tb.paint(cv, image.Rect(se.inset, se.inset, up.Min.X-1, r.Max.Y-2), se.font, fg, se.focused() && se.wdw.active)
 
 	// Two speed buttons, the down one painted last, each drawn by
 	// DrawFrameControl with its glyph centred inside the frame.
 	for i, b := range []image.Rectangle{up, down} {
-		off := cv.softButton(b, s.pressed == i+1 && s.inside)
+		off := cv.softButton(b, se.pressed == i+1 && se.inside)
 
 		glyph := glyphSpinUp
 		if i == 1 {
@@ -534,7 +534,7 @@ func (s *spinEdit) paint(cv canvas) {
 		x := in.Min.X + (in.Dx()-9+1)/2 + off
 		y := in.Min.Y + (in.Dy()-6+1)/2 + off
 
-		if !s.usable() {
+		if !se.usable() {
 			cv.embossed(x, y, glyph)
 
 			continue
@@ -544,102 +544,102 @@ func (s *spinEdit) paint(cv canvas) {
 	}
 }
 
-func (s *spinEdit) mouseDown(p image.Point, double bool) {
-	up, down := s.buttons()
+func (se *spinEdit) mouseDown(p image.Point, double bool) {
+	up, down := se.buttons()
 	switch {
 	case p.In(down): // on top of the up button
-		s.pressed = 2
+		se.pressed = 2
 	case p.In(up):
-		s.pressed = 1
+		se.pressed = 1
 	default:
-		s.edit.mouseDown(p, double)
+		se.edit.mouseDown(p, double)
 
 		return
 	}
 
-	s.inside = true
-	s.step()
+	se.inside = true
+	se.step()
 
-	now := s.wdw.desk.now
-	s.next = now.Add(400 * time.Millisecond)
-	s.invalidate()
+	now := se.wdw.desk.now
+	se.next = now.Add(400 * time.Millisecond)
+	se.invalidate()
 }
 
 // step is one click of the pressed button.
-func (s *spinEdit) step() {
+func (se *spinEdit) step() {
 	dir := -1
-	if s.pressed == 1 {
+	if se.pressed == 1 {
 		dir = 1
 	}
 
-	s.spin(dir)
+	se.spin(dir)
 }
 
 // spin adds Increment, or takes it away, as UpClick and DownClick do.
-func (s *spinEdit) spin(dir int) {
-	if s.tb.readOnly {
+func (se *spinEdit) spin(dir int) {
+	if se.tb.readOnly {
 		return
 	}
 
-	s.setValue(s.value() + dir*s.increment)
-	s.tb.selectAll()
+	se.setValue(se.value() + dir*se.increment)
+	se.tb.selectAll()
 }
 
-func (s *spinEdit) mouseDrag(p image.Point) {
-	if s.pressed == 0 {
-		s.edit.mouseDrag(p)
+func (se *spinEdit) mouseDrag(p image.Point) {
+	if se.pressed == 0 {
+		se.edit.mouseDrag(p)
 
 		return
 	}
 
-	up, down := s.buttons()
+	up, down := se.buttons()
 	b := up
 
-	if s.pressed == 2 {
+	if se.pressed == 2 {
 		b = down
 	}
 
-	if in := p.In(b); in != s.inside {
-		s.inside = in
-		s.invalidate()
+	if in := p.In(b); in != se.inside {
+		se.inside = in
+		se.invalidate()
 	}
 }
 
-func (s *spinEdit) mouseUp(p image.Point) {
-	if s.pressed == 0 {
-		s.edit.mouseUp(p)
+func (se *spinEdit) mouseUp(p image.Point) {
+	if se.pressed == 0 {
+		se.edit.mouseUp(p)
 
 		return
 	}
 
-	s.pressed = 0
-	s.invalidate()
+	se.pressed = 0
+	se.invalidate()
 }
 
 // tick repeats a held button, as TTimerSpeedButton does.
-func (s *spinEdit) tick(now time.Time) {
-	if s.pressed != 0 && s.inside && !now.Before(s.next) {
-		s.step()
+func (se *spinEdit) tick(now time.Time) {
+	if se.pressed != 0 && se.inside && !now.Before(se.next) {
+		se.step()
 
-		s.next = now.Add(100 * time.Millisecond)
+		se.next = now.Add(100 * time.Millisecond)
 	}
 }
 
-func (s *spinEdit) key(k ebiten.Key, m mods) bool {
+func (se *spinEdit) key(k ebiten.Key, m mods) bool {
 	switch k {
 	case ebiten.KeyUp:
-		s.spin(1)
+		se.spin(1)
 	case ebiten.KeyDown:
-		s.spin(-1)
+		se.spin(-1)
 	default:
-		return s.edit.key(k, m)
+		return se.edit.key(k, m)
 	}
 
 	return true
 }
 
-func (s *spinEdit) cursor(p image.Point) ebiten.CursorShapeType {
-	if up, down := s.buttons(); p.In(up) || p.In(down) {
+func (se *spinEdit) cursor(p image.Point) ebiten.CursorShapeType {
+	if up, down := se.buttons(); p.In(up) || p.In(down) {
 		return ebiten.CursorShapeDefault
 	}
 
@@ -819,22 +819,22 @@ type comboBox struct {
 	indents []int
 }
 
-func (c *comboBox) setup(comp *layout.Component) {
-	c.windowed = true
-	c.tabStop = c.property("TabStop") != "False"
-	c.color = vclColor(c.property("Color"), colWindow)
-	c.listOnly = c.property("Style") == "csDropDownList"
+func (cb *comboBox) setup(comp *layout.Component) {
+	cb.windowed = true
+	cb.tabStop = cb.property("TabStop") != "False"
+	cb.color = vclColor(cb.property("Color"), colWindow)
+	cb.listOnly = cb.property("Style") == "csDropDownList"
 
-	c.items = append([]string(nil), comp.Items...)
-	c.index = -1
-	c.itemHeight = c.propertyInt("ItemHeight", 13)
-	c.tb.set(comp.Caption)
+	cb.items = append([]string(nil), comp.Items...)
+	cb.index = -1
+	cb.itemHeight = cb.propertyInt("ItemHeight", 13)
+	cb.tb.set(comp.Caption)
 
-	c.tb.keepSel = true // the combo box's edit has ES_NOHIDESEL
-	c.tb.onChange = c.invalidate
+	cb.tb.keepSel = true // the combo box's edit has ES_NOHIDESEL
+	cb.tb.onChange = cb.invalidate
 }
 
-func (c *comboBox) focusable() bool {
+func (cb *comboBox) focusable() bool {
 	return true
 }
 
@@ -842,107 +842,107 @@ func (c *comboBox) focusable() bool {
 // doesn't run OnChange; the text follows the selection (none empties it),
 // all of it selected if the box has the focus, else with the caret at its
 // start.
-func (c *comboBox) setIndex(i int) {
-	if i == c.index {
+func (cb *comboBox) setIndex(i int) {
+	if i == cb.index {
 		return
 	}
 
-	c.index = i
+	cb.index = i
 	text := ""
 
-	if i >= 0 && i < len(c.items) {
-		text = c.items[i]
+	if i >= 0 && i < len(cb.items) {
+		text = cb.items[i]
 	}
 
-	c.tb.set(text)
+	cb.tb.set(text)
 
-	if c.focused() && c.wdw.active {
-		c.tb.selectAll()
+	if cb.focused() && cb.wdw.active {
+		cb.tb.selectAll()
 	} else {
-		c.tb.caret, c.tb.anchor = 0, 0
+		cb.tb.caret, cb.tb.anchor = 0, 0
 	}
 
-	c.invalidate()
+	cb.invalidate()
 }
 
 // reselect selects the item again, as a FormShow that refills the list
 // does (ItemIndex := -1, the items again, ItemIndex := k): the form isn't
 // active yet, so the text isn't selected.
-func (c *comboBox) reselect() {
-	k := c.index
-	c.setIndex(-1)
-	c.setIndex(k)
+func (cb *comboBox) reselect() {
+	k := cb.index
+	cb.setIndex(-1)
+	cb.setIndex(k)
 }
 
 // pick selects item i as the player does: the text becomes the item,
 // all selected, and OnChange runs.
-func (c *comboBox) pick(i int) {
-	if i < 0 || i >= len(c.items) {
+func (cb *comboBox) pick(i int) {
+	if i < 0 || i >= len(cb.items) {
 		return
 	}
 
-	changed := i != c.index
-	c.index = i
-	c.tb.set(c.items[i])
-	c.tb.selectAll()
-	c.invalidate()
+	changed := i != cb.index
+	cb.index = i
+	cb.tb.set(cb.items[i])
+	cb.tb.selectAll()
+	cb.invalidate()
 
-	if changed && c.onSelect != nil {
-		c.onSelect(i)
+	if changed && cb.onSelect != nil {
+		cb.onSelect(i)
 	}
 }
 
 // button is the drop-down button, inside the border.
-func (c *comboBox) button() image.Rectangle {
-	in := c.local().Inset(2)
+func (cb *comboBox) button() image.Rectangle {
+	in := cb.local().Inset(2)
 
 	return image.Rect(in.Max.X-scrollSize, in.Min.Y, in.Max.X, in.Max.Y)
 }
 
-func (c *comboBox) gotFocus(bool) {
-	c.tb.selectAll()
-	c.invalidate()
+func (cb *comboBox) gotFocus(bool) {
+	cb.tb.selectAll()
+	cb.invalidate()
 }
 
-func (c *comboBox) lostFocus() {
-	c.closeUp()
+func (cb *comboBox) lostFocus() {
+	cb.closeUp()
 }
 
-func (c *comboBox) paint(cv canvas) {
-	r := c.local()
+func (cb *comboBox) paint(cv canvas) {
+	r := cb.local()
 	in := cv.sunken(r)
-	fg := c.fontColor
+	fg := cb.fontColor
 
-	if !c.usable() {
+	if !cb.usable() {
 		fg = colGrayText // on the control's colour: the VCL answers WM_CTLCOLORSTATIC with it
 	}
 
-	cv.fill(in, c.color)
+	cv.fill(in, cb.color)
 
-	b := c.button()
-	if c.listOnly {
-		c.paintSelection(cv, image.Rect(in.Min.X+1, in.Min.Y+1, b.Min.X-1, in.Max.Y-1), fg)
+	b := cb.button()
+	if cb.listOnly {
+		cb.paintSelection(cv, image.Rect(in.Min.X+1, in.Min.Y+1, b.Min.X-1, in.Max.Y-1), fg)
 	} else {
-		c.tb.paint(cv, image.Rect(3, 3, b.Min.X-1, r.Max.Y-3), c.font, fg, c.focused() && c.wdw.active)
+		cb.tb.paint(cv, image.Rect(3, 3, b.Min.X-1, r.Max.Y-3), cb.font, fg, cb.focused() && cb.wdw.active)
 	}
 
-	paintArrowButton(cv, b, arrowDown, c.usable(), c.pressing && c.dropped != nil, 5)
+	paintArrowButton(cv, b, arrowDown, cb.usable(), cb.pressing && cb.dropped != nil, 5)
 }
 
 // paintSelection paints the selected item of a list-only box in tr,
 // highlighted while the box has the focus.
-func (c *comboBox) paintSelection(cv canvas, tr image.Rectangle, fg color.RGBA) {
-	focus := c.focused() && c.wdw.active && c.dropped == nil
-	item := c.index >= 0 && c.index < len(c.items)
+func (cb *comboBox) paintSelection(cv canvas, tr image.Rectangle, fg color.RGBA) {
+	focus := cb.focused() && cb.wdw.active && cb.dropped == nil
+	item := cb.index >= 0 && cb.index < len(cb.items)
 	tx := 1
 
-	if c.images != nil && item {
+	if cb.images != nil && item {
 		// Owner-drawn: the item's icon, then its text, highlighted on
 		// its own; the box doesn't indent it.
-		c.images.drawFrame(cv, tr.Min.X+1, tr.Min.Y+(tr.Dy()-c.images.size)/2, c.icons[c.index], false)
+		cb.images.drawFrame(cv, tr.Min.X+1, tr.Min.Y+(tr.Dy()-cb.images.size)/2, cb.icons[cb.index], false)
 
-		x := tr.Min.X + c.images.size + 4
-		tr = image.Rect(x, tr.Min.Y, min(x+c.font.width(c.items[c.index])+4, tr.Max.X), tr.Max.Y)
+		x := tr.Min.X + cb.images.size + 4
+		tr = image.Rect(x, tr.Min.Y, min(x+cb.font.width(cb.items[cb.index])+4, tr.Max.X), tr.Max.Y)
 		tx = 2
 	}
 
@@ -953,7 +953,7 @@ func (c *comboBox) paintSelection(cv canvas, tr image.Rectangle, fg color.RGBA) 
 	}
 
 	if item {
-		c.font.draw(cv.sub(tr), tx, (tr.Dy()-c.font.height())/2, c.items[c.index], fg)
+		cb.font.draw(cv.sub(tr), tx, (tr.Dy()-cb.font.height())/2, cb.items[cb.index], fg)
 	}
 
 	if focus {
@@ -961,54 +961,54 @@ func (c *comboBox) paintSelection(cv canvas, tr image.Rectangle, fg color.RGBA) 
 	}
 }
 
-func (c *comboBox) dropDown() {
-	if c.dropped != nil || len(c.items) == 0 {
+func (cb *comboBox) dropDown() {
+	if cb.dropped != nil || len(cb.items) == 0 {
 		return
 	}
 
-	c.dropped = newDropList(c)
-	c.wdw.desk.openPopup(c.dropped)
-	c.invalidate()
+	cb.dropped = newDropList(cb)
+	cb.wdw.desk.openPopup(cb.dropped)
+	cb.invalidate()
 }
 
-func (c *comboBox) closeUp() {
-	if c.dropped == nil {
+func (cb *comboBox) closeUp() {
+	if cb.dropped == nil {
 		return
 	}
 
-	d := c.dropped
-	c.dropped = nil
-	c.wdw.desk.closePopup(d)
-	c.invalidate()
+	d := cb.dropped
+	cb.dropped = nil
+	cb.wdw.desk.closePopup(d)
+	cb.invalidate()
 }
 
-func (c *comboBox) mouseDown(p image.Point, double bool) {
-	if p.In(c.button()) || c.listOnly {
-		c.pressing = true
-		if c.dropped != nil {
-			c.closeUp()
+func (cb *comboBox) mouseDown(p image.Point, double bool) {
+	if p.In(cb.button()) || cb.listOnly {
+		cb.pressing = true
+		if cb.dropped != nil {
+			cb.closeUp()
 		} else {
-			c.dropDown()
+			cb.dropDown()
 		}
 
 		return
 	}
 
-	c.tb.press(c.font, p.X-3, double, false)
-	c.invalidate()
+	cb.tb.press(cb.font, p.X-3, double, false)
+	cb.invalidate()
 }
 
-func (c *comboBox) mouseDrag(p image.Point) {
-	if !c.pressing && !c.listOnly {
-		c.tb.drag(c.font, p.X-3)
-		c.invalidate()
+func (cb *comboBox) mouseDrag(p image.Point) {
+	if !cb.pressing && !cb.listOnly {
+		cb.tb.drag(cb.font, p.X-3)
+		cb.invalidate()
 	}
 }
 
-func (c *comboBox) mouseUp(image.Point) {
-	c.pressing = false
-	c.tb.dragging = false
-	c.invalidate()
+func (cb *comboBox) mouseUp(image.Point) {
+	cb.pressing = false
+	cb.tb.dragging = false
+	cb.invalidate()
 }
 
 // opensDropDown reports whether key k with modifiers m drops the list
@@ -1025,36 +1025,36 @@ func closesDropDown(k ebiten.Key, m mods) bool {
 	return k == ebiten.KeyEscape || k == ebiten.KeyF4 || altArrow
 }
 
-func (c *comboBox) key(k ebiten.Key, m mods) bool {
-	if c.dropped != nil && c.droppedKey(k, m) {
+func (cb *comboBox) key(k ebiten.Key, m mods) bool {
+	if cb.dropped != nil && cb.droppedKey(k, m) {
 		return true
 	}
 
 	switch {
 	case opensDropDown(k, m):
-		c.dropDown()
+		cb.dropDown()
 	case k == ebiten.KeyUp && !m.alt:
-		c.pick(max(c.index-1, 0))
+		cb.pick(max(cb.index-1, 0))
 	case k == ebiten.KeyDown && !m.alt:
-		c.pick(min(c.index+1, len(c.items)-1))
-	case c.listOnly:
+		cb.pick(min(cb.index+1, len(cb.items)-1))
+	case cb.listOnly:
 		switch k {
 		case ebiten.KeyHome:
-			c.pick(0)
+			cb.pick(0)
 		case ebiten.KeyEnd:
-			c.pick(len(c.items) - 1)
+			cb.pick(len(cb.items) - 1)
 		default:
 			return false
 		}
 	case k == ebiten.KeyBackspace:
-		c.backspace()
+		cb.backspace()
 	default:
-		if !c.tb.key(k, m) {
+		if !cb.tb.key(k, m) {
 			return false
 		}
 	}
 
-	c.invalidate()
+	cb.invalidate()
 
 	return true
 }
@@ -1062,58 +1062,58 @@ func (c *comboBox) key(k ebiten.Key, m mods) bool {
 // droppedKey gives a key to the dropped-down list, and reports whether it
 // took it. Escape, F4 and Alt with an arrow close the list up, as Enter
 // does after the list takes it.
-func (c *comboBox) droppedKey(k ebiten.Key, m mods) bool {
+func (cb *comboBox) droppedKey(k ebiten.Key, m mods) bool {
 	if closesDropDown(k, m) {
-		c.closeUp()
+		cb.closeUp()
 
 		return true
 	}
 
-	if !c.dropped.key(k) {
+	if !cb.dropped.key(k) {
 		return false
 	}
 
 	if k == ebiten.KeyEnter || k == ebiten.KeyNumpadEnter {
-		c.closeUp()
+		cb.closeUp()
 	}
 
-	c.invalidate()
+	cb.invalidate()
 
 	return true
 }
 
 // backspace deletes as AutoComplete does: the completed part first.
-func (c *comboBox) backspace() {
-	switch a, b := c.tb.sel(); {
+func (cb *comboBox) backspace() {
+	switch a, b := cb.tb.sel(); {
 	case a != b:
-		c.tb.replace("")
+		cb.tb.replace("")
 	case a > 0:
-		c.tb.anchor = a - 1
-		c.tb.replace("")
+		cb.tb.anchor = a - 1
+		cb.tb.replace("")
 	}
 
-	c.typedText()
+	cb.typedText()
 }
 
 // char types a character with AutoComplete: the text so far plus the
 // character is looked up as a prefix of the items (CB_FINDSTRING, ignoring
 // case); a match completes the text and selects the completion.
-func (c *comboBox) char(r rune) {
+func (cb *comboBox) char(r rune) {
 	if r < 0x20 {
 		return
 	}
 
-	if c.listOnly {
+	if cb.listOnly {
 		// The next item starting with the letter.
-		n := len(c.items)
+		n := len(cb.items)
 		for k := 1; k <= n; k++ {
-			i := (max(c.index, -1) + k) % n
-			if strings.HasPrefix(strings.ToLower(c.items[i]), strings.ToLower(string(r))) {
-				c.pick(i)
+			i := (max(cb.index, -1) + k) % n
+			if strings.HasPrefix(strings.ToLower(cb.items[i]), strings.ToLower(string(r))) {
+				cb.pick(i)
 
-				if c.dropped != nil {
-					c.dropped.hot = i
-					c.dropped.show(i)
+				if cb.dropped != nil {
+					cb.dropped.hot = i
+					cb.dropped.show(i)
 				}
 
 				return
@@ -1123,76 +1123,76 @@ func (c *comboBox) char(r rune) {
 		return
 	}
 
-	a, _ := c.tb.sel()
-	prefix := string(c.tb.text[:a]) + string(r)
+	a, _ := cb.tb.sel()
+	prefix := string(cb.tb.text[:a]) + string(r)
 
-	for i, item := range c.items {
+	for i, item := range cb.items {
 		if !strings.HasPrefix(strings.ToLower(item), strings.ToLower(prefix)) {
 			continue
 		}
 
-		c.tb.set(prefix + string([]rune(item)[len([]rune(prefix)):]))
+		cb.tb.set(prefix + string([]rune(item)[len([]rune(prefix)):]))
 
-		c.tb.anchor, c.tb.caret = len([]rune(prefix)), len(c.tb.text)
-		if i != c.index {
-			c.index = i
-			if c.onSelect != nil {
-				c.onSelect(i)
+		cb.tb.anchor, cb.tb.caret = len([]rune(prefix)), len(cb.tb.text)
+		if i != cb.index {
+			cb.index = i
+			if cb.onSelect != nil {
+				cb.onSelect(i)
 			}
 		}
 
-		if c.dropped != nil {
-			c.dropped.hot = i
-			c.dropped.show(i)
+		if cb.dropped != nil {
+			cb.dropped.hot = i
+			cb.dropped.show(i)
 		}
 
-		c.invalidate()
+		cb.invalidate()
 
 		return
 	}
 
-	c.tb.typed(r)
-	c.typedText()
+	cb.tb.typed(r)
+	cb.typedText()
 }
 
 // typedText follows a text the items don't complete: the selection is
 // lost.
-func (c *comboBox) typedText() {
+func (cb *comboBox) typedText() {
 	i := -1
 
-	for k, item := range c.items {
-		if strings.EqualFold(item, c.tb.String()) {
+	for k, item := range cb.items {
+		if strings.EqualFold(item, cb.tb.String()) {
 			i = k
 		}
 	}
 
-	if i != c.index {
-		c.index = i
-		if c.onSelect != nil {
-			c.onSelect(i)
+	if i != cb.index {
+		cb.index = i
+		if cb.onSelect != nil {
+			cb.onSelect(i)
 		}
 	}
 
-	c.invalidate()
+	cb.invalidate()
 }
 
-func (c *comboBox) wheel(dy int) {
-	if c.dropped != nil {
-		c.dropped.wheel(dy)
+func (cb *comboBox) wheel(dy int) {
+	if cb.dropped != nil {
+		cb.dropped.wheel(dy)
 
 		return
 	}
 
 	switch {
 	case dy > 0:
-		c.pick(max(c.index-1, 0))
+		cb.pick(max(cb.index-1, 0))
 	case dy < 0:
-		c.pick(min(c.index+1, len(c.items)-1))
+		cb.pick(min(cb.index+1, len(cb.items)-1))
 	}
 }
 
-func (c *comboBox) cursor(p image.Point) ebiten.CursorShapeType {
-	if p.In(c.button()) || c.listOnly {
+func (cb *comboBox) cursor(p image.Point) ebiten.CursorShapeType {
+	if p.In(cb.button()) || cb.listOnly {
 		return ebiten.CursorShapeDefault
 	}
 

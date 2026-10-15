@@ -33,22 +33,22 @@ type bitmapFace struct {
 	bold bool
 }
 
-func (b bitmapFace) height() int {
-	return b.f.Height
+func (bf bitmapFace) height() int {
+	return bf.f.Height
 }
 
-func (b bitmapFace) ascent() int {
-	return b.f.Ascent
+func (bf bitmapFace) ascent() int {
+	return bf.f.Ascent
 }
 
-func (b bitmapFace) width(s string) int {
-	return b.f.Width(s, b.bold)
+func (bf bitmapFace) width(s string) int {
+	return bf.f.Width(s, bf.bold)
 }
 
-func (b bitmapFace) draw(cv canvas, x, y int, s string, c color.RGBA) int {
+func (bf bitmapFace) draw(cv canvas, x, y int, s string, c color.RGBA) int {
 	p := image.Pt(x, y).Add(cv.org)
 
-	return b.f.Draw(cv.img, cv.clip, p.X, p.Y, s, c, b.bold) - cv.org.X
+	return bf.f.Draw(cv.img, cv.clip, p.X, p.Y, s, c, bf.bold) - cv.org.X
 }
 
 // trueTypeFace is a TrueType font at a pixel size, with GDI's metrics: the
@@ -77,40 +77,40 @@ func newTrueTypeFace(f *opentype.Font, px int) (*trueTypeFace, error) {
 	return &trueTypeFace{f: ff, asc: asc, hgt: asc + desc}, nil
 }
 
-func (t *trueTypeFace) height() int {
-	return t.hgt
+func (ttf *trueTypeFace) height() int {
+	return ttf.hgt
 }
 
-func (t *trueTypeFace) ascent() int {
-	return t.asc
+func (ttf *trueTypeFace) ascent() int {
+	return ttf.asc
 }
 
-func (t *trueTypeFace) width(s string) int {
+func (ttf *trueTypeFace) width(s string) int {
 	w := 0
 
 	for _, r := range s {
-		a, _ := t.f.GlyphAdvance(r)
+		a, _ := ttf.f.GlyphAdvance(r)
 		w += a.Round()
 	}
 
 	return w
 }
 
-func (t *trueTypeFace) draw(cv canvas, x, y int, s string, c color.RGBA) int {
+func (ttf *trueTypeFace) draw(cv canvas, x, y int, s string, c color.RGBA) int {
 	dst, ok := cv.img.SubImage(cv.clip).(*image.RGBA)
 	if !ok || dst.Rect.Empty() {
-		return x + t.width(s)
+		return x + ttf.width(s)
 	}
 
 	src := image.NewUniform(c)
 
 	for _, r := range s {
-		dot := fixed.P(cv.org.X+x, cv.org.Y+y+t.asc)
-		if dr, mask, mp, _, ok := t.f.Glyph(dot, r); ok {
+		dot := fixed.P(cv.org.X+x, cv.org.Y+y+ttf.asc)
+		if dr, mask, mp, _, ok := ttf.f.Glyph(dot, r); ok {
 			draw.DrawMask(dst, dr, src, image.Point{}, mask, mp, draw.Over)
 		}
 
-		a, _ := t.f.GlyphAdvance(r)
+		a, _ := ttf.f.GlyphAdvance(r)
 		x += a.Round()
 	}
 

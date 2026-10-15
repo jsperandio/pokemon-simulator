@@ -76,8 +76,8 @@ type helpWindow struct {
 }
 
 // arial returns the manual's Arial at an em height of px pixels.
-func (h *helpWindow) arial(px int, style fontStyle) face {
-	return h.a.res.arial(px, style)
+func (hw *helpWindow) arial(px int, style fontStyle) face {
+	return hw.a.res.arial(px, style)
 }
 
 func newHelpWindow(a *Application) *helpWindow {
@@ -153,32 +153,32 @@ func newHelpWindow(a *Application) *helpWindow {
 
 // jump shows a page, from its top; the page shown before goes in the
 // history.
-func (h *helpWindow) jump(page string) {
-	v := h.view
-	if h.w.visible && v.name != "" && v.name != page {
-		h.history = append(h.history, helpPlace{v.name, v.scroll.pos})
+func (hw *helpWindow) jump(page string) {
+	v := hw.view
+	if hw.w.visible && v.name != "" && v.name != page {
+		hw.history = append(hw.history, helpPlace{v.name, v.scroll.pos})
 	}
 
 	v.open(page, 0)
-	h.back.setEnabled(len(h.history) > 0)
+	hw.back.setEnabled(len(hw.history) > 0)
 }
 
 // goBack is the Back button: the page shown before, where it was.
-func (h *helpWindow) goBack() {
-	n := len(h.history)
+func (hw *helpWindow) goBack() {
+	n := len(hw.history)
 	if n == 0 {
 		return
 	}
 
-	p := h.history[n-1]
-	h.history = h.history[:n-1]
-	h.view.open(p.page, p.pos)
-	h.back.setEnabled(n > 1)
+	p := hw.history[n-1]
+	hw.history = hw.history[:n-1]
+	hw.view.open(p.page, p.pos)
+	hw.back.setEnabled(n > 1)
 }
 
 // page returns a page of the manual, read once.
-func (h *helpWindow) page(name string) *help.Page {
-	if p, ok := h.pages[name]; ok {
+func (hw *helpWindow) page(name string) *help.Page {
+	if p, ok := hw.pages[name]; ok {
 		return p
 	}
 
@@ -187,14 +187,14 @@ func (h *helpWindow) page(name string) *help.Page {
 		p = help.Parse(b)
 	}
 
-	h.pages[name] = p
+	hw.pages[name] = p
 
 	return p
 }
 
 // picture returns a picture of the manual, decoded once.
-func (h *helpWindow) picture(name string) *image.RGBA {
-	if img, ok := h.pictures[name]; ok {
+func (hw *helpWindow) picture(name string) *image.RGBA {
+	if img, ok := hw.pictures[name]; ok {
 		return img
 	}
 
@@ -208,22 +208,22 @@ func (h *helpWindow) picture(name string) *image.RGBA {
 		}
 	}
 
-	h.pictures[name] = img
+	hw.pictures[name] = img
 
 	return img
 }
 
 // layoutHead draws a page's non-scrolling region: the banner, then the
 // page's title, centred, and the line under them.
-func (h *helpWindow) layoutHead(p *help.Page, width int) *image.RGBA {
+func (hw *helpWindow) layoutHead(p *help.Page, width int) *image.RGBA {
 	type line struct {
 		f    face
 		text string
 	}
-	lines := []line{{h.arial(helpBannerPx, boldStyle), helpBannerText}}
+	lines := []line{{hw.arial(helpBannerPx, boldStyle), helpBannerText}}
 
 	if p.Title != "" && p.Title != helpBannerText {
-		lines = append(lines, line{h.arial(helpTitlePx, boldStyle), p.Title})
+		lines = append(lines, line{hw.arial(helpTitlePx, boldStyle), p.Title})
 	}
 
 	height := 2 + 4 + 1
@@ -248,8 +248,8 @@ func (h *helpWindow) layoutHead(p *help.Page, width int) *image.RGBA {
 }
 
 // layoutTopic lays a page's topic out at a width and draws it.
-func (h *helpWindow) layoutTopic(p *help.Page, width int) (*image.RGBA, []helpSpot) {
-	l := &helpFlow{h: h}
+func (hw *helpWindow) layoutTopic(p *help.Page, width int) (*image.RGBA, []helpSpot) {
+	l := &helpFlow{h: hw}
 	gap := l.face(false, false).height() // a blank line
 	y := l.blocks(p.Blocks, helpMargin, width-helpMargin, gap) + gap
 	img := image.NewRGBA(image.Rect(0, 0, width, y))
@@ -296,67 +296,67 @@ type helpView struct {
 }
 
 // open shows a page, scrolled down to pos.
-func (v *helpView) open(name string, pos int) {
-	p := v.h.page(name)
+func (hv *helpView) open(name string, pos int) {
+	p := hv.h.page(name)
 	if p == nil {
 		return
 	}
 
-	v.name, v.page = name, p
-	v.sel, v.press = -1, -1
-	v.layout()
+	hv.name, hv.page = name, p
+	hv.sel, hv.press = -1, -1
+	hv.layout()
 
-	v.scroll.pos = 0
-	v.scroll.set(pos)
-	v.invalidate()
+	hv.scroll.pos = 0
+	hv.scroll.set(pos)
+	hv.invalidate()
 }
 
 // layout lays the page out for the view's size: across the whole width if
 // the topic fits, beside a scroll bar if not.
-func (v *helpView) layout() {
-	r := v.local()
-	v.laid = r.Size()
+func (hv *helpView) layout() {
+	r := hv.local()
+	hv.laid = r.Size()
 
-	if v.page == nil {
+	if hv.page == nil {
 		return
 	}
 
-	v.head = v.h.layoutHead(v.page, r.Dx())
-	hh := v.head.Rect.Dy()
-	v.doc, v.spots = v.h.layoutTopic(v.page, r.Dx())
+	hv.head = hv.h.layoutHead(hv.page, r.Dx())
+	hh := hv.head.Rect.Dy()
+	hv.doc, hv.spots = hv.h.layoutTopic(hv.page, r.Dx())
 
-	if v.doc.Rect.Dy() > r.Dy()-hh {
-		v.doc, v.spots = v.h.layoutTopic(v.page, r.Dx()-scrollSize)
+	if hv.doc.Rect.Dy() > r.Dy()-hh {
+		hv.doc, hv.spots = hv.h.layoutTopic(hv.page, r.Dx()-scrollSize)
 	}
 
-	s := &v.scroll
+	s := &hv.scroll
 	s.rect = image.Rect(r.Max.X-scrollSize, hh, r.Max.X, r.Max.Y)
-	s.min, s.max = 0, v.doc.Rect.Dy()-1
+	s.min, s.max = 0, hv.doc.Rect.Dy()-1
 	s.page = max(r.Dy()-hh, 1)
 	s.set(s.pos)
 }
 
-func (v *helpView) paint(cv canvas) {
-	r := v.local()
-	if v.laid != r.Size() {
-		v.layout()
+func (hv *helpView) paint(cv canvas) {
+	r := hv.local()
+	if hv.laid != r.Size() {
+		hv.layout()
 	}
 
-	if v.head == nil {
+	if hv.head == nil {
 		cv.fill(r, colWindow)
 
 		return
 	}
 
-	hh := v.head.Rect.Dy()
-	cv.copy(0, 0, v.head, v.head.Rect)
+	hh := hv.head.Rect.Dy()
+	cv.copy(0, 0, hv.head, hv.head.Rect)
 	cv.fill(image.Rect(0, hh, r.Dx(), r.Dy()), colWindow)
-	cv.copy(0, hh, v.doc, image.Rect(0, v.scroll.pos, v.doc.Rect.Dx(), v.scroll.pos+r.Dy()-hh))
+	cv.copy(0, hh, hv.doc, image.Rect(0, hv.scroll.pos, hv.doc.Rect.Dx(), hv.scroll.pos+r.Dy()-hh))
 
-	if v.sel >= 0 {
-		in := cv.sub(image.Rect(0, hh, v.doc.Rect.Dx(), r.Dy()))
-		for _, b := range v.spots[v.sel].boxes {
-			b = b.Sub(image.Pt(0, v.scroll.pos))
+	if hv.sel >= 0 {
+		in := cv.sub(image.Rect(0, hh, hv.doc.Rect.Dx(), r.Dy()))
+		for _, b := range hv.spots[hv.sel].boxes {
+			b = b.Sub(image.Pt(0, hv.scroll.pos))
 			for y := b.Min.Y; y < b.Max.Y; y++ {
 				for x := b.Min.X; x < b.Max.X; x++ {
 					in.invert(x, y)
@@ -365,23 +365,23 @@ func (v *helpView) paint(cv canvas) {
 		}
 	}
 
-	if v.scroll.enabled() {
-		v.scroll.paint(cv)
+	if hv.scroll.enabled() {
+		hv.scroll.paint(cv)
 	}
 }
 
-func (v *helpView) focusable() bool {
+func (hv *helpView) focusable() bool {
 	return true
 }
 
 // spotAt returns the hotspot at p, in the view's coordinates, or -1.
-func (v *helpView) spotAt(p image.Point) int {
-	if v.head == nil || p.Y < v.head.Rect.Dy() || p.X >= v.doc.Rect.Dx() {
+func (hv *helpView) spotAt(p image.Point) int {
+	if hv.head == nil || p.Y < hv.head.Rect.Dy() || p.X >= hv.doc.Rect.Dx() {
 		return -1
 	}
 
-	d := p.Add(image.Pt(0, v.scroll.pos-v.head.Rect.Dy()))
-	for i, s := range v.spots {
+	d := p.Add(image.Pt(0, hv.scroll.pos-hv.head.Rect.Dy()))
+	for i, s := range hv.spots {
 		if slices.ContainsFunc(s.boxes, d.In) {
 			return i
 		}
@@ -390,60 +390,60 @@ func (v *helpView) spotAt(p image.Point) int {
 	return -1
 }
 
-func (v *helpView) mouseDown(p image.Point, _ bool) {
-	if v.scroll.enabled() && v.scroll.press(p) {
-		v.invalidate()
+func (hv *helpView) mouseDown(p image.Point, _ bool) {
+	if hv.scroll.enabled() && hv.scroll.press(p) {
+		hv.invalidate()
 
 		return
 	}
 
-	v.press = v.spotAt(p)
+	hv.press = hv.spotAt(p)
 }
 
-func (v *helpView) mouseDrag(p image.Point) {
-	if v.scroll.pressed != partNone {
-		v.scroll.drag(p)
-		v.invalidate()
+func (hv *helpView) mouseDrag(p image.Point) {
+	if hv.scroll.pressed != partNone {
+		hv.scroll.drag(p)
+		hv.invalidate()
 	}
 }
 
-func (v *helpView) mouseUp(p image.Point) {
-	if v.scroll.pressed != partNone {
-		v.scroll.release()
-		v.invalidate()
+func (hv *helpView) mouseUp(p image.Point) {
+	if hv.scroll.pressed != partNone {
+		hv.scroll.release()
+		hv.invalidate()
 
 		return
 	}
 
-	k := v.press
-	v.press = -1
+	k := hv.press
+	hv.press = -1
 
-	if k >= 0 && v.spotAt(p) == k {
-		v.follow(k)
+	if k >= 0 && hv.spotAt(p) == k {
+		hv.follow(k)
 	}
 }
 
-func (v *helpView) tick(now time.Time) {
-	if v.scroll.tick(now) {
-		v.invalidate()
+func (hv *helpView) tick(now time.Time) {
+	if hv.scroll.tick(now) {
+		hv.invalidate()
 	}
 }
 
-func (v *helpView) cursor(p image.Point) ebiten.CursorShapeType {
-	if v.spotAt(p) >= 0 {
+func (hv *helpView) cursor(p image.Point) ebiten.CursorShapeType {
+	if hv.spotAt(p) >= 0 {
 		return ebiten.CursorShapePointer
 	}
 
 	return ebiten.CursorShapeDefault
 }
 
-func (v *helpView) wheel(dy int) {
-	v.scroll.set(v.scroll.pos - 3*dy*v.scroll.line)
-	v.invalidate()
+func (hv *helpView) wheel(dy int) {
+	hv.scroll.set(hv.scroll.pos - 3*dy*hv.scroll.line)
+	hv.invalidate()
 }
 
-func (v *helpView) key(k ebiten.Key, m mods) bool {
-	s := &v.scroll
+func (hv *helpView) key(k ebiten.Key, m mods) bool {
+	s := &hv.scroll
 
 	switch k {
 	case ebiten.KeyUp:
@@ -459,47 +459,47 @@ func (v *helpView) key(k ebiten.Key, m mods) bool {
 	case ebiten.KeyEnd:
 		s.set(s.limit())
 	case ebiten.KeyTab:
-		v.choose(m.shift)
+		hv.choose(m.shift)
 	case ebiten.KeyEnter, ebiten.KeyNumpadEnter:
-		if v.sel < 0 {
+		if hv.sel < 0 {
 			return false
 		}
 
-		v.follow(v.sel)
+		hv.follow(hv.sel)
 	case ebiten.KeyBackspace:
-		v.h.goBack()
+		hv.h.goBack()
 	default:
 		return false
 	}
 
-	v.invalidate()
+	hv.invalidate()
 
 	return true
 }
 
-func (v *helpView) char(rune) {}
+func (hv *helpView) char(rune) {}
 
 // choose selects the next hotspot, or the one before, and scrolls it into
 // view, as Tab does in WinHelp.
-func (v *helpView) choose(back bool) {
-	n := len(v.spots)
+func (hv *helpView) choose(back bool) {
+	n := len(hv.spots)
 	if n == 0 {
 		return
 	}
 
 	switch {
-	case v.sel < 0 && back:
-		v.sel = n - 1
-	case v.sel < 0:
-		v.sel = 0
+	case hv.sel < 0 && back:
+		hv.sel = n - 1
+	case hv.sel < 0:
+		hv.sel = 0
 	case back:
-		v.sel = (v.sel + n - 1) % n
+		hv.sel = (hv.sel + n - 1) % n
 	default:
-		v.sel = (v.sel + 1) % n
+		hv.sel = (hv.sel + 1) % n
 	}
 
-	if boxes := v.spots[v.sel].boxes; len(boxes) > 0 {
-		b, s := boxes[0], &v.scroll
+	if boxes := hv.spots[hv.sel].boxes; len(boxes) > 0 {
+		b, s := boxes[0], &hv.scroll
 		switch {
 		case b.Min.Y < s.pos:
 			s.set(b.Min.Y)
@@ -511,12 +511,12 @@ func (v *helpView) choose(back bool) {
 
 // follow follows a hotspot: to another page, or out to the browser or the
 // e-mail program.
-func (v *helpView) follow(k int) {
-	t := v.spots[k].target
+func (hv *helpView) follow(k int) {
+	t := hv.spots[k].target
 	for _, scheme := range []string{"http:", "https:", "mailto:"} {
 		if strings.HasPrefix(t, scheme) {
-			if err := v.h.openURL(t); err != nil {
-				a := v.h.a
+			if err := hv.h.openURL(t); err != nil {
+				a := hv.h.a
 				a.call(func() {
 					a.Message(game.Error, false, err.Error())
 				})
@@ -526,7 +526,7 @@ func (v *helpView) follow(k int) {
 		}
 	}
 
-	v.h.jump(t)
+	hv.h.jump(t)
 }
 
 // helpOp is something to draw: text, a picture, or a box, filled or
@@ -567,7 +567,7 @@ type helpFlow struct {
 }
 
 // face returns the text's font in a style; the manual has no bold italics.
-func (l *helpFlow) face(bold, italic bool) face {
+func (hf *helpFlow) face(bold, italic bool) face {
 	st := plainStyle
 
 	switch {
@@ -577,13 +577,13 @@ func (l *helpFlow) face(bold, italic bool) face {
 		st = italicStyle
 	}
 
-	return l.h.arial(helpTextPx, st)
+	return hf.h.arial(helpTextPx, st)
 }
 
 // blocks lays blocks out between x0 and x1 from y, a blank line apart, and
 // returns the y under them.
-func (l *helpFlow) blocks(bs []help.Block, x0, x1, y int) int {
-	text := l.face(false, false)
+func (hf *helpFlow) blocks(bs []help.Block, x0, x1, y int) int {
+	text := hf.face(false, false)
 
 	for i, b := range bs {
 		if i > 0 {
@@ -592,26 +592,26 @@ func (l *helpFlow) blocks(bs []help.Block, x0, x1, y int) int {
 
 		switch b.Kind {
 		case help.Paragraph, help.Heading:
-			y, _ = l.flow(b.Spans, x0, x1, y, b.Kind == help.Heading)
+			y, _ = hf.flow(b.Spans, x0, x1, y, b.Kind == help.Heading)
 		case help.Quote:
 			// A port note, in a box of the tooltips' colours.
-			box := len(l.ops)
-			l.ops = append(l.ops, helpOp{c: colInfo}, helpOp{c: colText, frame: true})
-			bottom := l.blocks(b.Blocks, x0+1+helpPad, x1-1-helpPad, y+1+helpPad) + helpPad + 1
-			l.ops[box].r = image.Rect(x0, y, x1, bottom)
-			l.ops[box+1].r = l.ops[box].r
+			box := len(hf.ops)
+			hf.ops = append(hf.ops, helpOp{c: colInfo}, helpOp{c: colText, frame: true})
+			bottom := hf.blocks(b.Blocks, x0+1+helpPad, x1-1-helpPad, y+1+helpPad) + helpPad + 1
+			hf.ops[box].r = image.Rect(x0, y, x1, bottom)
+			hf.ops[box+1].r = hf.ops[box].r
 			y = bottom
 		case help.List:
 			for _, it := range b.Items {
 				var base int
-				y, base = l.flow(it.Spans, x0+helpIndent, x1, y, false)
+				y, base = hf.flow(it.Spans, x0+helpIndent, x1, y, false)
 				marker, x := "•", x0+4
 
 				if it.Marker != "" {
 					marker, x = it.Marker, x0
 				}
 
-				l.ops = append(l.ops, helpOp{
+				hf.ops = append(hf.ops, helpOp{
 					r:    image.Rect(x, base-text.ascent(), x, base),
 					text: marker,
 					f:    text,
@@ -619,7 +619,7 @@ func (l *helpFlow) blocks(bs []help.Block, x0, x1, y int) int {
 				})
 			}
 		case help.Table:
-			y = l.table(b.Rows, x0, y)
+			y = hf.table(b.Rows, x0, y)
 		}
 	}
 
@@ -628,7 +628,7 @@ func (l *helpFlow) blocks(bs []help.Block, x0, x1, y int) int {
 
 // table lays a table out from x0 at y, each cell's text on one line, the
 // header row's in bold, and returns the y under it.
-func (l *helpFlow) table(rows [][]help.Cell, x0, y int) int {
+func (hf *helpFlow) table(rows [][]help.Cell, x0, y int) int {
 	if len(rows) == 0 {
 		return y
 	}
@@ -636,25 +636,25 @@ func (l *helpFlow) table(rows [][]help.Cell, x0, y int) int {
 	widths := make([]int, len(rows[0]))
 	for r, row := range rows {
 		for c, cell := range row {
-			widths[c] = max(widths[c], l.measure(cell, r == 0))
+			widths[c] = max(widths[c], hf.measure(cell, r == 0))
 		}
 	}
 
-	rowH := l.face(false, false).height() + 4
+	rowH := hf.face(false, false).height() + 4
 
 	for r, row := range rows {
 		x := x0
 
 		for c, w := range widths {
 			cw := w + 2*helpPad
-			l.ops = append(l.ops, helpOp{
+			hf.ops = append(hf.ops, helpOp{
 				r:     image.Rect(x, y, x+cw+1, y+rowH+1),
 				c:     colShadow,
 				frame: true,
 			})
 
 			if c < len(row) {
-				l.flow(row[c], x+1+helpPad, x+1+helpPad+w, y+3, r == 0)
+				hf.flow(row[c], x+1+helpPad, x+1+helpPad+w, y+3, r == 0)
 			}
 
 			x += cw
@@ -667,19 +667,19 @@ func (l *helpFlow) table(rows [][]help.Cell, x0, y int) int {
 }
 
 // measure returns the width of text on one line.
-func (l *helpFlow) measure(spans []help.Span, bold bool) int {
+func (hf *helpFlow) measure(spans []help.Span, bold bool) int {
 	w := 0
 
 	for _, s := range spans {
 		if s.Image != "" {
-			if img := l.h.picture(s.Image); img != nil {
+			if img := hf.h.picture(s.Image); img != nil {
 				w += img.Rect.Dx()
 			}
 
 			continue
 		}
 
-		w += l.face(bold || s.Bold, s.Italic).width(s.Text)
+		w += hf.face(bold || s.Bold, s.Italic).width(s.Text)
 	}
 
 	return w
@@ -688,15 +688,15 @@ func (l *helpFlow) measure(spans []help.Span, bold bool) int {
 // flow lays spans out from y in lines between x0 and x1, breaking them at
 // spaces, and returns the y under them and the first line's baseline.
 // Bold sets all of them in bold.
-func (l *helpFlow) flow(spans []help.Span, x0, x1, y int, bold bool) (bottom, baseline int) {
-	words := l.words(spans, bold)
+func (hf *helpFlow) flow(spans []help.Span, x0, x1, y int, bold bool) (bottom, baseline int) {
+	words := hf.words(spans, bold)
 	first := -1
 	line := make([]helpWord, 0, len(words))
 	w := 0
 
 	for _, wd := range words {
 		if n := len(line); n > 0 && w+line[n-1].space.w+wd.w > x1-x0 {
-			y = l.place(line, x0, y, &first)
+			y = hf.place(line, x0, y, &first)
 			line, w = nil, 0
 		}
 
@@ -708,20 +708,20 @@ func (l *helpFlow) flow(spans []help.Span, x0, x1, y int, bold bool) (bottom, ba
 		w += wd.w
 
 		if wd.brk {
-			y = l.place(line, x0, y, &first)
+			y = hf.place(line, x0, y, &first)
 			line, w = nil, 0
 		}
 	}
 
 	if len(line) > 0 || first < 0 {
-		y = l.place(line, x0, y, &first)
+		y = hf.place(line, x0, y, &first)
 	}
 
 	return y, first
 }
 
 // words splits spans into words, and gives each link a hotspot.
-func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
+func (hf *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 	var b wordBuilder
 
 	link, spot := "", -1
@@ -730,8 +730,8 @@ func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 		if s.Link != link {
 			link, spot = s.Link, -1
 			if link != "" {
-				l.spots = append(l.spots, helpSpot{target: link})
-				spot = len(l.spots) - 1
+				hf.spots = append(hf.spots, helpSpot{target: link})
+				spot = len(hf.spots) - 1
 			}
 		}
 
@@ -739,11 +739,11 @@ func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 		case s.Break:
 			b.end(helpPiece{}, true)
 		case s.Image != "":
-			if img := l.h.picture(s.Image); img != nil {
+			if img := hf.h.picture(s.Image); img != nil {
 				b.add(helpPiece{img: img, spot: spot, w: img.Rect.Dx()})
 			}
 		default:
-			f := l.face(bold || s.Bold, s.Italic)
+			f := hf.face(bold || s.Bold, s.Italic)
 			c := colText
 
 			if s.Link != "" {
@@ -780,7 +780,7 @@ func (l *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 
 // place puts a line's words on it from x0, the line's top at y, each piece
 // on the baseline, and returns the y under the line.
-func (l *helpFlow) place(line []helpWord, x0, y int, first *int) int {
+func (hf *helpFlow) place(line []helpWord, x0, y int, first *int) int {
 	asc, desc := 0, 0
 
 	for _, wd := range line {
@@ -796,7 +796,7 @@ func (l *helpFlow) place(line []helpWord, x0, y int, first *int) int {
 	}
 
 	if asc == 0 {
-		text := l.face(false, false)
+		text := hf.face(false, false)
 		asc, desc = text.ascent(), text.height()-text.ascent()
 	}
 
@@ -811,13 +811,13 @@ func (l *helpFlow) place(line []helpWord, x0, y int, first *int) int {
 
 	for i, wd := range line {
 		for _, p := range wd.pieces {
-			l.put(p, x, y, base, bottom)
+			hf.put(p, x, y, base, bottom)
 
 			x += p.w
 		}
 
 		if i < len(line)-1 {
-			l.put(wd.space, x, y, base, bottom)
+			hf.put(wd.space, x, y, base, bottom)
 
 			x += wd.space.w
 		}
@@ -828,15 +828,15 @@ func (l *helpFlow) place(line []helpWord, x0, y int, first *int) int {
 
 // put places a piece at x on a line from top to bottom: text and pictures
 // on the baseline, and for a link, its underline and its hotspot's box.
-func (l *helpFlow) put(p helpPiece, x, top, base, bottom int) {
+func (hf *helpFlow) put(p helpPiece, x, top, base, bottom int) {
 	switch {
 	case p.img != nil:
-		l.ops = append(l.ops, helpOp{
+		hf.ops = append(hf.ops, helpOp{
 			r:   image.Rect(x, base-p.img.Rect.Dy(), x+p.w, base),
 			img: p.img,
 		})
 	case p.text != "":
-		l.ops = append(l.ops, helpOp{
+		hf.ops = append(hf.ops, helpOp{
 			r:    image.Rect(x, base-p.f.ascent(), x+p.w, base),
 			text: p.text,
 			f:    p.f,
@@ -849,10 +849,10 @@ func (l *helpFlow) put(p helpPiece, x, top, base, bottom int) {
 	}
 
 	if p.img == nil {
-		l.ops = append(l.ops, helpOp{r: image.Rect(x, base+1, x+p.w, base+2), c: p.c})
+		hf.ops = append(hf.ops, helpOp{r: image.Rect(x, base+1, x+p.w, base+2), c: p.c})
 	}
 
-	s := &l.spots[p.spot]
+	s := &hf.spots[p.spot]
 	box := image.Rect(x, top, x+p.w, bottom)
 
 	if n := len(s.boxes); n > 0 && s.boxes[n-1].Max.X == x && s.boxes[n-1].Min.Y == top {
@@ -871,28 +871,28 @@ type wordBuilder struct {
 }
 
 // add adds a piece to the current word.
-func (b *wordBuilder) add(p helpPiece) {
-	b.cur.pieces = append(b.cur.pieces, p)
-	b.cur.w += p.w
+func (wb *wordBuilder) add(p helpPiece) {
+	wb.cur.pieces = append(wb.cur.pieces, p)
+	wb.cur.w += p.w
 }
 
 // end ends the current word with a space, or a line break after it.
-func (b *wordBuilder) end(space helpPiece, brk bool) {
-	if len(b.cur.pieces) == 0 {
+func (wb *wordBuilder) end(space helpPiece, brk bool) {
+	if len(wb.cur.pieces) == 0 {
 		// Spaces in a row count as one.
-		if n := len(b.words); n > 0 {
-			b.words[n-1].brk = b.words[n-1].brk || brk
-			if b.words[n-1].space.w == 0 {
-				b.words[n-1].space = space
+		if n := len(wb.words); n > 0 {
+			wb.words[n-1].brk = wb.words[n-1].brk || brk
+			if wb.words[n-1].space.w == 0 {
+				wb.words[n-1].space = space
 			}
 		}
 
 		return
 	}
 
-	b.cur.space, b.cur.brk = space, brk
-	b.words = append(b.words, b.cur)
-	b.cur = helpWord{}
+	wb.cur.space, wb.cur.brk = space, brk
+	wb.words = append(wb.words, wb.cur)
+	wb.cur = helpWord{}
 }
 
 // helpIcon is the help window's icon: a book with a question mark.

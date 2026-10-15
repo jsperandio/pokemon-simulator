@@ -137,31 +137,31 @@ func newMainForm(a *Application) *mainForm {
 }
 
 // starterClick is a click on the starter list (TForm4.ListView1Click).
-func (f *mainForm) starterClick() {
-	k := f.starters.selected
+func (mf *mainForm) starterClick() {
+	k := mf.starters.selected
 	if k < 0 {
 		return
 	}
 
-	a := f.a
+	a := mf.a
 	a.call(func() {
 		a.g.ChooseStarter(k)
 	})
 }
 
 // menuCommand runs a menu item: the user interface's own, or the game's.
-func (f *mainForm) menuCommand(e *menuEntry) {
-	a := f.a
+func (mf *mainForm) menuCommand(e *menuEntry) {
+	a := mf.a
 
 	switch e.name() {
 	case "ExportPOKMONinformation1":
-		a.call(f.export)
+		a.call(mf.export)
 	case "Quit1":
-		f.formClose()
+		mf.formClose()
 	case "Openfile1":
-		a.call(f.openMusic)
+		a.call(mf.openMusic)
 	case "StopMusic1":
-		f.stopMusic()
+		mf.stopMusic()
 	case "Contents1":
 		a.help()
 	case "About1":
@@ -175,8 +175,8 @@ func (f *mainForm) menuCommand(e *menuEntry) {
 
 // formClose is closing the game window (TForm4.FormClose): a tournament's
 // penalty, then the save, then the end of the program.
-func (f *mainForm) formClose() {
-	a := f.a
+func (mf *mainForm) formClose() {
+	a := mf.a
 	a.call(func() {
 		if b := a.g.Close(); b != nil {
 			if err := a.files.WriteFile(a.g.SaveFile, b); err != nil {
@@ -190,8 +190,8 @@ func (f *mainForm) formClose() {
 
 // export is File → Export POKéMON information...: the page, written where
 // the player chooses, then shown if wanted.
-func (f *mainForm) export() {
-	a := f.a
+func (mf *mainForm) export() {
+	a := mf.a
 	file, ok := a.openFile(fileOptions{
 		save:       true,
 		filter:     "HTML Files (*.htm)|*.htm",
@@ -224,8 +224,8 @@ const musicFilter string = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.og
 
 // openMusic is Music → Open file... (TForm4.Openfile1Click): the music
 // chosen plays at once.
-func (f *mainForm) openMusic() {
-	a := f.a
+func (mf *mainForm) openMusic() {
+	a := mf.a
 	file, ok := a.openFile(fileOptions{filter: musicFilter, mustExist: true})
 
 	if !ok {
@@ -247,8 +247,8 @@ func (f *mainForm) openMusic() {
 
 // stopMusic is Music → Stop Music (TForm4.StopMusic1Click), which with no
 // music open raised the media player's error.
-func (f *mainForm) stopMusic() {
-	a := f.a
+func (mf *mainForm) stopMusic() {
+	a := mf.a
 	if err := a.music.Stop(); err != nil {
 		msg := err.Error()
 		if errors.Is(err, audio.ErrNotOpen) {
@@ -276,85 +276,85 @@ func setRadioItems(g *radioGroup, items []string) {
 }
 
 // sync shows the game window's state.
-func (f *mainForm) sync() {
-	a, g := f.a, f.a.g
+func (mf *mainForm) sync() {
+	a, g := mf.a, mf.a.g
 	m := &g.Main
 
-	if f.w.caption != m.Caption {
-		f.w.caption = m.Caption
+	if mf.w.caption != m.Caption {
+		mf.w.caption = m.Caption
 		a.desk.dirty = true
 	}
 
-	f.starterLabel.setVisible(m.Starters)
-	f.starters.setVisible(m.Starters)
+	mf.starterLabel.setVisible(m.Starters)
+	mf.starters.setVisible(m.Starters)
 
 	evolving := len(m.Choices) > 0
-	f.evolveChoice.setVisible(evolving)
-	f.evolveButton.setVisible(evolving)
+	mf.evolveChoice.setVisible(evolving)
+	mf.evolveButton.setVisible(evolving)
 
 	if evolving {
-		setRadioItems(f.evolveChoice, m.Choices)
-		f.evolveChoice.setIndex(m.Choice)
+		setRadioItems(mf.evolveChoice, m.Choices)
+		mf.evolveChoice.setIndex(m.Choice)
 	}
 
-	for _, k := range f.picker {
+	for _, k := range mf.picker {
 		k.base().setVisible(m.Picker)
 	}
 
-	if m.Picker && !f.pickerShown {
-		f.pickLevel.tb.set(itoa(m.PickLevel))
+	if m.Picker && !mf.pickerShown {
+		mf.pickLevel.tb.set(itoa(m.PickLevel))
 	}
 
-	f.pickerShown = m.Picker
-	f.pickCombo.setIndex(m.PickSpecies)
+	mf.pickerShown = m.Picker
+	mf.pickCombo.setIndex(m.PickSpecies)
 
-	f.arena.setVisible(m.Battle)
-	f.goButton.setVisible(m.Go)
-	f.endButton.setVisible(m.EndFight)
-	f.attacks.setVisible(m.Attacks)
-	f.attacks.setIndex(m.AttackIndex)
-	f.pokeball.setVisible(m.Pokeball)
-	f.enemyImage.setItems([]listItem{{"", m.EnemyImage}})
+	mf.arena.setVisible(m.Battle)
+	mf.goButton.setVisible(m.Go)
+	mf.endButton.setVisible(m.EndFight)
+	mf.attacks.setVisible(m.Attacks)
+	mf.attacks.setIndex(m.AttackIndex)
+	mf.pokeball.setVisible(m.Pokeball)
+	mf.enemyImage.setItems([]listItem{{"", m.EnemyImage}})
 
 	if e := m.Enemy; e.Species != 0 {
 		name := a.speciesName(e.Species)
-		f.enemyLabel.setCaption("Enemy " + name + " L." + itoa(e.Level))
-		f.enemyHP.setCaption(itoa(e.HP) + "/" + itoa(e.Level) + "0")
-		f.enemyAttacks.setCaption("Enemy " + name + "'s Attacks:")
-		f.enemyGauge.set(e.Level*10, e.HP, gaugeColors[m.EnemyColor])
+		mf.enemyLabel.setCaption("Enemy " + name + " L." + itoa(e.Level))
+		mf.enemyHP.setCaption(itoa(e.HP) + "/" + itoa(e.Level) + "0")
+		mf.enemyAttacks.setCaption("Enemy " + name + "'s Attacks:")
+		mf.enemyGauge.set(e.Level*10, e.HP, gaugeColors[m.EnemyColor])
 	}
 
 	if e := m.EnemyMoves; e.Species != 0 {
 		sp := g.Data.SpeciesByID(e.Species)
-		for i, l := range f.enemyMoves {
+		for i, l := range mf.enemyMoves {
 			if mv := g.Data.MoveByID(sp.Moves[i]); mv != nil {
 				l.setCaption(mv.Name)
 			}
 		}
 
 		// Gauge2 sits after Label3, as that fighter's caption sized it.
-		f.placeGauge(f.enemyGauge, "Enemy "+sp.Name+" L."+itoa(e.Level))
+		mf.placeGauge(mf.enemyGauge, "Enemy "+sp.Name+" L."+itoa(e.Level))
 	}
 
 	o := m.Own
 	shown := o.Species != 0
-	f.ownLabel.setVisible(shown)
-	f.ownHP.setVisible(shown)
-	f.ownGauge.setVisible(shown)
+	mf.ownLabel.setVisible(shown)
+	mf.ownHP.setVisible(shown)
+	mf.ownGauge.setVisible(shown)
 
 	if !shown {
-		f.ownImage.setItems([]listItem{{"", -1}})
+		mf.ownImage.setItems([]listItem{{"", -1}})
 
 		return
 	}
 
 	sp := g.Data.SpeciesByID(o.Species)
-	f.ownImage.setItems([]listItem{{"", o.Species - 1}})
-	f.ownLabel.setCaption(sp.Name + " L." + itoa(o.Level))
-	f.ownHP.setCaption(itoa(o.HP) + "/" + itoa(o.Level) + "0")
-	f.ownGauge.set(o.Level*10, o.HP, gaugeColors[m.OwnColor])
-	f.placeGauge(f.ownGauge, sp.Name+" L."+itoa(o.Level))
-	f.attacks.setCaption(sp.Name + "'s attacks:")
+	mf.ownImage.setItems([]listItem{{"", o.Species - 1}})
+	mf.ownLabel.setCaption(sp.Name + " L." + itoa(o.Level))
+	mf.ownHP.setCaption(itoa(o.HP) + "/" + itoa(o.Level) + "0")
+	mf.ownGauge.set(o.Level*10, o.HP, gaugeColors[m.OwnColor])
+	mf.placeGauge(mf.ownGauge, sp.Name+" L."+itoa(o.Level))
+	mf.attacks.setCaption(sp.Name + "'s attacks:")
 
 	items := make([]string, 0, 5)
 
@@ -364,13 +364,13 @@ func (f *mainForm) sync() {
 		}
 	}
 
-	setRadioItems(f.attacks, append(items, "Run!"))
+	setRadioItems(mf.attacks, append(items, "Run!"))
 }
 
 // placeGauge puts a gauge after its label's caption: Left = the label's
 // width + 80, and Width = 289 − Left.
-func (f *mainForm) placeGauge(g *gauge, caption string) {
-	left := f.enemyLabel.font.width(caption) + 80
+func (mf *mainForm) placeGauge(g *gauge, caption string) {
+	left := mf.enemyLabel.font.width(caption) + 80
 	r := g.rect
 	g.setBounds(image.Rect(left, r.Min.Y, 289, r.Max.Y))
 }

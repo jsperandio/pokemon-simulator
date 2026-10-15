@@ -469,23 +469,23 @@ type fakeMusic struct {
 	stopErr error
 }
 
-func (m *fakeMusic) Open(name string, data []byte) error {
-	m.opened = append(m.opened, name+":"+string(data))
+func (fm *fakeMusic) Open(name string, data []byte) error {
+	fm.opened = append(fm.opened, name+":"+string(data))
 
-	return m.err
+	return fm.err
 }
 
-func (m *fakeMusic) Stop() error {
-	m.stopped++
+func (fm *fakeMusic) Stop() error {
+	fm.stopped++
 
-	return m.stopErr
+	return fm.stopErr
 }
 
-func (m *fakeMusic) Update(repeat bool) {
-	m.repeat = repeat
+func (fm *fakeMusic) Update(repeat bool) {
+	fm.repeat = repeat
 }
 
-func (m *fakeMusic) Playing() bool {
+func (fm *fakeMusic) Playing() bool {
 	return false
 }
 

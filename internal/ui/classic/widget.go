@@ -571,13 +571,13 @@ func (b *button) click() {
 // groupBox is a TGroupBox.
 type groupBox struct{ control }
 
-func (g *groupBox) setup(*layout.Component) {
-	g.windowed = true
+func (gb *groupBox) setup(*layout.Component) {
+	gb.windowed = true
 }
 
-func (g *groupBox) paint(cv canvas) {
-	cv.fill(g.local(), g.color)
-	paintGroupFrame(cv, g.local(), g.font, g.caption, g.color, g.fontColor)
+func (gb *groupBox) paint(cv canvas) {
+	cv.fill(gb.local(), gb.color)
+	paintGroupFrame(cv, gb.local(), gb.font, gb.caption, gb.color, gb.fontColor)
 }
 
 // paintGroupFrame draws a group box's etched frame and its caption, as
@@ -605,39 +605,39 @@ type radioGroup struct {
 	inside   bool
 }
 
-func (g *radioGroup) setup(comp *layout.Component) {
-	g.windowed = true
-	g.tabStop = g.property("TabStop") == "True"
+func (rg *radioGroup) setup(comp *layout.Component) {
+	rg.windowed = true
+	rg.tabStop = rg.property("TabStop") == "True"
 
-	g.items = append([]string(nil), comp.Items...)
-	g.index = g.propertyInt("ItemIndex", -1)
-	g.columns = max(g.propertyInt("Columns", 1), 1)
-	g.pressing = -1
+	rg.items = append([]string(nil), comp.Items...)
+	rg.index = rg.propertyInt("ItemIndex", -1)
+	rg.columns = max(rg.propertyInt("Columns", 1), 1)
+	rg.pressing = -1
 }
 
-func (g *radioGroup) focusable() bool {
-	return len(g.items) > 0
+func (rg *radioGroup) focusable() bool {
+	return len(rg.items) > 0
 }
 
-func (g *radioGroup) setItems(items []string) {
-	g.items = items
-	g.invalidate()
+func (rg *radioGroup) setItems(items []string) {
+	rg.items = items
+	rg.invalidate()
 }
 
-func (g *radioGroup) setIndex(i int) {
-	if g.index != i {
-		g.index = i
-		g.invalidate()
+func (rg *radioGroup) setIndex(i int) {
+	if rg.index != i {
+		rg.index = i
+		rg.invalidate()
 	}
 }
 
 // buttonRect is radio button i's rectangle.
-func (g *radioGroup) buttonRect(i int) image.Rectangle {
-	n := len(g.items)
-	perCol := (n + g.columns - 1) / g.columns
-	w := (g.rect.Dx() - 10) / g.columns
-	th := g.font.height()
-	space := g.rect.Dy() - th - 5
+func (rg *radioGroup) buttonRect(i int) image.Rectangle {
+	n := len(rg.items)
+	perCol := (n + rg.columns - 1) / rg.columns
+	w := (rg.rect.Dx() - 10) / rg.columns
+	th := rg.font.height()
+	space := rg.rect.Dy() - th - 5
 	h := space / perCol
 	top := th + 1 + space%perCol/2
 	x := i/perCol*w + 8
@@ -646,17 +646,17 @@ func (g *radioGroup) buttonRect(i int) image.Rectangle {
 	return image.Rect(x, y, x+w, y+h)
 }
 
-func (g *radioGroup) paint(cv canvas) {
-	cv.fill(g.local(), g.color)
-	paintGroupFrame(cv, g.local(), g.font, g.caption, g.color, g.fontColor)
+func (rg *radioGroup) paint(cv canvas) {
+	cv.fill(rg.local(), rg.color)
+	paintGroupFrame(cv, rg.local(), rg.font, rg.caption, rg.color, rg.fontColor)
 
-	for i, item := range g.items {
-		r := g.buttonRect(i)
-		pushed := g.pressing == i && g.inside
+	for i, item := range rg.items {
+		r := rg.buttonRect(i)
+		pushed := rg.pressing == i && rg.inside
 		// The focus is on the checked item, or on the first when none is.
-		current := i == g.index || (g.index < 0 && i == 0)
-		focus := g.focused() && g.wdw.active && current
-		paintRadio(cv.sub(r), r.Size(), g.font, item, i == g.index, pushed, g.usable(), focus, g.fontColor)
+		current := i == rg.index || (rg.index < 0 && i == 0)
+		focus := rg.focused() && rg.wdw.active && current
+		paintRadio(cv.sub(r), r.Size(), rg.font, item, i == rg.index, pushed, rg.usable(), focus, rg.fontColor)
 	}
 }
 
@@ -723,9 +723,9 @@ func paintRadio(cv canvas, size image.Point, f face, caption string, checked, pu
 	}
 }
 
-func (g *radioGroup) at(p image.Point) int {
-	for i := range g.items {
-		if p.In(g.buttonRect(i)) {
+func (rg *radioGroup) at(p image.Point) int {
+	for i := range rg.items {
+		if p.In(rg.buttonRect(i)) {
 			return i
 		}
 	}
@@ -733,58 +733,58 @@ func (g *radioGroup) at(p image.Point) int {
 	return -1
 }
 
-func (g *radioGroup) mouseDown(p image.Point, _ bool) {
-	g.pressing = g.at(p)
-	g.inside = true
-	g.invalidate()
+func (rg *radioGroup) mouseDown(p image.Point, _ bool) {
+	rg.pressing = rg.at(p)
+	rg.inside = true
+	rg.invalidate()
 }
 
-func (g *radioGroup) mouseDrag(p image.Point) {
-	if g.pressing < 0 {
+func (rg *radioGroup) mouseDrag(p image.Point) {
+	if rg.pressing < 0 {
 		return
 	}
 
-	if in := p.In(g.buttonRect(g.pressing)); in != g.inside {
-		g.inside = in
-		g.invalidate()
+	if in := p.In(rg.buttonRect(rg.pressing)); in != rg.inside {
+		rg.inside = in
+		rg.invalidate()
 	}
 }
 
-func (g *radioGroup) mouseUp(p image.Point) {
-	k := g.pressing
-	g.pressing = -1
-	g.invalidate()
+func (rg *radioGroup) mouseUp(p image.Point) {
+	k := rg.pressing
+	rg.pressing = -1
+	rg.invalidate()
 
-	if k >= 0 && p.In(g.buttonRect(k)) {
-		g.choose(k)
+	if k >= 0 && p.In(rg.buttonRect(k)) {
+		rg.choose(k)
 	}
 }
 
 // choose checks item k; OnClick runs only when the item changes, as a
 // click on the checked button does nothing.
-func (g *radioGroup) choose(k int) {
-	if k == g.index || !g.usable() {
+func (rg *radioGroup) choose(k int) {
+	if k == rg.index || !rg.usable() {
 		return
 	}
 
-	g.setIndex(k)
+	rg.setIndex(k)
 
-	if g.onClick != nil {
-		g.onClick()
+	if rg.onClick != nil {
+		rg.onClick()
 	}
 }
 
-func (g *radioGroup) key(k ebiten.Key, _ mods) bool {
-	n := len(g.items)
+func (rg *radioGroup) key(k ebiten.Key, _ mods) bool {
+	n := len(rg.items)
 	if n == 0 {
 		return false
 	}
 
 	switch k {
 	case ebiten.KeyUp, ebiten.KeyLeft:
-		g.choose((max(g.index, 0) + n - 1) % n)
+		rg.choose((max(rg.index, 0) + n - 1) % n)
 	case ebiten.KeyDown, ebiten.KeyRight:
-		g.choose((g.index + 1) % n)
+		rg.choose((rg.index + 1) % n)
 	default:
 		return false
 	}
@@ -792,7 +792,7 @@ func (g *radioGroup) key(k ebiten.Key, _ mods) bool {
 	return true
 }
 
-func (g *radioGroup) char(rune) {}
+func (rg *radioGroup) char(rune) {}
 
 // panel is a TPanel.
 type panel struct{ control }

@@ -53,54 +53,54 @@ func newLoadForm(a *Application) *loadForm {
 }
 
 // begin shows the screen (Timer1 starts TimerEventLoad).
-func (f *loadForm) begin() {
-	f.running = true
-	f.startStep(0)
-	f.a.desk.show(f.w)
+func (lf *loadForm) begin() {
+	lf.running = true
+	lf.startStep(0)
+	lf.a.desk.show(lf.w)
 }
 
 // startStep is TForm3.R: a step's caption, and Gauge1 at 0 of its items.
-func (f *loadForm) startStep(i int) {
-	f.step, f.done = i, 0
-	get[*label](f.w, "Label2").setCaption(loadSteps[i].caption)
-	get[*gauge](f.w, "Gauge1").set(loadSteps[i].n, 0, colSelection)
+func (lf *loadForm) startStep(i int) {
+	lf.step, lf.done = i, 0
+	get[*label](lf.w, "Label2").setCaption(loadSteps[i].caption)
+	get[*gauge](lf.w, "Gauge1").set(loadSteps[i].n, 0, colSelection)
 }
 
 // tick reads the next items (TForm3.Incre for each).
-func (f *loadForm) tick() {
-	if !f.running {
+func (lf *loadForm) tick() {
+	if !lf.running {
 		return
 	}
 
 	for range loadPerTick {
-		f.done++
+		lf.done++
 
-		f.total++
+		lf.total++
 
-		if f.done == loadSteps[f.step].n {
-			if f.step+1 == len(loadSteps) {
-				f.finish()
+		if lf.done == loadSteps[lf.step].n {
+			if lf.step+1 == len(loadSteps) {
+				lf.finish()
 
 				return
 			}
 
-			f.startStep(f.step + 1)
+			lf.startStep(lf.step + 1)
 		}
 	}
 
-	g1 := get[*gauge](f.w, "Gauge1")
-	g1.set(g1.max, f.done, g1.fore)
+	g1 := get[*gauge](lf.w, "Gauge1")
+	g1.set(g1.max, lf.done, g1.fore)
 
-	g2 := get[*gauge](f.w, "Gauge2")
-	g2.set(g2.max, f.total, g2.fore)
+	g2 := get[*gauge](lf.w, "Gauge2")
+	g2.set(g2.max, lf.total, g2.fore)
 }
 
 // finish hides the screen (TForm3.FormHide): a save file on the command
 // line is loaded, or the start screen shows.
-func (f *loadForm) finish() {
-	f.running = false
-	a := f.a
-	a.desk.hide(f.w)
+func (lf *loadForm) finish() {
+	lf.running = false
+	a := lf.a
+	a.desk.hide(lf.w)
 
 	file := ""
 
@@ -153,8 +153,8 @@ const saveFilter string = "Saved Games (*.PGS)|*.pgs"
 
 // newButtonClick is "Start a new game!": the save file first, then the
 // name, then the starter.
-func (f *startForm) newButtonClick() {
-	a := f.a
+func (sf *startForm) newButtonClick() {
+	a := sf.a
 	a.call(func() {
 		file, ok := a.openFile(fileOptions{
 			save:       true,
@@ -166,7 +166,7 @@ func (f *startForm) newButtonClick() {
 			return
 		}
 
-		a.desk.hide(f.w)
+		a.desk.hide(sf.w)
 
 		name := a.name.ask()
 		a.g.NewGame(file, name)
@@ -176,8 +176,8 @@ func (f *startForm) newButtonClick() {
 }
 
 // loadButtonClick is "Load a saved game...".
-func (f *startForm) loadButtonClick() {
-	a := f.a
+func (sf *startForm) loadButtonClick() {
+	a := sf.a
 	a.call(func() {
 		file, ok := a.openFile(fileOptions{filter: saveFilter, defaultExt: "pgs", mustExist: true})
 		if ok {
@@ -203,8 +203,8 @@ func newNameDialog(a *Application) *nameDialog {
 
 // ask shows the dialog and returns the name typed (OKBtnClick); it runs on
 // the handler's goroutine.
-func (d *nameDialog) ask() string {
-	d.a.modal(d.w)
+func (nd *nameDialog) ask() string {
+	nd.a.modal(nd.w)
 
-	return d.edit.text()
+	return nd.edit.text()
 }

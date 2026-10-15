@@ -20,14 +20,14 @@ type fakeTransfers struct {
 	downloads  map[string]string
 }
 
-func (x *fakeTransfers) upload(dir string) <-chan []string {
-	x.uploadedTo = dir
+func (ft *fakeTransfers) upload(dir string) <-chan []string {
+	ft.uploadedTo = dir
 	out := make(chan []string, 1)
 
 	var names []string
 
-	for n, data := range x.pick {
-		if x.files.WriteFile(x.files.Join(dir, n), []byte(data)) == nil {
+	for n, data := range ft.pick {
+		if ft.files.WriteFile(ft.files.Join(dir, n), []byte(data)) == nil {
 			names = append(names, n)
 		}
 	}
@@ -37,8 +37,8 @@ func (x *fakeTransfers) upload(dir string) <-chan []string {
 	return out
 }
 
-func (x *fakeTransfers) download(name string, data []byte) error {
-	x.downloads[name] = string(data)
+func (ft *fakeTransfers) download(name string, data []byte) error {
+	ft.downloads[name] = string(data)
 
 	return nil
 }
