@@ -12,8 +12,15 @@ Each release has an archive per system on the repository's Releases page. Nothin
 
 - **Windows** (`windows-amd64.zip`): run `pokemon-simulator.exe`. If SmartScreen says it protected your PC, choose More info, then Run anyway.
 - **macOS** (`macos-arm64.zip` for Apple silicon, `macos-amd64.zip` for Intel): macOS won't open the program until you allow it. Either run `xattr -d com.apple.quarantine pokemon-simulator` in Terminal, in its folder, or try to open it once and then choose Open Anyway in System Settings → Privacy & Security. It runs in a Terminal window, beside the game's.
-- **Linux** (`linux-amd64.tar.gz` or `linux-arm64.tar.gz`): run `./pokemon-simulator`. It needs X11 or XWayland and OpenGL, as desktop distributions have. Run `./install-desktop.sh` once, in the same folder, to add the game to the menu and give its windows the game's icon in the taskbar. It installs only for your user, and points the menu entry at that folder, so run it again if you move the folder. To remove the entry, run `./uninstall-desktop.sh`; it leaves the folder alone, so delete that yourself to remove the game.
+- **Linux** (`linux-amd64.tar.gz` or `linux-arm64.tar.gz`): run `./pokemon-simulator`. It needs X11 or XWayland and OpenGL, as desktop distributions have. To add it to the menu, see [Linux menu entry](#linux-menu-entry).
 - **In the browser** (`web.zip`): put its files on a web server, or upload the archive to itch.io as an HTML game. Opening `index.html` from the disk doesn't work, as browsers don't load the game from there.
+
+### Linux menu entry
+
+The Linux archive has two optional scripts for the desktop's menu and taskbar, which you run in its folder:
+
+- `./install-desktop.sh` adds the game to the menu and gives its windows the game's icon in the taskbar. It installs only for your user and points the entry at that folder, so run it again if you move the folder.
+- `./uninstall-desktop.sh` removes the entry. It leaves the folder alone, so delete that yourself to remove the game.
 
 ## Playing
 
