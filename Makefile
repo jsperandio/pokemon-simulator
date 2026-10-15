@@ -23,6 +23,9 @@ LINT := golangci-lint run --config .golangci.yaml
 DOCS := README.md LICENSE assets/README.md assets/wine/LGPL-2.1.txt assets/wine/ms_sans_serif.sfd \
 	$(wildcard assets/wine/*.svg) assets/liberation/OFL-1.1.txt
 
+# LINUX_FILES go into the Linux archives: the desktop entry and the script that installs it.
+LINUX_FILES := packaging/linux/pokemon-simulator.desktop packaging/linux/install-desktop.sh
+
 goos    = $(word 1,$(subst /, ,$1))
 goarch  = $(word 2,$(subst /, ,$1))
 windows = $(filter windows,$(call goos,$1))
@@ -39,6 +42,7 @@ define package
 	mkdir -p $(DIST)/$(call pkg,$1)
 	cp $(call bin,$1) $(DIST)/$(call pkg,$1)/$(BINARY)$(call exe,$1)
 	tar -cf - $(DOCS) | tar -xf - -C $(DIST)/$(call pkg,$1)
+	$(if $(filter linux,$(call goos,$1)),cp $(LINUX_FILES) $(DIST)/$(call pkg,$1)/ && cp assets/sprites/icon.png $(DIST)/$(call pkg,$1)/pokemon-simulator.png)
 	cd $(DIST) && $(if $(filter linux,$(call goos,$1)),\
 		tar --owner=0 --group=0 --numeric-owner -czf $(call pkg,$1).tar.gz,\
 		zip -qrX $(call pkg,$1).zip) $(call pkg,$1)

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=POKéMON Simulator V4.5
+Comment=An unofficial port of POKéMON Simulator V4.5 by Michael Madsen (BirdieSoft)
+Exec=pokemon-simulator
+Icon=pokemon-simulator
+Terminal=false
+Categories=Game;
+# The game's windows report this name as the instance in WM_CLASS (Ebitengine's
+# default; the class is Ebitengine-Application), so the desktop ties them to this
+# entry and its icon.
+StartupWMClass=ebitengine-application
