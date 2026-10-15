@@ -58,9 +58,9 @@ type trueTypeFace struct {
 	asc, hgt int
 }
 
-// newTrueType returns a font at an em height of px pixels: a VCL font with
+// newTrueTypeFace returns a font at an em height of px pixels: a VCL font with
 // Height = -px.
-func newTrueType(f *opentype.Font, px int) (*trueTypeFace, error) {
+func newTrueTypeFace(f *opentype.Font, px int) (*trueTypeFace, error) {
 	ff, err := opentype.NewFace(f, &opentype.FaceOptions{
 		Size:    float64(px),
 		DPI:     72,

@@ -21,7 +21,7 @@ import (
 func (ta *testApp) spotPoint(target string) image.Point {
 	ta.t.Helper()
 
-	v := ta.helpWin.view
+	v := ta.helpWindow.view
 	for _, s := range v.spots {
 		if s.target != target || len(s.boxes) == 0 {
 			continue
@@ -48,7 +48,7 @@ func TestHelp(t *testing.T) {
 	ta.clickOn(ta.start.w, "HelpButton")
 	ta.wait(1)
 
-	h := ta.helpWin
+	h := ta.helpWindow
 	if h == nil || !h.w.visible || ta.desk.active != h.w {
 		t.Fatal("no help window")
 	}
@@ -106,7 +106,7 @@ func onCaptionButton(w *window, b int) image.Point {
 // followHelpLinks follows two links in the manual from its contents, one
 // after the wheel scrolled, then goes Back to the contents.
 func followHelpLinks(t *testing.T, ta *testApp) {
-	h := ta.helpWin
+	h := ta.helpWindow
 	v := h.view
 
 	ta.click(ta.spotPoint("playing.md"))
@@ -160,7 +160,7 @@ func TestHelpF1(t *testing.T) {
 	tb.key(ebiten.KeyF1)
 	tb.wait(1)
 
-	if tb.helpWin == nil || !tb.helpWin.w.visible || tb.helpWin.view.name != "index.md" {
+	if tb.helpWindow == nil || !tb.helpWindow.w.visible || tb.helpWindow.view.name != "index.md" {
 		t.Fatal("F1 shows no help")
 	}
 
@@ -175,7 +175,7 @@ func TestHelpPages(t *testing.T) {
 	ta.clickOn(ta.start.w, "HelpButton")
 	ta.wait(1)
 
-	v := ta.helpWin.view
+	v := ta.helpWindow.view
 
 	names, err := fs.Glob(assets.FS, "help/*.md")
 	if err != nil {

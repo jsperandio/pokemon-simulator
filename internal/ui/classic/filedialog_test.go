@@ -44,7 +44,7 @@ func TestLookIn(t *testing.T) {
 	ta.clickOn(ta.start.w, "LoadButton")
 	ta.wait(1)
 
-	f := ta.fileDlg
+	f := ta.fileDialog
 	if f == nil {
 		t.Fatal("no file dialog")
 	}
@@ -78,7 +78,7 @@ func TestLookIn(t *testing.T) {
 	ta.shot("52-look-in")
 
 	i := len(chain) - 2 // saves
-	ta.click(l.r.Min.Add(image.Pt(5, 1+(i-l.top)*c.itemHeight+c.itemHeight/2)))
+	ta.click(l.rect.Min.Add(image.Pt(5, 1+(i-l.top)*c.itemHeight+c.itemHeight/2)))
 
 	if want := filepath.Join(ta.dir, "saves"); f.dir != want {
 		t.Errorf("in %s, want %s", f.dir, want)

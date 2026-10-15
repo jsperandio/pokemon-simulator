@@ -212,7 +212,7 @@ func (r *resources) arial(px int, style fontStyle) face {
 		return f
 	}
 
-	f, err := newTrueType(r.ttf[style], px)
+	f, err := newTrueTypeFace(r.ttf[style], px)
 	if err != nil { // a size no font has
 		return r.sans
 	}

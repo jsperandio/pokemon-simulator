@@ -292,7 +292,7 @@ func shootWindow(t *testing.T, name string, w *window) {
 		m.paintPopups(cv)
 
 		for i, p := range m.open {
-			savePNG(t, name+"-"+string(rune('1'+i)), crop(img, p.r))
+			savePNG(t, name+"-"+string(rune('1'+i)), crop(img, p.rect))
 		}
 	}
 }

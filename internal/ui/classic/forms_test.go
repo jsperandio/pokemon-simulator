@@ -19,7 +19,7 @@ import (
 func (ta *testApp) hintShown() bool {
 	hint := ta.desk.hint
 
-	return !hint.r.Empty()
+	return !hint.rect.Empty()
 }
 
 // The party list's hint shows after half a second on it, under the
@@ -50,8 +50,8 @@ func TestStatsHint(t *testing.T) {
 	size := image.Pt(ta.res.sans.width(h.text)+6, ta.res.sans.height()+6)
 	o := image.Pt(screenWidth-size.X, ta.mouse.Y+hintCursorMargin)
 
-	if want := (image.Rectangle{Min: o, Max: o.Add(size)}); h.r != want {
-		t.Errorf("hint at %v, want %v", h.r, want)
+	if want := (image.Rectangle{Min: o, Max: o.Add(size)}); h.rect != want {
+		t.Errorf("hint at %v, want %v", h.rect, want)
 	}
 
 	ta.wait(140) // under three seconds on the list
@@ -108,7 +108,7 @@ func TestSpinIncrement(t *testing.T) {
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
 
-	s := get[*spinEdit](ta.corner.wdw, "SpinEdit1")
+	s := get[*spinEdit](ta.gameCorner.wdw, "SpinEdit1")
 	up, down := s.buttons()
 	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
 	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
@@ -158,7 +158,7 @@ func TestCornerDraws(t *testing.T) {
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
 
-	c := ta.corner
+	c := ta.gameCorner
 	radio := func(g *radioGroup, k int) {
 		r := g.buttonRect(k)
 		ta.click(widgetOrigin(g).Add(r.Min).Add(image.Pt(6, r.Dy()/2)))
@@ -257,7 +257,7 @@ func TestDexFits(t *testing.T) {
 	ta.menu("Action1", "ViewDEX1")
 	ta.wait(1)
 
-	dex := ta.dex
+	dex := ta.pokedex
 	if dex.wdw.client != image.Pt(241, 25) {
 		t.Errorf("client %v with no selection, want 241×25", dex.wdw.client)
 	}
@@ -266,7 +266,7 @@ func TestDexFits(t *testing.T) {
 	b := c.button()
 	ta.click(widgetOrigin(c).Add(b.Min).Add(b.Size().Div(2)))
 
-	drop := c.dropped.r
+	drop := c.dropped.rect
 	ta.click(drop.Min.Add(image.Pt(5, 1+3*c.itemHeight+c.itemHeight/2)))
 	ta.wait(1)
 

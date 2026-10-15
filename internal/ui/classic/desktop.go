@@ -973,7 +973,7 @@ type hint struct {
 	ctl   widget    // the control the mouse is on, if it has a hint
 	since time.Time // when the mouse came onto it
 	text  string
-	r     image.Rectangle // the window, while it shows
+	rect  image.Rectangle // the window, while it shows
 	done  bool            // it showed and hid: not again on this control
 }
 
@@ -982,8 +982,8 @@ func (d *desktop) updateHint(p image.Point, cancel bool) {
 	k := d.hintTarget(p)
 
 	if cancel || k != h.ctl {
-		if !h.r.Empty() {
-			h.r = image.Rectangle{}
+		if !h.rect.Empty() {
+			h.rect = image.Rectangle{}
 			d.dirty = true
 		}
 
@@ -1000,7 +1000,7 @@ func (d *desktop) updateHint(p image.Point, cancel bool) {
 	}
 
 	switch {
-	case h.r.Empty() && d.now.Sub(h.since) >= hintPause:
+	case h.rect.Empty() && d.now.Sub(h.since) >= hintPause:
 		// CalcHintRect adds 6 and 2 to the text's size, ActivateHint 4 more
 		// to the height, and keeps the window on the screen.
 		f := d.res.sans
@@ -1009,10 +1009,10 @@ func (d *desktop) updateHint(p image.Point, cancel bool) {
 		o := p.Add(image.Pt(0, hintCursorMargin))
 		o.X = max(min(o.X, screenWidth-size.X), 0)
 		o.Y = max(min(o.Y, screenHeight-size.Y), 0)
-		h.r = image.Rectangle{Min: o, Max: o.Add(size)}
+		h.rect = image.Rectangle{Min: o, Max: o.Add(size)}
 		d.dirty = true
-	case !h.r.Empty() && d.now.Sub(h.since) >= hintPause+hintHidePause:
-		h.r = image.Rectangle{}
+	case !h.rect.Empty() && d.now.Sub(h.since) >= hintPause+hintHidePause:
+		h.rect = image.Rectangle{}
 		h.done = true
 		d.dirty = true
 	}
@@ -1061,11 +1061,11 @@ func hintText(k widget) string {
 // paint draws the hint window: a black border, the tooltip colour, and the
 // text 2 pixels into the client area.
 func (h *hint) paint(cv canvas, f face) {
-	if h.r.Empty() {
+	if h.rect.Empty() {
 		return
 	}
 
-	cv.fill(h.r, colInfo)
-	cv.frame(h.r, colFrame)
-	f.draw(cv.sub(h.r), 3, 3, h.text, colText)
+	cv.fill(h.rect, colInfo)
+	cv.frame(h.rect, colFrame)
+	f.draw(cv.sub(h.rect), 3, 3, h.text, colText)
 }

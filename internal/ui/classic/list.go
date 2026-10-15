@@ -28,7 +28,7 @@ const (
 // scrollBar is a Windows 98 scroll bar, drawn and driven by its owner.
 type scrollBar struct {
 	vertical bool
-	r        image.Rectangle // in the owner's coordinates
+	rect     image.Rectangle // in the owner's coordinates
 	min, max int             // the range
 	page     int             // what one screenful shows
 	line     int             // what an arrow scrolls by: 1 if 0
@@ -64,10 +64,10 @@ func (s *scrollBar) set(pos int) {
 // length is the bar's length; arrow is an arrow button's.
 func (s *scrollBar) length() int {
 	if s.vertical {
-		return s.r.Dy()
+		return s.rect.Dy()
 	}
 
-	return s.r.Dx()
+	return s.rect.Dx()
 }
 
 func (s *scrollBar) arrow() int {
@@ -99,14 +99,14 @@ func (s *scrollBar) thumb() (start, length int) {
 // along returns p's coordinate along the bar.
 func (s *scrollBar) along(p image.Point) int {
 	if s.vertical {
-		return p.Y - s.r.Min.Y
+		return p.Y - s.rect.Min.Y
 	}
 
-	return p.X - s.r.Min.X
+	return p.X - s.rect.Min.X
 }
 
 func (s *scrollBar) partAt(p image.Point) int {
-	if !p.In(s.r) || !s.enabled() {
+	if !p.In(s.rect) || !s.enabled() {
 		return partNone
 	}
 
@@ -131,7 +131,7 @@ func (s *scrollBar) partAt(p image.Point) int {
 
 // press handles a mouse press at p; it reports whether p is on the bar.
 func (s *scrollBar) press(p image.Point) bool {
-	if !p.In(s.r) {
+	if !p.In(s.rect) {
 		return false
 	}
 
@@ -203,7 +203,7 @@ func (s *scrollBar) tick(now time.Time) bool {
 }
 
 func (s *scrollBar) paint(cv canvas) {
-	r := s.r
+	r := s.rect
 	en := s.enabled()
 	a := s.arrow()
 
@@ -262,10 +262,10 @@ func (s *scrollBar) paint(cv canvas) {
 // span returns the part of the track from a to b along the bar.
 func (s *scrollBar) span(track image.Rectangle, a, b int) image.Rectangle {
 	if s.vertical {
-		return image.Rect(track.Min.X, s.r.Min.Y+a, track.Max.X, s.r.Min.Y+b)
+		return image.Rect(track.Min.X, s.rect.Min.Y+a, track.Max.X, s.rect.Min.Y+b)
 	}
 
-	return image.Rect(s.r.Min.X+a, track.Min.Y, s.r.Min.X+b, track.Max.Y)
+	return image.Rect(s.rect.Min.X+a, track.Min.Y, s.rect.Min.X+b, track.Max.Y)
 }
 
 // Arrow directions.
@@ -445,11 +445,11 @@ func (l *listView) layout() (item, icon image.Point, perCol int) {
 	if cols > max(c.Dx()/w, 1) && c.Dy() > scrollSize {
 		perCol = max((c.Dy()-scrollSize)/h, 1)
 		cols = (len(l.items) + perCol - 1) / perCol
-		bar.r = image.Rect(c.Min.X, c.Max.Y-scrollSize, c.Max.X, c.Max.Y)
+		bar.rect = image.Rect(c.Min.X, c.Max.Y-scrollSize, c.Max.X, c.Max.Y)
 		bar.min, bar.max, bar.page = 0, cols-1, max(c.Dx()/w, 1)
 		bar.set(bar.pos)
 	} else {
-		bar.r = image.Rectangle{}
+		bar.rect = image.Rectangle{}
 		bar.pos = 0
 	}
 
@@ -468,7 +468,7 @@ func (l *listView) itemRect(i int) image.Rectangle {
 
 // at returns the item whose icon or caption is at p, or -1.
 func (l *listView) at(p image.Point) int {
-	if !p.In(l.client()) || p.In(l.scroll.r) {
+	if !p.In(l.client()) || p.In(l.scroll.rect) {
 		return -1
 	}
 
@@ -505,7 +505,7 @@ func (l *listView) paint(cv canvas) {
 		}
 	}
 
-	if l.scroll.r != (image.Rectangle{}) {
+	if l.scroll.rect != (image.Rectangle{}) {
 		l.scroll.paint(cv)
 	}
 }
@@ -676,7 +676,7 @@ func (l *listView) ensureVisible(i int) {
 }
 
 func (l *listView) wheel(dy int) {
-	if l.scroll.r != (image.Rectangle{}) {
+	if l.scroll.rect != (image.Rectangle{}) {
 		l.scroll.set(l.scroll.pos - dy)
 		l.invalidate()
 	}
@@ -686,7 +686,7 @@ func (l *listView) wheel(dy int) {
 // border, eight items high, that tracks the mouse.
 type dropList struct {
 	combo  *comboBox
-	r      image.Rectangle // on the desktop
+	rect   image.Rectangle // on the desktop
 	top    int             // the first item shown
 	hot    int
 	scroll scrollBar
@@ -698,16 +698,16 @@ func newDropList(c *comboBox) *dropList {
 	d.rows = min(len(c.items), 8)
 	h := max(d.rows, 1)*c.itemHeight + 2
 	o := c.wdw.clientOrigin().Add(c.origin())
-	d.r = image.Rect(o.X, o.Y+c.rect.Dy(), o.X+c.rect.Dx(), o.Y+c.rect.Dy()+h)
+	d.rect = image.Rect(o.X, o.Y+c.rect.Dy(), o.X+c.rect.Dx(), o.Y+c.rect.Dy()+h)
 
-	if d.r.Max.Y > screenHeight {
-		d.r = d.r.Sub(image.Pt(0, h+c.rect.Dy()))
+	if d.rect.Max.Y > screenHeight {
+		d.rect = d.rect.Sub(image.Pt(0, h+c.rect.Dy()))
 	}
 
 	if len(c.items) > d.rows {
 		d.scroll = scrollBar{
 			vertical: true,
-			r:        image.Rect(d.r.Dx()-1-scrollSize, 1, d.r.Dx()-1, d.r.Dy()-1),
+			rect:     image.Rect(d.rect.Dx()-1-scrollSize, 1, d.rect.Dx()-1, d.rect.Dy()-1),
 			min:      0,
 			max:      len(c.items) - 1,
 			page:     d.rows,
@@ -737,12 +737,12 @@ func (d *dropList) show(i int) {
 }
 
 func (d *dropList) bounds() image.Rectangle {
-	return d.r
+	return d.rect
 }
 
 func (d *dropList) paint(cv canvas) {
-	cv = cv.sub(d.r)
-	r := image.Rectangle{Max: d.r.Size()}
+	cv = cv.sub(d.rect)
+	r := image.Rectangle{Max: d.rect.Size()}
 	cv.frame(r, colFrame)
 
 	in := r.Inset(1)
@@ -791,8 +791,8 @@ func (d *dropList) paint(cv canvas) {
 
 // itemAt returns the item at p (on the desktop), or -1.
 func (d *dropList) itemAt(p image.Point) int {
-	q := p.Sub(d.r.Min)
-	in := image.Rectangle{Max: d.r.Size()}.Inset(1)
+	q := p.Sub(d.rect.Min)
+	in := image.Rectangle{Max: d.rect.Size()}.Inset(1)
 
 	if d.scroll.max > 0 {
 		in.Max.X -= scrollSize
@@ -811,14 +811,14 @@ func (d *dropList) itemAt(p image.Point) int {
 }
 
 func (d *dropList) mouseDown(p image.Point) {
-	if d.scroll.press(p.Sub(d.r.Min)) {
+	if d.scroll.press(p.Sub(d.rect.Min)) {
 		return
 	}
 }
 
 func (d *dropList) mouseMove(p image.Point, down bool) {
 	if d.scroll.pressed != partNone {
-		d.scroll.drag(p.Sub(d.r.Min))
+		d.scroll.drag(p.Sub(d.rect.Min))
 
 		return
 	}

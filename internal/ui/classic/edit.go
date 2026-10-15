@@ -699,14 +699,14 @@ func (m *memo) layout() {
 	}
 
 	r := m.local().Inset(2)
-	m.scroll.r = image.Rect(r.Max.X-scrollSize, r.Min.Y, r.Max.X, r.Max.Y)
+	m.scroll.rect = image.Rect(r.Max.X-scrollSize, r.Min.Y, r.Max.X, r.Max.Y)
 	m.scroll.min, m.scroll.max = 0, len(m.wraps)-1
 	m.scroll.page = (tr.Dy() - 2) / m.font.height()
 	m.scroll.set(m.scroll.pos)
 }
 
 func (m *memo) paint(cv canvas) {
-	needsLayout := (len(m.wraps) == 0 && len(m.lines) > 0) || m.scroll.r.Empty()
+	needsLayout := (len(m.wraps) == 0 && len(m.lines) > 0) || m.scroll.rect.Empty()
 	if needsLayout {
 		m.layout()
 	}

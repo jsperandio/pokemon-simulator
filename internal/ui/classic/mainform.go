@@ -191,10 +191,10 @@ func (f *mainForm) formClose() {
 func (f *mainForm) export() {
 	a := f.a
 	file, ok := a.openFile(fileOptions{
-		save:      true,
-		filter:    "HTML Files (*.htm)|*.htm",
-		defExt:    "htm",
-		overwrite: true,
+		save:       true,
+		filter:     "HTML Files (*.htm)|*.htm",
+		defaultExt: "htm",
+		overwrite:  true,
 	})
 
 	if !ok {

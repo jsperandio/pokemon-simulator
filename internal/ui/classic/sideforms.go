@@ -190,7 +190,7 @@ type pokedexForm struct {
 	image *listView
 }
 
-func newDexForm(a *Application) *pokedexForm {
+func newPokedexForm(a *Application) *pokedexForm {
 	f := &pokedexForm{
 		app: a,
 		wdw: newWindow(a.desk, &layout.Form8),
@@ -269,7 +269,7 @@ type pokemartForm struct {
 	total *edit
 }
 
-func newMartForm(a *Application) *pokemartForm {
+func newPokemartForm(a *Application) *pokemartForm {
 	f := &pokemartForm{
 		app: a,
 		wdw: newWindow(a.desk, &layout.Form9),
@@ -395,7 +395,7 @@ type gameCornerForm struct {
 	drawn  *radioGroup
 }
 
-func newCornerForm(app *Application) *gameCornerForm {
+func newGameCornerForm(app *Application) *gameCornerForm {
 	f := &gameCornerForm{
 		app: app,
 		wdw: newWindow(app.desk, &layout.FormB),
@@ -458,7 +458,7 @@ func (ds *drawShow) tick(a *Application, now time.Time) {
 		i = int(int64(len(ds.draws)) * int64(t) / int64(drawTime))
 	}
 
-	a.corner.drawn.setIndex(ds.draws[i])
+	a.gameCorner.drawn.setIndex(ds.draws[i])
 
 	a.desk.dirty = true
 	if t >= drawTime {

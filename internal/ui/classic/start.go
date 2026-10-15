@@ -157,10 +157,10 @@ func (f *startForm) newButtonClick() {
 	a := f.a
 	a.call(func() {
 		file, ok := a.openFile(fileOptions{
-			save:      true,
-			filter:    saveFilter,
-			defExt:    "pgs",
-			overwrite: true,
+			save:       true,
+			filter:     saveFilter,
+			defaultExt: "pgs",
+			overwrite:  true,
 		})
 		if !ok {
 			return
@@ -179,7 +179,7 @@ func (f *startForm) newButtonClick() {
 func (f *startForm) loadButtonClick() {
 	a := f.a
 	a.call(func() {
-		file, ok := a.openFile(fileOptions{filter: saveFilter, defExt: "pgs", mustExist: true})
+		file, ok := a.openFile(fileOptions{filter: saveFilter, defaultExt: "pgs", mustExist: true})
 		if ok {
 			a.loadGame(file)
 		}

@@ -271,7 +271,7 @@ func (v *helpView) layout() {
 	}
 
 	s := &v.scroll
-	s.r = image.Rect(r.Max.X-scrollSize, hh, r.Max.X, r.Max.Y)
+	s.rect = image.Rect(r.Max.X-scrollSize, hh, r.Max.X, r.Max.Y)
 	s.min, s.max = 0, v.doc.Rect.Dy()-1
 	s.page = max(r.Dy()-hh, 1)
 	s.set(s.pos)

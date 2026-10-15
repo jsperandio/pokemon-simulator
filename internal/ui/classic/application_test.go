@@ -193,8 +193,8 @@ func TestNewGame(t *testing.T) {
 		t.Fatalf("party %v", got)
 	}
 
-	if ta.desk.active != ta.main.w || !ta.stats.wdw.visible || !ta.dex.wdw.visible {
-		t.Errorf("windows: active %v, Statistics %v, POKéDEX %v", ta.desk.active, ta.stats.wdw.visible, ta.dex.wdw.visible)
+	if ta.desk.active != ta.main.w || !ta.stats.wdw.visible || !ta.pokedex.wdw.visible {
+		t.Errorf("windows: active %v, Statistics %v, POKéDEX %v", ta.desk.active, ta.stats.wdw.visible, ta.pokedex.wdw.visible)
 	}
 
 	ta.mouse = image.Pt(0, 0)

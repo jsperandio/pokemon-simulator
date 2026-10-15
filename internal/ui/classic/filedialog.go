@@ -19,11 +19,11 @@ import (
 
 // fileOptions are what a TOpenDialog or TSaveDialog asks for.
 type fileOptions struct {
-	save      bool
-	filter    string // the VCL's Filter: "Name|*.a;*.b|Name|*.c"
-	defExt    string // added to a name without an extension
-	overwrite bool   // ofOverwritePrompt
-	mustExist bool   // ofFileMustExist
+	save       bool
+	filter     string // the VCL's Filter: "Name|*.a;*.b|Name|*.c"
+	defaultExt string // added to a name without an extension
+	overwrite  bool   // ofOverwritePrompt
+	mustExist  bool   // ofFileMustExist
 }
 
 // fileFilter is one of a dialog's file types.
@@ -361,11 +361,11 @@ func (fd *fileDialog) okClick() {
 // withDefaultExt adds the default extension to a file name without one, when
 // the dialog saves or a file has that name.
 func (fd *fileDialog) withDefaultExt(p string) string {
-	if strings.Contains(fd.files.Base(p), ".") || fd.opts.defExt == "" {
+	if strings.Contains(fd.files.Base(p), ".") || fd.opts.defaultExt == "" {
 		return p
 	}
 
-	withExt := p + "." + strings.TrimPrefix(fd.opts.defExt, ".")
+	withExt := p + "." + strings.TrimPrefix(fd.opts.defaultExt, ".")
 	if _, err := fd.files.Stat(withExt); fd.opts.save || err == nil {
 		return withExt
 	}

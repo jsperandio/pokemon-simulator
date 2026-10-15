@@ -57,7 +57,7 @@ func TestTransfers(t *testing.T) {
 	ta.clickOn(ta.start.w, "LoadButton")
 	ta.wait(1)
 
-	f := ta.fileDlg
+	f := ta.fileDialog
 	if f == nil || f.uploadButton == nil {
 		t.Fatal("no upload button")
 	}

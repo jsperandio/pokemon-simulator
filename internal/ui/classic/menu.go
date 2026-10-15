@@ -56,7 +56,7 @@ func (e *menuEntry) visibleKids() []*menuEntry {
 type menuPopup struct {
 	entry *menuEntry
 	items []*menuEntry
-	r     image.Rectangle // on the screen
+	rect  image.Rectangle // on the screen
 	sel   int             // the selected item, or -1
 	child int             // the item whose submenu is open, or -1
 	// The submenu to open once the mouse has rested on its item.
@@ -65,9 +65,9 @@ type menuPopup struct {
 }
 
 func (p *menuPopup) itemRect(i int) image.Rectangle {
-	y := p.r.Min.Y + menuFrame + i*menuItemHeight
+	y := p.rect.Min.Y + menuFrame + i*menuItemHeight
 
-	return image.Rect(p.r.Min.X+menuFrame, y, p.r.Max.X-menuFrame, y+menuItemHeight)
+	return image.Rect(p.rect.Min.X+menuFrame, y, p.rect.Max.X-menuFrame, y+menuItemHeight)
 }
 
 func (p *menuPopup) itemAt(q image.Point) int {
@@ -295,7 +295,7 @@ func (m *menuBar) popupFor(e *menuEntry, x, y, flip int) *menuPopup {
 
 	x = max(min(x, screenWidth-size.X), 0)
 	y = max(min(y, screenHeight-size.Y), 0)
-	p.r = image.Rectangle{Min: image.Pt(x, y), Max: image.Pt(x+size.X, y+size.Y)}
+	p.rect = image.Rectangle{Min: image.Pt(x, y), Max: image.Pt(x+size.X, y+size.Y)}
 
 	return p
 }
@@ -360,7 +360,7 @@ func (m *menuBar) openChild(l, i int) {
 	}
 
 	r := p.itemRect(i)
-	c := m.popupFor(e, p.r.Max.X-menuFrame, r.Min.Y-menuFrame, p.r.Min.X+menuFrame)
+	c := m.popupFor(e, p.rect.Max.X-menuFrame, r.Min.Y-menuFrame, p.rect.Min.X+menuFrame)
 	p.child = i
 
 	m.open = append(m.open, c)
@@ -402,7 +402,7 @@ func (m *menuBar) run(e *menuEntry) {
 // popupAt returns the level and item under p, or -1 for the level.
 func (m *menuBar) popupAt(p image.Point) (level, item int) {
 	for l, v := range slices.Backward(m.open) {
-		if p.In(v.r) {
+		if p.In(v.rect) {
 			return l, v.itemAt(p)
 		}
 	}
@@ -756,8 +756,8 @@ const (
 // paintPopups draws the open submenus.
 func (m *menuBar) paintPopups(cv canvas) {
 	for _, p := range m.open {
-		cv.fill(p.r, colFace)
-		cv.raised(p.r)
+		cv.fill(p.rect, colFace)
+		cv.raised(p.rect)
 
 		for i, e := range p.items {
 			m.paintItem(cv, p.itemRect(i), e, i == p.sel)

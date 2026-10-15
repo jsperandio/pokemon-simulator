@@ -194,10 +194,10 @@ func (d *uiDriver) form(name string) *window {
 		"Form4": ta.main.w,
 		"Form5": ta.stats.wdw,
 		"Form7": ta.info.wdw,
-		"Form8": ta.dex.wdw,
-		"Form9": ta.mart.wdw,
+		"Form8": ta.pokedex.wdw,
+		"Form9": ta.pokemart.wdw,
 		"FormA": ta.types.wdw,
-		"FormB": ta.corner.wdw,
+		"FormB": ta.gameCorner.wdw,
 	}[name]
 }
 
@@ -355,7 +355,7 @@ func (d *uiDriver) Combo(path string, i int) error {
 		d.ta.frame(input{wheel: dy})
 	}
 
-	d.ta.click(l.r.Min.Add(image.Pt(5, 1+(i-l.top)*c.itemHeight+c.itemHeight/2)))
+	d.ta.click(l.rect.Min.Add(image.Pt(5, 1+(i-l.top)*c.itemHeight+c.itemHeight/2)))
 	d.settle()
 
 	if c.index != i {
@@ -394,7 +394,7 @@ func (d *uiDriver) Text(path string) (string, error) {
 	case "Form4":
 		return ta.main.w.caption, nil
 	case "Form9.Edit1":
-		return ta.mart.total.text(), nil
+		return ta.pokemart.total.text(), nil
 	}
 
 	return "", fmt.Errorf("no text for %s", path)

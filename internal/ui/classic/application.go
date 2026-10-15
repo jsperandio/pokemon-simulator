@@ -47,23 +47,23 @@ type Application struct {
 	wheel  float64 // the wheel's movement not yet a whole notch
 	pace   *pacer
 
-	start  *startForm
-	load   *loadForm
-	main   *mainForm
-	stats  *statsForm
-	info   *infoForm
-	dex    *pokedexForm
-	mart   *pokemartForm
-	types  *typesForm
-	corner *gameCornerForm
-	name   *nameDialog
-	about  *window
+	start      *startForm
+	load       *loadForm
+	main       *mainForm
+	stats      *statsForm
+	info       *infoForm
+	pokedex    *pokedexForm
+	pokemart   *pokemartForm
+	types      *typesForm
+	gameCorner *gameCornerForm
+	name       *nameDialog
+	about      *window
 
-	helpWin *helpWindow // the manual, once opened
-	music   musicPlayer
-	xfer    transfers   // the browser's uploads and downloads, on the web
-	fileDlg *fileDialog // the file dialog that shows, if one does
-	draws   *drawShow   // the Game Corner's draws, while they show
+	helpWindow *helpWindow // the manual, once opened
+	music      musicPlayer
+	xfer       transfers   // the browser's uploads and downloads, on the web
+	fileDialog *fileDialog // the file dialog that shows, if one does
+	draws      *drawShow   // the Game Corner's draws, while they show
 
 	// A game handler runs on its own goroutine, taking turns with the
 	// user interface: while it runs, the user interface waits, and while
@@ -120,12 +120,12 @@ func (app *Application) Game() *game.Game {
 // help is the start screen's "Help!" and Help → Contents (F1): the manual,
 // at its contents.
 func (app *Application) help() {
-	if app.helpWin == nil {
-		app.helpWin = newHelpWindow(app)
+	if app.helpWindow == nil {
+		app.helpWindow = newHelpWindow(app)
 	}
 
-	app.helpWin.jump(help.Contents)
-	app.desk.show(app.helpWin.w)
+	app.helpWindow.jump(help.Contents)
+	app.desk.show(app.helpWindow.w)
 }
 
 // call runs a game handler, or any code that waits for modal windows, on
@@ -213,10 +213,10 @@ func (app *Application) show(w game.Window) {
 		game.MainForm:   app.main.w,
 		game.StatsForm:  app.stats.wdw,
 		game.InfoForm:   app.info.wdw,
-		game.DexForm:    app.dex.wdw,
-		game.MartForm:   app.mart.wdw,
+		game.DexForm:    app.pokedex.wdw,
+		game.MartForm:   app.pokemart.wdw,
 		game.TypesForm:  app.types.wdw,
-		game.CornerForm: app.corner.wdw,
+		game.CornerForm: app.gameCorner.wdw,
 	}[w])
 }
 
@@ -253,11 +253,11 @@ func (app *Application) sync() {
 		visible bool
 	}{
 		{app.info.wdw, g.Info.Visible},
-		{app.dex.wdw, g.Dex.Visible},
+		{app.pokedex.wdw, g.Dex.Visible},
 		{app.stats.wdw, g.Stats.Visible},
-		{app.mart.wdw, g.Mart.Visible},
+		{app.pokemart.wdw, g.Mart.Visible},
 		{app.types.wdw, g.Types.Visible},
-		{app.corner.wdw, g.Corner.Visible},
+		{app.gameCorner.wdw, g.Corner.Visible},
 		{app.main.w, g.Main.Visible},
 	} {
 		switch {
@@ -277,10 +277,10 @@ func (app *Application) syncForms() {
 	app.main.sync()
 	app.stats.sync()
 	app.info.sync()
-	app.dex.sync()
-	app.mart.sync()
+	app.pokedex.sync()
+	app.pokemart.sync()
 	app.types.sync()
-	app.corner.sync()
+	app.gameCorner.sync()
 }
 
 // Update handles a frame's input (ebiten.Game).
@@ -334,8 +334,8 @@ func (app *Application) step(in input, now time.Time) {
 		app.importDropped(in.dropped)
 	}
 
-	if app.fileDlg != nil {
-		app.fileDlg.poll()
+	if app.fileDialog != nil {
+		app.fileDialog.poll()
 	}
 
 	if !app.running {
@@ -396,8 +396,8 @@ func (app *Application) importDropped(fsys fs.FS) {
 	}
 
 	dir := app.files.Home()
-	if app.fileDlg != nil {
-		dir = app.fileDlg.dir
+	if app.fileDialog != nil {
+		dir = app.fileDialog.dir
 	}
 
 	var names []string
@@ -417,8 +417,8 @@ func (app *Application) importDropped(fsys fs.FS) {
 		}
 	}
 
-	if app.fileDlg != nil && len(names) > 0 {
-		app.fileDlg.uploaded(names)
+	if app.fileDialog != nil && len(names) > 0 {
+		app.fileDialog.uploaded(names)
 	}
 }
 
@@ -453,9 +453,9 @@ func (app *Application) Layout(int, int) (w, h int) {
 // chosen file's path. It runs on the handler's goroutine.
 func (app *Application) openFile(opts fileOptions) (string, bool) {
 	f := app.newFileDialog(opts)
-	app.fileDlg = f
+	app.fileDialog = f
 	r := app.modal(f.window)
-	app.fileDlg = nil
+	app.fileDialog = nil
 	app.desk.remove(f.window)
 
 	return f.result, r == mrOk
