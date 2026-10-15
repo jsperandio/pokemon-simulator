@@ -30,8 +30,18 @@ func TestEveryMenuCommand(t *testing.T) {
 		Money:       50000,
 		PokeBalls:   3,
 	}
-	sav.Owned[0] = save.Slot{Species: 6, Level: 100, XP: 1000000}   // Charizard
-	sav.Owned[1] = save.Slot{Species: 150, Level: 100, XP: 1000000} // Mewtwo
+	// Charizard.
+	sav.Owned[0] = save.Slot{
+		Species: 6,
+		Level:   100,
+		XP:      1000000,
+	}
+	// Mewtwo.
+	sav.Owned[1] = save.Slot{
+		Species: 150,
+		Level:   100,
+		XP:      1000000,
+	}
 	sav.InDex[6], sav.InDex[150] = true, true
 	dat := sav.Bytes()
 

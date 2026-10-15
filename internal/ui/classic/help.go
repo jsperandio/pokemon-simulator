@@ -118,12 +118,19 @@ func newHelpWindow(app *Application) *helpWindow {
 	wdw := newWindow(app.desk, &comp)
 	hw.wdw = wdw
 	wdw.icon = helpIcon()
-	view := &helpView{hw: hw, sel: -1, press: -1}
+	view := &helpView{
+		hw:    hw,
+		sel:   -1,
+		press: -1,
+	}
 	hw.view = view
 	addWidget(wdw, view, image.Rect(0, helpBarHeight, wdw.client.X, wdw.client.Y))
 
 	view.windowed, view.tabStop, view.color = true, true, colWindow
-	view.scroll = scrollBar{vertical: true, line: app.res.arial(helpTextPx, plainStyle).height()}
+	view.scroll = scrollBar{
+		vertical: true,
+		line:     app.res.arial(helpTextPx, plainStyle).height(),
+	}
 	view.scroll.onScroll = view.invalidate
 	wdw.focus = view
 
@@ -596,7 +603,13 @@ func (hf *helpFlow) blocks(bs []help.Block, x0, x1, y int) int {
 		case help.Quote:
 			// A port note, in a box of the tooltips' colours.
 			box := len(hf.ops)
-			hf.ops = append(hf.ops, helpOp{clr: colInfo}, helpOp{clr: colText, frame: true})
+			hf.ops = append(hf.ops,
+				helpOp{clr: colInfo},
+				helpOp{
+					clr:   colText,
+					frame: true,
+				},
+			)
 			bottom := hf.blocks(blk.Blocks, x0+1+helpPad, x1-1-helpPad, y+1+helpPad) + helpPad + 1
 			hf.ops[box].rect = image.Rect(x0, y, x1, bottom)
 			hf.ops[box+1].rect = hf.ops[box].rect
@@ -740,7 +753,11 @@ func (hf *helpFlow) words(spans []help.Span, bold bool) []helpWord {
 			wb.end(helpPiece{}, true)
 		case spn.Image != "":
 			if img := hf.hw.picture(spn.Image); img != nil {
-				wb.add(helpPiece{img: img, spot: spot, wid: img.Rect.Dx()})
+				wb.add(helpPiece{
+					img:  img,
+					spot: spot,
+					wid:  img.Rect.Dx(),
+				})
 			}
 		default:
 			fnt := hf.face(bold || spn.Bold, spn.Italic)
@@ -849,7 +866,10 @@ func (hf *helpFlow) put(hpc helpPiece, x, top, base, bottom int) {
 	}
 
 	if hpc.img == nil {
-		hf.ops = append(hf.ops, helpOp{rect: image.Rect(x, base+1, x+hpc.wid, base+2), clr: hpc.clr})
+		hf.ops = append(hf.ops, helpOp{
+			rect: image.Rect(x, base+1, x+hpc.wid, base+2),
+			clr:  hpc.clr,
+		})
 	}
 
 	hsp := &hf.spots[hpc.spot]

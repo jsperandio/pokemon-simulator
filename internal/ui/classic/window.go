@@ -315,7 +315,10 @@ func (w *window) size() image.Point {
 }
 
 func (w *window) rect() image.Rectangle {
-	return image.Rectangle{Min: w.pos, Max: w.pos.Add(w.size())}
+	return image.Rectangle{
+		Min: w.pos,
+		Max: w.pos.Add(w.size()),
+	}
 }
 
 func (w *window) clientOrigin() image.Point {
@@ -327,7 +330,10 @@ func (w *window) clientOrigin() image.Point {
 func (w *window) clientRect() image.Rectangle {
 	pnt := w.clientOrigin()
 
-	return image.Rectangle{Min: pnt, Max: pnt.Add(w.client)}
+	return image.Rectangle{
+		Min: pnt,
+		Max: pnt.Add(w.client),
+	}
 }
 
 // captionRect is the caption bar on the desktop, without its bottom line.
@@ -833,7 +839,10 @@ func (w *window) toggleMaximize() {
 		w.client = w.restore.Max
 		w.maximized = false
 	} else {
-		w.restore = image.Rectangle{Min: w.pos, Max: w.client}
+		w.restore = image.Rectangle{
+			Min: w.pos,
+			Max: w.client,
+		}
 		frm := w.frameWidth()
 		w.pos = image.Pt(-frm, -frm)
 		w.client = image.Pt(screenWidth, screenHeight-w.captionH()-w.menuH())

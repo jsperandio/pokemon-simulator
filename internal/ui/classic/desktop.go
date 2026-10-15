@@ -110,7 +110,10 @@ type desktop struct {
 }
 
 func newDesktop(res *resources) *desktop {
-	return &desktop{res: res, dirty: true}
+	return &desktop{
+		res:   res,
+		dirty: true,
+	}
 }
 
 // add registers a window, hidden.
@@ -1005,7 +1008,10 @@ func (d *desktop) updateHint(pnt image.Point, cancel bool) {
 		org := pnt.Add(image.Pt(0, hintCursorMargin))
 		org.X = max(min(org.X, screenWidth-size.X), 0)
 		org.Y = max(min(org.Y, screenHeight-size.Y), 0)
-		hnt.rect = image.Rectangle{Min: org, Max: org.Add(size)}
+		hnt.rect = image.Rectangle{
+			Min: org,
+			Max: org.Add(size),
+		}
 		d.dirty = true
 	case !hnt.rect.Empty() && d.now.Sub(hnt.since) >= hintPause+hintHidePause:
 		hnt.rect = image.Rectangle{}

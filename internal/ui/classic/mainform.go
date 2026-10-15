@@ -50,7 +50,10 @@ type mainForm struct {
 
 func newMainForm(app *Application) *mainForm {
 	wdw := newWindow(app.desk, &layout.Form4)
-	mf := &mainForm{app: app, wdw: wdw}
+	mf := &mainForm{
+		app: app,
+		wdw: wdw,
+	}
 	mf.starterLabel = get[*label](wdw, "Label1")
 	mf.starters = get[*listView](wdw, "ListView1")
 	mf.evolveChoice = get[*radioGroup](wdw, "EvolveChoice")
@@ -226,7 +229,10 @@ const musicFilter string = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.og
 // chosen plays at once.
 func (mf *mainForm) openMusic() {
 	app := mf.app
-	file, ok := app.openFile(fileOptions{filter: musicFilter, mustExist: true})
+	file, ok := app.openFile(fileOptions{
+		filter:    musicFilter,
+		mustExist: true,
+	})
 
 	if !ok {
 		return

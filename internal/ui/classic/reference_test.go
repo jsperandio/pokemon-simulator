@@ -125,7 +125,11 @@ func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots ma
 		ud      *uiDriver
 		dialogs []string
 	)
-	ply := &scenario.Player{Name: name, Dir: dir, Data: data}
+	ply := &scenario.Player{
+		Name: name,
+		Dir:  dir,
+		Data: data,
+	}
 	ply.NewDriver = func() scenario.Driver {
 		ud = &uiDriver{t: t}
 		ud.modal = func(wdw *window) {
@@ -189,8 +193,15 @@ func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots ma
 // probe did (Alt and the accelerator, then the arrows), with the first item
 // selected.
 func shootMenus(t *testing.T) {
-	sav := save.File{PlayerName: "Probe", PokeBalls: 3}
-	sav.Owned[0] = save.Slot{Species: 25, Level: 5, XP: 125}
+	sav := save.File{
+		PlayerName: "Probe",
+		PokeBalls:  3,
+	}
+	sav.Owned[0] = save.Slot{
+		Species: 25,
+		Level:   5,
+		XP:      125,
+	}
 	sav.InDex[25] = true
 	dir := t.TempDir()
 	file := filepath.Join(dir, "probe-screens-menus.pgs")
@@ -223,7 +234,10 @@ func shootMenus(t *testing.T) {
 		keys := strings.Fields(mnu)
 		label := keys[len(keys)-1]
 		letter := ebiten.KeyA + ebiten.Key(keys[0][0]-'a')
-		ta.frame(input{keys: []ebiten.Key{ebiten.KeyAltLeft}, mods: mods{alt: true}})
+		ta.frame(input{
+			keys: []ebiten.Key{ebiten.KeyAltLeft},
+			mods: mods{alt: true},
+		})
 		ta.frame(input{
 			keys:  []ebiten.Key{letter},
 			chars: []rune{rune(keys[0][0])},

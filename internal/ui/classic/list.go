@@ -694,7 +694,10 @@ type dropList struct {
 }
 
 func newDropList(cb *comboBox) *dropList {
-	dl := &dropList{combo: cb, hot: cb.index}
+	dl := &dropList{
+		combo: cb,
+		hot:   cb.index,
+	}
 	dl.rows = min(len(cb.items), 8)
 	hgt := max(dl.rows, 1)*cb.itemHeight + 2
 	pnt := cb.wdw.clientOrigin().Add(cb.origin())

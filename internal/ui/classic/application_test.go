@@ -92,7 +92,10 @@ func (ta *testApp) wait(n int) {
 func (ta *testApp) click(pnt image.Point) {
 	ta.mouse = pnt
 	ta.frame(input{})
-	ta.frame(input{down: true, pressed: true})
+	ta.frame(input{
+		down:    true,
+		pressed: true,
+	})
 	ta.frame(input{released: true})
 }
 
@@ -560,10 +563,20 @@ func TestMenuKeysTypeNothing(t *testing.T) {
 	ta := newTestApp(t)
 	ta.music = &fakeMusic{}
 	ta.startGame()
-	ta.frame(input{keys: []ebiten.Key{ebiten.KeyAltLeft}, mods: mods{alt: true}})
-	ta.frame(input{keys: []ebiten.Key{ebiten.KeyM}, chars: []rune{'m'}, mods: mods{alt: true}})
+	ta.frame(input{
+		keys: []ebiten.Key{ebiten.KeyAltLeft},
+		mods: mods{alt: true},
+	})
+	ta.frame(input{
+		keys:  []ebiten.Key{ebiten.KeyM},
+		chars: []rune{'m'},
+		mods:  mods{alt: true},
+	})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}})
-	ta.frame(input{keys: []ebiten.Key{ebiten.KeyO}, chars: []rune{'o'}})
+	ta.frame(input{
+		keys:  []ebiten.Key{ebiten.KeyO},
+		chars: []rune{'o'},
+	})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyO}})
 
 	top := ta.desk.topModal()
@@ -593,7 +606,10 @@ func TestAltAndLetterInOneFrame(t *testing.T) {
 		t.Fatal("releasing Alt closed the menu")
 	}
 
-	ta.frame(input{keys: []ebiten.Key{ebiten.KeyO}, chars: []rune{'o'}})
+	ta.frame(input{
+		keys:  []ebiten.Key{ebiten.KeyO},
+		chars: []rune{'o'},
+	})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyO}})
 
 	if top := ta.desk.topModal(); top == nil || top.caption != "Open" {

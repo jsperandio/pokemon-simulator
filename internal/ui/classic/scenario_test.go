@@ -379,7 +379,10 @@ func (ud *uiDriver) Type(path string, n int) error {
 	ta := ud.ta
 	ud.clickAt(wdw, widgetOrigin(se).Add(image.Pt(5, se.rect.Dy()/2)))
 	ta.key(ebiten.KeyHome)
-	ta.frame(input{keys: []ebiten.Key{ebiten.KeyEnd}, mods: mods{shift: true}})
+	ta.frame(input{
+		keys: []ebiten.Key{ebiten.KeyEnd},
+		mods: mods{shift: true},
+	})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
 	ta.typeText(strconv.Itoa(n))
 	ud.settle()

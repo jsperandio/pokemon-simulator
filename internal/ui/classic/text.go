@@ -74,7 +74,11 @@ func newTrueTypeFace(fnt *opentype.Font, px int) (*trueTypeFace, error) {
 	met := ff.Metrics()
 	asc, desc := met.Ascent.Ceil(), met.Descent.Ceil()
 
-	return &trueTypeFace{fnt: ff, asc: asc, hgt: asc + desc}, nil
+	return &trueTypeFace{
+		fnt: ff,
+		asc: asc,
+		hgt: asc + desc,
+	}, nil
 }
 
 func (ttf *trueTypeFace) height() int {

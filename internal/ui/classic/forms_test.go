@@ -43,7 +43,11 @@ func TestStatsHint(t *testing.T) {
 	size := image.Pt(ta.res.sans.width(hnt.text)+6, ta.res.sans.height()+6)
 	pnt := image.Pt(screenWidth-size.X, ta.mouse.Y+hintCursorMargin)
 
-	if want := (image.Rectangle{Min: pnt, Max: pnt.Add(size)}); hnt.rect != want {
+	want := image.Rectangle{
+		Min: pnt,
+		Max: pnt.Add(size),
+	}
+	if hnt.rect != want {
 		t.Errorf("hint at %v, want %v", hnt.rect, want)
 	}
 
@@ -76,7 +80,10 @@ func TestStatsHint(t *testing.T) {
 		t.Fatal("no hint on coming back")
 	}
 
-	ta.frame(input{down: true, pressed: true})
+	ta.frame(input{
+		down:    true,
+		pressed: true,
+	})
 	ta.frame(input{released: true})
 
 	if ta.hintShown() {
@@ -160,7 +167,10 @@ func TestCornerDraws(t *testing.T) {
 	radio(gcf.number, 3) // on 3
 	ta.click(widgetOrigin(gcf.bet).Add(image.Pt(5, 5)))
 	ta.key(ebiten.KeyHome)
-	ta.frame(input{keys: []ebiten.Key{ebiten.KeyEnd}, mods: mods{shift: true}})
+	ta.frame(input{
+		keys: []ebiten.Key{ebiten.KeyEnd},
+		mods: mods{shift: true},
+	})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
 	ta.typeText("100")
 	ta.clickOn(gcf.wdw, "Button1") // Draw number!
@@ -235,8 +245,15 @@ func TestLoadingFits(t *testing.T) {
 // again, its FormShow selects the species again, which leaves the text
 // unselected: the focus is on the button that closed it.
 func TestDexFits(t *testing.T) {
-	sav := save.File{PlayerName: "Gary", PokeBalls: 3}
-	sav.Owned[0] = save.Slot{Species: 4, Level: 5, XP: 125}
+	sav := save.File{
+		PlayerName: "Gary",
+		PokeBalls:  3,
+	}
+	sav.Owned[0] = save.Slot{
+		Species: 4,
+		Level:   5,
+		XP:      125,
+	}
 	sav.InDex[4] = true
 	dir := t.TempDir()
 	file := filepath.Join(dir, "dex.pgs")

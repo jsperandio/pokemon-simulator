@@ -91,7 +91,10 @@ type canvas struct {
 }
 
 func newCanvas(img *image.RGBA) canvas {
-	return canvas{img: img, clip: img.Rect}
+	return canvas{
+		img:  img,
+		clip: img.Rect,
+	}
 }
 
 // sub returns a canvas for rect (in cv's coordinates), with rect's top-left
@@ -99,7 +102,11 @@ func newCanvas(img *image.RGBA) canvas {
 func (cv canvas) sub(rect image.Rectangle) canvas {
 	rect = rect.Add(cv.org)
 
-	return canvas{img: cv.img, org: rect.Min, clip: cv.clip.Intersect(rect)}
+	return canvas{
+		img:  cv.img,
+		org:  rect.Min,
+		clip: cv.clip.Intersect(rect),
+	}
 }
 
 // fill fills rect.
@@ -289,7 +296,10 @@ func (cv canvas) draw(x, y int, src *image.NRGBA, sr image.Rectangle) {
 
 // copy copies src's rectangle sr to (x, y), as BitBlt does.
 func (cv canvas) copy(x, y int, src *image.RGBA, sr image.Rectangle) {
-	dr := image.Rectangle{Min: image.Pt(x, y), Max: image.Pt(x, y).Add(sr.Size())}.Add(cv.org)
+	dr := image.Rectangle{
+		Min: image.Pt(x, y),
+		Max: image.Pt(x, y).Add(sr.Size()),
+	}.Add(cv.org)
 	rect := dr.Intersect(cv.clip)
 
 	if rect.Empty() {

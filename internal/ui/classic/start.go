@@ -46,7 +46,10 @@ type loadForm struct {
 }
 
 func newLoadForm(app *Application) *loadForm {
-	lf := &loadForm{app: app, wdw: newWindow(app.desk, &layout.Form3)}
+	lf := &loadForm{
+		app: app,
+		wdw: newWindow(app.desk, &layout.Form3),
+	}
 	app.desk.add(lf.wdw)
 
 	return lf
@@ -130,7 +133,10 @@ type startForm struct {
 }
 
 func newStartForm(app *Application) *startForm {
-	sf := &startForm{app: app, wdw: newWindow(app.desk, &layout.Form1)}
+	sf := &startForm{
+		app: app,
+		wdw: newWindow(app.desk, &layout.Form1),
+	}
 	wdw := sf.wdw
 	get[*button](wdw, "NewButton").onClick = sf.newButtonClick
 	get[*button](wdw, "LoadButton").onClick = sf.loadButtonClick
@@ -179,7 +185,11 @@ func (sf *startForm) newButtonClick() {
 func (sf *startForm) loadButtonClick() {
 	app := sf.app
 	app.call(func() {
-		file, ok := app.openFile(fileOptions{filter: saveFilter, defaultExt: "pgs", mustExist: true})
+		file, ok := app.openFile(fileOptions{
+			filter:     saveFilter,
+			defaultExt: "pgs",
+			mustExist:  true,
+		})
 		if ok {
 			app.loadGame(file)
 		}
@@ -194,7 +204,10 @@ type nameDialog struct {
 }
 
 func newNameDialog(app *Application) *nameDialog {
-	nd := &nameDialog{app: app, wdw: newWindow(app.desk, &layout.OKRightDlg)}
+	nd := &nameDialog{
+		app: app,
+		wdw: newWindow(app.desk, &layout.OKRightDlg),
+	}
 	nd.edit = get[*edit](nd.wdw, "Edit1")
 	app.desk.add(nd.wdw)
 

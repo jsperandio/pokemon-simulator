@@ -50,7 +50,10 @@ func loadResources() (*resources, error) {
 	}
 
 	res.sans = bitmapFace{fnt: fonts[0]}
-	res.bold = bitmapFace{fnt: fonts[0], bold: true}
+	res.bold = bitmapFace{
+		fnt:  fonts[0],
+		bold: true,
+	}
 
 	for st, name := range []string{"Regular", "Bold", "Italic"} {
 		dat, err := assets.FS.ReadFile("liberation/LiberationSans-" + name + ".ttf")
@@ -89,7 +92,11 @@ func loadResources() (*resources, error) {
 			return nil, err
 		}
 
-		il := &imageList{img: img, size: lst.size, cols: img.Rect.Dx() / lst.size}
+		il := &imageList{
+			img:  img,
+			size: lst.size,
+			cols: img.Rect.Dx() / lst.size,
+		}
 		for _, nam := range lst.names {
 			res.lists[nam] = il
 		}

@@ -193,7 +193,10 @@ func newFileDialog(app *Application, opts fileOptions) *fileDialog {
 	fd.view.images = app.res.fileIcons()
 	fd.lookIn.images = app.res.fileIcons()
 
-	fd.up = &toolButton{glyph: glyphUp, onPress: fd.upOneLevel}
+	fd.up = &toolButton{
+		glyph:   glyphUp,
+		onPress: fd.upOneLevel,
+	}
 	addWidget(wdw, fd.up, image.Rect(280, 4, 303, 26))
 
 	if app.xfer != nil {

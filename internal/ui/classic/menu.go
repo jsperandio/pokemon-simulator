@@ -300,7 +300,10 @@ func (mb *menuBar) popupFor(me *menuEntry, x, y, flip int) *menuPopup {
 
 	x = max(min(x, screenWidth-size.X), 0)
 	y = max(min(y, screenHeight-size.Y), 0)
-	mp.rect = image.Rectangle{Min: image.Pt(x, y), Max: image.Pt(x+size.X, y+size.Y)}
+	mp.rect = image.Rectangle{
+		Min: image.Pt(x, y),
+		Max: image.Pt(x+size.X, y+size.Y),
+	}
 
 	return mp
 }
