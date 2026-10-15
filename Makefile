@@ -23,8 +23,8 @@ LINT := golangci-lint run --config .golangci.yaml
 DOCS := README.md LICENSE assets/README.md assets/wine/LGPL-2.1.txt assets/wine/ms_sans_serif.sfd \
 	$(wildcard assets/wine/*.svg) assets/liberation/OFL-1.1.txt
 
-# LINUX_FILES go into the Linux archives: the desktop entry and the script that installs it.
-LINUX_FILES := packaging/linux/pokemon-simulator.desktop packaging/linux/install-desktop.sh
+# LINUX_FILES go into the Linux archives: the desktop entry and the scripts that install and remove it.
+LINUX_FILES := packaging/linux/pokemon-simulator.desktop packaging/linux/install-desktop.sh packaging/linux/uninstall-desktop.sh
 
 goos    = $(word 1,$(subst /, ,$1))
 goarch  = $(word 2,$(subst /, ,$1))
