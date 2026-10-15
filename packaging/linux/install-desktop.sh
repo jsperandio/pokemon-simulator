@@ -8,6 +8,13 @@ here=$(cd "$(dirname "$0")" && pwd)
 data="${XDG_DATA_HOME:-$HOME/.local/share}"
 icons="$data/icons/hicolor/32x32/apps"
 
+for file in pokemon-simulator pokemon-simulator.png pokemon-simulator.desktop; do
+	if [ ! -e "$here/$file" ]; then
+		echo "install-desktop.sh: $here/$file is missing; run the script from the folder the game's archive was extracted to." >&2
+		exit 1
+	fi
+done
+
 mkdir -p "$data/applications" "$icons"
 cp "$here/pokemon-simulator.png" "$icons/pokemon-simulator.png"
 # The Exec key holds the path in double quotes, which the Desktop Entry
