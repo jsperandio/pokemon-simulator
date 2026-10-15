@@ -19,16 +19,16 @@ import (
 func TestHelp(t *testing.T) {
 	ta := newTestApp(t)
 	ta.wait(80)
-	ta.clickOn(ta.start.w, "HelpButton")
+	ta.clickOn(ta.start.wdw, "HelpButton")
 	ta.wait(1)
 
-	h := ta.helpWindow
-	if h == nil || !h.w.visible || ta.desk.active != h.w {
+	hw := ta.helpWindow
+	if hw == nil || !hw.wdw.visible || ta.desk.active != hw.wdw {
 		t.Fatal("no help window")
 	}
 
 	var opened []string
-	h.openURL = func(url string) error {
+	hw.openURL = func(url string) error {
 		opened = append(opened, url)
 
 		return nil
@@ -36,11 +36,11 @@ func TestHelp(t *testing.T) {
 
 	ta.shot("30-help")
 
-	if h.view.name != "index.md" || h.back.enabled || h.w.caption != "POKéMON Simulator" {
-		t.Errorf("help at %s, Back %v, caption %q", h.view.name, h.back.enabled, h.w.caption)
+	if hw.view.name != "index.md" || hw.back.enabled || hw.wdw.caption != "POKéMON Simulator" {
+		t.Errorf("help at %s, Back %v, caption %q", hw.view.name, hw.back.enabled, hw.wdw.caption)
 	}
 
-	if got := h.w.rect(); got != image.Rect(39, 4, 39+722, 4+563) {
+	if got := hw.wdw.rect(); got != image.Rect(39, 4, 39+722, 4+563) {
 		t.Errorf("help window at %v", got)
 	}
 
@@ -56,74 +56,74 @@ func TestHelp(t *testing.T) {
 		t.Errorf("opened %q", opened)
 	}
 
-	ta.click(onCaptionButton(h.w, capMax))
+	ta.click(onCaptionButton(hw.wdw, capMax))
 	ta.wait(1)
 	ta.shot("34-help-maximized")
 
-	if !h.w.maximized || h.view.laid != h.view.rect.Size() || h.view.rect.Dx() != screenWidth {
-		t.Errorf("maximized: %v, the topic %v laid out for %v", h.w.maximized, h.view.rect, h.view.laid)
+	if !hw.wdw.maximized || hw.view.laid != hw.view.rect.Size() || hw.view.rect.Dx() != screenWidth {
+		t.Errorf("maximized: %v, the topic %v laid out for %v", hw.wdw.maximized, hw.view.rect, hw.view.laid)
 	}
 
-	ta.click(onCaptionButton(h.w, capClose))
+	ta.click(onCaptionButton(hw.wdw, capClose))
 	ta.wait(1)
 
-	if h.w.visible || len(h.history) != 0 {
+	if hw.wdw.visible || len(hw.history) != 0 {
 		t.Error("the help window didn't close")
 	}
 }
 
-// onCaptionButton is a point inside caption button b of w.
-func onCaptionButton(w *window, b int) image.Point {
-	return w.captionButton(b).Min.Add(image.Pt(4, 4))
+// onCaptionButton is a point inside caption button cbt of wdw.
+func onCaptionButton(wdw *window, cbt int) image.Point {
+	return wdw.captionButton(cbt).Min.Add(image.Pt(4, 4))
 }
 
 // followHelpLinks follows two links in the manual from its contents, one
 // after the wheel scrolled, then goes Back to the contents.
 func followHelpLinks(t *testing.T, ta *testApp) {
-	h := ta.helpWindow
-	v := h.view
+	hw := ta.helpWindow
+	hv := hw.view
 
 	ta.click(ta.spotPoint("playing.md"))
 	ta.wait(1)
 
-	if v.name != "playing.md" || !h.back.enabled {
-		t.Fatalf("help at %s after the link, Back %v", v.name, h.back.enabled)
+	if hv.name != "playing.md" || !hw.back.enabled {
+		t.Fatalf("help at %s after the link, Back %v", hv.name, hw.back.enabled)
 	}
 
 	ta.shot("31-help-playing")
 	ta.frame(input{wheel: -2})
 
-	pos := v.scroll.pos
-	if pos != 6*v.scroll.line {
+	pos := hv.scroll.pos
+	if pos != 6*hv.scroll.line {
 		t.Errorf("scrolled to %d by the wheel", pos)
 	}
 
-	p := ta.spotPoint("statistics.md") // scrolling to it
-	pos = v.scroll.pos
+	pnt := ta.spotPoint("statistics.md") // scrolling to it
+	pos = hv.scroll.pos
 
-	ta.click(p)
+	ta.click(pnt)
 	ta.wait(1)
 
-	if v.name != "statistics.md" || v.scroll.pos != 0 {
-		t.Fatalf("help at %s, %d", v.name, v.scroll.pos)
+	if hv.name != "statistics.md" || hv.scroll.pos != 0 {
+		t.Fatalf("help at %s, %d", hv.name, hv.scroll.pos)
 	}
 
-	ta.clickOn(h.w, "Back")
+	ta.clickOn(hw.wdw, "Back")
 	ta.wait(1)
 
-	if v.name != "playing.md" || v.scroll.pos != pos {
-		t.Errorf("Back went to %s at %d", v.name, v.scroll.pos)
+	if hv.name != "playing.md" || hv.scroll.pos != pos {
+		t.Errorf("Back went to %s at %d", hv.name, hv.scroll.pos)
 	}
 
-	if ta.desk.active.focus != v {
+	if ta.desk.active.focus != hv {
 		t.Error("the buttons kept the focus")
 	}
 
-	ta.clickOn(h.w, "Back")
+	ta.clickOn(hw.wdw, "Back")
 	ta.wait(1)
 
-	if v.name != "index.md" || h.back.enabled {
-		t.Errorf("Back went to %s, Back %v", v.name, h.back.enabled)
+	if hv.name != "index.md" || hw.back.enabled {
+		t.Errorf("Back went to %s, Back %v", hv.name, hw.back.enabled)
 	}
 }
 
@@ -134,7 +134,7 @@ func TestHelpF1(t *testing.T) {
 	tb.key(ebiten.KeyF1)
 	tb.wait(1)
 
-	if tb.helpWindow == nil || !tb.helpWindow.w.visible || tb.helpWindow.view.name != "index.md" {
+	if tb.helpWindow == nil || !tb.helpWindow.wdw.visible || tb.helpWindow.view.name != "index.md" {
 		t.Fatal("F1 shows no help")
 	}
 
@@ -146,37 +146,37 @@ func TestHelpF1(t *testing.T) {
 func TestHelpPages(t *testing.T) {
 	ta := newTestApp(t)
 	ta.wait(80)
-	ta.clickOn(ta.start.w, "HelpButton")
+	ta.clickOn(ta.start.wdw, "HelpButton")
 	ta.wait(1)
 
-	v := ta.helpWindow.view
+	hv := ta.helpWindow.view
 
 	names, err := fs.Glob(assets.FS, "help/*.md")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	for _, n := range names {
-		name := path.Base(n)
-		v.open(name, 0)
+	for _, nam := range names {
+		name := path.Base(nam)
+		hv.open(name, 0)
 
-		if v.name != name || v.doc == nil {
+		if hv.name != name || hv.doc == nil {
 			t.Errorf("%s doesn't show", name)
 
 			continue
 		}
 
-		for _, s := range v.spots {
-			if len(s.boxes) == 0 {
-				t.Errorf("%s: the link to %s has no box", name, s.target)
+		for _, hsp := range hv.spots {
+			if len(hsp.boxes) == 0 {
+				t.Errorf("%s: the link to %s has no box", name, hsp.target)
 			}
 		}
 
 		ta.desk.dirty = true
 		ta.shot("help-" + strings.TrimSuffix(name, ".md"))
 
-		if v.scroll.enabled() {
-			v.scroll.set(v.scroll.limit())
+		if hv.scroll.enabled() {
+			hv.scroll.set(hv.scroll.limit())
 			ta.shot("help-" + strings.TrimSuffix(name, ".md") + "-end")
 		}
 	}

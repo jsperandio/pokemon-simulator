@@ -31,10 +31,10 @@ const (
 type popup interface {
 	bounds() image.Rectangle
 	paint(cv canvas)
-	mouseDown(p image.Point)
-	mouseMove(p image.Point, down bool)
+	mouseDown(pnt image.Point)
+	mouseMove(pnt image.Point, down bool)
 	// mouseUp reports whether the popup is done and should close.
-	mouseUp(p image.Point) bool
+	mouseUp(pnt image.Point) bool
 	tick(now time.Time) bool
 	wheel(dy int)
 	// dismiss closes it from outside, as a click elsewhere does.
@@ -114,89 +114,89 @@ func newDesktop(res *resources) *desktop {
 }
 
 // add registers a window, hidden.
-func (d *desktop) add(w *window) {
-	d.windows = append(d.windows, w)
+func (d *desktop) add(wdw *window) {
+	d.windows = append(d.windows, wdw)
 }
 
 // remove forgets a window for good, as freeing a dialog does.
-func (d *desktop) remove(w *window) {
-	d.hide(w)
+func (d *desktop) remove(wdw *window) {
+	d.hide(wdw)
 
-	if i := slices.Index(d.windows, w); i >= 0 {
+	if i := slices.Index(d.windows, wdw); i >= 0 {
 		d.windows = slices.Delete(d.windows, i, i+1)
 	}
 
-	for _, o := range d.windows {
-		if o.prevActive == w {
-			o.prevActive = nil
+	for _, oth := range d.windows {
+		if oth.prevActive == wdw {
+			oth.prevActive = nil
 		}
 	}
 }
 
 // show shows a window above the others and activates it, as a form's Show
 // does.
-func (d *desktop) show(w *window) {
-	if !w.visible {
-		w.visible = true
-		if w.onShow != nil {
-			w.onShow()
+func (d *desktop) show(wdw *window) {
+	if !wdw.visible {
+		wdw.visible = true
+		if wdw.onShow != nil {
+			wdw.onShow()
 		}
 	}
 
-	d.raise(w)
-	d.activate(w)
+	d.raise(wdw)
+	d.activate(wdw)
 
 	d.dirty = true
 }
 
 // hide hides a window; if it was active, the topmost visible window takes
 // its place.
-func (d *desktop) hide(w *window) {
-	if !w.visible {
+func (d *desktop) hide(wdw *window) {
+	if !wdw.visible {
 		return
 	}
 
-	w.visible = false
-	d.release(w)
+	wdw.visible = false
+	d.release(wdw)
 
-	if d.active == w {
+	if d.active == wdw {
 		d.active = nil
-		w.active = false
+		wdw.active = false
 
-		if w.onDeactivate != nil {
-			w.onDeactivate()
+		if wdw.onDeactivate != nil {
+			wdw.onDeactivate()
 		}
 
 		d.activateTop()
 	}
 
-	if w.onHide != nil {
-		w.onHide()
+	if wdw.onHide != nil {
+		wdw.onHide()
 	}
 
 	d.dirty = true
 }
 
 // release forgets the mouse and the popups of a window that goes away.
-func (d *desktop) release(w *window) {
-	if d.capture != nil && d.capture.base().wdw == w {
+func (d *desktop) release(wdw *window) {
+	if d.capture != nil && d.capture.base().wdw == wdw {
 		d.capture = nil
 	}
 
-	if d.hover != nil && d.hover.base().wdw == w {
+	if d.hover != nil && d.hover.base().wdw == wdw {
 		d.hover = nil
 	}
 
-	if d.drag == w {
+	if d.drag == wdw {
 		d.drag = nil
 	}
 
-	if d.capWindow == w {
+	if d.capWindow == wdw {
 		d.capWindow = nil
-		w.capPressed = capNone
+		wdw.capPressed = capNone
 	}
 
-	if d.menu != nil && d.menu.win == w {
+	if d.menu != nil && d.menu.win == wdw {
 		d.menu.exit()
 	}
 
@@ -205,9 +205,9 @@ func (d *desktop) release(w *window) {
 
 // activateTop activates the topmost visible window.
 func (d *desktop) activateTop() {
-	for _, w := range slices.Backward(d.windows) {
-		if w.visible {
-			d.activate(w)
+	for _, wdw := range slices.Backward(d.windows) {
+		if wdw.visible {
+			d.activate(wdw)
 
 			return
 		}
@@ -215,24 +215,24 @@ func (d *desktop) activateTop() {
 }
 
 // raise puts a window above the others.
-func (d *desktop) raise(w *window) {
-	if i := slices.Index(d.windows, w); i >= 0 && i != len(d.windows)-1 {
-		d.windows = append(slices.Delete(d.windows, i, i+1), w)
+func (d *desktop) raise(wdw *window) {
+	if i := slices.Index(d.windows, wdw); i >= 0 && i != len(d.windows)-1 {
+		d.windows = append(slices.Delete(d.windows, i, i+1), wdw)
 		d.dirty = true
 	}
 }
 
-// activate makes w the active window: its caption lights up and its
+// activate makes wdw the active window: its caption lights up and its
 // focused control gets the keyboard. While a modal window is up, only it
 // can be active.
-func (d *desktop) activate(w *window) {
-	if m := d.topModal(); m != nil && w != m {
-		w = m
+func (d *desktop) activate(wdw *window) {
+	if mdl := d.topModal(); mdl != nil && wdw != mdl {
+		wdw = mdl
 	}
 
-	if w == d.active {
-		if w != nil {
-			d.raise(w)
+	if wdw == d.active {
+		if wdw != nil {
+			d.raise(wdw)
 		}
 
 		return
@@ -243,9 +243,9 @@ func (d *desktop) activate(w *window) {
 		d.leave(prev)
 	}
 
-	d.active = w
-	if w != nil {
-		d.enter(w)
+	d.active = wdw
+	if wdw != nil {
+		d.enter(wdw)
 	}
 
 	d.dirty = true
@@ -254,15 +254,15 @@ func (d *desktop) activate(w *window) {
 		prev.onDeactivate()
 	}
 
-	if w != nil && w.onActivate != nil {
-		w.onActivate()
+	if wdw != nil && wdw.onActivate != nil {
+		wdw.onActivate()
 	}
 }
 
 // leave turns off the window that was active, and its menus, popups and
 // focus.
-func (d *desktop) leave(w *window) {
-	w.active = false
+func (d *desktop) leave(wdw *window) {
+	wdw.active = false
 
 	d.dismissPopups()
 
@@ -270,27 +270,27 @@ func (d *desktop) leave(w *window) {
 		d.menu.exit()
 	}
 
-	if l, ok := w.focus.(interface{ lostFocus() }); ok {
-		l.lostFocus()
+	if lfc, ok := wdw.focus.(interface{ lostFocus() }); ok {
+		lfc.lostFocus()
 	}
 }
 
 // enter lights up the window that becomes active, above the others, and
 // gives the keyboard to its focused control, or to its first one.
-func (d *desktop) enter(w *window) {
-	w.active = true
-	w.noFocus = false
-	d.raise(w)
+func (d *desktop) enter(wdw *window) {
+	wdw.active = true
+	wdw.noFocus = false
+	d.raise(wdw)
 
-	if w.focus == nil || !canFocus(w.focus) {
-		w.focus = nil
-		w.focusFirst()
+	if wdw.focus == nil || !canFocus(wdw.focus) {
+		wdw.focus = nil
+		wdw.focusFirst()
 
 		return
 	}
 
-	if g, ok := w.focus.(interface{ gotFocus(bool) }); ok {
-		g.gotFocus(false)
+	if gfc, ok := wdw.focus.(interface{ gotFocus(bool) }); ok {
+		gfc.gotFocus(false)
 	}
 }
 
@@ -304,40 +304,40 @@ func (d *desktop) topModal() *window {
 
 // showModal shows a window as ShowModal does: until it closes, the other
 // windows take no input.
-func (d *desktop) showModal(w *window) {
-	w.modal = true
-	w.modalResult = mrNone
-	w.prevActive = d.active
-	d.modals = append(d.modals, w)
-	d.show(w)
+func (d *desktop) showModal(wdw *window) {
+	wdw.modal = true
+	wdw.modalResult = mrNone
+	wdw.prevActive = d.active
+	d.modals = append(d.modals, wdw)
+	d.show(wdw)
 }
 
 // closeModal hides a modal window and gives the activation back to the
 // window that had it.
-func (d *desktop) closeModal(w *window) {
-	i := slices.Index(d.modals, w)
+func (d *desktop) closeModal(wdw *window) {
+	i := slices.Index(d.modals, wdw)
 	if i < 0 {
 		return
 	}
 
 	d.modals = slices.Delete(d.modals, i, i+1)
-	w.modal = false
-	prev := w.prevActive
-	w.prevActive = nil
-	d.hide(w)
+	wdw.modal = false
+	prev := wdw.prevActive
+	wdw.prevActive = nil
+	d.hide(wdw)
 
 	if prev != nil && prev.visible {
 		d.activate(prev)
 	}
 }
 
-func (d *desktop) openPopup(p popup) {
-	d.popups = append(d.popups, p)
+func (d *desktop) openPopup(pop popup) {
+	d.popups = append(d.popups, pop)
 	d.dirty = true
 }
 
-func (d *desktop) closePopup(p popup) {
-	if i := slices.Index(d.popups, p); i >= 0 {
+func (d *desktop) closePopup(pop popup) {
+	if i := slices.Index(d.popups, pop); i >= 0 {
 		d.popups = slices.Delete(d.popups, i, i+1)
 		d.popupPress = false
 		d.dirty = true
@@ -358,47 +358,47 @@ func (d *desktop) dismissPopups() {
 	d.popupPress = false
 }
 
-// windowAt returns the topmost visible window at p, or nil.
-func (d *desktop) windowAt(p image.Point) *window {
-	for _, w := range slices.Backward(d.windows) {
-		if w.visible && p.In(w.rect()) {
-			return w
+// windowAt returns the topmost visible window at pnt, or nil.
+func (d *desktop) windowAt(pnt image.Point) *window {
+	for _, wdw := range slices.Backward(d.windows) {
+		if wdw.visible && pnt.In(wdw.rect()) {
+			return wdw
 		}
 	}
 
 	return nil
 }
 
-// blocked reports whether a modal window keeps w from taking input.
-func (d *desktop) blocked(w *window) bool {
-	m := d.topModal()
+// blocked reports whether a modal window keeps wdw from taking input.
+func (d *desktop) blocked(wdw *window) bool {
+	mdl := d.topModal()
 
-	return m != nil && w != m
+	return mdl != nil && wdw != mdl
 }
 
-// takesInput reports whether window w gets the mouse and the keys: it
+// takesInput reports whether window wdw gets the mouse and the keys: it
 // exists, no modal window blocks it and no popup is open.
-func (d *desktop) takesInput(w *window) bool {
-	return w != nil && !d.blocked(w) && len(d.popups) == 0
+func (d *desktop) takesInput(wdw *window) bool {
+	return wdw != nil && !d.blocked(wdw) && len(d.popups) == 0
 }
 
 // update handles one frame's input.
 func (d *desktop) update(in *input, now time.Time) {
 	d.now = now
-	p := image.Pt(max(min(in.mouse.X, screenWidth-1), 0), max(min(in.mouse.Y, screenHeight-1), 0))
-	moved := p != d.mouse
-	d.mouse = p
+	pnt := image.Pt(max(min(in.mouse.X, screenWidth-1), 0), max(min(in.mouse.Y, screenHeight-1), 0))
+	moved := pnt != d.mouse
+	d.mouse = pnt
 
 	if moved {
-		d.mouseMove(p, in.down && !in.pressed)
+		d.mouseMove(pnt, in.down && !in.pressed)
 	}
 
 	if in.pressed {
-		d.mouseDown(p)
+		d.mouseDown(pnt)
 	}
 
 	if in.released {
-		d.mouseUp(p)
+		d.mouseUp(pnt)
 	}
 
 	if in.wheel != 0 {
@@ -407,9 +407,9 @@ func (d *desktop) update(in *input, now time.Time) {
 
 	d.keys(in)
 
-	d.updateHint(p, in.acted())
+	d.updateHint(pnt, in.acted())
 	d.tick(now)
-	d.updateCursor(p)
+	d.updateCursor(pnt)
 }
 
 // keys handles one frame's keys, and the characters they type.
@@ -417,43 +417,43 @@ func (d *desktop) keys(in *input) {
 	// Keys that come down in the same frame come in key code order, the
 	// letters before Alt; the modifiers go first, as they were pressed
 	// before the keys they modify. Alt+M in one frame isn't Alt alone.
-	slices.SortStableFunc(in.keys, func(a, b ebiten.Key) int {
-		return cmp.Compare(keyOrder(a), keyOrder(b))
+	slices.SortStableFunc(in.keys, func(fst, snd ebiten.Key) int {
+		return cmp.Compare(keyOrder(fst), keyOrder(snd))
 	})
 
 	// The characters the keys type go to the active window, unless the
 	// menu took the keys, or they opened another window: a menu's loop
 	// eats its characters, as a dialog the menu opens doesn't get them.
 	active, menu := d.active, false
-	for _, k := range in.keys {
+	for _, key := range in.keys {
 		menu = menu || d.menu != nil
-		d.keyDown(k, in.mods)
+		d.keyDown(key, in.mods)
 
 		menu = menu || d.menu != nil
 	}
 
 	shortcut := in.mods.alt || in.mods.ctrl
 	if !shortcut && !menu && d.active == active {
-		for _, r := range in.chars {
-			d.char(r)
+		for _, chr := range in.chars {
+			d.char(chr)
 		}
 	}
 
-	for _, k := range in.keysUp {
-		d.keyUp(k)
+	for _, key := range in.keysUp {
+		d.keyUp(key)
 	}
 }
 
 // widgetOrigin returns a widget's top-left corner on the screen.
-func widgetOrigin(k widget) image.Point {
-	c := k.base()
+func widgetOrigin(wgt widget) image.Point {
+	ctl := wgt.base()
 
-	return c.wdw.clientOrigin().Add(c.origin())
+	return ctl.wdw.clientOrigin().Add(ctl.origin())
 }
 
-// isDouble reports whether a press on target at p makes a double click.
-func (d *desktop) isDouble(p image.Point, target any) bool {
-	dp := p.Sub(d.lastPos)
+// isDouble reports whether a press on target at pnt makes a double click.
+func (d *desktop) isDouble(pnt image.Point, target any) bool {
+	dp := pnt.Sub(d.lastPos)
 	sameTarget := target == d.lastTarget
 	inTime := d.now.Sub(d.lastClick) <= doubleClickTime
 	inRange := abs(dp.X) <= doubleClickDist/2 && abs(dp.Y) <= doubleClickDist/2
@@ -464,7 +464,7 @@ func (d *desktop) isDouble(p image.Point, target any) bool {
 		d.lastTarget = nil // a third click starts over
 	}
 
-	d.lastClick, d.lastPos = d.now, p
+	d.lastClick, d.lastPos = d.now, pnt
 
 	return double
 }
@@ -477,50 +477,50 @@ func abs(x int) int {
 	return x
 }
 
-func (d *desktop) mouseDown(p image.Point) {
+func (d *desktop) mouseDown(pnt image.Point) {
 	d.dirty = true
 	if d.menu != nil {
-		d.menu.mouseDown(p)
+		d.menu.mouseDown(pnt)
 
 		return
 	}
 
 	if len(d.popups) > 0 {
-		d.popupDown(p)
+		d.popupDown(pnt)
 
 		return
 	}
 
-	w := d.windowAt(p)
-	if w == nil {
+	wdw := d.windowAt(pnt)
+	if wdw == nil {
 		return
 	}
 
-	if d.blocked(w) {
+	if d.blocked(wdw) {
 		d.activate(d.topModal())
 
 		return
 	}
 
-	d.activate(w)
+	d.activate(wdw)
 
 	// A press on the frame does nothing.
 	switch {
-	case w.style != bsNone && p.In(w.captionRect()):
-		d.captionDown(w, p)
-	case w.menu != nil && p.In(w.menuRect()):
-		d.menu = w.menu
-		w.menu.mouseDown(p)
-	case p.In(w.clientRect()):
-		d.clientDown(w, p)
+	case wdw.style != bsNone && pnt.In(wdw.captionRect()):
+		d.captionDown(wdw, pnt)
+	case wdw.menu != nil && pnt.In(wdw.menuRect()):
+		d.menu = wdw.menu
+		wdw.menu.mouseDown(pnt)
+	case pnt.In(wdw.clientRect()):
+		d.clientDown(wdw, pnt)
 	}
 }
 
 // popupDown handles a press while popups are open: on the top one, or
 // elsewhere, which only closes them.
-func (d *desktop) popupDown(p image.Point) {
+func (d *desktop) popupDown(pnt image.Point) {
 	top := d.popups[len(d.popups)-1]
-	if !p.In(top.bounds()) {
+	if !pnt.In(top.bounds()) {
 		d.dismissPopups()
 
 		return
@@ -528,93 +528,93 @@ func (d *desktop) popupDown(p image.Point) {
 
 	d.popupPress = true
 
-	top.mouseDown(p)
+	top.mouseDown(pnt)
 }
 
 // clientDown handles a press in a window's client area: on a control, or
 // on the form.
-func (d *desktop) clientDown(w *window, p image.Point) {
-	k := w.widgetAt(p)
+func (d *desktop) clientDown(wdw *window, pnt image.Point) {
+	wgt := wdw.widgetAt(pnt)
 	// A disabled control takes no clicks: its parent gets them, as
 	// WindowFromPoint skips disabled windows.
-	for k != nil && !k.base().usable() {
-		k = k.base().parent
+	for wgt != nil && !wgt.base().usable() {
+		wgt = wgt.base().parent
 	}
 
-	double := d.isDouble(p, any(k))
-	if k == nil {
-		if w.onClick != nil {
-			w.onClick()
+	double := d.isDouble(pnt, any(wgt))
+	if wgt == nil {
+		if wdw.onClick != nil {
+			wdw.onClick()
 		}
 
 		return
 	}
 
-	if canFocus(k) {
-		w.setFocus(k, true)
+	if canFocus(wgt) {
+		wdw.setFocus(wgt, true)
 	}
 
-	if c, ok := k.(clicker); ok {
-		d.capture = k
-		c.mouseDown(p.Sub(widgetOrigin(k)), double)
+	if clk, ok := wgt.(clicker); ok {
+		d.capture = wgt
+		clk.mouseDown(pnt.Sub(widgetOrigin(wgt)), double)
 
 		return
 	}
 
-	if c := k.base(); c.onClick != nil {
-		c.onClick()
+	if ctl := wgt.base(); ctl.onClick != nil {
+		ctl.onClick()
 	}
 }
 
 // captionDown handles a press on a window's caption: a caption button,
 // a double click, or the start of a drag.
-func (d *desktop) captionDown(w *window, p image.Point) {
-	for _, b := range []int{capMin, capMax, capClose} {
-		if p.In(w.captionButton(b)) {
-			w.capPressed, w.capInside = b, true
-			d.capWindow = w
+func (d *desktop) captionDown(wdw *window, pnt image.Point) {
+	for _, cbt := range []int{capMin, capMax, capClose} {
+		if pnt.In(wdw.captionButton(cbt)) {
+			wdw.capPressed, wdw.capInside = cbt, true
+			d.capWindow = wdw
 
 			return
 		}
 	}
 
-	if d.isDouble(p, w) {
-		icon := w.hasSysIcon() && p.X < w.captionRect().Min.X+20
+	if d.isDouble(pnt, wdw) {
+		icon := wdw.hasSysIcon() && pnt.X < wdw.captionRect().Min.X+20
 		switch {
 		case icon:
-			w.close() // a double click on the icon closes the window
-		case w.maxBox:
-			w.toggleMaximize()
+			wdw.close() // a double click on the icon closes the window
+		case wdw.maxBox:
+			wdw.toggleMaximize()
 		}
 
 		return
 	}
 
-	if !w.maximized {
-		d.drag = w
-		d.dragFrom = p.Sub(w.pos)
+	if !wdw.maximized {
+		d.drag = wdw
+		d.dragFrom = pnt.Sub(wdw.pos)
 	}
 }
 
 // mouseMove follows the mouse: drags, hot-tracking and hovering.
-func (d *desktop) mouseMove(p image.Point, down bool) {
+func (d *desktop) mouseMove(pnt image.Point, down bool) {
 	d.lastTarget = nil
 	if d.menu != nil {
-		d.menu.mouseMove(p, down)
+		d.menu.mouseMove(pnt, down)
 
 		return
 	}
 
 	switch {
 	case d.drag != nil:
-		d.drag.pos = p.Sub(d.dragFrom)
+		d.drag.pos = pnt.Sub(d.dragFrom)
 		d.dirty = true
 
 		return
 	case d.capWindow != nil:
-		w := d.capWindow
-		if in := p.In(w.captionButton(w.capPressed)); in != w.capInside {
-			w.capInside = in
+		wdw := d.capWindow
+		if in := pnt.In(wdw.captionButton(wdw.capPressed)); in != wdw.capInside {
+			wdw.capInside = in
 			d.dirty = true
 		}
 
@@ -622,7 +622,7 @@ func (d *desktop) mouseMove(p image.Point, down bool) {
 	}
 
 	if n := len(d.popups); n > 0 {
-		d.popups[n-1].mouseMove(p, down && (d.popupPress || d.capture != nil))
+		d.popups[n-1].mouseMove(pnt, down && (d.popupPress || d.capture != nil))
 
 		d.dirty = true
 		if d.popupPress {
@@ -631,40 +631,40 @@ func (d *desktop) mouseMove(p image.Point, down bool) {
 	}
 
 	if d.capture != nil {
-		if c, ok := d.capture.(clicker); ok {
-			c.mouseDrag(p.Sub(widgetOrigin(d.capture)))
+		if clk, ok := d.capture.(clicker); ok {
+			clk.mouseDrag(pnt.Sub(widgetOrigin(d.capture)))
 		}
 
 		return
 	}
 
-	d.hoverAt(p)
+	d.hoverAt(pnt)
 }
 
 // hoverAt hot-tracks the list views and the menu bars as the mouse moves
 // over them.
-func (d *desktop) hoverAt(p image.Point) {
+func (d *desktop) hoverAt(pnt image.Point) {
 	var over widget
-	w := d.windowAt(p)
+	wdw := d.windowAt(pnt)
 
-	for _, m := range d.menuBars() {
-		m.hover(p, w == m.win && d.takesInput(w))
+	for _, mb := range d.menuBars() {
+		mb.hover(pnt, wdw == mb.win && d.takesInput(wdw))
 	}
 
-	if d.takesInput(w) && p.In(w.clientRect()) {
-		over = w.widgetAt(p)
+	if d.takesInput(wdw) && pnt.In(wdw.clientRect()) {
+		over = wdw.widgetAt(pnt)
 	}
 
 	if over != d.hover {
-		if h, ok := d.hover.(hoverer); ok {
-			h.hover(image.Point{}, true)
+		if hvr, ok := d.hover.(hoverer); ok {
+			hvr.hover(image.Point{}, true)
 		}
 
 		d.hover = over
 	}
 
-	if h, ok := over.(hoverer); ok {
-		h.hover(p.Sub(widgetOrigin(over)), false)
+	if hvr, ok := over.(hoverer); ok {
+		hvr.hover(pnt.Sub(widgetOrigin(over)), false)
 	}
 }
 
@@ -672,19 +672,19 @@ func (d *desktop) hoverAt(p image.Point) {
 func (d *desktop) menuBars() []*menuBar {
 	var out []*menuBar
 
-	for _, w := range d.windows {
-		if w.visible && w.menu != nil {
-			out = append(out, w.menu)
+	for _, wdw := range d.windows {
+		if wdw.visible && wdw.menu != nil {
+			out = append(out, wdw.menu)
 		}
 	}
 
 	return out
 }
 
-func (d *desktop) mouseUp(p image.Point) {
+func (d *desktop) mouseUp(pnt image.Point) {
 	d.dirty = true
 	if d.menu != nil {
-		d.menu.mouseUp(p)
+		d.menu.mouseUp(pnt)
 
 		return
 	}
@@ -695,14 +695,14 @@ func (d *desktop) mouseUp(p image.Point) {
 
 		return
 	case d.capWindow != nil:
-		d.captionUp(p)
+		d.captionUp(pnt)
 
 		return
 	}
 
 	if d.popupPress {
 		d.popupPress = false
-		if n := len(d.popups); n > 0 && d.popups[n-1].mouseUp(p) {
+		if n := len(d.popups); n > 0 && d.popups[n-1].mouseUp(pnt) {
 			d.popups[n-1].dismiss()
 		}
 
@@ -710,15 +710,15 @@ func (d *desktop) mouseUp(p image.Point) {
 	}
 
 	if d.capture != nil {
-		k := d.capture
+		wgt := d.capture
 		d.capture = nil
 
-		if c, ok := k.(clicker); ok {
-			c.mouseUp(p.Sub(widgetOrigin(k)))
+		if clk, ok := wgt.(clicker); ok {
+			clk.mouseUp(pnt.Sub(widgetOrigin(wgt)))
 		}
 
 		// A press on a combo box's button can end on its list.
-		if n := len(d.popups); n > 0 && p.In(d.popups[n-1].bounds()) && d.popups[n-1].mouseUp(p) {
+		if n := len(d.popups); n > 0 && pnt.In(d.popups[n-1].bounds()) && d.popups[n-1].mouseUp(pnt) {
 			d.popups[n-1].dismiss()
 		}
 	}
@@ -726,25 +726,25 @@ func (d *desktop) mouseUp(p image.Point) {
 
 // captionUp ends a press on a caption button, which acts if the mouse is
 // still on it.
-func (d *desktop) captionUp(p image.Point) {
-	w := d.capWindow
-	b := w.capPressed
-	inside := p.In(w.captionButton(b))
-	w.capPressed, d.capWindow = capNone, nil
+func (d *desktop) captionUp(pnt image.Point) {
+	wdw := d.capWindow
+	cbt := wdw.capPressed
+	inside := pnt.In(wdw.captionButton(cbt))
+	wdw.capPressed, d.capWindow = capNone, nil
 
 	if !inside {
 		return
 	}
 
-	switch b {
+	switch cbt {
 	case capClose:
-		w.close()
+		wdw.close()
 	case capMax:
-		if w.maxBox {
-			w.toggleMaximize()
+		if wdw.maxBox {
+			wdw.toggleMaximize()
 		}
 	case capMin:
-		if w.minBox && d.onMinimize != nil {
+		if wdw.minBox && d.onMinimize != nil {
 			d.onMinimize()
 		}
 	}
@@ -764,16 +764,16 @@ func (d *desktop) wheel(dy int) {
 		return
 	}
 
-	if w := d.active; w != nil && w.focus != nil {
-		if h, ok := w.focus.(wheeler); ok && w.focus.base().usable() {
-			h.wheel(dy)
+	if wdw := d.active; wdw != nil && wdw.focus != nil {
+		if whl, ok := wdw.focus.(wheeler); ok && wdw.focus.base().usable() {
+			whl.wheel(dy)
 		}
 	}
 }
 
-func (d *desktop) keyDown(k ebiten.Key, m mods) {
+func (d *desktop) keyDown(key ebiten.Key, mds mods) {
 	d.dirty = true
-	if k == ebiten.KeyAltLeft || k == ebiten.KeyAltRight {
+	if key == ebiten.KeyAltLeft || key == ebiten.KeyAltRight {
 		d.altAlone = true
 
 		return
@@ -781,60 +781,60 @@ func (d *desktop) keyDown(k ebiten.Key, m mods) {
 
 	d.altAlone = false
 	if d.menu != nil {
-		d.menu.key(k)
+		d.menu.key(key)
 
 		return
 	}
 
-	w := d.active
-	if w == nil {
+	wdw := d.active
+	if wdw == nil {
 		return
 	}
 
-	if d.menuKey(w, k, m) {
+	if d.menuKey(wdw, key, mds) {
 		return
 	}
 
 	switch {
-	case m.alt && k == ebiten.KeyF4:
-		if w.sysMenu && w.style != bsNone {
-			w.close()
+	case mds.alt && key == ebiten.KeyF4:
+		if wdw.sysMenu && wdw.style != bsNone {
+			wdw.close()
 		}
 
 		return
-	case m.alt && keyRune(k) != 0:
+	case mds.alt && keyRune(key) != 0:
 		// Alt and a letter: a button's accelerator.
-		w.accelerator(keyRune(k))
+		wdw.accelerator(keyRune(key))
 
 		return
 	}
 
-	w.key(k, m)
+	wdw.key(key, mds)
 }
 
 // menuKey gives a key to the active window's menu bar, and reports whether
 // it took it: F10 enters the bar, Alt and a letter opens a menu, and a
 // shortcut runs its command.
-func (d *desktop) menuKey(w *window, k ebiten.Key, m mods) bool {
-	if w.menu == nil || d.blocked(w) || len(d.popups) > 0 {
+func (d *desktop) menuKey(wdw *window, key ebiten.Key, mds mods) bool {
+	if wdw.menu == nil || d.blocked(wdw) || len(d.popups) > 0 {
 		return false
 	}
 
 	switch {
-	case k == ebiten.KeyF10 && !m.shift && !m.ctrl:
-		d.menu = w.menu
-		w.menu.enterKeyboard()
-	case m.alt && w.menu.openByKey(k):
-		d.menu = w.menu
+	case key == ebiten.KeyF10 && !mds.shift && !mds.ctrl:
+		d.menu = wdw.menu
+		wdw.menu.enterKeyboard()
+	case mds.alt && wdw.menu.openByKey(key):
+		d.menu = wdw.menu
 	default:
-		return w.menu.shortcut(k, m)
+		return wdw.menu.shortcut(key, mds)
 	}
 
 	return true
 }
 
-func (d *desktop) keyUp(k ebiten.Key) {
-	if (k == ebiten.KeyAltLeft || k == ebiten.KeyAltRight) && d.altAlone {
+func (d *desktop) keyUp(key ebiten.Key) {
+	if (key == ebiten.KeyAltLeft || key == ebiten.KeyAltRight) && d.altAlone {
 		d.altAlone = false
 		d.dirty = true
 
@@ -844,50 +844,50 @@ func (d *desktop) keyUp(k ebiten.Key) {
 			return
 		}
 
-		if w := d.active; d.takesInput(w) && w.menu != nil {
-			d.menu = w.menu
-			w.menu.enterKeyboard()
+		if wdw := d.active; d.takesInput(wdw) && wdw.menu != nil {
+			d.menu = wdw.menu
+			wdw.menu.enterKeyboard()
 		}
 
 		return
 	}
 
-	if w := d.active; w != nil {
-		if b, ok := w.focus.(*button); ok {
-			b.keyUp(k)
+	if wdw := d.active; wdw != nil {
+		if btn, ok := wdw.focus.(*button); ok {
+			btn.keyUp(key)
 		}
 	}
 }
 
-func (d *desktop) char(r rune) {
+func (d *desktop) char(chr rune) {
 	if d.menu != nil {
-		d.menu.char(r)
+		d.menu.char(chr)
 
 		return
 	}
 
-	if w := d.active; w != nil {
+	if wdw := d.active; wdw != nil {
 		d.dirty = true
 
-		w.char(r)
+		wdw.char(chr)
 	}
 }
 
 // keyRune returns the letter or digit a key types, lowercased, or 0.
-func keyRune(k ebiten.Key) rune {
+func keyRune(key ebiten.Key) rune {
 	switch {
-	case k >= ebiten.KeyA && k <= ebiten.KeyZ:
-		return 'a' + rune(k-ebiten.KeyA)
-	case k >= ebiten.KeyDigit0 && k <= ebiten.KeyDigit9:
-		return '0' + rune(k-ebiten.KeyDigit0)
+	case key >= ebiten.KeyA && key <= ebiten.KeyZ:
+		return 'a' + rune(key-ebiten.KeyA)
+	case key >= ebiten.KeyDigit0 && key <= ebiten.KeyDigit9:
+		return '0' + rune(key-ebiten.KeyDigit0)
 	}
 
 	return 0
 }
 
 // keyOrder is 0 for the modifier keys and 1 for the others.
-func keyOrder(k ebiten.Key) int {
-	switch k {
+func keyOrder(key ebiten.Key) int {
+	switch key {
 	case ebiten.KeyAltLeft, ebiten.KeyAltRight, ebiten.KeyControlLeft, ebiten.KeyControlRight,
 		ebiten.KeyShiftLeft, ebiten.KeyShiftRight, ebiten.KeyMetaLeft, ebiten.KeyMetaRight:
 		return 0
@@ -903,18 +903,18 @@ func (d *desktop) tick(now time.Time) {
 		d.dirty = true
 	}
 
-	if t, ok := d.capture.(ticker); ok {
-		t.tick(now)
+	if tck, ok := d.capture.(ticker); ok {
+		tck.tick(now)
 	}
 
 	if d.menu != nil {
 		d.menu.tick(now)
 	}
 
-	if w := d.active; w != nil && w.focus != nil {
+	if wdw := d.active; wdw != nil && wdw.focus != nil {
 		var since time.Duration
 
-		switch f := w.focus.(type) {
+		switch f := wdw.focus.(type) {
 		case *edit:
 			since = now.Sub(f.tb.blink)
 		case *spinEdit:
@@ -932,23 +932,23 @@ func (d *desktop) tick(now time.Time) {
 	}
 }
 
-func (d *desktop) updateCursor(p image.Point) {
-	c := ebiten.CursorShapeDefault
+func (d *desktop) updateCursor(pnt image.Point) {
+	cur := ebiten.CursorShapeDefault
 
 	if d.menu == nil && len(d.popups) == 0 && d.drag == nil {
-		k := d.capture
-		if k == nil {
-			if w := d.windowAt(p); w != nil && !d.blocked(w) && p.In(w.clientRect()) {
-				k = w.widgetAt(p)
+		wgt := d.capture
+		if wgt == nil {
+			if wdw := d.windowAt(pnt); wdw != nil && !d.blocked(wdw) && pnt.In(wdw.clientRect()) {
+				wgt = wdw.widgetAt(pnt)
 			}
 		}
 
-		if cu, ok := k.(cursorer); ok && k.base().usable() {
-			c = cu.cursor(p.Sub(widgetOrigin(k)))
+		if cu, ok := wgt.(cursorer); ok && wgt.base().usable() {
+			cur = cu.cursor(pnt.Sub(widgetOrigin(wgt)))
 		}
 	}
 
-	d.cursor = c
+	d.cursor = cur
 }
 
 // paint draws the desktop.
@@ -956,12 +956,12 @@ func (d *desktop) paint(img *image.RGBA) {
 	cv := newCanvas(img)
 	cv.fill(img.Rect, colDesktop)
 
-	for _, w := range d.windows {
-		w.paint(cv)
+	for _, wdw := range d.windows {
+		wdw.paint(cv)
 	}
 
-	for _, p := range d.popups {
-		p.paint(cv)
+	for _, pop := range d.popups {
+		pop.paint(cv)
 	}
 
 	if d.menu != nil {
@@ -973,65 +973,65 @@ func (d *desktop) paint(img *image.RGBA) {
 	d.dirty = false
 }
 
-func (d *desktop) updateHint(p image.Point, cancel bool) {
-	h := &d.hint
-	k := d.hintTarget(p)
+func (d *desktop) updateHint(pnt image.Point, cancel bool) {
+	hnt := &d.hint
+	wgt := d.hintTarget(pnt)
 
-	if cancel || k != h.ctl {
-		if !h.rect.Empty() {
-			h.rect = image.Rectangle{}
+	if cancel || wgt != hnt.ctl {
+		if !hnt.rect.Empty() {
+			hnt.rect = image.Rectangle{}
 			d.dirty = true
 		}
 
-		h.ctl, h.since, h.done = k, d.now, false
+		hnt.ctl, hnt.since, hnt.done = wgt, d.now, false
 		if cancel {
-			h.ctl = nil // CancelHint: the pause starts again
+			hnt.ctl = nil // CancelHint: the pause starts again
 		}
 
 		return
 	}
 
-	if k == nil || h.done {
+	if wgt == nil || hnt.done {
 		return
 	}
 
 	switch {
-	case h.rect.Empty() && d.now.Sub(h.since) >= hintPause:
+	case hnt.rect.Empty() && d.now.Sub(hnt.since) >= hintPause:
 		// CalcHintRect adds 6 and 2 to the text's size, ActivateHint 4 more
 		// to the height, and keeps the window on the screen.
-		f := d.res.sans
-		h.text = hintText(k)
-		size := image.Pt(f.width(h.text)+6, f.height()+6)
-		o := p.Add(image.Pt(0, hintCursorMargin))
-		o.X = max(min(o.X, screenWidth-size.X), 0)
-		o.Y = max(min(o.Y, screenHeight-size.Y), 0)
-		h.rect = image.Rectangle{Min: o, Max: o.Add(size)}
+		fnt := d.res.sans
+		hnt.text = hintText(wgt)
+		size := image.Pt(fnt.width(hnt.text)+6, fnt.height()+6)
+		org := pnt.Add(image.Pt(0, hintCursorMargin))
+		org.X = max(min(org.X, screenWidth-size.X), 0)
+		org.Y = max(min(org.Y, screenHeight-size.Y), 0)
+		hnt.rect = image.Rectangle{Min: org, Max: org.Add(size)}
 		d.dirty = true
-	case !h.rect.Empty() && d.now.Sub(h.since) >= hintPause+hintHidePause:
-		h.rect = image.Rectangle{}
-		h.done = true
+	case !hnt.rect.Empty() && d.now.Sub(hnt.since) >= hintPause+hintHidePause:
+		hnt.rect = image.Rectangle{}
+		hnt.done = true
 		d.dirty = true
 	}
 }
 
 // hintTarget returns the control under the mouse if its hint may show,
 // or nil.
-func (d *desktop) hintTarget(p image.Point) widget {
+func (d *desktop) hintTarget(pnt image.Point) widget {
 	if d.busy() {
 		return nil
 	}
 
-	w := d.windowAt(p)
-	if w == nil || !p.In(w.clientRect()) {
+	wdw := d.windowAt(pnt)
+	if wdw == nil || !pnt.In(wdw.clientRect()) {
 		return nil
 	}
 
-	k := w.widgetAt(p)
-	if !hintable(k) {
+	wgt := wdw.widgetAt(pnt)
+	if !hintable(wgt) {
 		return nil
 	}
 
-	return k
+	return wgt
 }
 
 // busy reports whether the desktop is in the middle of something that keeps
@@ -1041,15 +1041,15 @@ func (d *desktop) busy() bool {
 	return d.menu != nil || len(d.popups) > 0 || d.drag != nil || d.capture != nil || d.topModal() != nil
 }
 
-// hintable reports whether control k has a hint to show: it is shown, has
+// hintable reports whether control wgt has a hint to show: it is shown, has
 // ShowHint on and a hint.
-func hintable(k widget) bool {
-	return k != nil && k.base().shown() && k.base().property("ShowHint") == "True" && hintText(k) != ""
+func hintable(wgt widget) bool {
+	return wgt != nil && wgt.base().shown() && wgt.base().property("ShowHint") == "True" && hintText(wgt) != ""
 }
 
 // hintText is a control's hint, the part before a "|" (GetShortHint).
-func hintText(k widget) string {
-	text, _, _ := strings.Cut(k.base().property("Hint"), "|")
+func hintText(wgt widget) string {
+	text, _, _ := strings.Cut(wgt.base().property("Hint"), "|")
 
 	return text
 }
@@ -1077,12 +1077,12 @@ type hint struct {
 
 // paint draws the hint window: a black border, the tooltip colour, and the
 // text 2 pixels into the client area.
-func (h *hint) paint(cv canvas, f face) {
+func (h *hint) paint(cv canvas, fnt face) {
 	if h.rect.Empty() {
 		return
 	}
 
 	cv.fill(h.rect, colInfo)
 	cv.frame(h.rect, colFrame)
-	f.draw(cv.sub(h.rect), 3, 3, h.text, colText)
+	fnt.draw(cv.sub(h.rect), 3, 3, h.text, colText)
 }

@@ -34,16 +34,16 @@ func newStatsForm(app *Application) *statsForm {
 	sf.party = get[*listView](wdw, "ListView1")
 
 	for i := range sf.items {
-		k := i
+		idx := i
 		sf.items[i] = get[*button](wdw, "Button"+itoa(i+1))
 		sf.items[i].onClick = func() {
 			app.call(func() {
-				app.g.UseItem(k)
+				app.gam.UseItem(idx)
 			})
 		}
 	}
 
-	for _, n := range []string{
+	for _, nam := range []string{
 		"PlayerNameLbl",
 		"MoneyLbl",
 		"FightsLbl",
@@ -59,20 +59,20 @@ func newStatsForm(app *Application) *statsForm {
 		"PotionsLbl",
 		"SuperPotionsLbl",
 	} {
-		sf.counts[n] = get[*label](wdw, n)
+		sf.counts[nam] = get[*label](wdw, nam)
 	}
 
 	sf.party.onDblClick = func() {
-		if k := sf.party.selected; k >= 0 {
+		if idx := sf.party.selected; idx >= 0 {
 			app.call(func() {
-				app.g.ClickParty(k)
+				app.gam.ClickParty(idx)
 			})
 		}
 	}
 	// FormClick: a click on the window gives the focus to the game window.
 	wdw.onClick = func() {
-		if app.main.w.visible {
-			app.desk.activate(app.main.w)
+		if app.main.wdw.visible {
+			app.desk.activate(app.main.wdw)
 		}
 	}
 	app.desk.add(wdw)
@@ -81,34 +81,34 @@ func newStatsForm(app *Application) *statsForm {
 }
 
 func (stf *statsForm) sync() {
-	g := stf.app.g
-	stf.counts["PlayerNameLbl"].setCaption(g.Stats.Name)
+	gam := stf.app.gam
+	stf.counts["PlayerNameLbl"].setCaption(gam.Stats.Name)
 
-	party := g.Party()
-	if len(party) != len(stf.items0) || !slices.EqualFunc(party, stf.items0, func(m save.Slot, it listItem) bool {
-		return it.image == int(m.Species)-1
+	party := gam.Party()
+	if len(party) != len(stf.items0) || !slices.EqualFunc(party, stf.items0, func(slt save.Slot, it listItem) bool {
+		return it.image == int(slt.Species)-1
 	}) {
 		items := make([]listItem, len(party))
-		for i, m := range party {
-			items[i] = listItem{stf.app.speciesName(int(m.Species)), int(m.Species) - 1}
+		for i, slt := range party {
+			items[i] = listItem{stf.app.speciesName(int(slt.Species)), int(slt.Species) - 1}
 		}
 
 		stf.items0 = items
 		stf.party.setItems(items)
 	}
 
-	if stf.party.enabled != g.Stats.PartyEnabled {
-		stf.party.setEnabled(g.Stats.PartyEnabled)
+	if stf.party.enabled != gam.Stats.PartyEnabled {
+		stf.party.setEnabled(gam.Stats.PartyEnabled)
 
 		stf.party.color = colWindow
-		if !g.Stats.PartyEnabled {
+		if !gam.Stats.PartyEnabled {
 			stf.party.color = colFace
 		}
 	}
 
-	for i, b := range stf.items {
-		b.setVisible(g.Stats.Items)
-		b.setEnabled(g.Stats.ItemEnabled[i])
+	for i, btn := range stf.items {
+		btn.setVisible(gam.Stats.Items)
+		btn.setEnabled(gam.Stats.ItemEnabled[i])
 	}
 }
 
@@ -120,31 +120,31 @@ func (stf *statsForm) freshen() {
 		return
 	}
 
-	g := stf.app.g
-	for n, v := range map[string]uint32{
-		"PokeBallsLbl":    g.PokeBalls,
-		"GreatBallsLbl":   g.GreatBalls,
-		"UltraBallsLbl":   g.UltraBalls,
-		"MasterBallsLbl":  g.MasterBalls,
-		"PotionsLbl":      g.Potions,
-		"SuperPotionsLbl": g.SuperPotions,
-		"WinsLbl":         g.Wins,
-		"LossesLbl":       g.Losses,
-		"FightsLbl":       g.Fights,
-		"CapturesLbl":     g.Catches,
-		"MoneyLbl":        g.Money,
+	gam := stf.app.gam
+	for nam, val := range map[string]uint32{
+		"PokeBallsLbl":    gam.PokeBalls,
+		"GreatBallsLbl":   gam.GreatBalls,
+		"UltraBallsLbl":   gam.UltraBalls,
+		"MasterBallsLbl":  gam.MasterBalls,
+		"PotionsLbl":      gam.Potions,
+		"SuperPotionsLbl": gam.SuperPotions,
+		"WinsLbl":         gam.Wins,
+		"LossesLbl":       gam.Losses,
+		"FightsLbl":       gam.Fights,
+		"CapturesLbl":     gam.Catches,
+		"MoneyLbl":        gam.Money,
 	} {
-		stf.counts[n].setCaption(strconv.FormatUint(uint64(v), 10))
+		stf.counts[nam].setCaption(strconv.FormatUint(uint64(val), 10))
 	}
 
-	if p, ok := g.WinPercent(); ok {
-		stf.counts["Percent"].setCaption(p)
+	if pct, ok := gam.WinPercent(); ok {
+		stf.counts["Percent"].setCaption(pct)
 	}
 
-	stf.counts["OwnedPKMNLbl"].setCaption(itoa(g.DexCount()))
+	stf.counts["OwnedPKMNLbl"].setCaption(itoa(gam.DexCount()))
 
 	if stf.wantsFocusBack() {
-		stf.app.desk.activate(stf.app.main.w)
+		stf.app.desk.activate(stf.app.main.wdw)
 	}
 }
 
@@ -152,10 +152,10 @@ func (stf *statsForm) freshen() {
 // the focus, while the game window shows and no modal window is up: the
 // activation goes back to the game window.
 func (stf *statsForm) wantsFocusBack() bool {
-	a, w := stf.app, stf.wdw
-	nothingFocused := w.active && w.focus == nil && !w.noFocus
+	app, wdw := stf.app, stf.wdw
+	nothingFocused := wdw.active && wdw.focus == nil && !wdw.noFocus
 
-	return nothingFocused && a.main.w.visible && a.desk.topModal() == nil
+	return nothingFocused && app.main.wdw.visible && app.desk.topModal() == nil
 }
 
 // infoForm is Battle Info (TForm7).
@@ -166,19 +166,19 @@ type infoForm struct {
 }
 
 func newInfoForm(app *Application) *infoForm {
-	f := &infoForm{
+	inf := &infoForm{
 		app: app,
 		wdw: newWindow(app.desk, &layout.Form7),
 	}
-	f.memo = get[*memo](f.wdw, "Memo1")
-	app.desk.add(f.wdw)
+	inf.memo = get[*memo](inf.wdw, "Memo1")
+	app.desk.add(inf.wdw)
 
-	return f
+	return inf
 }
 
 func (inf *infoForm) sync() {
-	g := inf.app.g
-	inf.memo.setLines(g.Info.Lines)
+	gam := inf.app.gam
+	inf.memo.setLines(gam.Info.Lines)
 }
 
 // pokedexForm is the POKéDEX (TForm8).
@@ -190,64 +190,64 @@ type pokedexForm struct {
 	image *listView
 }
 
-func newPokedexForm(a *Application) *pokedexForm {
-	f := &pokedexForm{
-		app: a,
-		wdw: newWindow(a.desk, &layout.Form8),
+func newPokedexForm(app *Application) *pokedexForm {
+	pf := &pokedexForm{
+		app: app,
+		wdw: newWindow(app.desk, &layout.Form8),
 	}
-	f.combo = get[*comboBox](f.wdw, "ComboBox1")
-	f.panel = get[*panel](f.wdw, "Panel1")
-	f.image = get[*listView](f.wdw, "ListView1")
-	f.combo.items = a.dexItems() // FormShow
-	f.wdw.onShow = f.combo.reselect
-	f.combo.onSelect = func(i int) {
-		a.g.SelectDex(i)
+	pf.combo = get[*comboBox](pf.wdw, "ComboBox1")
+	pf.panel = get[*panel](pf.wdw, "Panel1")
+	pf.image = get[*listView](pf.wdw, "ListView1")
+	pf.combo.items = app.dexItems() // FormShow
+	pf.wdw.onShow = pf.combo.reselect
+	pf.combo.onSelect = func(i int) {
+		app.gam.SelectDex(i)
 	}
-	get[*button](f.wdw, "Button1").onClick = func() {
-		a.g.CloseDex()
+	get[*button](pf.wdw, "Button1").onClick = func() {
+		app.gam.CloseDex()
 	}
-	a.desk.add(f.wdw)
+	app.desk.add(pf.wdw)
 
-	return f
+	return pf
 }
 
 // sync is TForm8.UpdateDisplay: name, picture, types and evolution level
 // always; the attacks once the species is registered.
 func (pf *pokedexForm) sync() {
-	g := pf.app.g
-	pf.combo.setIndex(g.Dex.Index)
+	gam := pf.app.gam
+	pf.combo.setIndex(gam.Dex.Index)
 
-	if g.Dex.Index < 0 {
+	if gam.Dex.Index < 0 {
 		return
 	}
 
-	s := g.Dex.Index + 1
-	sp := g.Data.SpeciesByID(s)
-	w := pf.wdw
-	l2, l3 := get[*label](w, "Label2"), get[*label](w, "Label3")
-	l2.setCaption(g.Data.TypeName(sp.Types[0]))
+	sid := gam.Dex.Index + 1
+	sp := gam.Data.SpeciesByID(sid)
+	wdw := pf.wdw
+	l2, l3 := get[*label](wdw, "Label2"), get[*label](wdw, "Label3")
+	l2.setCaption(gam.Data.TypeName(sp.Types[0]))
 	l3.setVisible(sp.Types[1] != 0)
 
 	r3 := l3.rect // the original puts Label3 at Label2's left plus its width
 	l3.setBounds(image.Rect(l2.rect.Max.X, r3.Min.Y, l2.rect.Max.X+r3.Dx(), r3.Max.Y))
 
 	if sp.Types[1] != 0 {
-		l3.setCaption("/" + g.Data.TypeName(sp.Types[1]))
+		l3.setCaption("/" + gam.Data.TypeName(sp.Types[1]))
 	}
 
-	pf.image.setItems([]listItem{{"", s - 1}})
-	get[*label](w, "Label1").setCaption(pf.combo.items[s-1])
+	pf.image.setItems([]listItem{{"", sid - 1}})
+	get[*label](wdw, "Label1").setCaption(pf.combo.items[sid-1])
 
-	shown := g.DexMovesShown(s)
+	shown := gam.DexMovesShown(sid)
 
-	for i, n := range []string{"Label6", "Label10", "Label11", "Label12"} {
+	for i, nam := range []string{"Label6", "Label10", "Label11", "Label12"} {
 		name, typ := "???", "???"
-		if mv := g.Data.MoveByID(sp.Moves[i]); shown && mv != nil {
-			name, typ = mv.Name, g.Data.TypeName(mv.Type)
+		if mv := gam.Data.MoveByID(sp.Moves[i]); shown && mv != nil {
+			name, typ = mv.Name, gam.Data.TypeName(mv.Type)
 		}
 
-		get[*label](w, n).setCaption(name)
-		get[*label](w, "Label"+itoa(13+i)).setCaption(typ)
+		get[*label](wdw, nam).setCaption(name)
+		get[*label](wdw, "Label"+itoa(13+i)).setCaption(typ)
 	}
 
 	evolve := "Does not evolve."
@@ -255,7 +255,7 @@ func (pf *pokedexForm) sync() {
 		evolve = "Can evolve at level " + itoa(sp.EvolveLevel) + "."
 	}
 
-	get[*label](w, "Label4").setCaption(evolve)
+	get[*label](wdw, "Label4").setCaption(evolve)
 	pf.panel.setVisible(true)
 }
 
@@ -269,46 +269,46 @@ type pokemartForm struct {
 	total *edit
 }
 
-func newPokemartForm(a *Application) *pokemartForm {
-	f := &pokemartForm{
-		app: a,
-		wdw: newWindow(a.desk, &layout.Form9),
+func newPokemartForm(app *Application) *pokemartForm {
+	pmf := &pokemartForm{
+		app: app,
+		wdw: newWindow(app.desk, &layout.Form9),
 	}
-	f.spin = get[*spinEdit](f.wdw, "SpinEdit1")
-	f.radio = get[*radioGroup](f.wdw, "RadioGroup1")
-	f.buy = get[*button](f.wdw, "Button1")
-	f.total = get[*edit](f.wdw, "Edit1")
-	g := a.g
-	f.spin.onChangeValue = func(v int) {
-		g.SetMartQuantity(v)
+	pmf.spin = get[*spinEdit](pmf.wdw, "SpinEdit1")
+	pmf.radio = get[*radioGroup](pmf.wdw, "RadioGroup1")
+	pmf.buy = get[*button](pmf.wdw, "Button1")
+	pmf.total = get[*edit](pmf.wdw, "Edit1")
+	gam := app.gam
+	pmf.spin.onChangeValue = func(val int) {
+		gam.SetMartQuantity(val)
 	}
-	f.radio.onClick = func() {
-		g.SelectMartItem(f.radio.index)
+	pmf.radio.onClick = func() {
+		gam.SelectMartItem(pmf.radio.index)
 	}
-	f.buy.onClick = func() {
-		a.call(g.Buy)
+	pmf.buy.onClick = func() {
+		app.call(gam.Buy)
 	}
-	get[*button](f.wdw, "Button2").onClick = func() {
-		g.LeaveMart()
+	get[*button](pmf.wdw, "Button2").onClick = func() {
+		gam.LeaveMart()
 	}
 
-	f.wdw.onShow = func() {
-		f.spin.tb.set(itoa(g.Mart.Quantity)) // FormShow, before the focus comes in
+	pmf.wdw.onShow = func() {
+		pmf.spin.tb.set(itoa(gam.Mart.Quantity)) // FormShow, before the focus comes in
 	}
-	a.desk.add(f.wdw)
+	app.desk.add(pmf.wdw)
 
-	return f
+	return pmf
 }
 
 func (pmf *pokemartForm) sync() {
-	g := pmf.app.g
-	pmf.radio.setIndex(g.Mart.Item)
-	pmf.total.tb.set(g.Mart.Total)
-	pmf.buy.setEnabled(g.Mart.BuyEnabled)
+	gam := pmf.app.gam
+	pmf.radio.setIndex(gam.Mart.Item)
+	pmf.total.tb.set(gam.Mart.Total)
+	pmf.buy.setEnabled(gam.Mart.BuyEnabled)
 
-	a, b := g.MartDescription()
-	get[*label](pmf.wdw, "Label2").setCaption(a)
-	get[*label](pmf.wdw, "Label3").setCaption(b)
+	fst, snd := gam.MartDescription()
+	get[*label](pmf.wdw, "Label2").setCaption(fst)
+	get[*label](pmf.wdw, "Label3").setCaption(snd)
 }
 
 // typesForm is Type Comparisons (TFormA).
@@ -319,70 +319,70 @@ type typesForm struct {
 	attack  *comboBox
 }
 
-func newTypesForm(a *Application) *typesForm {
-	f := &typesForm{
-		app: a,
-		wdw: newWindow(a.desk, &layout.FormA),
+func newTypesForm(app *Application) *typesForm {
+	tf := &typesForm{
+		app: app,
+		wdw: newWindow(app.desk, &layout.FormA),
 	}
-	f.species = get[*comboBox](f.wdw, "ComboBox1")
-	f.attack = get[*comboBox](f.wdw, "ComboBox2")
-	g := a.g
+	tf.species = get[*comboBox](tf.wdw, "ComboBox1")
+	tf.attack = get[*comboBox](tf.wdw, "ComboBox2")
+	gam := app.gam
 
-	for _, sp := range g.Data.Species { // FormShow
-		item := sp.Name + ", " + g.Data.TypeName(sp.Types[0])
+	for _, sp := range gam.Data.Species { // FormShow
+		item := sp.Name + ", " + gam.Data.TypeName(sp.Types[0])
 		if sp.Types[1] != 0 {
-			item += "/" + g.Data.TypeName(sp.Types[1])
+			item += "/" + gam.Data.TypeName(sp.Types[1])
 		}
 
-		f.species.items = append(f.species.items, item)
+		tf.species.items = append(tf.species.items, item)
 	}
 
-	for _, mv := range g.Data.Moves {
-		f.attack.items = append(f.attack.items, mv.Name+", "+g.Data.TypeName(mv.Type))
+	for _, mv := range gam.Data.Moves {
+		tf.attack.items = append(tf.attack.items, mv.Name+", "+gam.Data.TypeName(mv.Type))
 	}
 
-	f.wdw.onShow = func() {
-		f.species.reselect()
-		f.attack.reselect()
+	tf.wdw.onShow = func() {
+		tf.species.reselect()
+		tf.attack.reselect()
 	}
-	f.species.onSelect = func(i int) {
-		g.SelectTypes(i, g.Types.Attack)
+	tf.species.onSelect = func(i int) {
+		gam.SelectTypes(i, gam.Types.Attack)
 	}
-	f.attack.onSelect = func(i int) {
-		g.SelectTypes(g.Types.Species, i)
+	tf.attack.onSelect = func(i int) {
+		gam.SelectTypes(gam.Types.Species, i)
 	}
-	get[*button](f.wdw, "Button1").onClick = func() {
-		g.CloseTypes()
+	get[*button](tf.wdw, "Button1").onClick = func() {
+		gam.CloseTypes()
 	}
-	a.desk.add(f.wdw)
+	app.desk.add(tf.wdw)
 
-	return f
+	return tf
 }
 
 // sync is TFormA.CalculateMultipliers.
 func (tf *typesForm) sync() {
-	g := tf.app.g
-	tf.species.setIndex(g.Types.Species)
-	tf.attack.setIndex(g.Types.Attack)
+	gam := tf.app.gam
+	tf.species.setIndex(gam.Types.Species)
+	tf.attack.setIndex(gam.Types.Attack)
 
-	first, second, total, ok := g.TypeMultipliers()
-	w := tf.wdw
+	first, second, total, ok := gam.TypeMultipliers()
+	wdw := tf.wdw
 
 	if !ok {
 		return
 	}
 
-	two := g.Data.SpeciesByID(g.Types.Species + 1).Types[1] != 0
+	two := gam.Data.SpeciesByID(gam.Types.Species + 1).Types[1] != 0
 
-	get[*label](w, "Label1").setVisible(true)
-	get[*label](w, "Label2").setVisible(two)
-	get[*label](w, "Label3").setVisible(true)
-	get[*label](w, "Label4").setVisible(two)
-	get[*label](w, "Label5").setVisible(true)
-	get[*label](w, "Label6").setVisible(true)
-	get[*label](w, "Label3").setCaption(first)
-	get[*label](w, "Label4").setCaption(second)
-	get[*label](w, "Label6").setCaption(total)
+	get[*label](wdw, "Label1").setVisible(true)
+	get[*label](wdw, "Label2").setVisible(two)
+	get[*label](wdw, "Label3").setVisible(true)
+	get[*label](wdw, "Label4").setVisible(two)
+	get[*label](wdw, "Label5").setVisible(true)
+	get[*label](wdw, "Label6").setVisible(true)
+	get[*label](wdw, "Label3").setCaption(first)
+	get[*label](wdw, "Label4").setCaption(second)
+	get[*label](wdw, "Label6").setCaption(total)
 }
 
 // gameCornerForm is the Game Corner (TFormB).
@@ -396,45 +396,45 @@ type gameCornerForm struct {
 }
 
 func newGameCornerForm(app *Application) *gameCornerForm {
-	f := &gameCornerForm{
+	gcf := &gameCornerForm{
 		app: app,
 		wdw: newWindow(app.desk, &layout.FormB),
 	}
-	f.bet = get[*spinEdit](f.wdw, "SpinEdit1")
-	f.prize = get[*radioGroup](f.wdw, "RadioGroup1")
-	f.number = get[*radioGroup](f.wdw, "RadioGroup2")
-	f.drawn = get[*radioGroup](f.wdw, "RadioGroup3")
-	g := app.g
-	f.bet.onChangeValue = func(v int) {
-		g.SetBet(v)
+	gcf.bet = get[*spinEdit](gcf.wdw, "SpinEdit1")
+	gcf.prize = get[*radioGroup](gcf.wdw, "RadioGroup1")
+	gcf.number = get[*radioGroup](gcf.wdw, "RadioGroup2")
+	gcf.drawn = get[*radioGroup](gcf.wdw, "RadioGroup3")
+	gam := app.gam
+	gcf.bet.onChangeValue = func(val int) {
+		gam.SetBet(val)
 	}
-	f.prize.onClick = func() {
-		g.SelectPrize(f.prize.index)
+	gcf.prize.onClick = func() {
+		gam.SelectPrize(gcf.prize.index)
 	}
-	f.number.onClick = func() {
-		g.SelectNumber(f.number.index)
+	gcf.number.onClick = func() {
+		gam.SelectNumber(gcf.number.index)
 	}
-	get[*button](f.wdw, "Button1").onClick = func() {
-		app.call(g.Draw)
+	get[*button](gcf.wdw, "Button1").onClick = func() {
+		app.call(gam.Draw)
 	}
-	get[*button](f.wdw, "Button2").onClick = func() {
-		g.CloseCorner()
+	get[*button](gcf.wdw, "Button2").onClick = func() {
+		gam.CloseCorner()
 	}
 
-	f.wdw.onShow = func() { // FormShow, before the focus comes in and selects the bet
-		f.bet.maxValue = g.Corner.MaxBet
-		f.bet.tb.set(itoa(g.Corner.Bet))
+	gcf.wdw.onShow = func() { // FormShow, before the focus comes in and selects the bet
+		gcf.bet.maxValue = gam.Corner.MaxBet
+		gcf.bet.tb.set(itoa(gam.Corner.Bet))
 	}
-	app.desk.add(f.wdw)
+	app.desk.add(gcf.wdw)
 
-	return f
+	return gcf
 }
 
 func (gcf *gameCornerForm) sync() {
-	g := gcf.app.g
-	gcf.prize.setIndex(g.Corner.Prize)
-	gcf.number.setIndex(g.Corner.Number)
-	gcf.drawn.setIndex(g.Corner.Drawn)
+	gam := gcf.app.gam
+	gcf.prize.setIndex(gam.Corner.Prize)
+	gcf.number.setIndex(gam.Corner.Number)
+	gcf.drawn.setIndex(gam.Corner.Drawn)
 }
 
 // drawTime is how long a play's draws show. The original repainted the
@@ -450,19 +450,19 @@ type drawShow struct {
 }
 
 // tick shows the draw due at now; the last one ends the show.
-func (ds *drawShow) tick(a *Application, now time.Time) {
-	t := now.Sub(ds.start)
+func (ds *drawShow) tick(app *Application, now time.Time) {
+	dur := now.Sub(ds.start)
 	i := len(ds.draws) - 1
 
-	if t < drawTime {
-		i = int(int64(len(ds.draws)) * int64(t) / int64(drawTime))
+	if dur < drawTime {
+		i = int(int64(len(ds.draws)) * int64(dur) / int64(drawTime))
 	}
 
-	a.gameCorner.drawn.setIndex(ds.draws[i])
+	app.gameCorner.drawn.setIndex(ds.draws[i])
 
-	a.desk.dirty = true
-	if t >= drawTime {
-		a.draws = nil
+	app.desk.dirty = true
+	if dur >= drawTime {
+		app.draws = nil
 
 		ds.done()
 	}

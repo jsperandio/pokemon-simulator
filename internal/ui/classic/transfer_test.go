@@ -26,9 +26,9 @@ func (ft *fakeTransfers) upload(dir string) <-chan []string {
 
 	var names []string
 
-	for n, data := range ft.pick {
-		if ft.files.WriteFile(ft.files.Join(dir, n), []byte(data)) == nil {
-			names = append(names, n)
+	for nam, data := range ft.pick {
+		if ft.files.WriteFile(ft.files.Join(dir, nam), []byte(data)) == nil {
+			names = append(names, nam)
 		}
 	}
 
@@ -54,23 +54,23 @@ func TestTransfers(t *testing.T) {
 	}
 	ta.xfer = fx
 	ta.wait(80)
-	ta.clickOn(ta.start.w, "LoadButton")
+	ta.clickOn(ta.start.wdw, "LoadButton")
 	ta.wait(1)
 
-	f := ta.fileDialog
-	if f == nil || f.uploadButton == nil {
+	fd := ta.fileDialog
+	if fd == nil || fd.uploadButton == nil {
 		t.Fatal("no upload button")
 	}
 
 	ta.shot("50-transfers")
-	ta.click(widgetOrigin(f.uploadButton).Add(image.Pt(10, 10)))
+	ta.click(widgetOrigin(fd.uploadButton).Add(image.Pt(10, 10)))
 	ta.wait(1)
 
-	if fx.uploadedTo != f.dir || f.name.text() != "ash.pgs" || f.view.selected < 0 {
-		t.Fatalf("uploaded to %q, name %q, selected %d", fx.uploadedTo, f.name.text(), f.view.selected)
+	if fx.uploadedTo != fd.dir || fd.name.text() != "ash.pgs" || fd.view.selected < 0 {
+		t.Fatalf("uploaded to %q, name %q, selected %d", fx.uploadedTo, fd.name.text(), fd.view.selected)
 	}
 
-	ta.click(widgetOrigin(f.downloadButton).Add(image.Pt(10, 10)))
+	ta.click(widgetOrigin(fd.downloadButton).Add(image.Pt(10, 10)))
 
 	if fx.downloads["ash.pgs"] != "save" {
 		t.Errorf("downloads %q", fx.downloads)
@@ -81,12 +81,12 @@ func TestTransfers(t *testing.T) {
 		"sub/x":    {Data: []byte("x")},
 	}})
 
-	if f.name.text() != "song.ogg" {
-		t.Errorf("after the drop, the name box has %q", f.name.text())
+	if fd.name.text() != "song.ogg" {
+		t.Errorf("after the drop, the name box has %q", fd.name.text())
 	}
 
-	if b, err := ta.files.ReadFile(ta.files.Join(f.dir, "song.ogg")); err != nil || string(b) != "OggS" {
-		t.Errorf("dropped file: %q, %v", b, err)
+	if dat, err := ta.files.ReadFile(ta.files.Join(fd.dir, "song.ogg")); err != nil || string(dat) != "OggS" {
+		t.Errorf("dropped file: %q, %v", dat, err)
 	}
 
 	ta.shot("51-dropped")

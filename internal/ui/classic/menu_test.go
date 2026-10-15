@@ -21,7 +21,7 @@ import (
 // the player sees: a battle, a window, a dialog, a check mark, or the
 // end. The Debug menu stays hidden, as in the original.
 func TestEveryMenuCommand(t *testing.T) {
-	f := save.File{
+	sav := save.File{
 		PlayerName:  "Ash",
 		GymProgress: 24,
 		BeatLance:   true,
@@ -30,29 +30,29 @@ func TestEveryMenuCommand(t *testing.T) {
 		Money:       50000,
 		PokeBalls:   3,
 	}
-	f.Owned[0] = save.Slot{Species: 6, Level: 100, XP: 1000000}   // Charizard
-	f.Owned[1] = save.Slot{Species: 150, Level: 100, XP: 1000000} // Mewtwo
-	f.InDex[6], f.InDex[150] = true, true
-	b := f.Bytes()
+	sav.Owned[0] = save.Slot{Species: 6, Level: 100, XP: 1000000}   // Charizard
+	sav.Owned[1] = save.Slot{Species: 150, Level: 100, XP: 1000000} // Mewtwo
+	sav.InDex[6], sav.InDex[150] = true, true
+	dat := sav.Bytes()
 
 	var (
 		commands [][]string
 		walk     func(items []*game.MenuItem, path []string)
 	)
 	walk = func(items []*game.MenuItem, path []string) {
-		for _, m := range items {
-			if !m.Visible {
+		for _, mi := range items {
+			if !mi.Visible {
 				continue
 			}
 
-			p := append(slices.Clone(path), m.Name)
-			if len(m.Items) > 0 {
-				walk(m.Items, p)
+			pth := append(slices.Clone(path), mi.Name)
+			if len(mi.Items) > 0 {
+				walk(mi.Items, pth)
 
 				continue
 			}
 
-			commands = append(commands, p)
+			commands = append(commands, pth)
 		}
 	}
 	walk(game.New(nil, nil).Menu, nil)
@@ -68,7 +68,7 @@ func TestEveryMenuCommand(t *testing.T) {
 			dir := t.TempDir()
 			file := filepath.Join(dir, "all.pgs")
 
-			if err := os.WriteFile(file, b, 0o600); err != nil {
+			if err := os.WriteFile(file, dat, 0o600); err != nil {
 				t.Fatal(err)
 			}
 
@@ -76,11 +76,11 @@ func TestEveryMenuCommand(t *testing.T) {
 			ta.music = &fakeMusic{stopErr: audio.ErrNotOpen}
 			ta.wait(80)
 
-			if !ta.main.w.visible {
+			if !ta.main.wdw.visible {
 				t.Fatal("the game didn't load")
 			}
 
-			bar := ta.main.w.menu
+			bar := ta.main.wdw.menu
 			if bar.entries[len(bar.entries)-1].item.Visible {
 				t.Error("the Debug menu shows")
 			}

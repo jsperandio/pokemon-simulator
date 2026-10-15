@@ -37,33 +37,33 @@ const loadPerTick int = 71
 // port has read the data already; the screen plays the original's
 // progress.
 type loadForm struct {
-	a       *Application
-	w       *window
+	app     *Application
+	wdw     *window
 	step    int // the step under way
 	done    int // its items read
 	total   int // all items read
 	running bool
 }
 
-func newLoadForm(a *Application) *loadForm {
-	f := &loadForm{a: a, w: newWindow(a.desk, &layout.Form3)}
-	a.desk.add(f.w)
+func newLoadForm(app *Application) *loadForm {
+	lf := &loadForm{app: app, wdw: newWindow(app.desk, &layout.Form3)}
+	app.desk.add(lf.wdw)
 
-	return f
+	return lf
 }
 
 // begin shows the screen (Timer1 starts TimerEventLoad).
 func (lf *loadForm) begin() {
 	lf.running = true
 	lf.startStep(0)
-	lf.a.desk.show(lf.w)
+	lf.app.desk.show(lf.wdw)
 }
 
 // startStep is TForm3.R: a step's caption, and Gauge1 at 0 of its items.
 func (lf *loadForm) startStep(i int) {
 	lf.step, lf.done = i, 0
-	get[*label](lf.w, "Label2").setCaption(loadSteps[i].caption)
-	get[*gauge](lf.w, "Gauge1").set(loadSteps[i].n, 0, colSelection)
+	get[*label](lf.wdw, "Label2").setCaption(loadSteps[i].caption)
+	get[*gauge](lf.wdw, "Gauge1").set(loadSteps[i].n, 0, colSelection)
 }
 
 // tick reads the next items (TForm3.Incre for each).
@@ -88,10 +88,10 @@ func (lf *loadForm) tick() {
 		}
 	}
 
-	g1 := get[*gauge](lf.w, "Gauge1")
+	g1 := get[*gauge](lf.wdw, "Gauge1")
 	g1.set(g1.max, lf.done, g1.fore)
 
-	g2 := get[*gauge](lf.w, "Gauge2")
+	g2 := get[*gauge](lf.wdw, "Gauge2")
 	g2.set(g2.max, lf.total, g2.fore)
 }
 
@@ -99,53 +99,53 @@ func (lf *loadForm) tick() {
 // line is loaded, or the start screen shows.
 func (lf *loadForm) finish() {
 	lf.running = false
-	a := lf.a
-	a.desk.hide(lf.w)
+	app := lf.app
+	app.desk.hide(lf.wdw)
 
 	file := ""
 
-	for _, arg := range a.args {
-		if st, err := a.files.Stat(arg); err == nil && !st.Dir {
+	for _, arg := range app.args {
+		if st, err := app.files.Stat(arg); err == nil && !st.Dir {
 			file = arg // the last existing one wins
 		}
 	}
 
 	if file != "" {
-		a.call(func() {
-			if !a.loadGame(file) {
-				a.desk.show(a.start.w)
+		app.call(func() {
+			if !app.loadGame(file) {
+				app.desk.show(app.start.wdw)
 			}
 		})
 
 		return
 	}
 
-	a.desk.show(a.start.w)
+	app.desk.show(app.start.wdw)
 }
 
 // startForm is the start screen (TForm1).
 type startForm struct {
-	a *Application
-	w *window
+	app *Application
+	wdw *window
 }
 
-func newStartForm(a *Application) *startForm {
-	f := &startForm{a: a, w: newWindow(a.desk, &layout.Form1)}
-	w := f.w
-	get[*button](w, "NewButton").onClick = f.newButtonClick
-	get[*button](w, "LoadButton").onClick = f.loadButtonClick
-	get[*button](w, "HelpButton").onClick = a.help
-	get[*button](w, "AboutButton").onClick = a.showAbout
-	get[*button](w, "ExitButton").onClick = a.exit
-	w.onClose = a.exit // FormClose closes the main form
-	w.onDeactivate = func() {
-		if w.visible && a.main.w.visible {
-			a.desk.hide(w)
+func newStartForm(app *Application) *startForm {
+	sf := &startForm{app: app, wdw: newWindow(app.desk, &layout.Form1)}
+	wdw := sf.wdw
+	get[*button](wdw, "NewButton").onClick = sf.newButtonClick
+	get[*button](wdw, "LoadButton").onClick = sf.loadButtonClick
+	get[*button](wdw, "HelpButton").onClick = app.help
+	get[*button](wdw, "AboutButton").onClick = app.showAbout
+	get[*button](wdw, "ExitButton").onClick = app.exit
+	wdw.onClose = app.exit // FormClose closes the main form
+	wdw.onDeactivate = func() {
+		if wdw.visible && app.main.wdw.visible {
+			app.desk.hide(wdw)
 		}
 	}
-	a.desk.add(w)
+	app.desk.add(wdw)
 
-	return f
+	return sf
 }
 
 // saveFilter is the save dialogs' filter.
@@ -154,9 +154,9 @@ const saveFilter string = "Saved Games (*.PGS)|*.pgs"
 // newButtonClick is "Start a new game!": the save file first, then the
 // name, then the starter.
 func (sf *startForm) newButtonClick() {
-	a := sf.a
-	a.call(func() {
-		file, ok := a.openFile(fileOptions{
+	app := sf.app
+	app.call(func() {
+		file, ok := app.openFile(fileOptions{
 			save:       true,
 			filter:     saveFilter,
 			defaultExt: "pgs",
@@ -166,45 +166,45 @@ func (sf *startForm) newButtonClick() {
 			return
 		}
 
-		a.desk.hide(sf.w)
+		app.desk.hide(sf.wdw)
 
-		name := a.name.ask()
-		a.g.NewGame(file, name)
-		a.sync()
-		a.placeWindows(236)
+		name := app.name.ask()
+		app.gam.NewGame(file, name)
+		app.sync()
+		app.placeWindows(236)
 	})
 }
 
 // loadButtonClick is "Load a saved game...".
 func (sf *startForm) loadButtonClick() {
-	a := sf.a
-	a.call(func() {
-		file, ok := a.openFile(fileOptions{filter: saveFilter, defaultExt: "pgs", mustExist: true})
+	app := sf.app
+	app.call(func() {
+		file, ok := app.openFile(fileOptions{filter: saveFilter, defaultExt: "pgs", mustExist: true})
 		if ok {
-			a.loadGame(file)
+			app.loadGame(file)
 		}
 	})
 }
 
 // nameDialog is "Enter your name:" (TOKRightDlg).
 type nameDialog struct {
-	a    *Application
-	w    *window
+	app  *Application
+	wdw  *window
 	edit *edit
 }
 
-func newNameDialog(a *Application) *nameDialog {
-	d := &nameDialog{a: a, w: newWindow(a.desk, &layout.OKRightDlg)}
-	d.edit = get[*edit](d.w, "Edit1")
-	a.desk.add(d.w)
+func newNameDialog(app *Application) *nameDialog {
+	nd := &nameDialog{app: app, wdw: newWindow(app.desk, &layout.OKRightDlg)}
+	nd.edit = get[*edit](nd.wdw, "Edit1")
+	app.desk.add(nd.wdw)
 
-	return d
+	return nd
 }
 
 // ask shows the dialog and returns the name typed (OKBtnClick); it runs on
 // the handler's goroutine.
 func (nd *nameDialog) ask() string {
-	nd.a.modal(nd.w)
+	nd.app.modal(nd.wdw)
 
 	return nd.edit.text()
 }

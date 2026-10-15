@@ -32,50 +32,50 @@ type resources struct {
 }
 
 func loadResources() (*resources, error) {
-	r := &resources{
+	res := &resources{
 		arials:   map[arialKey]face{},
 		lists:    map[string]*imageList{},
 		pictures: map[string]*image.NRGBA{},
 		dlgIcons: map[game.DialogKind]*image.NRGBA{},
 	}
 
-	b, err := assets.FS.ReadFile("wine/sserife.fon")
+	dat, err := assets.FS.ReadFile("wine/sserife.fon")
 	if err != nil {
 		return nil, err
 	}
 
-	fonts, err := winfont.Parse(b)
+	fonts, err := winfont.Parse(dat)
 	if err != nil {
 		return nil, err
 	}
 
-	r.sans = bitmapFace{f: fonts[0]}
-	r.bold = bitmapFace{f: fonts[0], bold: true}
+	res.sans = bitmapFace{fnt: fonts[0]}
+	res.bold = bitmapFace{fnt: fonts[0], bold: true}
 
 	for st, name := range []string{"Regular", "Bold", "Italic"} {
-		b, err := assets.FS.ReadFile("liberation/LiberationSans-" + name + ".ttf")
+		dat, err := assets.FS.ReadFile("liberation/LiberationSans-" + name + ".ttf")
 		if err != nil {
 			return nil, err
 		}
 
-		if r.ttf[st], err = opentype.Parse(b); err != nil {
+		if res.ttf[st], err = opentype.Parse(dat); err != nil {
 			return nil, fmt.Errorf("liberation sans %s: %w", name, err)
 		}
 	}
 
 	// GetAveCharSize: the width of A–Z and a–z, over 52.
 	var az strings.Builder
-	for c := 'A'; c <= 'Z'; c++ {
-		az.WriteRune(c)
+	for chr := 'A'; chr <= 'Z'; chr++ {
+		az.WriteRune(chr)
 	}
 
-	for c := 'a'; c <= 'z'; c++ {
-		az.WriteRune(c)
+	for chr := 'a'; chr <= 'z'; chr++ {
+		az.WriteRune(chr)
 	}
 
-	r.charWidth = r.sans.width(az.String()) / 52
+	res.charWidth = res.sans.width(az.String()) / 52
 
-	for _, l := range []struct {
+	for _, lst := range []struct {
 		names []string
 		path  string
 		size  int
@@ -84,46 +84,46 @@ func loadResources() (*resources, error) {
 		{[]string{"SmallPKMNImg", "Form4.SmallPKMNImg"}, "sprites/icons32.png", 32},
 		{[]string{"ImageList1"}, "sprites/small16.png", 16},
 	} {
-		img, err := loadPNG(l.path)
+		img, err := loadPNG(lst.path)
 		if err != nil {
 			return nil, err
 		}
 
-		il := &imageList{img: img, size: l.size, cols: img.Rect.Dx() / l.size}
-		for _, n := range l.names {
-			r.lists[n] = il
+		il := &imageList{img: img, size: lst.size, cols: img.Rect.Dx() / lst.size}
+		for _, nam := range lst.names {
+			res.lists[nam] = il
 		}
 	}
 
-	for _, p := range []string{"sprites/pokeball.png", "sprites/icon.png"} {
-		if r.pictures[p], err = loadPNG(p); err != nil {
+	for _, pth := range []string{"sprites/pokeball.png", "sprites/icon.png"} {
+		if res.pictures[pth], err = loadPNG(pth); err != nil {
 			return nil, err
 		}
 	}
 
-	for kind, p := range map[game.DialogKind]string{
+	for kind, pth := range map[game.DialogKind]string{
 		game.Warning:      "wine/oic_bang.png",
 		game.Error:        "wine/oic_hand.png",
 		game.Information:  "wine/oic_note.png",
 		game.Confirmation: "wine/oic_ques.png",
 	} {
-		if r.dlgIcons[kind], err = loadPNG(p); err != nil {
+		if res.dlgIcons[kind], err = loadPNG(pth); err != nil {
 			return nil, err
 		}
 	}
 
-	r.appIcon = shrink(r.pictures["sprites/icon.png"])
+	res.appIcon = shrink(res.pictures["sprites/icon.png"])
 
-	return r, nil
+	return res, nil
 }
 
 func loadPNG(path string) (*image.NRGBA, error) {
-	b, err := assets.FS.ReadFile(path)
+	dat, err := assets.FS.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	img, err := png.Decode(bytes.NewReader(b))
+	img, err := png.Decode(bytes.NewReader(dat))
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
@@ -137,12 +137,12 @@ func loadPNG(path string) (*image.NRGBA, error) {
 // shrink halves an icon, keeping every other pixel, as Windows draws a
 // 32×32 icon in a caption when there is no 16×16 one.
 func shrink(src *image.NRGBA) *image.NRGBA {
-	b := src.Rect
-	out := image.NewNRGBA(image.Rect(0, 0, b.Dx()/2, b.Dy()/2))
+	rect := src.Rect
+	out := image.NewNRGBA(image.Rect(0, 0, rect.Dx()/2, rect.Dy()/2))
 
 	for y := range out.Rect.Dy() {
 		for x := range out.Rect.Dx() {
-			out.SetNRGBA(x, y, src.NRGBAAt(b.Min.X+2*x, b.Min.Y+2*y))
+			out.SetNRGBA(x, y, src.NRGBAAt(rect.Min.X+2*x, rect.Min.Y+2*y))
 		}
 	}
 
@@ -156,12 +156,12 @@ func (r *resources) fontFor(props map[string]string) face {
 		return nil
 	}
 
-	h, err := strconv.Atoi(props["Font.Height"])
+	hgt, err := strconv.Atoi(props["Font.Height"])
 	if err != nil {
 		return nil
 	}
 
-	return r.arial(-h, plainStyle)
+	return r.arial(-hgt, plainStyle)
 }
 
 // The view's icons and the look-in list's drive: o outline, y yellow, w
@@ -269,19 +269,19 @@ func (r *resources) fileIcons() *imageList {
 // arial returns Liberation Sans, standing in for Arial, at an em height of
 // px pixels: a VCL font with Height = -px.
 func (r *resources) arial(px int, style fontStyle) face {
-	k := arialKey{px, style}
-	if f, ok := r.arials[k]; ok {
-		return f
+	key := arialKey{px, style}
+	if fnt, ok := r.arials[key]; ok {
+		return fnt
 	}
 
-	f, err := newTrueTypeFace(r.ttf[style], px)
+	ttf, err := newTrueTypeFace(r.ttf[style], px)
 	if err != nil { // a size no font has
 		return r.sans
 	}
 
-	r.arials[k] = f
+	r.arials[key] = ttf
 
-	return f
+	return ttf
 }
 
 func (r *resources) imageList(name string) *imageList {
@@ -352,10 +352,10 @@ func (il *imageList) drawDisabled(cv canvas, x, y, i int) {
 	}{{1, colHighlight}, {0, colShadow}} {
 		for sy := fr.Min.Y; sy < fr.Max.Y; sy++ {
 			for sx := fr.Min.X; sx < fr.Max.X; sx++ {
-				c := il.img.NRGBAAt(sx, sy)
+				clr := il.img.NRGBAAt(sx, sy)
 				// Dark pixels make the shape, as the mask of a disabled
 				// image keeps them.
-				if c.A >= 0x80 && int(c.R)+int(c.G)+int(c.B) < 3*0xC0 {
+				if clr.A >= 0x80 && int(clr.R)+int(clr.G)+int(clr.B) < 3*0xC0 {
 					cv.pix(x+sx-fr.Min.X+pass.d, y+sy-fr.Min.Y+pass.d, pass.c)
 				}
 			}

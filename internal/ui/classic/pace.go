@@ -34,12 +34,12 @@ type pacer struct {
 }
 
 func newPacer() *pacer {
-	p := &pacer{}
-	p.idle.Store(int64(idleFrame))
+	pcr := &pacer{}
+	pcr.idle.Store(int64(idleFrame))
 
-	go p.beat()
+	go pcr.beat()
 
-	return p
+	return pcr
 }
 
 // beat asks for a frame every p.idle, for good.
@@ -54,8 +54,8 @@ func (p *pacer) beat() {
 // runs frames too and vsync is off. Browsers pace frames themselves.
 func (p *pacer) wait() {
 	if runtime.GOOS != "js" {
-		if d := frameTime - time.Since(p.last); d > 0 {
-			time.Sleep(d)
+		if dur := frameTime - time.Since(p.last); dur > 0 {
+			time.Sleep(dur)
 		}
 	}
 

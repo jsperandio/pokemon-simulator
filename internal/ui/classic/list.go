@@ -77,50 +77,50 @@ func (sb *scrollBar) arrow() int {
 // thumb returns the thumb's start and length along the bar, or a length
 // of 0 when there is none.
 func (sb *scrollBar) thumb() (start, length int) {
-	a := sb.arrow()
-	track := sb.length() - 2*a
+	arw := sb.arrow()
+	track := sb.length() - 2*arw
 
 	if !sb.enabled() || track < 8 {
 		return 0, 0
 	}
 
 	n := sb.max - sb.min + 1
-	l := max(track*sb.page/n, 8)
+	siz := max(track*sb.page/n, 8)
 
-	if l > track {
+	if siz > track {
 		return 0, 0
 	}
 
-	free := track - l
+	free := track - siz
 
-	return a + free*(sb.pos-sb.min)/max(n-sb.page, 1), l
+	return arw + free*(sb.pos-sb.min)/max(n-sb.page, 1), siz
 }
 
-// along returns p's coordinate along the bar.
-func (sb *scrollBar) along(p image.Point) int {
+// along returns pnt's coordinate along the bar.
+func (sb *scrollBar) along(pnt image.Point) int {
 	if sb.vertical {
-		return p.Y - sb.rect.Min.Y
+		return pnt.Y - sb.rect.Min.Y
 	}
 
-	return p.X - sb.rect.Min.X
+	return pnt.X - sb.rect.Min.X
 }
 
-func (sb *scrollBar) partAt(p image.Point) int {
-	if !p.In(sb.rect) || !sb.enabled() {
+func (sb *scrollBar) partAt(pnt image.Point) int {
+	if !pnt.In(sb.rect) || !sb.enabled() {
 		return partNone
 	}
 
-	a, t := sb.along(p), sb.arrow()
+	pos, arw := sb.along(pnt), sb.arrow()
 	ts, tl := sb.thumb()
 
 	switch {
-	case a < t:
+	case pos < arw:
 		return partLess
-	case a >= sb.length()-t:
+	case pos >= sb.length()-arw:
 		return partMore
-	case tl > 0 && a < ts:
+	case tl > 0 && pos < ts:
 		return partPageLess
-	case tl > 0 && a >= ts+tl:
+	case tl > 0 && pos >= ts+tl:
 		return partPageMore
 	case tl > 0:
 		return partThumb
@@ -129,18 +129,18 @@ func (sb *scrollBar) partAt(p image.Point) int {
 	return partNone
 }
 
-// press handles a mouse press at p; it reports whether p is on the bar.
-func (sb *scrollBar) press(p image.Point) bool {
-	if !p.In(sb.rect) {
+// press handles a mouse press at pnt; it reports whether pnt is on the bar.
+func (sb *scrollBar) press(pnt image.Point) bool {
+	if !pnt.In(sb.rect) {
 		return false
 	}
 
-	sb.pressed = sb.partAt(p)
+	sb.pressed = sb.partAt(pnt)
 	sb.inside = true
 
 	if sb.pressed == partThumb {
 		ts, _ := sb.thumb()
-		sb.grab = sb.along(p) - ts
+		sb.grab = sb.along(pnt) - ts
 	}
 
 	sb.step()
@@ -164,21 +164,21 @@ func (sb *scrollBar) step() {
 	}
 }
 
-func (sb *scrollBar) drag(p image.Point) {
+func (sb *scrollBar) drag(pnt image.Point) {
 	if sb.pressed == partThumb {
 		_, tl := sb.thumb()
-		a := sb.arrow()
-		free := sb.length() - 2*a - tl
+		arw := sb.arrow()
+		free := sb.length() - 2*arw - tl
 
 		if free > 0 {
 			n := sb.max - sb.min + 1 - sb.page
-			sb.set(sb.min + ((sb.along(p)-sb.grab-a)*n+free/2)/free)
+			sb.set(sb.min + ((sb.along(pnt)-sb.grab-arw)*n+free/2)/free)
 		}
 
 		return
 	}
 
-	sb.inside = sb.partAt(p) == sb.pressed
+	sb.inside = sb.partAt(pnt) == sb.pressed
 }
 
 func (sb *scrollBar) release() {
@@ -203,31 +203,31 @@ func (sb *scrollBar) tick(now time.Time) bool {
 }
 
 func (sb *scrollBar) paint(cv canvas) {
-	r := sb.rect
+	rect := sb.rect
 	en := sb.enabled()
-	a := sb.arrow()
+	arw := sb.arrow()
 
 	var less, more, track image.Rectangle
 
 	if sb.vertical {
-		less = image.Rect(r.Min.X, r.Min.Y, r.Max.X, r.Min.Y+a)
-		more = image.Rect(r.Min.X, r.Max.Y-a, r.Max.X, r.Max.Y)
-		track = image.Rect(r.Min.X, less.Max.Y, r.Max.X, more.Min.Y)
+		less = image.Rect(rect.Min.X, rect.Min.Y, rect.Max.X, rect.Min.Y+arw)
+		more = image.Rect(rect.Min.X, rect.Max.Y-arw, rect.Max.X, rect.Max.Y)
+		track = image.Rect(rect.Min.X, less.Max.Y, rect.Max.X, more.Min.Y)
 	} else {
-		less = image.Rect(r.Min.X, r.Min.Y, r.Min.X+a, r.Max.Y)
-		more = image.Rect(r.Max.X-a, r.Min.Y, r.Max.X, r.Max.Y)
-		track = image.Rect(less.Max.X, r.Min.Y, more.Min.X, r.Max.Y)
+		less = image.Rect(rect.Min.X, rect.Min.Y, rect.Min.X+arw, rect.Max.Y)
+		more = image.Rect(rect.Max.X-arw, rect.Min.Y, rect.Max.X, rect.Max.Y)
+		track = image.Rect(less.Max.X, rect.Min.Y, more.Min.X, rect.Max.Y)
 	}
 
 	// The track is a checkerboard of the face and highlight colours.
 	for y := track.Min.Y; y < track.Max.Y; y++ {
 		for x := track.Min.X; x < track.Max.X; x++ {
-			c := colFace
-			if (x-r.Min.X+y-r.Min.Y)&1 == 1 {
-				c = colHighlight
+			clr := colFace
+			if (x-rect.Min.X+y-rect.Min.Y)&1 == 1 {
+				clr = colHighlight
 			}
 
-			cv.pix(x, y, c)
+			cv.pix(x, y, clr)
 		}
 	}
 
@@ -236,9 +236,9 @@ func (sb *scrollBar) paint(cv canvas) {
 	pageHeld := sb.pressed >= partPageLess && sb.pressed <= partPageMore && sb.inside
 	if tl > 0 && pageHeld {
 		// The held part of the track turns dark.
-		from, to := ts+tl, sb.length()-a
+		from, to := ts+tl, sb.length()-arw
 		if sb.pressed == partPageLess {
-			from, to = a, ts
+			from, to = arw, ts
 		}
 
 		cv.fill(sb.span(track, from, to), colDkShadow)
@@ -253,19 +253,19 @@ func (sb *scrollBar) paint(cv canvas) {
 	paintArrowButton(cv, more, dir[1], en, sb.pressed == partMore && sb.inside, 4)
 
 	if tl > 0 {
-		t := sb.span(track, ts, ts+tl)
-		cv.fill(t, colFace)
-		cv.raised(t)
+		thm := sb.span(track, ts, ts+tl)
+		cv.fill(thm, colFace)
+		cv.raised(thm)
 	}
 }
 
-// span returns the part of the track from a to b along the bar.
-func (sb *scrollBar) span(track image.Rectangle, a, b int) image.Rectangle {
+// span returns the part of the track from a to end along the bar.
+func (sb *scrollBar) span(track image.Rectangle, beg, end int) image.Rectangle {
 	if sb.vertical {
-		return image.Rect(track.Min.X, sb.rect.Min.Y+a, track.Max.X, sb.rect.Min.Y+b)
+		return image.Rect(track.Min.X, sb.rect.Min.Y+beg, track.Max.X, sb.rect.Min.Y+end)
 	}
 
-	return image.Rect(sb.rect.Min.X+a, track.Min.Y, sb.rect.Min.X+b, track.Max.Y)
+	return image.Rect(sb.rect.Min.X+beg, track.Min.Y, sb.rect.Min.X+end, track.Max.Y)
 }
 
 // Arrow directions.
@@ -280,30 +280,30 @@ const (
 // box, or a flat one while pushed, with a 7×4 triangle, black or embossed
 // when disabled. gx is the triangle's left edge in an unpushed 16-pixel
 // button.
-func paintArrowButton(cv canvas, r image.Rectangle, dir int, enabled, pushed bool, gx int) {
-	cv.fill(r, colFace)
+func paintArrowButton(cv canvas, rect image.Rectangle, dir int, enabled, pushed bool, gx int) {
+	cv.fill(rect, colFace)
 
 	off := 0
 
 	if pushed {
-		cv.frame(r, colShadow)
+		cv.frame(rect, colShadow)
 
 		off = 1
 	} else {
-		cv.raised(r)
+		cv.raised(rect)
 	}
 
-	w, h := 7, 4
+	wid, hgt := 7, 4
 	if dir == arrowLeft || dir == arrowRight {
-		w, h = 4, 7
+		wid, hgt = 4, 7
 	}
 
-	x := r.Min.X + gx - (scrollSize-r.Dx())/2 + off
-	y := r.Min.Y + (r.Dy()-h)/2 + off
+	x := rect.Min.X + gx - (scrollSize-rect.Dx())/2 + off
+	y := rect.Min.Y + (rect.Dy()-hgt)/2 + off
 
 	if dir == arrowLeft || dir == arrowRight {
-		x = r.Min.X + (r.Dx()-w)/2 + off
-		y = r.Min.Y + (r.Dy()-h)/2 + off
+		x = rect.Min.X + (rect.Dx()-wid)/2 + off
+		y = rect.Min.Y + (rect.Dy()-hgt)/2 + off
 	}
 
 	if enabled {
@@ -317,17 +317,17 @@ func paintArrowButton(cv canvas, r image.Rectangle, dir int, enabled, pushed boo
 }
 
 // paintTriangle draws a 7×4 arrow (4×7 sideways) at (x, y).
-func paintTriangle(cv canvas, x, y, dir int, c color.RGBA) {
+func paintTriangle(cv canvas, x, y, dir int, clr color.RGBA) {
 	for i := range 4 {
 		switch dir {
 		case arrowUp:
-			cv.hline(x+3-i, x+4+i, y+i, c)
+			cv.hline(x+3-i, x+4+i, y+i, clr)
 		case arrowDown:
-			cv.hline(x+i, x+7-i, y+i, c)
+			cv.hline(x+i, x+7-i, y+i, clr)
 		case arrowLeft:
-			cv.vline(x+i, y+3-i, y+4+i, c)
+			cv.vline(x+i, y+3-i, y+4+i, clr)
 		case arrowRight:
-			cv.vline(x+i, y+i, y+7-i, c)
+			cv.vline(x+i, y+i, y+7-i, clr)
 		}
 	}
 }
@@ -404,12 +404,12 @@ func (lv *listView) setItems(items []listItem) {
 
 // client is the rectangle inside the border.
 func (lv *listView) client() image.Rectangle {
-	r := lv.local()
+	rect := lv.local()
 	if lv.border {
-		r = r.Inset(2)
+		rect = rect.Inset(2)
 	}
 
-	return r
+	return rect
 }
 
 // metrics returns an item's size, the icon's size and the items per
@@ -428,56 +428,56 @@ func (lv *listView) layout() (item, icon image.Point, perCol int) {
 		icon = image.Pt(lv.images.size, lv.images.size)
 	}
 
-	h := max(icon.Y, lv.font.height()) + 1
-	w := 0
+	hgt := max(icon.Y, lv.font.height()) + 1
+	wid := 0
 
 	for _, it := range lv.items {
-		w = max(w, lv.font.width(it.caption))
+		wid = max(wid, lv.font.width(it.caption))
 	}
 
-	w = max(128, w+icon.X+12)
-	c := lv.client()
+	wid = max(128, wid+icon.X+12)
+	rect := lv.client()
 	bar := &lv.scroll
-	perCol = max(c.Dy()/h, 1)
+	perCol = max(rect.Dy()/hgt, 1)
 	cols := (len(lv.items) + perCol - 1) / perCol
 	// The bar shows when there are more columns than fit, at least one
 	// always fitting, however wide (LISTVIEW_UpdateHScroll).
-	if cols > max(c.Dx()/w, 1) && c.Dy() > scrollSize {
-		perCol = max((c.Dy()-scrollSize)/h, 1)
+	if cols > max(rect.Dx()/wid, 1) && rect.Dy() > scrollSize {
+		perCol = max((rect.Dy()-scrollSize)/hgt, 1)
 		cols = (len(lv.items) + perCol - 1) / perCol
-		bar.rect = image.Rect(c.Min.X, c.Max.Y-scrollSize, c.Max.X, c.Max.Y)
-		bar.min, bar.max, bar.page = 0, cols-1, max(c.Dx()/w, 1)
+		bar.rect = image.Rect(rect.Min.X, rect.Max.Y-scrollSize, rect.Max.X, rect.Max.Y)
+		bar.min, bar.max, bar.page = 0, cols-1, max(rect.Dx()/wid, 1)
 		bar.set(bar.pos)
 	} else {
 		bar.rect = image.Rectangle{}
 		bar.pos = 0
 	}
 
-	return image.Pt(w, h), icon, perCol
+	return image.Pt(wid, hgt), icon, perCol
 }
 
 // itemRect is item i's rectangle.
 func (lv *listView) itemRect(i int) image.Rectangle {
 	item, _, perCol := lv.metrics()
-	c := lv.client()
-	x := c.Min.X + (i/perCol-lv.scroll.pos)*item.X
-	y := c.Min.Y + i%perCol*item.Y
+	rect := lv.client()
+	x := rect.Min.X + (i/perCol-lv.scroll.pos)*item.X
+	y := rect.Min.Y + i%perCol*item.Y
 
 	return image.Rect(x, y, x+item.X, y+item.Y)
 }
 
-// at returns the item whose icon or caption is at p, or -1.
-func (lv *listView) at(p image.Point) int {
-	if !p.In(lv.client()) || p.In(lv.scroll.rect) {
+// at returns the item whose icon or caption is at pnt, or -1.
+func (lv *listView) at(pnt image.Point) int {
+	if !pnt.In(lv.client()) || pnt.In(lv.scroll.rect) {
 		return -1
 	}
 
 	_, icon, _ := lv.metrics()
 	for i, it := range lv.items {
-		r := lv.itemRect(i)
-		r.Max.X = r.Min.X + icon.X + 2 + lv.font.width(it.caption) + 4
+		rect := lv.itemRect(i)
+		rect.Max.X = rect.Min.X + icon.X + 2 + lv.font.width(it.caption) + 4
 
-		if p.In(r) {
+		if pnt.In(rect) {
 			return i
 		}
 	}
@@ -486,21 +486,21 @@ func (lv *listView) at(p image.Point) int {
 }
 
 func (lv *listView) paint(cv canvas) {
-	r := lv.local()
+	rect := lv.local()
 	if lv.border {
-		cv.sunken(r)
+		cv.sunken(rect)
 	}
 
-	c := lv.client()
-	cv.fill(c, lv.color)
+	cli := lv.client()
+	cv.fill(cli, lv.color)
 
 	_, icon, _ := lv.metrics()
-	in := cv.sub(c)
+	in := cv.sub(cli)
 	in.org = cv.org // keep the list's coordinates, clipped to the inside
 	focus := lv.focused() && lv.wdw.active
 
 	for i := range lv.items {
-		if ir := lv.itemRect(i); ir.Overlaps(c) {
+		if ir := lv.itemRect(i); ir.Overlaps(cli) {
 			lv.paintItem(in, i, ir, icon, focus)
 		}
 	}
@@ -548,16 +548,16 @@ func (lv *listView) paintItem(in canvas, i int, ir image.Rectangle, icon image.P
 	}
 }
 
-func (lv *listView) mouseDown(p image.Point, double bool) {
-	if lv.scroll.press(p) {
+func (lv *listView) mouseDown(pnt image.Point, double bool) {
+	if lv.scroll.press(pnt) {
 		lv.invalidate()
 
 		return
 	}
 
-	k := lv.at(p)
-	if lv.selected != k {
-		lv.selected = k
+	idx := lv.at(pnt)
+	if lv.selected != idx {
+		lv.selected = idx
 		lv.invalidate()
 
 		if lv.onSelect != nil {
@@ -566,14 +566,14 @@ func (lv *listView) mouseDown(p image.Point, double bool) {
 	}
 
 	lv.pressing = true
-	if double && k >= 0 && lv.onDblClick != nil {
+	if double && idx >= 0 && lv.onDblClick != nil {
 		lv.onDblClick()
 	}
 }
 
-func (lv *listView) mouseDrag(p image.Point) {
+func (lv *listView) mouseDrag(pnt image.Point) {
 	if lv.scroll.pressed != partNone {
-		lv.scroll.drag(p)
+		lv.scroll.drag(pnt)
 		lv.invalidate()
 	}
 }
@@ -594,20 +594,20 @@ func (lv *listView) mouseUp(image.Point) {
 	}
 }
 
-func (lv *listView) hover(p image.Point, out bool) {
-	k := -1
+func (lv *listView) hover(pnt image.Point, out bool) {
+	idx := -1
 	if !out {
-		k = lv.at(p)
+		idx = lv.at(pnt)
 	}
 
-	if k != lv.hot {
-		lv.hot = k
+	if idx != lv.hot {
+		lv.hot = idx
 		lv.invalidate()
 	}
 }
 
-func (lv *listView) cursor(p image.Point) ebiten.CursorShapeType {
-	if lv.hotTrack && lv.at(p) >= 0 {
+func (lv *listView) cursor(pnt image.Point) ebiten.CursorShapeType {
+	if lv.hotTrack && lv.at(pnt) >= 0 {
 		return ebiten.CursorShapePointer
 	}
 
@@ -620,36 +620,36 @@ func (lv *listView) tick(now time.Time) {
 	}
 }
 
-func (lv *listView) key(k ebiten.Key, _ mods) bool {
+func (lv *listView) key(key ebiten.Key, _ mods) bool {
 	n := len(lv.items)
 	if n == 0 {
 		return false
 	}
 
 	_, _, perCol := lv.metrics()
-	s := lv.selected
+	sel := lv.selected
 
-	switch k {
+	switch key {
 	case ebiten.KeyUp:
-		s = max(s-1, 0)
+		sel = max(sel-1, 0)
 	case ebiten.KeyDown:
-		s = min(s+1, n-1)
+		sel = min(sel+1, n-1)
 	case ebiten.KeyLeft:
-		s = max(s-perCol, 0)
+		sel = max(sel-perCol, 0)
 	case ebiten.KeyRight:
-		s = min(s+perCol, n-1)
+		sel = min(sel+perCol, n-1)
 	case ebiten.KeyHome:
-		s = 0
+		sel = 0
 	case ebiten.KeyEnd:
-		s = n - 1
+		sel = n - 1
 	default:
 		return false
 	}
 
-	s = max(s, 0)
-	if s != lv.selected {
-		lv.selected = s
-		lv.ensureVisible(s)
+	sel = max(sel, 0)
+	if sel != lv.selected {
+		lv.selected = sel
+		lv.ensureVisible(sel)
 		lv.invalidate()
 
 		if lv.onSelect != nil {
@@ -693,34 +693,34 @@ type dropList struct {
 	rows   int
 }
 
-func newDropList(c *comboBox) *dropList {
-	d := &dropList{combo: c, hot: c.index}
-	d.rows = min(len(c.items), 8)
-	h := max(d.rows, 1)*c.itemHeight + 2
-	o := c.wdw.clientOrigin().Add(c.origin())
-	d.rect = image.Rect(o.X, o.Y+c.rect.Dy(), o.X+c.rect.Dx(), o.Y+c.rect.Dy()+h)
+func newDropList(cb *comboBox) *dropList {
+	dl := &dropList{combo: cb, hot: cb.index}
+	dl.rows = min(len(cb.items), 8)
+	hgt := max(dl.rows, 1)*cb.itemHeight + 2
+	pnt := cb.wdw.clientOrigin().Add(cb.origin())
+	dl.rect = image.Rect(pnt.X, pnt.Y+cb.rect.Dy(), pnt.X+cb.rect.Dx(), pnt.Y+cb.rect.Dy()+hgt)
 
-	if d.rect.Max.Y > screenHeight {
-		d.rect = d.rect.Sub(image.Pt(0, h+c.rect.Dy()))
+	if dl.rect.Max.Y > screenHeight {
+		dl.rect = dl.rect.Sub(image.Pt(0, hgt+cb.rect.Dy()))
 	}
 
-	if len(c.items) > d.rows {
-		d.scroll = scrollBar{
+	if len(cb.items) > dl.rows {
+		dl.scroll = scrollBar{
 			vertical: true,
-			rect:     image.Rect(d.rect.Dx()-1-scrollSize, 1, d.rect.Dx()-1, d.rect.Dy()-1),
+			rect:     image.Rect(dl.rect.Dx()-1-scrollSize, 1, dl.rect.Dx()-1, dl.rect.Dy()-1),
 			min:      0,
-			max:      len(c.items) - 1,
-			page:     d.rows,
+			max:      len(cb.items) - 1,
+			page:     dl.rows,
 		}
 	}
 
-	d.show(max(c.index, 0))
+	dl.show(max(cb.index, 0))
 
-	d.scroll.onScroll = func() {
-		d.top = d.scroll.pos
+	dl.scroll.onScroll = func() {
+		dl.top = dl.scroll.pos
 	}
 
-	return d
+	return dl
 }
 
 // show scrolls item i into view.
@@ -742,35 +742,35 @@ func (dl *dropList) bounds() image.Rectangle {
 
 func (dl *dropList) paint(cv canvas) {
 	cv = cv.sub(dl.rect)
-	r := image.Rectangle{Max: dl.rect.Size()}
-	cv.frame(r, colFrame)
+	rect := image.Rectangle{Max: dl.rect.Size()}
+	cv.frame(rect, colFrame)
 
-	in := r.Inset(1)
+	in := rect.Inset(1)
 	if dl.scroll.max > 0 {
 		in.Max.X -= scrollSize
 	}
 
 	cv.fill(in, colWindow)
 
-	c := dl.combo
+	cb := dl.combo
 	for row := range dl.rows {
 		i := dl.top + row
-		if i >= len(c.items) {
+		if i >= len(cb.items) {
 			break
 		}
 
-		y := in.Min.Y + row*c.itemHeight
-		ir := image.Rect(in.Min.X, y, in.Max.X, y+c.itemHeight)
+		y := in.Min.Y + row*cb.itemHeight
+		ir := image.Rect(in.Min.X, y, in.Max.X, y+cb.itemHeight)
 		tx := 2
 
-		if c.images != nil {
+		if cb.images != nil {
 			// Owner-drawn: the item's icon at its indent, then its text,
 			// highlighted on its own.
-			x := ir.Min.X + 1 + c.indents[i]
-			c.images.drawFrame(cv, x, y+(c.itemHeight-c.images.size)/2, c.icons[i], false)
+			x := ir.Min.X + 1 + cb.indents[i]
+			cb.images.drawFrame(cv, x, y+(cb.itemHeight-cb.images.size)/2, cb.icons[i], false)
 
-			x += c.images.size + 3
-			ir = image.Rect(x, y, min(x+c.font.width(c.items[i])+4, in.Max.X), y+c.itemHeight)
+			x += cb.images.size + 3
+			ir = image.Rect(x, y, min(x+cb.font.width(cb.items[i])+4, in.Max.X), y+cb.itemHeight)
 		}
 
 		fg := colText
@@ -781,7 +781,7 @@ func (dl *dropList) paint(cv canvas) {
 			fg = colSelText
 		}
 
-		c.font.draw(cv.sub(ir), tx, (c.itemHeight-c.font.height())/2, c.items[i], fg)
+		cb.font.draw(cv.sub(ir), tx, (cb.itemHeight-cb.font.height())/2, cb.items[i], fg)
 	}
 
 	if dl.scroll.max > 0 {
@@ -789,20 +789,20 @@ func (dl *dropList) paint(cv canvas) {
 	}
 }
 
-// itemAt returns the item at p (on the desktop), or -1.
-func (dl *dropList) itemAt(p image.Point) int {
-	q := p.Sub(dl.rect.Min)
+// itemAt returns the item at pnt (on the desktop), or -1.
+func (dl *dropList) itemAt(pnt image.Point) int {
+	loc := pnt.Sub(dl.rect.Min)
 	in := image.Rectangle{Max: dl.rect.Size()}.Inset(1)
 
 	if dl.scroll.max > 0 {
 		in.Max.X -= scrollSize
 	}
 
-	if !q.In(in) {
+	if !loc.In(in) {
 		return -1
 	}
 
-	i := dl.top + (q.Y-in.Min.Y)/dl.combo.itemHeight
+	i := dl.top + (loc.Y-in.Min.Y)/dl.combo.itemHeight
 	if i >= len(dl.combo.items) {
 		return -1
 	}
@@ -810,32 +810,32 @@ func (dl *dropList) itemAt(p image.Point) int {
 	return i
 }
 
-func (dl *dropList) mouseDown(p image.Point) {
-	if dl.scroll.press(p.Sub(dl.rect.Min)) {
+func (dl *dropList) mouseDown(pnt image.Point) {
+	if dl.scroll.press(pnt.Sub(dl.rect.Min)) {
 		return
 	}
 }
 
-func (dl *dropList) mouseMove(p image.Point, down bool) {
+func (dl *dropList) mouseMove(pnt image.Point, down bool) {
 	if dl.scroll.pressed != partNone {
-		dl.scroll.drag(p.Sub(dl.rect.Min))
+		dl.scroll.drag(pnt.Sub(dl.rect.Min))
 
 		return
 	}
 
-	if i := dl.itemAt(p); i >= 0 {
+	if i := dl.itemAt(pnt); i >= 0 {
 		dl.hot = i
 	}
 }
 
-func (dl *dropList) mouseUp(p image.Point) bool {
+func (dl *dropList) mouseUp(pnt image.Point) bool {
 	if dl.scroll.pressed != partNone {
 		dl.scroll.release()
 
 		return false
 	}
 
-	if i := dl.itemAt(p); i >= 0 {
+	if i := dl.itemAt(pnt); i >= 0 {
 		dl.combo.pick(i)
 
 		return true
@@ -859,10 +859,10 @@ func (dl *dropList) wheel(dy int) {
 	}
 }
 
-func (dl *dropList) key(k ebiten.Key) bool {
+func (dl *dropList) key(key ebiten.Key) bool {
 	n := len(dl.combo.items)
 
-	switch k {
+	switch key {
 	case ebiten.KeyUp:
 		dl.hot = max(dl.hot-1, 0)
 	case ebiten.KeyDown:

@@ -16,9 +16,9 @@ import (
 func ancestry(dir string) []string {
 	var chain []string
 
-	for d := dir; ; d = filepath.Dir(d) {
-		chain = append(chain, d)
-		if filepath.Dir(d) == d {
+	for pth := dir; ; pth = filepath.Dir(pth) {
+		chain = append(chain, pth)
+		if filepath.Dir(pth) == pth {
 			break
 		}
 	}
@@ -41,50 +41,50 @@ func TestLookIn(t *testing.T) {
 
 	ta.lastDir = dir
 	ta.wait(80)
-	ta.clickOn(ta.start.w, "LoadButton")
+	ta.clickOn(ta.start.wdw, "LoadButton")
 	ta.wait(1)
 
-	f := ta.fileDialog
-	if f == nil {
+	fd := ta.fileDialog
+	if fd == nil {
 		t.Fatal("no file dialog")
 	}
 
-	c := f.lookIn
+	cb := fd.lookIn
 	chain := ancestry(dir)
 
-	if len(c.items) != len(chain) || c.index != len(chain)-1 {
-		t.Fatalf("look in %q, item %d", c.items, c.index)
+	if len(cb.items) != len(chain) || cb.index != len(chain)-1 {
+		t.Fatalf("look in %q, item %d", cb.items, cb.index)
 	}
 
-	for i, d := range chain {
-		name, icon := filepath.Base(d), fileIconFolder
+	for i, pth := range chain {
+		name, icon := filepath.Base(pth), fileIconFolder
 		if i == 0 {
-			name, icon = d, fileIconDrive
+			name, icon = pth, fileIconDrive
 		}
 
-		if c.items[i] != name || c.icons[i] != icon || c.indents[i] != i*lookInIndent {
-			t.Errorf("item %d: %q, icon %d, indent %d", i, c.items[i], c.icons[i], c.indents[i])
+		if cb.items[i] != name || cb.icons[i] != icon || cb.indents[i] != i*lookInIndent {
+			t.Errorf("item %d: %q, icon %d, indent %d", i, cb.items[i], cb.icons[i], cb.indents[i])
 		}
 	}
 
-	b := c.button()
-	ta.click(widgetOrigin(c).Add(b.Min).Add(b.Size().Div(2)))
+	rect := cb.button()
+	ta.click(widgetOrigin(cb).Add(rect.Min).Add(rect.Size().Div(2)))
 
-	l := c.dropped
-	if l == nil {
+	dl := cb.dropped
+	if dl == nil {
 		t.Fatal("the list didn't drop down")
 	}
 
 	ta.shot("52-look-in")
 
 	i := len(chain) - 2 // saves
-	ta.click(l.rect.Min.Add(image.Pt(5, 1+(i-l.top)*c.itemHeight+c.itemHeight/2)))
+	ta.click(dl.rect.Min.Add(image.Pt(5, 1+(i-dl.top)*cb.itemHeight+cb.itemHeight/2)))
 
-	if want := filepath.Join(ta.dir, "saves"); f.dir != want {
-		t.Errorf("in %s, want %s", f.dir, want)
+	if want := filepath.Join(ta.dir, "saves"); fd.dir != want {
+		t.Errorf("in %s, want %s", fd.dir, want)
 	}
 
-	if c.index != i || c.items[i] != "saves" {
-		t.Errorf("look in %q, item %d", c.items, c.index)
+	if cb.index != i || cb.items[i] != "saves" {
+		t.Errorf("look in %q, item %d", cb.items, cb.index)
 	}
 }

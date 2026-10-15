@@ -22,8 +22,8 @@ func TestStatsHint(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
 
-	l := ta.stats.party
-	ta.mouse = widgetOrigin(l).Add(image.Pt(60, 100))
+	lv := ta.stats.party
+	ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
 	ta.wait(29) // under half a second
 
 	if ta.hintShown() {
@@ -32,19 +32,19 @@ func TestStatsHint(t *testing.T) {
 
 	ta.wait(4)
 
-	h := ta.desk.hint
+	hnt := ta.desk.hint
 	ta.shot("50-stats-hint")
 
-	if h.text != "Doubleclick a POKéMON to see its statistics." {
-		t.Fatalf("hint %q", h.text)
+	if hnt.text != "Doubleclick a POKéMON to see its statistics." {
+		t.Fatalf("hint %q", hnt.text)
 	}
 
 	// Under the cursor, and moved left to end at the screen's edge.
-	size := image.Pt(ta.res.sans.width(h.text)+6, ta.res.sans.height()+6)
-	o := image.Pt(screenWidth-size.X, ta.mouse.Y+hintCursorMargin)
+	size := image.Pt(ta.res.sans.width(hnt.text)+6, ta.res.sans.height()+6)
+	pnt := image.Pt(screenWidth-size.X, ta.mouse.Y+hintCursorMargin)
 
-	if want := (image.Rectangle{Min: o, Max: o.Add(size)}); h.rect != want {
-		t.Errorf("hint at %v, want %v", h.rect, want)
+	if want := (image.Rectangle{Min: pnt, Max: pnt.Add(size)}); hnt.rect != want {
+		t.Errorf("hint at %v, want %v", hnt.rect, want)
 	}
 
 	ta.wait(140) // under three seconds on the list
@@ -69,7 +69,7 @@ func TestStatsHint(t *testing.T) {
 	ta.mouse = image.Pt(10, 10)
 	ta.wait(1)
 
-	ta.mouse = widgetOrigin(l).Add(image.Pt(60, 100))
+	ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
 	ta.wait(33)
 
 	if !ta.hintShown() {
@@ -97,25 +97,25 @@ func TestSpinIncrement(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
 
-	ta.g.Money = 1000
+	ta.gam.Money = 1000
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
 
-	s := get[*spinEdit](ta.gameCorner.wdw, "SpinEdit1")
-	up, down := s.buttons()
-	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
-	ta.click(widgetOrigin(s).Add(up.Min).Add(up.Size().Div(2)))
+	se := get[*spinEdit](ta.gameCorner.wdw, "SpinEdit1")
+	up, down := se.buttons()
+	ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
+	ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
 
-	if ta.g.Corner.Bet != 100 {
-		t.Errorf("bet %d after two clicks up, want 100", ta.g.Corner.Bet)
+	if ta.gam.Corner.Bet != 100 {
+		t.Errorf("bet %d after two clicks up, want 100", ta.gam.Corner.Bet)
 	}
 
-	ta.click(widgetOrigin(s).Add(down.Min).Add(down.Size().Div(2)))
+	ta.click(widgetOrigin(se).Add(down.Min).Add(down.Size().Div(2)))
 	ta.key(ebiten.KeyUp)
 	ta.key(ebiten.KeyUp)
 
-	if ta.g.Corner.Bet != 150 || s.tb.String() != "150" {
-		t.Errorf("bet %d, text %q, want 150", ta.g.Corner.Bet, s.tb.String())
+	if ta.gam.Corner.Bet != 150 || se.tb.String() != "150" {
+		t.Errorf("bet %d, text %q, want 150", ta.gam.Corner.Bet, se.tb.String())
 	}
 }
 
@@ -128,15 +128,15 @@ func TestMinimize(t *testing.T) {
 	}
 	ta.wait(80)
 
-	w := ta.start.w
-	if !w.minBox {
+	wdw := ta.start.wdw
+	if !wdw.minBox {
 		t.Fatal("the start screen has no minimize button")
 	}
 
-	ta.click(w.captionButton(capMin).Min.Add(image.Pt(4, 4)))
+	ta.click(wdw.captionButton(capMin).Min.Add(image.Pt(4, 4)))
 
-	if n != 1 || !w.visible {
-		t.Errorf("%d minimizes, start screen shown: %t", n, w.visible)
+	if n != 1 || !wdw.visible {
+		t.Errorf("%d minimizes, start screen shown: %t", n, wdw.visible)
 	}
 }
 
@@ -147,23 +147,23 @@ func TestCornerDraws(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
 
-	ta.g.Money = 1000
+	ta.gam.Money = 1000
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
 
-	c := ta.gameCorner
-	radio := func(g *radioGroup, k int) {
-		r := g.buttonRect(k)
-		ta.click(widgetOrigin(g).Add(r.Min).Add(image.Pt(6, r.Dy()/2)))
+	gcf := ta.gameCorner
+	radio := func(rg *radioGroup, idx int) {
+		rect := rg.buttonRect(idx)
+		ta.click(widgetOrigin(rg).Add(rect.Min).Add(image.Pt(6, rect.Dy()/2)))
 	}
-	radio(c.prize, 0)  // money
-	radio(c.number, 3) // on 3
-	ta.click(widgetOrigin(c.bet).Add(image.Pt(5, 5)))
+	radio(gcf.prize, 0)  // money
+	radio(gcf.number, 3) // on 3
+	ta.click(widgetOrigin(gcf.bet).Add(image.Pt(5, 5)))
 	ta.key(ebiten.KeyHome)
 	ta.frame(input{keys: []ebiten.Key{ebiten.KeyEnd}, mods: mods{shift: true}})
 	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
 	ta.typeText("100")
-	ta.clickOn(c.wdw, "Button1") // Draw number!
+	ta.clickOn(gcf.wdw, "Button1") // Draw number!
 
 	if ta.draws == nil {
 		t.Fatal("no draws show")
@@ -177,11 +177,11 @@ func TestCornerDraws(t *testing.T) {
 	frames := 0
 
 	for ; ta.draws != nil && frames < 120; frames++ {
-		seen[c.drawn.index] = true
+		seen[gcf.drawn.index] = true
 
 		if frames == 20 {
 			ta.shot("51-corner-draws")
-			ta.clickOn(c.wdw, "Button2") // Close: no input meanwhile
+			ta.clickOn(gcf.wdw, "Button2") // Close: no input meanwhile
 
 			frames += 2
 		}
@@ -197,14 +197,14 @@ func TestCornerDraws(t *testing.T) {
 		t.Errorf("%d numbers shown", len(seen))
 	}
 
-	if !c.wdw.visible {
+	if !gcf.wdw.visible {
 		t.Error("Close worked during the draws")
 	}
 
 	ta.wait(1)
 
-	if c.drawn.index != ta.g.Corner.Drawn {
-		t.Errorf("%d shows, the game drew %d", c.drawn.index, ta.g.Corner.Drawn)
+	if gcf.drawn.index != ta.gam.Corner.Drawn {
+		t.Errorf("%d shows, the game drew %d", gcf.drawn.index, ta.gam.Corner.Drawn)
 	}
 }
 
@@ -212,9 +212,9 @@ func TestCornerDraws(t *testing.T) {
 // Arial than the form, after Position centred it, and the labels anchored
 // to its right move with it.
 func TestLoadingFits(t *testing.T) {
-	w := newTestApp(t).load.w
-	if w.client != image.Pt(511, 157) || w.pos.X != (screenWidth-510)/2 {
-		t.Errorf("client %v at %v, want 511×157 centred as 510 wide", w.client, w.pos)
+	wdw := newTestApp(t).load.wdw
+	if wdw.client != image.Pt(511, 157) || wdw.pos.X != (screenWidth-510)/2 {
+		t.Errorf("client %v at %v, want 511×157 centred as 510 wide", wdw.client, wdw.pos)
 	}
 
 	for name, x := range map[string]int{
@@ -223,9 +223,9 @@ func TestLoadingFits(t *testing.T) {
 		"Label3": 12,
 		"Label4": 29,
 	} {
-		r := w.find(name).base().rect
-		if r.Min.X != x {
-			t.Errorf("%s at x=%d, want %d", name, r.Min.X, x)
+		rect := wdw.find(name).base().rect
+		if rect.Min.X != x {
+			t.Errorf("%s at x=%d, want %d", name, rect.Min.X, x)
 		}
 	}
 }
@@ -235,13 +235,13 @@ func TestLoadingFits(t *testing.T) {
 // again, its FormShow selects the species again, which leaves the text
 // unselected: the focus is on the button that closed it.
 func TestDexFits(t *testing.T) {
-	f := save.File{PlayerName: "Gary", PokeBalls: 3}
-	f.Owned[0] = save.Slot{Species: 4, Level: 5, XP: 125}
-	f.InDex[4] = true
+	sav := save.File{PlayerName: "Gary", PokeBalls: 3}
+	sav.Owned[0] = save.Slot{Species: 4, Level: 5, XP: 125}
+	sav.InDex[4] = true
 	dir := t.TempDir()
 	file := filepath.Join(dir, "dex.pgs")
 
-	if err := os.WriteFile(file, f.Bytes(), 0o600); err != nil {
+	if err := os.WriteFile(file, sav.Bytes(), 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -255,24 +255,24 @@ func TestDexFits(t *testing.T) {
 		t.Errorf("client %v with no selection, want 241×25", dex.wdw.client)
 	}
 
-	c := dex.combo
-	b := c.button()
-	ta.click(widgetOrigin(c).Add(b.Min).Add(b.Size().Div(2)))
+	cb := dex.combo
+	rect := cb.button()
+	ta.click(widgetOrigin(cb).Add(rect.Min).Add(rect.Size().Div(2)))
 
-	drop := c.dropped.rect
-	ta.click(drop.Min.Add(image.Pt(5, 1+3*c.itemHeight+c.itemHeight/2)))
+	drop := cb.dropped.rect
+	ta.click(drop.Min.Add(image.Pt(5, 1+3*cb.itemHeight+cb.itemHeight/2)))
 	ta.wait(1)
 
-	if dex.wdw.client != image.Pt(241, 161) || c.index != 3 {
-		t.Errorf("client %v with species %d, want 241×161 with Charmander", dex.wdw.client, c.index+1)
+	if dex.wdw.client != image.Pt(241, 161) || cb.index != 3 {
+		t.Errorf("client %v with species %d, want 241×161 with Charmander", dex.wdw.client, cb.index+1)
 	}
 
 	ta.clickOn(dex.wdw, "Button1")
 	ta.menu("Action1", "ViewDEX1")
 	ta.wait(1)
 
-	if from, to := c.tb.sel(); from != to || c.tb.String() != "Charmander (#004)" {
-		t.Errorf("text %q, selected from %d to %d; want Charmander's, unselected", c.tb.String(), from, to)
+	if from, to := cb.tb.sel(); from != to || cb.tb.String() != "Charmander (#004)" {
+		t.Errorf("text %q, selected from %d to %d; want Charmander's, unselected", cb.tb.String(), from, to)
 	}
 
 	if dex.wdw.focus != dex.wdw.find("Button1") {

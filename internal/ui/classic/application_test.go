@@ -42,15 +42,15 @@ func newTestApp(t *testing.T) *testApp {
 func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	t.Helper()
 
-	a, err := NewApplication(testData(t), platform.Disk(dir), args)
+	app, err := NewApplication(testData(t), platform.Disk(dir), args)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	a.g.Rand.Seed = 1
+	app.gam.Rand.Seed = 1
 
 	return &testApp{
-		Application: a,
+		Application: app,
 		t:           t,
 		now:         time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC),
 		dir:         dir,
@@ -88,41 +88,41 @@ func (ta *testApp) wait(n int) {
 	}
 }
 
-// click clicks at p on the screen; double clicks twice.
-func (ta *testApp) click(p image.Point) {
-	ta.mouse = p
+// click clicks at pnt on the screen; double clicks twice.
+func (ta *testApp) click(pnt image.Point) {
+	ta.mouse = pnt
 	ta.frame(input{})
 	ta.frame(input{down: true, pressed: true})
 	ta.frame(input{released: true})
 }
 
-func (ta *testApp) doubleClick(p image.Point) {
-	ta.click(p)
-	ta.click(p)
+func (ta *testApp) doubleClick(pnt image.Point) {
+	ta.click(pnt)
+	ta.click(pnt)
 }
 
 // clickOn clicks the middle of a window's control.
-func (ta *testApp) clickOn(w *window, name string) {
+func (ta *testApp) clickOn(wdw *window, name string) {
 	ta.t.Helper()
 
-	k := w.find(name)
-	if k == nil {
-		ta.t.Fatalf("%s has no %s", w.name, name)
+	wgt := wdw.find(name)
+	if wgt == nil {
+		ta.t.Fatalf("%s has no %s", wdw.name, name)
 	}
 
-	c := k.base()
-	ta.click(widgetOrigin(k).Add(c.rect.Size().Div(2)))
+	ctl := wgt.base()
+	ta.click(widgetOrigin(wgt).Add(ctl.rect.Size().Div(2)))
 }
 
 // key presses and releases a key.
-func (ta *testApp) key(k ebiten.Key) {
-	ta.frame(input{keys: []ebiten.Key{k}})
-	ta.frame(input{keysUp: []ebiten.Key{k}})
+func (ta *testApp) key(key ebiten.Key) {
+	ta.frame(input{keys: []ebiten.Key{key}})
+	ta.frame(input{keysUp: []ebiten.Key{key}})
 }
 
 // typeText types characters.
-func (ta *testApp) typeText(s string) {
-	ta.frame(input{chars: []rune(s)})
+func (ta *testApp) typeText(txt string) {
+	ta.frame(input{chars: []rune(txt)})
 }
 
 // shot paints the screen and, when $CLASSIC_SHOTS names a folder, saves
@@ -140,23 +140,23 @@ func (ta *testApp) shot(name string) {
 func (ta *testApp) menu(names ...string) {
 	ta.t.Helper()
 
-	m := ta.main.w.menu
-	for i, e := range m.entries {
-		closed := !m.active() || m.sel != i || len(m.open) == 0
-		if e.name() == names[0] && closed {
-			r := m.barRects()[i]
-			ta.click(r.Min.Add(r.Size().Div(2)))
+	mb := ta.main.wdw.menu
+	for i, me := range mb.entries {
+		closed := !mb.active() || mb.sel != i || len(mb.open) == 0
+		if me.name() == names[0] && closed {
+			rect := mb.barRects()[i]
+			ta.click(rect.Min.Add(rect.Size().Div(2)))
 		}
 	}
 
-	for _, n := range names[1:] {
+	for _, nam := range names[1:] {
 		found := false
 
-		for _, p := range m.open {
-			for i, e := range p.items {
-				if e.name() == n {
-					r := p.itemRect(i)
-					ta.click(r.Min.Add(r.Size().Div(2)))
+		for _, mp := range mb.open {
+			for i, me := range mp.items {
+				if me.name() == nam {
+					rect := mp.itemRect(i)
+					ta.click(rect.Min.Add(rect.Size().Div(2)))
 
 					found = true
 				}
@@ -164,7 +164,7 @@ func (ta *testApp) menu(names ...string) {
 		}
 
 		if !found {
-			ta.t.Fatalf("menu item %s not open", n)
+			ta.t.Fatalf("menu item %s not open", nam)
 		}
 	}
 }
@@ -173,12 +173,12 @@ func (ta *testApp) menu(names ...string) {
 func (ta *testApp) answer(want string) {
 	ta.t.Helper()
 
-	w := ta.desk.topModal()
-	if w == nil {
+	wdw := ta.desk.topModal()
+	if wdw == nil {
 		ta.t.Fatalf("no dialog; want %q", want)
 	}
 
-	if msg := w.find("Message"); msg == nil || !strings.Contains(msg.base().caption, want) {
+	if msg := wdw.find("Message"); msg == nil || !strings.Contains(msg.base().caption, want) {
 		ta.t.Fatalf("dialog %q, want %q", msg.base().caption, want)
 	}
 
@@ -189,14 +189,14 @@ func (ta *testApp) answer(want string) {
 // startGame plays up to the game window with a Charmander.
 func (ta *testApp) startGame() {
 	ta.wait(80)
-	ta.clickOn(ta.start.w, "NewButton")
+	ta.clickOn(ta.start.wdw, "NewButton")
 	ta.typeText("ash")
 	ta.key(ebiten.KeyEnter)
 	ta.typeText("Gary")
 	ta.key(ebiten.KeyEnter)
 
-	r := ta.main.starters.itemRect(1)
-	ta.click(widgetOrigin(ta.main.starters).Add(r.Min).Add(image.Pt(20, 20)))
+	rect := ta.main.starters.itemRect(1)
+	ta.click(widgetOrigin(ta.main.starters).Add(rect.Min).Add(image.Pt(20, 20)))
 	ta.wait(1)
 }
 
@@ -212,23 +212,23 @@ func (ta *testApp) hintShown() bool {
 func (ta *testApp) spotPoint(target string) image.Point {
 	ta.t.Helper()
 
-	v := ta.helpWindow.view
-	for _, s := range v.spots {
-		if s.target != target || len(s.boxes) == 0 {
+	hv := ta.helpWindow.view
+	for _, hsp := range hv.spots {
+		if hsp.target != target || len(hsp.boxes) == 0 {
 			continue
 		}
 
-		b := s.boxes[0]
-		if b.Min.Y < v.scroll.pos || b.Max.Y > v.scroll.pos+v.scroll.page {
-			v.scroll.set(b.Min.Y)
+		rect := hsp.boxes[0]
+		if rect.Min.Y < hv.scroll.pos || rect.Max.Y > hv.scroll.pos+hv.scroll.page {
+			hv.scroll.set(rect.Min.Y)
 		}
 
-		p := b.Min.Add(image.Pt(2, v.head.Rect.Dy()-v.scroll.pos+2))
+		pnt := rect.Min.Add(image.Pt(2, hv.head.Rect.Dy()-hv.scroll.pos+2))
 
-		return widgetOrigin(v).Add(p)
+		return widgetOrigin(hv).Add(pnt)
 	}
 
-	ta.t.Fatalf("%s has no link to %s", v.name, target)
+	ta.t.Fatalf("%s has no link to %s", hv.name, target)
 
 	return image.Point{}
 }
@@ -243,33 +243,33 @@ type menuEffects struct {
 }
 
 func (ta *testApp) menuEffects() menuEffects {
-	e := menuEffects{quit: ta.quit}
-	if w := ta.desk.topModal(); w != nil {
-		e.modal = w.caption
+	eff := menuEffects{quit: ta.quit}
+	if wdw := ta.desk.topModal(); wdw != nil {
+		eff.modal = wdw.caption
 	}
 
-	for _, w := range ta.desk.windows {
-		if w.visible {
-			e.windows += w.name + " "
+	for _, wdw := range ta.desk.windows {
+		if wdw.visible {
+			eff.windows += wdw.name + " "
 		}
 	}
 
-	g := ta.g
-	e.battle = [3]bool{g.InWildBattle, g.InTrainerBattle, g.InTournament}
+	gam := ta.gam
+	eff.battle = [3]bool{gam.InWildBattle, gam.InTrainerBattle, gam.InTournament}
 
 	var walk func(items []*game.MenuItem)
 	walk = func(items []*game.MenuItem) {
-		for _, m := range items {
-			if m.Checked {
-				e.checked += m.Name + " "
+		for _, mi := range items {
+			if mi.Checked {
+				eff.checked += mi.Name + " "
 			}
 
-			walk(m.Items)
+			walk(mi.Items)
 		}
 	}
-	walk(g.Menu)
+	walk(gam.Menu)
 
-	return e
+	return eff
 }
 
 // TestNewGame plays the start of a game: loading, the start screen, the
@@ -279,18 +279,18 @@ func TestNewGame(t *testing.T) {
 	ta.wait(20)
 	ta.shot("01-loading")
 
-	if !ta.load.w.visible {
+	if !ta.load.wdw.visible {
 		t.Fatal("no loading screen")
 	}
 
 	ta.wait(60)
 
-	if ta.load.w.visible || !ta.start.w.visible {
+	if ta.load.wdw.visible || !ta.start.wdw.visible {
 		t.Fatal("the start screen didn't follow the loading screen")
 	}
 
 	ta.shot("02-start")
-	ta.clickOn(ta.start.w, "NewButton")
+	ta.clickOn(ta.start.wdw, "NewButton")
 	ta.wait(1)
 	ta.shot("03-save-dialog")
 
@@ -304,7 +304,7 @@ func TestNewGame(t *testing.T) {
 	ta.wait(1)
 	ta.shot("04-name")
 
-	if top := ta.desk.topModal(); top != ta.name.w {
+	if top := ta.desk.topModal(); top != ta.name.wdw {
 		t.Fatalf("no name dialog: %v", top)
 	}
 
@@ -313,8 +313,8 @@ func TestNewGame(t *testing.T) {
 	ta.wait(1)
 	ta.shot("05-starters")
 
-	if want := "POKéMON Simulator V4.5 - Gary [ash.pgs]"; ta.main.w.caption != want {
-		t.Errorf("caption %q, want %q", ta.main.w.caption, want)
+	if want := "POKéMON Simulator V4.5 - Gary [ash.pgs]"; ta.main.wdw.caption != want {
+		t.Errorf("caption %q, want %q", ta.main.wdw.caption, want)
 	}
 
 	if !ta.main.starters.shown() {
@@ -322,16 +322,16 @@ func TestNewGame(t *testing.T) {
 	}
 
 	// Charmander, the second starter.
-	r := ta.main.starters.itemRect(1)
-	ta.click(widgetOrigin(ta.main.starters).Add(r.Min).Add(image.Pt(20, 20)))
+	rect := ta.main.starters.itemRect(1)
+	ta.click(widgetOrigin(ta.main.starters).Add(rect.Min).Add(image.Pt(20, 20)))
 	ta.wait(1)
 	ta.shot("06-chosen")
 
-	if got := ta.g.Party(); len(got) != 1 || got[0].Species != 4 {
+	if got := ta.gam.Party(); len(got) != 1 || got[0].Species != 4 {
 		t.Fatalf("party %v", got)
 	}
 
-	if ta.desk.active != ta.main.w || !ta.stats.wdw.visible || !ta.pokedex.wdw.visible {
+	if ta.desk.active != ta.main.wdw || !ta.stats.wdw.visible || !ta.pokedex.wdw.visible {
 		t.Errorf("windows: active %v, Statistics %v, POKéDEX %v", ta.desk.active, ta.stats.wdw.visible, ta.pokedex.wdw.visible)
 	}
 
@@ -339,8 +339,8 @@ func TestNewGame(t *testing.T) {
 	ta.wait(1)
 	ta.shot("07-game")
 
-	if !strings.HasSuffix(ta.g.SaveFile, "ash.pgs") {
-		t.Errorf("save file %q", ta.g.SaveFile)
+	if !strings.HasSuffix(ta.gam.SaveFile, "ash.pgs") {
+		t.Errorf("save file %q", ta.gam.SaveFile)
 	}
 }
 
@@ -354,8 +354,8 @@ func TestWildBattle(t *testing.T) {
 	ta.answer("Select a POKéMON from the Statistics Window")
 	ta.shot("12-arena")
 
-	r := ta.stats.party.itemRect(0)
-	ta.doubleClick(widgetOrigin(ta.stats.party).Add(r.Min).Add(image.Pt(10, 10)))
+	rect := ta.stats.party.itemRect(0)
+	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
 	ta.shot("13-info")
 	ta.answer("# 004 Charmander, L.5, XP:125, XP to next level:91")
 	ta.shot("14-confirm")
@@ -368,12 +368,12 @@ func TestWildBattle(t *testing.T) {
 
 	attacks := ta.main.attacks
 	ta.click(widgetOrigin(attacks).Add(attacks.buttonRect(0).Min).Add(image.Pt(20, 5)))
-	ta.clickOn(ta.main.w, "Button1")
+	ta.clickOn(ta.main.wdw, "Button1")
 	ta.wait(1)
 	ta.shot("16-turn")
 
-	if len(ta.g.Info.Lines) < 4 {
-		t.Errorf("Battle Info: %q", ta.g.Info.Lines)
+	if len(ta.gam.Info.Lines) < 4 {
+		t.Errorf("Battle Info: %q", ta.gam.Info.Lines)
 	}
 
 	ta.clickOn(ta.stats.wdw, "Button1") // a POKéBall
@@ -386,7 +386,7 @@ func TestWildBattle(t *testing.T) {
 	}
 
 	ta.shot("18-after")
-	t.Logf("log: %q", ta.g.Info.Lines)
+	t.Logf("log: %q", ta.gam.Info.Lines)
 }
 
 // TestCatchSaveLoad catches a POKéMON, quits, which saves, and loads the
@@ -395,12 +395,12 @@ func TestCatchSaveLoad(t *testing.T) {
 	ta := newTestApp(t)
 	ta.startGame()
 
-	ta.g.MasterBalls = 1
+	ta.gam.MasterBalls = 1
 	ta.menu("Action1", "FightWild1", "FindPKMN1")
 	ta.answer("Select a POKéMON")
 
-	r := ta.stats.party.itemRect(0)
-	ta.doubleClick(widgetOrigin(ta.stats.party).Add(r.Min).Add(image.Pt(10, 10)))
+	rect := ta.stats.party.itemRect(0)
+	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
 	ta.answer("# 004 Charmander")
 	ta.answer("Choose Charmander?")
 	ta.clickOn(ta.stats.wdw, "Button4") // the Master Ball
@@ -408,14 +408,14 @@ func TestCatchSaveLoad(t *testing.T) {
 	ta.shot("20-caught")
 
 	if !ta.main.endButton.shown() {
-		t.Fatalf("no End Fight; log %q", ta.g.Info.Lines)
+		t.Fatalf("no End Fight; log %q", ta.gam.Info.Lines)
 	}
 
-	ta.clickOn(ta.main.w, "EndButton")
+	ta.clickOn(ta.main.wdw, "EndButton")
 	ta.wait(1)
 	ta.shot("21-ended")
 
-	if n := len(ta.g.Party()); n != 2 {
+	if n := len(ta.gam.Party()); n != 2 {
 		t.Fatalf("party of %d", n)
 	}
 
@@ -434,7 +434,7 @@ func TestCatchSaveLoad(t *testing.T) {
 	tb := newTestApp(t)
 	tb.files = platform.Disk(ta.dir)
 	tb.wait(80)
-	tb.clickOn(tb.start.w, "LoadButton")
+	tb.clickOn(tb.start.wdw, "LoadButton")
 	tb.wait(1)
 	tb.shot("22-open")
 
@@ -447,15 +447,15 @@ func TestCatchSaveLoad(t *testing.T) {
 	tb.wait(1)
 	tb.shot("23-loaded")
 
-	if n := len(tb.g.Party()); n != 2 || tb.g.PlayerName != "Gary" {
-		t.Fatalf("loaded %q with a party of %d", tb.g.PlayerName, n)
+	if n := len(tb.gam.Party()); n != 2 || tb.gam.PlayerName != "Gary" {
+		t.Fatalf("loaded %q with a party of %d", tb.gam.PlayerName, n)
 	}
 
-	if tb.start.w.visible || !tb.main.w.visible || !tb.stats.wdw.visible {
+	if tb.start.wdw.visible || !tb.main.wdw.visible || !tb.stats.wdw.visible {
 		t.Error("the game windows don't show")
 	}
 
-	if got := tb.main.w.pos; got != image.Pt(95, 54) {
+	if got := tb.main.wdw.pos; got != image.Pt(95, 54) {
 		t.Errorf("game window at %v", got)
 	}
 }

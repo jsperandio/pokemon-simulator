@@ -18,8 +18,8 @@ import (
 // mainForm is the game window (TForm4): the menu, the starter choice,
 // the battle arena, the evolution choice and the Mewtwo-power picker.
 type mainForm struct {
-	a *Application
-	w *window
+	app *Application
+	wdw *window
 
 	starterLabel *label
 	starters     *listView
@@ -48,15 +48,15 @@ type mainForm struct {
 	endButton      *button
 }
 
-func newMainForm(a *Application) *mainForm {
-	w := newWindow(a.desk, &layout.Form4)
-	f := &mainForm{a: a, w: w}
-	f.starterLabel = get[*label](w, "Label1")
-	f.starters = get[*listView](w, "ListView1")
-	f.evolveChoice = get[*radioGroup](w, "EvolveChoice")
-	f.evolveButton = get[*button](w, "EvolveButton")
-	f.pickCombo = get[*comboBox](w, "ComboBox1")
-	f.pickLevel = get[*spinEdit](w, "SpinEdit1")
+func newMainForm(app *Application) *mainForm {
+	wdw := newWindow(app.desk, &layout.Form4)
+	mf := &mainForm{app: app, wdw: wdw}
+	mf.starterLabel = get[*label](wdw, "Label1")
+	mf.starters = get[*listView](wdw, "ListView1")
+	mf.evolveChoice = get[*radioGroup](wdw, "EvolveChoice")
+	mf.evolveButton = get[*button](wdw, "EvolveButton")
+	mf.pickCombo = get[*comboBox](wdw, "ComboBox1")
+	mf.pickLevel = get[*spinEdit](wdw, "SpinEdit1")
 
 	pickerNames := []string{
 		"Label10",
@@ -68,107 +68,107 @@ func newMainForm(a *Application) *mainForm {
 		"Button4",
 	}
 
-	for _, n := range pickerNames {
-		f.picker = append(f.picker, w.find(n))
+	for _, nam := range pickerNames {
+		mf.picker = append(mf.picker, wdw.find(nam))
 	}
 
-	f.arena = get[*groupBox](w, "GroupBox1")
-	f.ownLabel = get[*label](w, "Label2")
-	f.enemyLabel = get[*label](w, "Label3")
-	f.ownHP = get[*label](w, "Label8")
-	f.enemyHP = get[*label](w, "Label9")
-	f.ownGauge = get[*gauge](w, "Gauge1")
-	f.enemyGauge = get[*gauge](w, "Gauge2")
-	f.pokeball = get[*picture](w, "Image1")
-	f.attacks = get[*radioGroup](w, "RadioGroup1")
-	f.enemyAttacks = get[*groupBox](w, "GroupBox2")
+	mf.arena = get[*groupBox](wdw, "GroupBox1")
+	mf.ownLabel = get[*label](wdw, "Label2")
+	mf.enemyLabel = get[*label](wdw, "Label3")
+	mf.ownHP = get[*label](wdw, "Label8")
+	mf.enemyHP = get[*label](wdw, "Label9")
+	mf.ownGauge = get[*gauge](wdw, "Gauge1")
+	mf.enemyGauge = get[*gauge](wdw, "Gauge2")
+	mf.pokeball = get[*picture](wdw, "Image1")
+	mf.attacks = get[*radioGroup](wdw, "RadioGroup1")
+	mf.enemyAttacks = get[*groupBox](wdw, "GroupBox2")
 
-	for i := range f.enemyMoves {
-		f.enemyMoves[i] = get[*label](w, "Label"+itoa(4+i))
-	}
-
-	f.goButton = get[*button](w, "Button1")
-	f.ownImage = get[*listView](w, "ListView2")
-	f.enemyImage = get[*listView](w, "ListView3")
-	f.endButton = get[*button](w, "EndButton")
-
-	g := a.g
-	f.starters.onClick = f.starterClick
-	f.evolveChoice.onClick = func() {
-		g.ChooseEvolution(f.evolveChoice.index)
-	}
-	f.evolveButton.onClick = func() {
-		a.call(g.Evolve)
+	for i := range mf.enemyMoves {
+		mf.enemyMoves[i] = get[*label](wdw, "Label"+itoa(4+i))
 	}
 
-	f.pickCombo.items = a.dexItems() // FormShow
-	f.pickCombo.onSelect = func(i int) {
-		g.PickSpecies(i)
-	}
-	f.pickLevel.onChangeValue = func(v int) {
-		g.PickLevel(v)
-	}
-	get[*button](w, "Button2").onClick = func() {
-		a.call(g.PickGo)
-	}
-	get[*button](w, "Button3").onClick = func() {
-		a.call(g.PickCancel)
-	}
-	get[*button](w, "Button4").onClick = func() {
-		a.call(g.PickRandom)
-	}
-	f.attacks.onClick = func() {
-		g.Main.AttackIndex = f.attacks.index
-	}
-	f.goButton.onClick = func() {
-		a.call(g.Go)
-	}
-	f.endButton.onClick = func() {
-		a.call(g.EndFight)
-	}
-	w.onClose = f.formClose
+	mf.goButton = get[*button](wdw, "Button1")
+	mf.ownImage = get[*listView](wdw, "ListView2")
+	mf.enemyImage = get[*listView](wdw, "ListView3")
+	mf.endButton = get[*button](wdw, "EndButton")
 
-	m := newMenuBar(w, g.Menu, layout.Form4.Find("MainMenu1"))
-	m.onCommand = f.menuCommand
+	gam := app.gam
+	mf.starters.onClick = mf.starterClick
+	mf.evolveChoice.onClick = func() {
+		gam.ChooseEvolution(mf.evolveChoice.index)
+	}
+	mf.evolveButton.onClick = func() {
+		app.call(gam.Evolve)
+	}
 
-	a.desk.add(w)
+	mf.pickCombo.items = app.dexItems() // FormShow
+	mf.pickCombo.onSelect = func(i int) {
+		gam.PickSpecies(i)
+	}
+	mf.pickLevel.onChangeValue = func(val int) {
+		gam.PickLevel(val)
+	}
+	get[*button](wdw, "Button2").onClick = func() {
+		app.call(gam.PickGo)
+	}
+	get[*button](wdw, "Button3").onClick = func() {
+		app.call(gam.PickCancel)
+	}
+	get[*button](wdw, "Button4").onClick = func() {
+		app.call(gam.PickRandom)
+	}
+	mf.attacks.onClick = func() {
+		gam.Main.AttackIndex = mf.attacks.index
+	}
+	mf.goButton.onClick = func() {
+		app.call(gam.Go)
+	}
+	mf.endButton.onClick = func() {
+		app.call(gam.EndFight)
+	}
+	wdw.onClose = mf.formClose
 
-	return f
+	mb := newMenuBar(wdw, gam.Menu, layout.Form4.Find("MainMenu1"))
+	mb.onCommand = mf.menuCommand
+
+	app.desk.add(wdw)
+
+	return mf
 }
 
 // starterClick is a click on the starter list (TForm4.ListView1Click).
 func (mf *mainForm) starterClick() {
-	k := mf.starters.selected
-	if k < 0 {
+	idx := mf.starters.selected
+	if idx < 0 {
 		return
 	}
 
-	a := mf.a
-	a.call(func() {
-		a.g.ChooseStarter(k)
+	app := mf.app
+	app.call(func() {
+		app.gam.ChooseStarter(idx)
 	})
 }
 
 // menuCommand runs a menu item: the user interface's own, or the game's.
-func (mf *mainForm) menuCommand(e *menuEntry) {
-	a := mf.a
+func (mf *mainForm) menuCommand(me *menuEntry) {
+	app := mf.app
 
-	switch e.name() {
+	switch me.name() {
 	case "ExportPOKMONinformation1":
-		a.call(mf.export)
+		app.call(mf.export)
 	case "Quit1":
 		mf.formClose()
 	case "Openfile1":
-		a.call(mf.openMusic)
+		app.call(mf.openMusic)
 	case "StopMusic1":
 		mf.stopMusic()
 	case "Contents1":
-		a.help()
+		app.help()
 	case "About1":
-		a.showAbout()
+		app.showAbout()
 	default:
-		a.call(func() {
-			a.g.ClickMenu(e.name())
+		app.call(func() {
+			app.gam.ClickMenu(me.name())
 		})
 	}
 }
@@ -176,23 +176,23 @@ func (mf *mainForm) menuCommand(e *menuEntry) {
 // formClose is closing the game window (TForm4.FormClose): a tournament's
 // penalty, then the save, then the end of the program.
 func (mf *mainForm) formClose() {
-	a := mf.a
-	a.call(func() {
-		if b := a.g.Close(); b != nil {
-			if err := a.files.WriteFile(a.g.SaveFile, b); err != nil {
-				a.Message(game.Error, false, err.Error())
+	app := mf.app
+	app.call(func() {
+		if dat := app.gam.Close(); dat != nil {
+			if err := app.files.WriteFile(app.gam.SaveFile, dat); err != nil {
+				app.Message(game.Error, false, err.Error())
 			}
 		}
 
-		a.exit()
+		app.exit()
 	})
 }
 
 // export is File → Export POKéMON information...: the page, written where
 // the player chooses, then shown if wanted.
 func (mf *mainForm) export() {
-	a := mf.a
-	file, ok := a.openFile(fileOptions{
+	app := mf.app
+	file, ok := app.openFile(fileOptions{
 		save:       true,
 		filter:     "HTML Files (*.htm)|*.htm",
 		defaultExt: "htm",
@@ -203,16 +203,16 @@ func (mf *mainForm) export() {
 		return
 	}
 
-	page := a.g.ExportPage(time.Now())
-	if err := a.files.WriteFile(file, page); err != nil {
-		a.Message(game.Error, false, err.Error())
+	page := app.gam.ExportPage(time.Now())
+	if err := app.files.WriteFile(file, page); err != nil {
+		app.Message(game.Error, false, err.Error())
 
 		return
 	}
 
-	if a.g.Exported(file) {
+	if app.gam.Exported(file) {
 		if err := platform.OpenPage(file, page); err != nil {
-			a.Message(game.Error, false, err.Error())
+			app.Message(game.Error, false, err.Error())
 		}
 	}
 }
@@ -225,38 +225,38 @@ const musicFilter string = "All supported formats (*.mp3;*.ogg;*.wav)|*.mp3;*.og
 // openMusic is Music → Open file... (TForm4.Openfile1Click): the music
 // chosen plays at once.
 func (mf *mainForm) openMusic() {
-	a := mf.a
-	file, ok := a.openFile(fileOptions{filter: musicFilter, mustExist: true})
+	app := mf.app
+	file, ok := app.openFile(fileOptions{filter: musicFilter, mustExist: true})
 
 	if !ok {
 		return
 	}
 
-	b, err := a.files.ReadFile(file)
+	dat, err := app.files.ReadFile(file)
 	if err == nil {
-		err = a.music.Open(a.files.Base(file), b)
+		err = app.music.Open(app.files.Base(file), dat)
 	}
 
 	switch {
 	case errors.Is(err, audio.ErrFormat):
-		a.showException("Cannot play " + a.files.Base(file) + ". Only MP3, Ogg Vorbis and WAV files can be played")
+		app.showException("Cannot play " + app.files.Base(file) + ". Only MP3, Ogg Vorbis and WAV files can be played")
 	case err != nil:
-		a.showException(err.Error())
+		app.showException(err.Error())
 	}
 }
 
 // stopMusic is Music → Stop Music (TForm4.StopMusic1Click), which with no
 // music open raised the media player's error.
 func (mf *mainForm) stopMusic() {
-	a := mf.a
-	if err := a.music.Stop(); err != nil {
+	app := mf.app
+	if err := app.music.Stop(); err != nil {
 		msg := err.Error()
 		if errors.Is(err, audio.ErrNotOpen) {
 			msg = "No MCI device open"
 		}
 
-		a.call(func() {
-			a.showException(msg)
+		app.call(func() {
+			app.showException(msg)
 		})
 	}
 }
@@ -269,75 +269,75 @@ var gaugeColors = map[game.GaugeColor]color.RGBA{
 }
 
 // setItems replaces a radio group's items if they changed.
-func setRadioItems(g *radioGroup, items []string) {
-	if !slices.Equal(g.items, items) {
-		g.setItems(append([]string(nil), items...))
+func setRadioItems(rg *radioGroup, items []string) {
+	if !slices.Equal(rg.items, items) {
+		rg.setItems(append([]string(nil), items...))
 	}
 }
 
 // sync shows the game window's state.
 func (mf *mainForm) sync() {
-	a, g := mf.a, mf.a.g
-	m := &g.Main
+	app, gam := mf.app, mf.app.gam
+	mgw := &gam.Main
 
-	if mf.w.caption != m.Caption {
-		mf.w.caption = m.Caption
-		a.desk.dirty = true
+	if mf.wdw.caption != mgw.Caption {
+		mf.wdw.caption = mgw.Caption
+		app.desk.dirty = true
 	}
 
-	mf.starterLabel.setVisible(m.Starters)
-	mf.starters.setVisible(m.Starters)
+	mf.starterLabel.setVisible(mgw.Starters)
+	mf.starters.setVisible(mgw.Starters)
 
-	evolving := len(m.Choices) > 0
+	evolving := len(mgw.Choices) > 0
 	mf.evolveChoice.setVisible(evolving)
 	mf.evolveButton.setVisible(evolving)
 
 	if evolving {
-		setRadioItems(mf.evolveChoice, m.Choices)
-		mf.evolveChoice.setIndex(m.Choice)
+		setRadioItems(mf.evolveChoice, mgw.Choices)
+		mf.evolveChoice.setIndex(mgw.Choice)
 	}
 
-	for _, k := range mf.picker {
-		k.base().setVisible(m.Picker)
+	for _, wgt := range mf.picker {
+		wgt.base().setVisible(mgw.Picker)
 	}
 
-	if m.Picker && !mf.pickerShown {
-		mf.pickLevel.tb.set(itoa(m.PickLevel))
+	if mgw.Picker && !mf.pickerShown {
+		mf.pickLevel.tb.set(itoa(mgw.PickLevel))
 	}
 
-	mf.pickerShown = m.Picker
-	mf.pickCombo.setIndex(m.PickSpecies)
+	mf.pickerShown = mgw.Picker
+	mf.pickCombo.setIndex(mgw.PickSpecies)
 
-	mf.arena.setVisible(m.Battle)
-	mf.goButton.setVisible(m.Go)
-	mf.endButton.setVisible(m.EndFight)
-	mf.attacks.setVisible(m.Attacks)
-	mf.attacks.setIndex(m.AttackIndex)
-	mf.pokeball.setVisible(m.Pokeball)
-	mf.enemyImage.setItems([]listItem{{"", m.EnemyImage}})
+	mf.arena.setVisible(mgw.Battle)
+	mf.goButton.setVisible(mgw.Go)
+	mf.endButton.setVisible(mgw.EndFight)
+	mf.attacks.setVisible(mgw.Attacks)
+	mf.attacks.setIndex(mgw.AttackIndex)
+	mf.pokeball.setVisible(mgw.Pokeball)
+	mf.enemyImage.setItems([]listItem{{"", mgw.EnemyImage}})
 
-	if e := m.Enemy; e.Species != 0 {
-		name := a.speciesName(e.Species)
-		mf.enemyLabel.setCaption("Enemy " + name + " L." + itoa(e.Level))
-		mf.enemyHP.setCaption(itoa(e.HP) + "/" + itoa(e.Level) + "0")
+	if enm := mgw.Enemy; enm.Species != 0 {
+		name := app.speciesName(enm.Species)
+		mf.enemyLabel.setCaption("Enemy " + name + " L." + itoa(enm.Level))
+		mf.enemyHP.setCaption(itoa(enm.HP) + "/" + itoa(enm.Level) + "0")
 		mf.enemyAttacks.setCaption("Enemy " + name + "'s Attacks:")
-		mf.enemyGauge.set(e.Level*10, e.HP, gaugeColors[m.EnemyColor])
+		mf.enemyGauge.set(enm.Level*10, enm.HP, gaugeColors[mgw.EnemyColor])
 	}
 
-	if e := m.EnemyMoves; e.Species != 0 {
-		sp := g.Data.SpeciesByID(e.Species)
-		for i, l := range mf.enemyMoves {
-			if mv := g.Data.MoveByID(sp.Moves[i]); mv != nil {
-				l.setCaption(mv.Name)
+	if enm := mgw.EnemyMoves; enm.Species != 0 {
+		sp := gam.Data.SpeciesByID(enm.Species)
+		for i, lbl := range mf.enemyMoves {
+			if mv := gam.Data.MoveByID(sp.Moves[i]); mv != nil {
+				lbl.setCaption(mv.Name)
 			}
 		}
 
 		// Gauge2 sits after Label3, as that fighter's caption sized it.
-		mf.placeGauge(mf.enemyGauge, "Enemy "+sp.Name+" L."+itoa(e.Level))
+		mf.placeGauge(mf.enemyGauge, "Enemy "+sp.Name+" L."+itoa(enm.Level))
 	}
 
-	o := m.Own
-	shown := o.Species != 0
+	own := mgw.Own
+	shown := own.Species != 0
 	mf.ownLabel.setVisible(shown)
 	mf.ownHP.setVisible(shown)
 	mf.ownGauge.setVisible(shown)
@@ -348,19 +348,19 @@ func (mf *mainForm) sync() {
 		return
 	}
 
-	sp := g.Data.SpeciesByID(o.Species)
-	mf.ownImage.setItems([]listItem{{"", o.Species - 1}})
-	mf.ownLabel.setCaption(sp.Name + " L." + itoa(o.Level))
-	mf.ownHP.setCaption(itoa(o.HP) + "/" + itoa(o.Level) + "0")
-	mf.ownGauge.set(o.Level*10, o.HP, gaugeColors[m.OwnColor])
-	mf.placeGauge(mf.ownGauge, sp.Name+" L."+itoa(o.Level))
+	sp := gam.Data.SpeciesByID(own.Species)
+	mf.ownImage.setItems([]listItem{{"", own.Species - 1}})
+	mf.ownLabel.setCaption(sp.Name + " L." + itoa(own.Level))
+	mf.ownHP.setCaption(itoa(own.HP) + "/" + itoa(own.Level) + "0")
+	mf.ownGauge.set(own.Level*10, own.HP, gaugeColors[mgw.OwnColor])
+	mf.placeGauge(mf.ownGauge, sp.Name+" L."+itoa(own.Level))
 	mf.attacks.setCaption(sp.Name + "'s attacks:")
 
 	items := make([]string, 0, 5)
 
 	for _, id := range sp.Moves {
-		if mv := g.Data.MoveByID(id); mv != nil {
-			items = append(items, mv.Name+" ("+g.Data.TypeName(mv.Type)+")")
+		if mv := gam.Data.MoveByID(id); mv != nil {
+			items = append(items, mv.Name+" ("+gam.Data.TypeName(mv.Type)+")")
 		}
 	}
 
@@ -369,8 +369,8 @@ func (mf *mainForm) sync() {
 
 // placeGauge puts a gauge after its label's caption: Left = the label's
 // width + 80, and Width = 289 − Left.
-func (mf *mainForm) placeGauge(g *gauge, caption string) {
+func (mf *mainForm) placeGauge(gge *gauge, caption string) {
 	left := mf.enemyLabel.font.width(caption) + 80
-	r := g.rect
-	g.setBounds(image.Rect(left, r.Min.Y, 289, r.Max.Y))
+	rect := gge.rect
+	gge.setBounds(image.Rect(left, rect.Min.Y, 289, rect.Max.Y))
 }

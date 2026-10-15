@@ -102,12 +102,12 @@ func TestReferenceScreens(t *testing.T) {
 	// The loading screen, which the original shows for about a second: its
 	// screenshot is a frame of smoke/loading.sh's, at the badge names.
 	t.Run("screens-start-loading", func(t *testing.T) {
-		l := newTestApp(t).load
-		l.startStep(2)
+		lf := newTestApp(t).load
+		lf.startStep(2)
 
-		g := get[*gauge](l.w, "Gauge2")
-		g.set(g.max, 700, g.fore) // 23%
-		shootWindow(t, "screens-start-loading", l.w)
+		gge := get[*gauge](lf.wdw, "Gauge2")
+		gge.set(gge.max, 700, gge.fore) // 23%
+		shootWindow(t, "screens-start-loading", lf.wdw)
 	})
 
 	t.Run("screens-menus", shootMenus)
@@ -122,60 +122,60 @@ func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots ma
 	}
 
 	var (
-		d       *uiDriver
+		ud      *uiDriver
 		dialogs []string
 	)
-	p := &scenario.Player{Name: name, Dir: dir, Data: data}
-	p.NewDriver = func() scenario.Driver {
-		d = &uiDriver{t: t}
-		d.modal = func(w *window) {
+	ply := &scenario.Player{Name: name, Dir: dir, Data: data}
+	ply.NewDriver = func() scenario.Driver {
+		ud = &uiDriver{t: t}
+		ud.modal = func(wdw *window) {
 			if len(dialogs) > 0 {
-				shootWindow(t, name+"-"+dialogs[0], w)
+				shootWindow(t, name+"-"+dialogs[0], wdw)
 
 				dialogs = dialogs[1:]
 			}
 		}
 
-		return d
+		return ud
 	}
 	taken, times := map[string]bool{}, map[string]int{}
-	p.After = func(action string) {
+	ply.After = func(action string) {
 		times[action]++
 		if times[action] > 1 {
 			action += " #" + itoa(times[action])
 		}
 
-		s, ok := shots[action]
+		shs, ok := shots[action]
 		if !ok {
 			return
 		}
 
 		taken[action] = true
 
-		d.settle()
+		ud.settle()
 
-		for _, ws := range s.windows {
+		for _, ws := range shs.windows {
 			form, label, _ := strings.Cut(ws, " ")
-			w := d.form(form)
+			wdw := ud.form(form)
 
-			if !w.visible {
+			if !wdw.visible {
 				t.Errorf("%s: %s isn't shown", label, form)
 
 				continue
 			}
 
-			shootWindow(t, name+"-"+label, w)
+			shootWindow(t, name+"-"+label, wdw)
 		}
 
 		if len(dialogs) > 0 {
 			t.Errorf("after %s, no dialog showed for %q", action, dialogs)
 		}
 
-		dialogs = s.dialogs
+		dialogs = shs.dialogs
 	}
 
-	if _, err := p.Play(string(src)); err != nil {
-		t.Fatalf("%v\n%s", err, strings.Join(p.Trace(), "\n"))
+	if _, err := ply.Play(string(src)); err != nil {
+		t.Fatalf("%v\n%s", err, strings.Join(ply.Trace(), "\n"))
 	}
 
 	for action := range shots {
@@ -189,13 +189,13 @@ func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots ma
 // probe did (Alt and the accelerator, then the arrows), with the first item
 // selected.
 func shootMenus(t *testing.T) {
-	f := save.File{PlayerName: "Probe", PokeBalls: 3}
-	f.Owned[0] = save.Slot{Species: 25, Level: 5, XP: 125}
-	f.InDex[25] = true
+	sav := save.File{PlayerName: "Probe", PokeBalls: 3}
+	sav.Owned[0] = save.Slot{Species: 25, Level: 5, XP: 125}
+	sav.InDex[25] = true
 	dir := t.TempDir()
 	file := filepath.Join(dir, "probe-screens-menus.pgs")
 
-	if err := os.WriteFile(file, f.Bytes(), 0o600); err != nil {
+	if err := os.WriteFile(file, sav.Bytes(), 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -209,7 +209,7 @@ func shootMenus(t *testing.T) {
 		"down":  ebiten.KeyDown,
 	}
 
-	for _, m := range []string{
+	for _, mnu := range []string{
 		"f menu-file",
 		"a menu-actions",
 		"a right menu-fight",
@@ -220,7 +220,7 @@ func shootMenus(t *testing.T) {
 		"m menu-music",
 		"h menu-help",
 	} {
-		keys := strings.Fields(m)
+		keys := strings.Fields(mnu)
 		label := keys[len(keys)-1]
 		letter := ebiten.KeyA + ebiten.Key(keys[0][0]-'a')
 		ta.frame(input{keys: []ebiten.Key{ebiten.KeyAltLeft}, mods: mods{alt: true}})
@@ -231,16 +231,16 @@ func shootMenus(t *testing.T) {
 		})
 		ta.frame(input{keysUp: []ebiten.Key{letter, ebiten.KeyAltLeft}})
 
-		for _, k := range keys[1 : len(keys)-1] {
-			ta.key(arrows[k])
+		for _, key := range keys[1 : len(keys)-1] {
+			ta.key(arrows[key])
 		}
 
-		bar := ta.main.w.menu
+		bar := ta.main.wdw.menu
 		if !bar.active() || len(bar.open) == 0 {
 			t.Fatalf("%s: no menu open", label)
 		}
 
-		shootWindow(t, "screens-menus-"+label, ta.main.w)
+		shootWindow(t, "screens-menus-"+label, ta.main.wdw)
 
 		for range len(bar.open) + 2 {
 			ta.key(ebiten.KeyEscape)
@@ -252,55 +252,55 @@ func shootMenus(t *testing.T) {
 	}
 }
 
-// shotArea is the part of w on the desktop that Wine's X11 window for it
+// shotArea is the part of wdw on the desktop that Wine's X11 window for it
 // holds.
-func shotArea(w *window) image.Rectangle {
-	if w.style == bsToolWindow {
-		return w.rect()
+func shotArea(wdw *window) image.Rectangle {
+	if wdw.style == bsToolWindow {
+		return wdw.rect()
 	}
 
-	r := w.clientRect()
-	if w.menu != nil {
-		r.Min.Y = w.menuRect().Min.Y
+	rect := wdw.clientRect()
+	if wdw.menu != nil {
+		rect.Min.Y = wdw.menuRect().Min.Y
 	}
 
-	return r
+	return rect
 }
 
-// shootWindow paints w alone and checks its client area against the
-// original's. With $CLASSIC_SHOTS set, it saves w's area there as
+// shootWindow paints wdw alone and checks its client area against the
+// original's. With $CLASSIC_SHOTS set, it saves wdw's area there as
 // name.png, and its open menus as name-1.png, name-2.png … from the left.
-func shootWindow(t *testing.T, name string, w *window) {
+func shootWindow(t *testing.T, name string, wdw *window) {
 	t.Helper()
 
 	want, ok := originalClients[name]
 	if !ok {
-		want, ok = originalClients[w.name]
+		want, ok = originalClients[wdw.name]
 	}
 
-	if ok && w.client != want {
-		t.Errorf("%s: %s's client area is %v, the original's %v", name, w.name, w.client, want)
+	if ok && wdw.client != want {
+		t.Errorf("%s: %s's client area is %v, the original's %v", name, wdw.name, wdw.client, want)
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
 	cv := newCanvas(img)
 	cv.fill(img.Rect, colDesktop)
-	w.paint(cv)
-	savePNG(t, name, crop(img, shotArea(w)))
+	wdw.paint(cv)
+	savePNG(t, name, crop(img, shotArea(wdw)))
 
-	if m := w.menu; m != nil && m.active() {
-		m.paintPopups(cv)
+	if mb := wdw.menu; mb != nil && mb.active() {
+		mb.paintPopups(cv)
 
-		for i, p := range m.open {
-			savePNG(t, name+"-"+string(rune('1'+i)), crop(img, p.rect))
+		for i, mp := range mb.open {
+			savePNG(t, name+"-"+string(rune('1'+i)), crop(img, mp.rect))
 		}
 	}
 }
 
 // crop copies a part of img.
-func crop(img *image.RGBA, r image.Rectangle) *image.RGBA {
-	out := image.NewRGBA(image.Rectangle{Max: r.Size()})
-	draw.Draw(out, out.Rect, img, r.Min, draw.Src)
+func crop(img *image.RGBA, rect image.Rectangle) *image.RGBA {
+	out := image.NewRGBA(image.Rectangle{Max: rect.Size()})
+	draw.Draw(out, out.Rect, img, rect.Min, draw.Src)
 
 	return out
 }
@@ -314,12 +314,12 @@ func savePNG(t *testing.T, name string, img image.Image) {
 		return
 	}
 
-	var b bytes.Buffer
-	if err := png.Encode(&b, img); err != nil {
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, img); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(filepath.Join(dir, name+".png"), b.Bytes(), 0o600); err != nil { //nolint:gosec // the folder $CLASSIC_SHOTS names
+	if err := os.WriteFile(filepath.Join(dir, name+".png"), buf.Bytes(), 0o600); err != nil { //nolint:gosec // the folder $CLASSIC_SHOTS names
 		t.Fatal(err)
 	}
 }

@@ -70,7 +70,7 @@ type window struct {
 	onModal     func(result int) // when a modal window closes
 	onClose     func()           // the close button; nil hides the window
 	onClick     func()           // a click on the form itself (OnClick)
-	onKey       func(k ebiten.Key, m mods) bool
+	onKey       func(key ebiten.Key, mds mods) bool
 
 	onShow, onHide           func()
 	onActivate, onDeactivate func()
@@ -94,53 +94,53 @@ var borderStyles = map[string]borderStyle{
 }
 
 // newWindow makes a form and its controls from its layout.
-func newWindow(d *desktop, comp *layout.Component) *window {
-	w := &window{
-		desk:    d,
-		res:     d.res,
+func newWindow(dsk *desktop, comp *layout.Component) *window {
+	wdw := &window{
+		desk:    dsk,
+		res:     dsk.res,
 		name:    comp.Name,
 		caption: comp.Caption,
 		visible: false,
 	}
 	props := comp.Props
-	w.style = borderStyles[props["BorderStyle"]]
-	w.color = vclColor(props["Color"], colFace)
-	w.setIcons(props["BorderIcons"])
+	wdw.style = borderStyles[props["BorderStyle"]]
+	wdw.color = vclColor(props["Color"], colFace)
+	wdw.setIcons(props["BorderIcons"])
 
 	for i := range comp.Children {
-		if k := build(w, nil, &comp.Children[i]); k != nil {
-			w.kids = append(w.kids, k)
+		if wgt := build(wdw, nil, &comp.Children[i]); wgt != nil {
+			wdw.kids = append(wdw.kids, wgt)
 		}
 	}
 
 	cw, _ := strconv.Atoi(props["ClientWidth"])
 	ch, _ := strconv.Atoi(props["ClientHeight"])
-	w.client = image.Pt(cw, ch)
+	wdw.client = image.Pt(cw, ch)
 
 	if cw == 0 || ch == 0 {
-		w.client = w.extent()
+		wdw.client = wdw.extent()
 	}
 
-	w.pos = image.Pt(comp.Bounds.X, comp.Bounds.Y)
+	wdw.pos = image.Pt(comp.Bounds.X, comp.Bounds.Y)
 
 	switch props["Position"] {
 	case "poScreenCenter", "poDesktopCenter", "poMainFormCenter":
-		w.center()
+		wdw.center()
 	}
 
-	for _, k := range w.kids {
-		k.base().parent = nil
+	for _, wgt := range wdw.kids {
+		wgt.base().parent = nil
 	}
 
 	// The labels measure their captions as they load (TCustomLabel.Loaded).
 	// The form's AutoSize applies once it has a window, after Position
 	// placed it: the loading screen grows to the right, to its title.
-	measureLabels(w.kids)
+	measureLabels(wdw.kids)
 
-	w.fits = props["AutoSize"] == "True"
-	w.fit()
+	wdw.fits = props["AutoSize"] == "True"
+	wdw.fit()
 
-	return w
+	return wdw
 }
 
 // setIcons sets the caption's icon and buttons from BorderIcons: dialogs
@@ -170,26 +170,26 @@ func (w *window) hasSysIcon() bool {
 // measureLabels sizes the labels among ws and their children to their
 // captions, but the aligned ones.
 func measureLabels(ws []widget) {
-	for _, k := range ws {
-		if l, ok := k.(*label); ok && l.property("Align") == "" {
-			l.autoSize()
+	for _, wgt := range ws {
+		if lbl, ok := wgt.(*label); ok && lbl.property("Align") == "" {
+			lbl.autoSize()
 		}
 
-		measureLabels(k.base().kids)
+		measureLabels(wgt.base().kids)
 	}
 }
 
 // extent is the size that holds the visible controls.
 func (w *window) extent() image.Point {
-	var e image.Point
+	var pnt image.Point
 
-	for _, k := range w.kids {
-		if c := k.base(); c.visible {
-			e = image.Pt(max(e.X, c.rect.Max.X), max(e.Y, c.rect.Max.Y))
+	for _, wgt := range w.kids {
+		if ctl := wgt.base(); ctl.visible {
+			pnt = image.Pt(max(pnt.X, ctl.rect.Max.X), max(pnt.Y, ctl.rect.Max.Y))
 		}
 	}
 
-	return e
+	return pnt
 }
 
 // fit is the form's AutoSize (TWinControl.DoAutoSize), which follows its
@@ -201,29 +201,29 @@ func (w *window) fit() {
 		return
 	}
 
-	d := w.extent().Sub(w.client)
-	if d == (image.Point{}) {
+	pnt := w.extent().Sub(w.client)
+	if pnt == (image.Point{}) {
 		return
 	}
 
-	w.client = w.client.Add(d)
-	for _, k := range w.kids {
-		c := k.base()
-		anchors := c.property("Anchors")
+	w.client = w.client.Add(pnt)
+	for _, wgt := range w.kids {
+		ctl := wgt.base()
+		anchors := ctl.property("Anchors")
 
 		if strings.Contains(anchors, "akRight") {
 			if strings.Contains(anchors, "akLeft") {
-				c.rect.Max.X += d.X
+				ctl.rect.Max.X += pnt.X
 			} else {
-				c.rect = c.rect.Add(image.Pt(d.X, 0))
+				ctl.rect = ctl.rect.Add(image.Pt(pnt.X, 0))
 			}
 		}
 
 		if strings.Contains(anchors, "akBottom") {
 			if strings.Contains(anchors, "akTop") {
-				c.rect.Max.Y += d.Y
+				ctl.rect.Max.Y += pnt.Y
 			} else {
-				c.rect = c.rect.Add(image.Pt(0, d.Y))
+				ctl.rect = ctl.rect.Add(image.Pt(0, pnt.Y))
 			}
 		}
 	}
@@ -236,8 +236,8 @@ func (w *window) fit() {
 // center puts the window in the middle of the screen, as poScreenCenter
 // does: (Screen.Width − Width) div 2.
 func (w *window) center() {
-	s := w.size()
-	w.pos = image.Pt((screenWidth-s.X)/2, (screenHeight-s.Y)/2)
+	pnt := w.size()
+	w.pos = image.Pt((screenWidth-pnt.X)/2, (screenHeight-pnt.Y)/2)
 }
 
 // find returns the control with the given name.
@@ -247,18 +247,18 @@ func (w *window) find(name string) widget {
 		walk  func(ws []widget)
 	)
 	walk = func(ws []widget) {
-		for _, k := range ws {
+		for _, wgt := range ws {
 			if found != nil {
 				return
 			}
 
-			if k.base().name == name {
-				found = k
+			if wgt.base().name == name {
+				found = wgt
 
 				return
 			}
 
-			walk(k.base().kids)
+			walk(wgt.base().kids)
 		}
 	}
 	walk(w.kids)
@@ -268,13 +268,13 @@ func (w *window) find(name string) widget {
 
 // get returns a window's control by name; the layouts are fixed, so a
 // missing one is a bug.
-func get[T widget](w *window, name string) T {
-	k, ok := w.find(name).(T)
+func get[T widget](wdw *window, name string) T {
+	wgt, ok := wdw.find(name).(T)
 	if !ok {
-		panic(fmt.Sprintf("classic: %s has no %s of that kind", w.name, name))
+		panic(fmt.Sprintf("classic: %s has no %s of that kind", wdw.name, name))
 	}
 
-	return k
+	return wgt
 }
 
 func (w *window) frameWidth() int {
@@ -309,9 +309,9 @@ func (w *window) menuH() int {
 
 // size is the outer size.
 func (w *window) size() image.Point {
-	f := w.frameWidth()
+	frm := w.frameWidth()
 
-	return image.Pt(w.client.X+2*f, w.client.Y+2*f+w.captionH()+w.menuH())
+	return image.Pt(w.client.X+2*frm, w.client.Y+2*frm+w.captionH()+w.menuH())
 }
 
 func (w *window) rect() image.Rectangle {
@@ -319,35 +319,35 @@ func (w *window) rect() image.Rectangle {
 }
 
 func (w *window) clientOrigin() image.Point {
-	f := w.frameWidth()
+	frm := w.frameWidth()
 
-	return w.pos.Add(image.Pt(f, f+w.captionH()+w.menuH()))
+	return w.pos.Add(image.Pt(frm, frm+w.captionH()+w.menuH()))
 }
 
 func (w *window) clientRect() image.Rectangle {
-	o := w.clientOrigin()
+	pnt := w.clientOrigin()
 
-	return image.Rectangle{Min: o, Max: o.Add(w.client)}
+	return image.Rectangle{Min: pnt, Max: pnt.Add(w.client)}
 }
 
 // captionRect is the caption bar on the desktop, without its bottom line.
 func (w *window) captionRect() image.Rectangle {
-	f := w.frameWidth()
-	s := w.size()
+	frm := w.frameWidth()
+	pnt := w.size()
 
-	return image.Rect(f, f, s.X-f, f+w.captionH()-1).Add(w.pos)
+	return image.Rect(frm, frm, pnt.X-frm, frm+w.captionH()-1).Add(w.pos)
 }
 
 func (w *window) menuRect() image.Rectangle {
-	f := w.frameWidth()
-	s := w.size()
+	frm := w.frameWidth()
+	pnt := w.size()
 
-	return image.Rect(f, f+w.captionH(), s.X-f, f+w.captionH()+w.menuH()).Add(w.pos)
+	return image.Rect(frm, frm+w.captionH(), pnt.X-frm, frm+w.captionH()+w.menuH()).Add(w.pos)
 }
 
 // captionButton returns a caption button's rectangle on the desktop, or
 // an empty one if the window has none.
-func (w *window) captionButton(b int) image.Rectangle {
+func (w *window) captionButton(cbt int) image.Rectangle {
 	if !w.sysMenu || w.style == bsNone || w.style == bsToolWindow {
 		return image.Rectangle{}
 	}
@@ -357,7 +357,7 @@ func (w *window) captionButton(b int) image.Rectangle {
 	maxB := closeB.Sub(image.Pt(captionButtonW+2, 0))
 	minB := maxB.Sub(image.Pt(captionButtonW, 0))
 
-	switch b {
+	switch cbt {
 	case capClose:
 		return closeB
 	case capMax:
@@ -417,11 +417,11 @@ func (w *window) paint(cv canvas) {
 		return
 	}
 
-	r := w.rect()
-	cv.fill(r, colFace)
+	rect := w.rect()
+	cv.fill(rect, colFace)
 
 	if w.style != bsNone {
-		cv.raised(r)
+		cv.raised(rect)
 		w.paintCaption(cv)
 	}
 
@@ -435,9 +435,9 @@ func (w *window) paint(cv canvas) {
 	sub := cv.sub(cr)
 
 	for _, windowed := range []bool{false, true} {
-		for _, k := range w.kids {
-			if k.base().windowed == windowed {
-				paintTree(sub, k)
+		for _, wgt := range w.kids {
+			if wgt.base().windowed == windowed {
+				paintTree(sub, wgt)
 			}
 		}
 	}
@@ -447,13 +447,13 @@ func (w *window) paint(cv canvas) {
 // caption and the caption buttons.
 func (w *window) paintCaption(cv canvas) {
 	cr := w.captionRect()
-	a, b, fg := colInactive, colInactive2, colInactiveText
+	lft, rgt, fg := colInactive, colInactive2, colInactiveText
 
 	if w.active {
-		a, b, fg = colCaption, colCaption2, colCaptionText
+		lft, rgt, fg = colCaption, colCaption2, colCaptionText
 	}
 
-	cv.gradient(cr, a, b)
+	cv.gradient(cr, lft, rgt)
 
 	x := cr.Min.X + 2
 	icon := w.icon
@@ -470,8 +470,8 @@ func (w *window) paintCaption(cv canvas) {
 
 	textEnd := cr.Max.X
 
-	for _, b := range []int{capMin, capMax, capClose} {
-		if br := w.captionButton(b); !br.Empty() {
+	for _, cbt := range []int{capMin, capMax, capClose} {
+		if br := w.captionButton(cbt); !br.Empty() {
 			textEnd = min(textEnd, br.Min.X-2)
 		}
 	}
@@ -479,21 +479,21 @@ func (w *window) paintCaption(cv canvas) {
 	tc := cv.sub(image.Rect(cr.Min.X, cr.Min.Y, textEnd, cr.Max.Y))
 	w.res.bold.draw(tc, x-cr.Min.X, (cr.Dy()-w.res.bold.height())/2, w.caption, fg)
 
-	for _, b := range []int{capMin, capMax, capClose} {
-		if br := w.captionButton(b); !br.Empty() {
-			w.paintCaptionButton(cv, b, br)
+	for _, cbt := range []int{capMin, capMax, capClose} {
+		if br := w.captionButton(cbt); !br.Empty() {
+			w.paintCaptionButton(cv, cbt, br)
 		}
 	}
 }
 
-// paintCaptionButton paints caption button b in its rectangle br: pushed
+// paintCaptionButton paints caption button cbt in its rectangle br: pushed
 // while the mouse holds it, and greyed out when it does nothing.
-func (w *window) paintCaptionButton(cv canvas, b int, br image.Rectangle) {
-	off := cv.softButton(br, w.capPressed == b && w.capInside)
+func (w *window) paintCaptionButton(cv canvas, cbt int, br image.Rectangle) {
+	off := cv.softButton(br, w.capPressed == cbt && w.capInside)
 
 	glyph, gx, gy := glyphClose, 4, 3
 
-	switch b {
+	switch cbt {
 	case capMin:
 		glyph, gx, gy = glyphMin, 4, 9
 	case capMax:
@@ -503,8 +503,8 @@ func (w *window) paintCaptionButton(cv canvas, b int, br image.Rectangle) {
 		}
 	}
 
-	enabled := b != capMax || w.maxBox
-	if b == capMin {
+	enabled := cbt != capMax || w.maxBox
+	if cbt == capMin {
 		enabled = w.minBox
 	}
 
@@ -517,17 +517,17 @@ func (w *window) paintCaptionButton(cv canvas, b int, br image.Rectangle) {
 	cv.pattern(br.Min.X+gx+off, br.Min.Y+gy+off, glyph, map[byte]color.RGBA{'#': colText})
 }
 
-// widgetAt returns the control under p (on the desktop), or nil.
-func (w *window) widgetAt(p image.Point) widget {
-	q := p.Sub(w.clientOrigin())
+// widgetAt returns the control under pnt (on the desktop), or nil.
+func (w *window) widgetAt(pnt image.Point) widget {
+	loc := pnt.Sub(w.clientOrigin())
 	for _, windowed := range []bool{true, false} {
-		for _, k := range slices.Backward(w.kids) {
-			if k.base().windowed != windowed {
+		for _, kid := range slices.Backward(w.kids) {
+			if kid.base().windowed != windowed {
 				continue
 			}
 
-			if h := hit(k, q); h != nil {
-				return h
+			if fnd := hit(kid, loc); fnd != nil {
+				return fnd
 			}
 		}
 	}
@@ -543,21 +543,21 @@ func (w *window) tabOrder() []widget {
 	)
 	walk = func(ws []widget) {
 		sorted := slices.Clone(ws)
-		slices.SortStableFunc(sorted, func(a, b widget) int {
-			return a.base().tabOrder - b.base().tabOrder
+		slices.SortStableFunc(sorted, func(fst, snd widget) int {
+			return fst.base().tabOrder - snd.base().tabOrder
 		})
 
-		for _, k := range sorted {
-			c := k.base()
-			if !c.visible || !c.enabled {
+		for _, kid := range sorted {
+			ctl := kid.base()
+			if !ctl.visible || !ctl.enabled {
 				continue
 			}
 
-			if f, ok := k.(focuser); ok && f.focusable() && c.tabStop {
-				out = append(out, k)
+			if foc, ok := kid.(focuser); ok && foc.focusable() && ctl.tabStop {
+				out = append(out, kid)
 			}
 
-			walk(c.kids)
+			walk(ctl.kids)
 		}
 	}
 	walk(w.kids)
@@ -565,33 +565,33 @@ func (w *window) tabOrder() []widget {
 	return out
 }
 
-// canFocus reports whether k can take the focus now.
-func canFocus(k widget) bool {
-	f, ok := k.(focuser)
+// canFocus reports whether wgt can take the focus now.
+func canFocus(wgt widget) bool {
+	foc, ok := wgt.(focuser)
 
-	return ok && f.focusable() && k.base().shown() && k.base().usable()
+	return ok && foc.focusable() && wgt.base().shown() && wgt.base().usable()
 }
 
 // setFocus moves the focus; byMouse tells a click from the keyboard.
-func (w *window) setFocus(k widget, byMouse bool) {
-	if k == w.focus {
+func (w *window) setFocus(wgt widget, byMouse bool) {
+	if wgt == w.focus {
 		return
 	}
 
-	if k != nil && !canFocus(k) {
+	if wgt != nil && !canFocus(wgt) {
 		return
 	}
 
 	old := w.focus
-	w.focus = k
+	w.focus = wgt
 	w.noFocus = false
 
-	if l, ok := old.(interface{ lostFocus() }); ok {
-		l.lostFocus()
+	if lfc, ok := old.(interface{ lostFocus() }); ok {
+		lfc.lostFocus()
 	}
 
-	if g, ok := k.(interface{ gotFocus(bool) }); ok {
-		g.gotFocus(byMouse)
+	if gfc, ok := wgt.(interface{ gotFocus(bool) }); ok {
+		gfc.gotFocus(byMouse)
 	}
 
 	w.desk.dirty = true
@@ -605,9 +605,9 @@ func (w *window) focusFirst() {
 	}
 
 	w.focus = nil
-	for _, k := range w.tabOrder() {
-		if canFocus(k) {
-			w.setFocus(k, false)
+	for _, wgt := range w.tabOrder() {
+		if canFocus(wgt) {
+			w.setFocus(wgt, false)
 
 			return
 		}
@@ -645,12 +645,12 @@ func (w *window) buttons() []*button {
 		walk func(ws []widget)
 	)
 	walk = func(ws []widget) {
-		for _, k := range ws {
-			if b, ok := k.(*button); ok && b.shown() && b.usable() {
-				out = append(out, b)
+		for _, wgt := range ws {
+			if btn, ok := wgt.(*button); ok && btn.shown() && btn.usable() {
+				out = append(out, btn)
 			}
 
-			walk(k.base().kids)
+			walk(wgt.base().kids)
 		}
 	}
 	walk(w.kids)
@@ -661,20 +661,20 @@ func (w *window) buttons() []*button {
 // key handles a key for the window: the focused control first, then
 // Tab, Enter (the default button), Escape (the cancel button) and the
 // buttons' accelerators. It reports whether the key was used.
-func (w *window) key(k ebiten.Key, m mods) bool {
-	if w.onKey != nil && w.onKey(k, m) {
+func (w *window) key(key ebiten.Key, mds mods) bool {
+	if w.onKey != nil && w.onKey(key, mds) {
 		return true
 	}
 
 	if w.focus != nil {
-		if kh, ok := w.focus.(keyer); ok && kh.key(k, m) {
+		if kh, ok := w.focus.(keyer); ok && kh.key(key, mds) {
 			return true
 		}
 	}
 
-	switch k {
+	switch key {
 	case ebiten.KeyTab:
-		w.tab(m.shift)
+		w.tab(mds.shift)
 
 		return true
 	case ebiten.KeyEnter, ebiten.KeyNumpadEnter:
@@ -689,15 +689,15 @@ func (w *window) key(k ebiten.Key, m mods) bool {
 // clickDefault is Enter: it clicks the focused button, or else the default
 // button, and reports whether there is one.
 func (w *window) clickDefault() bool {
-	if b, ok := w.focus.(*button); ok {
-		b.click()
+	if btn, ok := w.focus.(*button); ok {
+		btn.click()
 
 		return true
 	}
 
-	for _, b := range w.buttons() {
-		if b.isDefault {
-			b.click()
+	for _, btn := range w.buttons() {
+		if btn.isDefault {
+			btn.click()
 
 			return true
 		}
@@ -709,9 +709,9 @@ func (w *window) clickDefault() bool {
 // clickCancel is Escape: it clicks the cancel button, and reports whether
 // there is one.
 func (w *window) clickCancel() bool {
-	for _, b := range w.buttons() {
-		if b.isCancel {
-			b.click()
+	for _, btn := range w.buttons() {
+		if btn.isCancel {
+			btn.click()
 
 			return true
 		}
@@ -722,20 +722,20 @@ func (w *window) clickCancel() bool {
 
 // char handles a typed character: the focused control's, or a button's
 // accelerator when the focused control takes no text, as dialogs do.
-func (w *window) char(r rune) {
+func (w *window) char(chr rune) {
 	switch w.focus.(type) {
 	case *edit, *spinEdit, *comboBox:
-		w.focus.(keyer).char(r)
+		w.focus.(keyer).char(chr)
 
 		return
 	}
 
-	if w.accelerator(r) {
+	if w.accelerator(chr) {
 		return
 	}
 
 	if kh, ok := w.focus.(keyer); ok {
-		kh.char(r)
+		kh.char(chr)
 	}
 }
 
@@ -749,14 +749,14 @@ func (w *window) focusDisabled() bool {
 	return w.focus != nil && !w.focus.base().usable()
 }
 
-// accelerator clicks the button whose accelerator r is, or focuses the
+// accelerator clicks the button whose accelerator chr is, or focuses the
 // control of the label whose it is; it reports whether there is one.
-func (w *window) accelerator(r rune) bool {
-	lr := []rune(strings.ToLower(string(r)))[0]
-	for _, b := range w.buttons() {
-		if accel(b.caption) == lr {
-			w.setFocus(b, false)
-			b.click()
+func (w *window) accelerator(chr rune) bool {
+	lr := []rune(strings.ToLower(string(chr)))[0]
+	for _, btn := range w.buttons() {
+		if accel(btn.caption) == lr {
+			w.setFocus(btn, false)
+			btn.click()
 
 			return true
 		}
@@ -767,12 +767,12 @@ func (w *window) accelerator(r rune) bool {
 		walk   func(ws []widget)
 	)
 	walk = func(ws []widget) {
-		for _, k := range ws {
-			if l, ok := k.(*label); ok && target == nil && l.isAccelTarget(lr) {
-				target = l.focusControl
+		for _, wgt := range ws {
+			if lbl, ok := wgt.(*label); ok && target == nil && lbl.isAccelTarget(lr) {
+				target = lbl.focusControl
 			}
 
-			walk(k.base().kids)
+			walk(wgt.base().kids)
 		}
 	}
 	walk(w.kids)
@@ -834,8 +834,8 @@ func (w *window) toggleMaximize() {
 		w.maximized = false
 	} else {
 		w.restore = image.Rectangle{Min: w.pos, Max: w.client}
-		f := w.frameWidth()
-		w.pos = image.Pt(-f, -f)
+		frm := w.frameWidth()
+		w.pos = image.Pt(-frm, -frm)
 		w.client = image.Pt(screenWidth, screenHeight-w.captionH()-w.menuH())
 		w.maximized = true
 	}

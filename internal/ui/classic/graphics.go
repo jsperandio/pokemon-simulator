@@ -10,11 +10,11 @@ import (
 )
 
 // rgb is a colour written as 0xRRGGBB.
-func rgb(v uint32) color.RGBA {
+func rgb(val uint32) color.RGBA {
 	return color.RGBA{
-		R: uint8(v >> 16 & 0xff),
-		G: uint8(v >> 8 & 0xff),
-		B: uint8(v & 0xff),
+		R: uint8(val >> 16 & 0xff),
+		G: uint8(val >> 8 & 0xff),
+		B: uint8(val & 0xff),
 		A: 0xff,
 	}
 }
@@ -75,8 +75,8 @@ var vclColors = map[string]color.RGBA{
 // vclColor returns a colour property's value, or def if it is unset or
 // unknown.
 func vclColor(name string, def color.RGBA) color.RGBA {
-	if c, ok := vclColors[name]; ok {
-		return c
+	if clr, ok := vclColors[name]; ok {
+		return clr
 	}
 
 	return def
@@ -94,58 +94,58 @@ func newCanvas(img *image.RGBA) canvas {
 	return canvas{img: img, clip: img.Rect}
 }
 
-// sub returns a canvas for r (in cv's coordinates), with r's top-left
-// corner as its origin, clipped to r.
-func (cv canvas) sub(r image.Rectangle) canvas {
-	r = r.Add(cv.org)
+// sub returns a canvas for rect (in cv's coordinates), with rect's top-left
+// corner as its origin, clipped to rect.
+func (cv canvas) sub(rect image.Rectangle) canvas {
+	rect = rect.Add(cv.org)
 
-	return canvas{img: cv.img, org: r.Min, clip: cv.clip.Intersect(r)}
+	return canvas{img: cv.img, org: rect.Min, clip: cv.clip.Intersect(rect)}
 }
 
-// fill fills r.
-func (cv canvas) fill(r image.Rectangle, c color.RGBA) {
-	r = r.Add(cv.org).Intersect(cv.clip)
-	if r.Empty() {
+// fill fills rect.
+func (cv canvas) fill(rect image.Rectangle, clr color.RGBA) {
+	rect = rect.Add(cv.org).Intersect(cv.clip)
+	if rect.Empty() {
 		return
 	}
 
-	row := cv.img.Pix[cv.img.PixOffset(r.Min.X, r.Min.Y):]
-	n := r.Dx() * 4
+	row := cv.img.Pix[cv.img.PixOffset(rect.Min.X, rect.Min.Y):]
+	n := rect.Dx() * 4
 
 	for i := 0; i < n; i += 4 {
-		row[i], row[i+1], row[i+2], row[i+3] = c.R, c.G, c.B, c.A
+		row[i], row[i+1], row[i+2], row[i+3] = clr.R, clr.G, clr.B, clr.A
 	}
 
 	first := row[:n]
-	for y := r.Min.Y + 1; y < r.Max.Y; y++ {
-		copy(cv.img.Pix[cv.img.PixOffset(r.Min.X, y):], first)
+	for y := rect.Min.Y + 1; y < rect.Max.Y; y++ {
+		copy(cv.img.Pix[cv.img.PixOffset(rect.Min.X, y):], first)
 	}
 }
 
 // pix sets one pixel.
-func (cv canvas) pix(x, y int, c color.RGBA) {
-	p := image.Pt(x, y).Add(cv.org)
-	if p.In(cv.clip) {
-		i := cv.img.PixOffset(p.X, p.Y)
-		cv.img.Pix[i], cv.img.Pix[i+1], cv.img.Pix[i+2], cv.img.Pix[i+3] = c.R, c.G, c.B, c.A
+func (cv canvas) pix(x, y int, clr color.RGBA) {
+	pnt := image.Pt(x, y).Add(cv.org)
+	if pnt.In(cv.clip) {
+		i := cv.img.PixOffset(pnt.X, pnt.Y)
+		cv.img.Pix[i], cv.img.Pix[i+1], cv.img.Pix[i+2], cv.img.Pix[i+3] = clr.R, clr.G, clr.B, clr.A
 	}
 }
 
 // at returns a pixel, or black outside the image.
 func (cv canvas) at(x, y int) color.RGBA {
-	p := image.Pt(x, y).Add(cv.org)
-	if !p.In(cv.img.Rect) {
+	pnt := image.Pt(x, y).Add(cv.org)
+	if !pnt.In(cv.img.Rect) {
 		return color.RGBA{A: 0xff}
 	}
 
-	return cv.img.RGBAAt(p.X, p.Y)
+	return cv.img.RGBAAt(pnt.X, pnt.Y)
 }
 
 // invert inverts one pixel, as an XOR with white does.
 func (cv canvas) invert(x, y int) {
-	p := image.Pt(x, y).Add(cv.org)
-	if p.In(cv.clip) {
-		i := cv.img.PixOffset(p.X, p.Y)
+	pnt := image.Pt(x, y).Add(cv.org)
+	if pnt.In(cv.clip) {
+		i := cv.img.PixOffset(pnt.X, pnt.Y)
 		cv.img.Pix[i] ^= 0xff
 		cv.img.Pix[i+1] ^= 0xff
 		cv.img.Pix[i+2] ^= 0xff
@@ -153,67 +153,67 @@ func (cv canvas) invert(x, y int) {
 }
 
 // hline draws [x0, x1) on row y; vline draws [y0, y1) on column x.
-func (cv canvas) hline(x0, x1, y int, c color.RGBA) {
-	cv.fill(image.Rect(x0, y, x1, y+1), c)
+func (cv canvas) hline(x0, x1, y int, clr color.RGBA) {
+	cv.fill(image.Rect(x0, y, x1, y+1), clr)
 }
 
-func (cv canvas) vline(x, y0, y1 int, c color.RGBA) {
-	cv.fill(image.Rect(x, y0, x+1, y1), c)
+func (cv canvas) vline(x, y0, y1 int, clr color.RGBA) {
+	cv.fill(image.Rect(x, y0, x+1, y1), clr)
 }
 
-// frame draws r's outline.
-func (cv canvas) frame(r image.Rectangle, c color.RGBA) {
-	cv.edge(r, c, c)
+// frame draws rect's outline.
+func (cv canvas) frame(rect image.Rectangle, clr color.RGBA) {
+	cv.edge(rect, clr, clr)
 }
 
-// edge draws r's outline with its top and left sides in tl and its bottom
+// edge draws rect's outline with its top and left sides in tl and its bottom
 // and right sides in br, which win at the corners, as DrawEdge does.
-func (cv canvas) edge(r image.Rectangle, tl, br color.RGBA) {
-	cv.hline(r.Min.X, r.Max.X, r.Min.Y, tl)
-	cv.vline(r.Min.X, r.Min.Y, r.Max.Y, tl)
-	cv.hline(r.Min.X, r.Max.X, r.Max.Y-1, br)
-	cv.vline(r.Max.X-1, r.Min.Y, r.Max.Y, br)
+func (cv canvas) edge(rect image.Rectangle, tl, br color.RGBA) {
+	cv.hline(rect.Min.X, rect.Max.X, rect.Min.Y, tl)
+	cv.vline(rect.Min.X, rect.Min.Y, rect.Max.Y, tl)
+	cv.hline(rect.Min.X, rect.Max.X, rect.Max.Y-1, br)
+	cv.vline(rect.Max.X-1, rect.Min.Y, rect.Max.Y, br)
 }
 
 // The 3D borders: two one-pixel edges, the outer one first. sunken returns
 // the rectangle inside it.
-func (cv canvas) raised(r image.Rectangle) { // windows, panels
-	cv.edge(r, colLight, colDkShadow)
-	cv.edge(r.Inset(1), colHighlight, colShadow)
+func (cv canvas) raised(rect image.Rectangle) { // windows, panels
+	cv.edge(rect, colLight, colDkShadow)
+	cv.edge(rect.Inset(1), colHighlight, colShadow)
 }
 
-func (cv canvas) raisedSoft(r image.Rectangle) { // buttons
-	cv.edge(r, colHighlight, colDkShadow)
-	cv.edge(r.Inset(1), colLight, colShadow)
+func (cv canvas) raisedSoft(rect image.Rectangle) { // buttons
+	cv.edge(rect, colHighlight, colDkShadow)
+	cv.edge(rect.Inset(1), colLight, colShadow)
 }
 
-func (cv canvas) sunken(r image.Rectangle) image.Rectangle { // edit boxes, lists
-	cv.edge(r, colShadow, colHighlight)
+func (cv canvas) sunken(rect image.Rectangle) image.Rectangle { // edit boxes, lists
+	cv.edge(rect, colShadow, colHighlight)
 
-	r = r.Inset(1)
-	cv.edge(r, colDkShadow, colLight)
+	rect = rect.Inset(1)
+	cv.edge(rect, colDkShadow, colLight)
 
-	return r.Inset(1)
+	return rect.Inset(1)
 }
 
-func (cv canvas) sunkenSoft(r image.Rectangle) { // pushed buttons
-	cv.edge(r, colDkShadow, colHighlight)
-	cv.edge(r.Inset(1), colShadow, colLight)
+func (cv canvas) sunkenSoft(rect image.Rectangle) { // pushed buttons
+	cv.edge(rect, colDkShadow, colHighlight)
+	cv.edge(rect.Inset(1), colShadow, colLight)
 }
 
-// softButton paints a button's face in r, raised or sunken while pushed,
+// softButton paints a button's face in rect, raised or sunken while pushed,
 // and returns how far its glyph moves: one pixel down and right when
 // pushed.
-func (cv canvas) softButton(r image.Rectangle, pushed bool) (off int) {
-	cv.fill(r, colFace)
+func (cv canvas) softButton(rect image.Rectangle, pushed bool) (off int) {
+	cv.fill(rect, colFace)
 
 	if pushed {
-		cv.sunkenSoft(r)
+		cv.sunkenSoft(rect)
 
 		return 1
 	}
 
-	cv.raisedSoft(r)
+	cv.raisedSoft(rect)
 
 	return 0
 }
@@ -225,11 +225,11 @@ func (cv canvas) embossed(x, y int, rows string) {
 	cv.pattern(x, y, rows, map[byte]color.RGBA{'#': colShadow})
 }
 
-// focusRect inverts every other pixel of r's outline, as DrawFocusRect
+// focusRect inverts every other pixel of rect's outline, as DrawFocusRect
 // does. The dots fall where x + y is even on the screen, as Windows lines
 // the patterns of all the windows up on the screen.
-func (cv canvas) focusRect(r image.Rectangle) {
-	if r.Empty() {
+func (cv canvas) focusRect(rect image.Rectangle) {
+	if rect.Empty() {
 		return
 	}
 
@@ -238,37 +238,37 @@ func (cv canvas) focusRect(r image.Rectangle) {
 			cv.invert(x, y)
 		}
 	}
-	for x := r.Min.X; x < r.Max.X; x++ {
-		dot(x, r.Min.Y)
+	for x := rect.Min.X; x < rect.Max.X; x++ {
+		dot(x, rect.Min.Y)
 
-		if r.Dy() > 1 {
-			dot(x, r.Max.Y-1)
+		if rect.Dy() > 1 {
+			dot(x, rect.Max.Y-1)
 		}
 	}
 
-	for y := r.Min.Y + 1; y < r.Max.Y-1; y++ {
-		dot(r.Min.X, y)
+	for y := rect.Min.Y + 1; y < rect.Max.Y-1; y++ {
+		dot(rect.Min.X, y)
 
-		if r.Dx() > 1 {
-			dot(r.Max.X-1, y)
+		if rect.Dx() > 1 {
+			dot(rect.Max.X-1, y)
 		}
 	}
 }
 
-// gradient fills r with a horizontal gradient from a to b, as captions are
+// gradient fills rect with a horizontal gradient from lft to rgt, as captions are
 // drawn.
-func (cv canvas) gradient(r image.Rectangle, a, b color.RGBA) {
-	w := r.Dx()
-	for x := range w {
-		t := 0
-		if w > 1 {
-			t = x * 256 / (w - 1)
+func (cv canvas) gradient(rect image.Rectangle, lft, rgt color.RGBA) {
+	wid := rect.Dx()
+	for x := range wid {
+		fac := 0
+		if wid > 1 {
+			fac = x * 256 / (wid - 1)
 		}
 
-		mix := func(p, q uint8) uint8 {
-			return uint8((int(p)*(256-t) + int(q)*t) / 256) //nolint:gosec // a weighted mean of two uint8s
+		mix := func(lhs, rhs uint8) uint8 {
+			return uint8((int(lhs)*(256-fac) + int(rhs)*fac) / 256) //nolint:gosec // a weighted mean of two uint8s
 		}
-		cv.vline(r.Min.X+x, r.Min.Y, r.Max.Y, color.RGBA{mix(a.R, b.R), mix(a.G, b.G), mix(a.B, b.B), 0xff})
+		cv.vline(rect.Min.X+x, rect.Min.Y, rect.Max.Y, color.RGBA{mix(lft.R, rgt.R), mix(lft.G, rgt.G), mix(lft.B, rgt.B), 0xff})
 	}
 }
 
@@ -277,12 +277,12 @@ func (cv canvas) gradient(r image.Rectangle, a, b color.RGBA) {
 func (cv canvas) draw(x, y int, src *image.NRGBA, sr image.Rectangle) {
 	for sy := sr.Min.Y; sy < sr.Max.Y; sy++ {
 		for sx := sr.Min.X; sx < sr.Max.X; sx++ {
-			c := src.NRGBAAt(sx, sy)
-			if c.A < 0x80 {
+			clr := src.NRGBAAt(sx, sy)
+			if clr.A < 0x80 {
 				continue
 			}
 
-			cv.pix(x+sx-sr.Min.X, y+sy-sr.Min.Y, color.RGBA{c.R, c.G, c.B, 0xff})
+			cv.pix(x+sx-sr.Min.X, y+sy-sr.Min.Y, color.RGBA{clr.R, clr.G, clr.B, 0xff})
 		}
 	}
 }
@@ -290,13 +290,13 @@ func (cv canvas) draw(x, y int, src *image.NRGBA, sr image.Rectangle) {
 // copy copies src's rectangle sr to (x, y), as BitBlt does.
 func (cv canvas) copy(x, y int, src *image.RGBA, sr image.Rectangle) {
 	dr := image.Rectangle{Min: image.Pt(x, y), Max: image.Pt(x, y).Add(sr.Size())}.Add(cv.org)
-	r := dr.Intersect(cv.clip)
+	rect := dr.Intersect(cv.clip)
 
-	if r.Empty() {
+	if rect.Empty() {
 		return
 	}
 
-	draw.Draw(cv.img, r, src, sr.Min.Add(r.Min.Sub(dr.Min)), draw.Src)
+	draw.Draw(cv.img, rect, src, sr.Min.Add(rect.Min.Sub(dr.Min)), draw.Src)
 }
 
 // blend draws src's rectangle sr at (x, y) with its alpha channel, for the
@@ -304,18 +304,18 @@ func (cv canvas) copy(x, y int, src *image.RGBA, sr image.Rectangle) {
 func (cv canvas) blend(x, y int, src *image.NRGBA, sr image.Rectangle) {
 	for sy := sr.Min.Y; sy < sr.Max.Y; sy++ {
 		for sx := sr.Min.X; sx < sr.Max.X; sx++ {
-			c := src.NRGBAAt(sx, sy)
-			if c.A == 0 {
+			spx := src.NRGBAAt(sx, sy)
+			if spx.A == 0 {
 				continue
 			}
 
 			px, py := x+sx-sr.Min.X, y+sy-sr.Min.Y
-			d := cv.at(px, py)
-			a := int(c.A)
-			mix := func(s, d uint8) uint8 {
-				return uint8((int(s)*a + int(d)*(255-a) + 127) / 255) //nolint:gosec // a weighted mean of two uint8s
+			dpx := cv.at(px, py)
+			alp := int(spx.A)
+			mix := func(fgd, bgd uint8) uint8 {
+				return uint8((int(fgd)*alp + int(bgd)*(255-alp) + 127) / 255) //nolint:gosec // a weighted mean of two uint8s
 			}
-			cv.pix(px, py, color.RGBA{mix(c.R, d.R), mix(c.G, d.G), mix(c.B, d.B), 0xff})
+			cv.pix(px, py, color.RGBA{mix(spx.R, dpx.R), mix(spx.G, dpx.G), mix(spx.B, dpx.B), 0xff})
 		}
 	}
 }
@@ -325,8 +325,8 @@ func (cv canvas) blend(x, y int, src *image.NRGBA, sr image.Rectangle) {
 func (cv canvas) pattern(x, y int, rows string, colors map[byte]color.RGBA) {
 	for dy, row := range strings.Split(strings.Trim(rows, "\n"), "\n") {
 		for dx := range len(row) {
-			if c, ok := colors[row[dx]]; ok {
-				cv.pix(x+dx, y+dy, c)
+			if clr, ok := colors[row[dx]]; ok {
+				cv.pix(x+dx, y+dy, clr)
 			}
 		}
 	}

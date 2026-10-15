@@ -41,7 +41,7 @@ type musicPlayer interface {
 // Application is the classic user interface: an ebiten.Game that shows the
 // desktop, and the game's game.UI.
 type Application struct {
-	g       *game.Game
+	gam     *game.Game
 	res     *resources
 	desk    *desktop
 	files   platform.Files
@@ -110,11 +110,11 @@ func NewApplication(data *gamedata.Data, files platform.Files, args []string) (*
 	}
 
 	app.desk.onMinimize = ebiten.MinimizeWindow
-	app.g = game.New(data, app)
+	app.gam = game.New(data, app)
 	app.buildForms()
 
-	app.g.OnShow = app.show
-	app.g.OnDraws = app.showDraws
+	app.gam.OnShow = app.show
+	app.gam.OnDraws = app.showDraws
 	app.load.begin()
 
 	return app, nil
@@ -122,7 +122,7 @@ func NewApplication(data *gamedata.Data, files platform.Files, args []string) (*
 
 // Game returns the game the user interface plays.
 func (app *Application) Game() *game.Game {
-	return app.g
+	return app.gam
 }
 
 // help is the start screen's "Help!" and Help → Contents (F1): the manual,
@@ -133,7 +133,7 @@ func (app *Application) help() {
 	}
 
 	app.helpWindow.jump(help.Contents)
-	app.desk.show(app.helpWindow.w)
+	app.desk.show(app.helpWindow.wdw)
 }
 
 // buildForms makes every form, hidden, as the original creates them all
@@ -158,7 +158,7 @@ func (app *Application) buildForms() {
 // (dy 246) does.
 func (app *Application) placeWindows(dy int) {
 	x, y := screenWidth/2-305, screenHeight/2-dy
-	app.main.w.pos = image.Pt(x, y)
+	app.main.wdw.pos = image.Pt(x, y)
 	app.stats.wdw.pos = image.Pt(x+428, y)
 	app.info.wdw.pos = image.Pt(x, y+314)
 	app.desk.dirty = true
@@ -180,9 +180,9 @@ func (app *Application) exit() {
 // loadGame loads a save (TForm1.LoadGame); it reports whether it could.
 // It runs on the handler's goroutine.
 func (app *Application) loadGame(file string) bool {
-	b, err := app.files.ReadFile(file)
+	dat, err := app.files.ReadFile(file)
 	if err == nil {
-		err = app.g.Load(file, b)
+		err = app.gam.Load(file, dat)
 	}
 
 	if err != nil {
@@ -193,14 +193,14 @@ func (app *Application) loadGame(file string) bool {
 
 	app.sync()
 	app.placeWindows(246)
-	app.desk.hide(app.start.w)
+	app.desk.hide(app.start.wdw)
 
 	return true
 }
 
 // speciesName is a species' name, or "" for none.
-func (app *Application) speciesName(s int) string {
-	if sp := app.g.Data.SpeciesByID(s); sp != nil {
+func (app *Application) speciesName(sid int) string {
+	if sp := app.gam.Data.SpeciesByID(sid); sp != nil {
 		return sp.Name
 	}
 
@@ -209,8 +209,8 @@ func (app *Application) speciesName(s int) string {
 
 // dexItems are the species lists' items: "Bulbasaur (#001)".
 func (app *Application) dexItems() []string {
-	out := make([]string, 0, len(app.g.Data.Species))
-	for _, sp := range app.g.Data.Species {
+	out := make([]string, 0, len(app.gam.Data.Species))
+	for _, sp := range app.gam.Data.Species {
 		out = append(out, fmt.Sprintf("%s (#%03d)", sp.Name, sp.ID))
 	}
 
@@ -220,7 +220,7 @@ func (app *Application) dexItems() []string {
 // call runs a game handler, or any code that waits for modal windows, on
 // its own goroutine; it returns once the handler ends or waits for a
 // window. Nothing runs while another handler waits.
-func (app *Application) call(f func()) {
+func (app *Application) call(fnc func()) {
 	if app.running {
 		return
 	}
@@ -231,7 +231,7 @@ func (app *Application) call(f func()) {
 	go func() {
 		defer close(app.done)
 
-		f()
+		fnc()
 	}()
 
 	app.wait()
@@ -249,20 +249,20 @@ func (app *Application) wait() {
 	}
 }
 
-// modal shows w as a modal window and returns its modal result once it
+// modal shows wdw as a modal window and returns its modal result once it
 // closes. It runs on the handler's goroutine.
-func (app *Application) modal(w *window) int {
+func (app *Application) modal(wdw *window) int {
 	resp := make(chan int)
 
 	app.requests <- func() {
-		w.onModal = func(result int) {
-			w.onModal = nil
+		wdw.onModal = func(result int) {
+			wdw.onModal = nil
 
 			resp <- result
 
 			app.wait()
 		}
-		app.desk.showModal(w)
+		app.desk.showModal(wdw)
 	}
 
 	return <-resp
@@ -279,34 +279,34 @@ func (app *Application) showException(msg string) {
 		msg += "."
 	}
 
-	w := messageDialog(app.desk, game.Error, false, msg)
-	w.caption = appTitle
-	app.modal(w)
-	app.desk.remove(w)
+	wdw := messageDialog(app.desk, game.Error, false, msg)
+	wdw.caption = appTitle
+	app.modal(wdw)
+	app.desk.remove(wdw)
 }
 
 // Message shows a message dialog and waits for the player (game.UI).
 func (app *Application) Message(kind game.DialogKind, yesNo bool, text string) bool {
-	w := messageDialog(app.desk, kind, yesNo, text)
-	r := app.modal(w)
-	app.desk.remove(w)
+	wdw := messageDialog(app.desk, kind, yesNo, text)
+	rst := app.modal(wdw)
+	app.desk.remove(wdw)
 
-	return r == mrOk || r == mrYes
+	return rst == mrOk || rst == mrYes
 }
 
 // show shows a window the game shows, bringing it to the front, as Show
 // does; it runs on the handler's goroutine.
-func (app *Application) show(w game.Window) {
+func (app *Application) show(gw game.Window) {
 	app.syncForms() // the controls as the game left them, before the focus comes in
 	app.desk.show(map[game.Window]*window{
-		game.MainForm:   app.main.w,
+		game.MainForm:   app.main.wdw,
 		game.StatsForm:  app.stats.wdw,
 		game.InfoForm:   app.info.wdw,
 		game.DexForm:    app.pokedex.wdw,
 		game.MartForm:   app.pokemart.wdw,
 		game.TypesForm:  app.types.wdw,
 		game.CornerForm: app.gameCorner.wdw,
-	}[w])
+	}[gw])
 }
 
 // showDraws shows a play's draws in "Lucky number", one after another, as
@@ -334,27 +334,27 @@ func (app *Application) showDraws(draws []int) {
 
 // sync brings the windows up to date with the game's state.
 func (app *Application) sync() {
-	g := app.g
+	gam := app.gam
 	// The windows the game shows, in the order the original shows them
 	// when several appear at once.
-	for _, f := range []struct {
+	for _, frm := range []struct {
 		w       *window
 		visible bool
 	}{
-		{app.info.wdw, g.Info.Visible},
-		{app.pokedex.wdw, g.Dex.Visible},
-		{app.stats.wdw, g.Stats.Visible},
-		{app.pokemart.wdw, g.Mart.Visible},
-		{app.types.wdw, g.Types.Visible},
-		{app.gameCorner.wdw, g.Corner.Visible},
-		{app.main.w, g.Main.Visible},
+		{app.info.wdw, gam.Info.Visible},
+		{app.pokedex.wdw, gam.Dex.Visible},
+		{app.stats.wdw, gam.Stats.Visible},
+		{app.pokemart.wdw, gam.Mart.Visible},
+		{app.types.wdw, gam.Types.Visible},
+		{app.gameCorner.wdw, gam.Corner.Visible},
+		{app.main.wdw, gam.Main.Visible},
 	} {
 		switch {
-		case f.visible && !f.w.visible:
+		case frm.visible && !frm.w.visible:
 			app.syncForms()
-			app.desk.show(f.w)
-		case !f.visible && f.w.visible:
-			app.desk.hide(f.w)
+			app.desk.show(frm.w)
+		case !frm.visible && frm.w.visible:
+			app.desk.hide(frm.w)
 		}
 	}
 
@@ -389,7 +389,7 @@ func (app *Application) Update() error {
 	in, now := app.input(), time.Now()
 	app.step(in, now)
 	// On the web, leaving the page doesn't save the game, as quitting does.
-	platform.WarnOnLeave(app.main.w.visible && !app.quit)
+	platform.WarnOnLeave(app.main.wdw.visible && !app.quit)
 
 	if app.desk.cursor != app.shown {
 		app.shown = app.desk.cursor
@@ -417,7 +417,7 @@ func (app *Application) step(in input, now time.Time) {
 
 	app.desk.update(&in, now)
 	app.load.tick()
-	app.music.Update(app.g.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
+	app.music.Update(app.gam.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
 
 	if app.xfer != nil && in.dropped != nil {
 		app.importDropped(in.dropped)
@@ -433,10 +433,10 @@ func (app *Application) step(in input, now time.Time) {
 	}
 }
 
-// keyFires reports whether a key held for d frames acts in this one: at
+// keyFires reports whether a key held for dur frames acts in this one: at
 // once, then every repeatInterval frames after repeatDelay.
-func keyFires(d int) bool {
-	return d == 1 || (d >= repeatDelay && (d-repeatDelay)%repeatInterval == 0)
+func keyFires(dur int) bool {
+	return dur == 1 || (dur >= repeatDelay && (dur-repeatDelay)%repeatInterval == 0)
 }
 
 // input reads this frame's input from Ebitengine.
@@ -451,9 +451,9 @@ func (app *Application) input() input {
 	_, dy := ebiten.Wheel()
 	app.wheel += dy
 
-	if n := math.Trunc(app.wheel); n != 0 {
-		in.wheel = int(n)
-		app.wheel -= n
+	if nch := math.Trunc(app.wheel); nch != 0 {
+		in.wheel = int(nch)
+		app.wheel -= nch
 	}
 
 	in.mods = mods{
@@ -462,10 +462,10 @@ func (app *Application) input() input {
 		alt:   ebiten.IsKeyPressed(ebiten.KeyAlt),
 	}
 
-	for _, k := range inpututil.AppendPressedKeys(nil) {
-		d := inpututil.KeyPressDuration(k)
-		if keyFires(d) {
-			in.keys = append(in.keys, k)
+	for _, key := range inpututil.AppendPressedKeys(nil) {
+		dur := inpututil.KeyPressDuration(key)
+		if keyFires(dur) {
+			in.keys = append(in.keys, key)
 		}
 	}
 
@@ -491,18 +491,18 @@ func (app *Application) importDropped(fsys fs.FS) {
 
 	var names []string
 
-	for _, e := range entries {
-		if e.IsDir() {
+	for _, ent := range entries {
+		if ent.IsDir() {
 			continue
 		}
 
-		b, err := fs.ReadFile(fsys, e.Name())
+		dat, err := fs.ReadFile(fsys, ent.Name())
 		if err == nil {
-			err = app.files.WriteFile(app.files.Join(dir, e.Name()), b)
+			err = app.files.WriteFile(app.files.Join(dir, ent.Name()), dat)
 		}
 
 		if err == nil {
-			names = append(names, e.Name())
+			names = append(names, ent.Name())
 		}
 	}
 
@@ -534,25 +534,25 @@ func (app *Application) Draw(screen *ebiten.Image) {
 }
 
 // Layout returns the logical screen's size (ebiten.Game).
-func (app *Application) Layout(int, int) (w, h int) {
+func (app *Application) Layout(int, int) (wid, hgt int) {
 	return screenWidth, screenHeight
 }
 
 // openFile shows a file dialog and waits for the player; it returns the
 // chosen file's path. It runs on the handler's goroutine.
 func (app *Application) openFile(opts fileOptions) (string, bool) {
-	f := newFileDialog(app, opts)
-	app.fileDialog = f
-	r := app.modal(f.window)
+	fd := newFileDialog(app, opts)
+	app.fileDialog = fd
+	rst := app.modal(fd.wdw)
 	app.fileDialog = nil
-	app.desk.remove(f.window)
+	app.desk.remove(fd.wdw)
 
-	return f.result, r == mrOk
+	return fd.result, rst == mrOk
 }
 
 // closeProgram ends the program as closing the main form does.
 func (app *Application) closeProgram() {
-	if app.main.w.visible {
+	if app.main.wdw.visible {
 		app.main.formClose()
 
 		return
@@ -564,18 +564,18 @@ func (app *Application) closeProgram() {
 // WindowSize returns the window's default size: the desktop at the
 // largest scale, in steps of a half, that fits 90 % of the monitor. With
 // no monitor, it is the desktop's size; ebiten.RunGame then says why.
-func WindowSize() (w, h int) {
-	m := ebiten.Monitor()
-	if m == nil {
+func WindowSize() (wid, hgt int) {
+	mon := ebiten.Monitor()
+	if mon == nil {
 		return screenWidth, screenHeight
 	}
 
-	mw, mh := m.Size()
+	mw, mh := mon.Size()
 	deskW, deskH := float64(screenWidth), float64(screenHeight)
-	s := math.Floor(min(0.9*float64(mw)/deskW, 0.9*float64(mh)/deskH)*2) / 2
-	s = max(s, 1)
+	scl := math.Floor(min(0.9*float64(mw)/deskW, 0.9*float64(mh)/deskH)*2) / 2
+	scl = max(scl, 1)
 
-	return int(deskW * s), int(deskH * s)
+	return int(deskW * scl), int(deskH * scl)
 }
 
 // Icon returns the program's icon, for the window.

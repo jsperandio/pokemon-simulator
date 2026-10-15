@@ -9,18 +9,18 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
-// mulDiv is Windows' MulDiv: a × b / c, rounded.
-func mulDiv(a, b, c int) int {
-	return (a*b + c/2) / c
+// mulDiv is Windows' MulDiv: num × nmr / den, rounded.
+func mulDiv(num, nmr, den int) int {
+	return (num*nmr + den/2) / den
 }
 
 // messageDialog builds a message dialog as Delphi's CreateMessageDialog
 // does, in the message font: an icon, the text wrapped at half the
 // screen's width, and the buttons centred under them.
-func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *window {
-	res := d.res
-	f := res.sans
-	dx, dy := res.charWidth, f.height() // the dialog units
+func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) *window {
+	res := dsk.res
+	fnt := res.sans
+	dx, dy := res.charWidth, fnt.height() // the dialog units
 	horzMargin, vertMargin := mulDiv(8, dx, 4), mulDiv(8, dy, 8)
 	horzSpacing, vertSpacing := mulDiv(10, dx, 4), mulDiv(10, dy, 8)
 	buttonWidth, buttonHeight := mulDiv(50, dx, 4), mulDiv(14, dy, 8)
@@ -36,15 +36,15 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		buttons = []btn{{"&Yes", mrYes}, {"&No", mrNo}}
 	}
 
-	for _, b := range buttons {
-		buttonWidth = max(buttonWidth, f.width(plain(b.caption))+8)
+	for _, but := range buttons {
+		buttonWidth = max(buttonWidth, fnt.width(plain(but.caption))+8)
 	}
 
-	lines := wrap(f, text, screenWidth/2)
+	lines := wrap(fnt, text, screenWidth/2)
 	textW := 0
 
-	for _, l := range lines {
-		textW = max(textW, f.width(l))
+	for _, lin := range lines {
+		textW = max(textW, fnt.width(lin))
 	}
 
 	textH := len(lines) * dy
@@ -108,9 +108,9 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 	})
 	x := (clientW - groupW) / 2
 
-	for i, b := range buttons {
+	for i, but := range buttons {
 		props := map[string]string{
-			"ModalResult": strconv.Itoa(b.result),
+			"ModalResult": strconv.Itoa(but.result),
 			"TabOrder":    strconv.Itoa(i),
 		}
 		if i == 0 {
@@ -124,7 +124,7 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		comp.Children = append(comp.Children, layout.Component{
 			Class:   "TButton",
 			Name:    "Button" + strconv.Itoa(i+1),
-			Caption: b.caption,
+			Caption: but.caption,
 			Bounds: layout.Rect{
 				X: x,
 				Y: iconTextH + vertMargin + vertSpacing,
@@ -136,15 +136,15 @@ func messageDialog(d *desktop, kind game.DialogKind, yesNo bool, text string) *w
 		x += buttonWidth + buttonSpacing
 	}
 
-	w := newWindow(d, &comp)
-	if p, ok := w.find("Image").(*picture); ok {
-		p.img, p.alpha = icon, true
+	wdw := newWindow(dsk, &comp)
+	if pic, ok := wdw.find("Image").(*picture); ok {
+		pic.img, pic.alpha = icon, true
 	}
 
 	// Left := Screen.Width div 2 − Width div 2, and the same for Top.
-	s := w.size()
-	w.pos.X, w.pos.Y = screenWidth/2-s.X/2, screenHeight/2-s.Y/2
-	d.add(w)
+	pnt := wdw.size()
+	wdw.pos.X, wdw.pos.Y = screenWidth/2-pnt.X/2, screenHeight/2-pnt.Y/2
+	dsk.add(wdw)
 
-	return w
+	return wdw
 }

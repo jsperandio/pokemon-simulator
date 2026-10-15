@@ -36,8 +36,8 @@ type fileFilter struct {
 }
 
 // parseFilter splits a VCL Filter into its file types.
-func parseFilter(s string) []fileFilter {
-	parts := strings.Split(s, "|")
+func parseFilter(txt string) []fileFilter {
+	parts := strings.Split(txt, "|")
 
 	var out []fileFilter
 	for i := 0; i+1 < len(parts); i += 2 {
@@ -56,12 +56,12 @@ func parseFilter(s string) []fileFilter {
 func (ff fileFilter) matches(name string) bool {
 	name = strings.ToLower(name)
 
-	for _, p := range ff.patterns {
-		if p == "*.*" || p == "*" {
+	for _, pat := range ff.patterns {
+		if pat == "*.*" || pat == "*" {
 			return true
 		}
 
-		if ok, _ := path.Match(p, name); ok {
+		if ok, _ := path.Match(pat, name); ok {
 			return true
 		}
 	}
@@ -72,7 +72,7 @@ func (ff fileFilter) matches(name string) bool {
 // fileDialog is an open file dialog.
 type fileDialog struct {
 	app     *Application
-	window  *window
+	wdw     *window
 	opts    fileOptions
 	files   platform.Files
 	filters []fileFilter
@@ -92,7 +92,7 @@ type fileDialog struct {
 }
 
 func newFileDialog(app *Application, opts fileOptions) *fileDialog {
-	f := &fileDialog{
+	fd := &fileDialog{
 		app:     app,
 		opts:    opts,
 		files:   app.files,
@@ -181,44 +181,44 @@ func newFileDialog(app *Application, opts fileOptions) *fileDialog {
 			},
 		},
 	}
-	w := newWindow(app.desk, &comp)
-	f.window = w
-	f.lookIn = w.find("LookIn").(*comboBox)
-	f.view = w.find("View").(*listView)
-	f.name = w.find("FileName").(*edit)
-	f.types = w.find("Types").(*comboBox)
-	w.find("LookInLabel").(*label).focusControl = f.lookIn
-	w.find("NameLabel").(*label).focusControl = f.name
-	w.find("TypeLabel").(*label).focusControl = f.types
-	f.view.images = app.res.fileIcons()
-	f.lookIn.images = app.res.fileIcons()
+	wdw := newWindow(app.desk, &comp)
+	fd.wdw = wdw
+	fd.lookIn = wdw.find("LookIn").(*comboBox)
+	fd.view = wdw.find("View").(*listView)
+	fd.name = wdw.find("FileName").(*edit)
+	fd.types = wdw.find("Types").(*comboBox)
+	wdw.find("LookInLabel").(*label).focusControl = fd.lookIn
+	wdw.find("NameLabel").(*label).focusControl = fd.name
+	wdw.find("TypeLabel").(*label).focusControl = fd.types
+	fd.view.images = app.res.fileIcons()
+	fd.lookIn.images = app.res.fileIcons()
 
-	f.up = &toolButton{glyph: glyphUp, onPress: f.upOneLevel}
-	addWidget(w, f.up, image.Rect(280, 4, 303, 26))
+	fd.up = &toolButton{glyph: glyphUp, onPress: fd.upOneLevel}
+	addWidget(wdw, fd.up, image.Rect(280, 4, 303, 26))
 
 	if app.xfer != nil {
-		f.addTransfers()
+		fd.addTransfers()
 	}
 
-	for _, ft := range f.filters {
-		f.types.items = append(f.types.items, ft.name)
+	for _, ft := range fd.filters {
+		fd.types.items = append(fd.types.items, ft.name)
 	}
 
-	f.types.index = 0
-	f.types.onSelect = func(int) {
-		f.list()
+	fd.types.index = 0
+	fd.types.onSelect = func(int) {
+		fd.list()
 	}
-	f.lookIn.onSelect = func(i int) {
-		if i >= 0 && i < len(f.dirs) {
-			f.navigate(f.dirs[i])
+	fd.lookIn.onSelect = func(i int) {
+		if i >= 0 && i < len(fd.dirs) {
+			fd.navigate(fd.dirs[i])
 		}
 	}
-	f.view.onSelect = f.viewClick
-	f.view.onDblClick = f.open
-	w.find("OK").(*button).onClick = f.okClick
-	w.onKey = func(k ebiten.Key, m mods) bool {
-		if k == ebiten.KeyBackspace && w.focus == f.view {
-			f.upOneLevel()
+	fd.view.onSelect = fd.viewClick
+	fd.view.onDblClick = fd.open
+	wdw.find("OK").(*button).onClick = fd.okClick
+	wdw.onKey = func(key ebiten.Key, mds mods) bool {
+		if key == ebiten.KeyBackspace && wdw.focus == fd.view {
+			fd.upOneLevel()
 
 			return true
 		}
@@ -231,12 +231,12 @@ func newFileDialog(app *Application, opts fileOptions) *fileDialog {
 		dir = app.files.Home()
 	}
 
-	f.navigate(dir)
+	fd.navigate(dir)
 
-	w.focus = f.name
-	app.desk.add(w)
+	wdw.focus = fd.name
+	app.desk.add(wdw)
 
-	return f
+	return fd
 }
 
 // lookInIndent is the look-in list's indent for each level of folders.
@@ -255,9 +255,9 @@ func (fd *fileDialog) navigate(dir string) {
 
 	var chain []string
 
-	for d := dir; ; d = fd.files.Dir(d) {
-		chain = append(chain, d)
-		if fd.files.Dir(d) == d {
+	for cur := dir; ; cur = fd.files.Dir(cur) {
+		chain = append(chain, cur)
+		if fd.files.Dir(cur) == cur {
 			break
 		}
 	}
@@ -268,13 +268,13 @@ func (fd *fileDialog) navigate(dir string) {
 		items          []string
 		icons, indents []int
 	)
-	add := func(d string, depth int) {
-		name, icon := fd.files.Base(d), fileIconFolder
+	add := func(pth string, depth int) {
+		name, icon := fd.files.Base(pth), fileIconFolder
 		if depth == 0 {
-			name, icon = d, fileIconDrive
+			name, icon = pth, fileIconDrive
 		}
 
-		fd.dirs = append(fd.dirs, d)
+		fd.dirs = append(fd.dirs, pth)
 		items = append(items, name)
 		icons = append(icons, icon)
 		indents = append(indents, depth*lookInIndent)
@@ -294,8 +294,8 @@ func (fd *fileDialog) navigate(dir string) {
 			continue
 		}
 
-		for depth, d := range chain {
-			add(d, depth)
+		for depth, pth := range chain {
+			add(pth, depth)
 		}
 
 		sel = len(items) - 1
@@ -315,18 +315,18 @@ func (fd *fileDialog) list() {
 
 	var dirs, files []platform.Entry
 
-	for _, e := range entries {
+	for _, ent := range entries {
 		switch {
-		case strings.HasPrefix(e.Name, "."):
-		case e.Dir:
-			dirs = append(dirs, e)
-		case ft.matches(e.Name):
-			files = append(files, e)
+		case strings.HasPrefix(ent.Name, "."):
+		case ent.Dir:
+			dirs = append(dirs, ent)
+		case ft.matches(ent.Name):
+			files = append(files, ent)
 		}
 	}
 
-	byName := func(a, b platform.Entry) int {
-		return strings.Compare(strings.ToLower(a.Name), strings.ToLower(b.Name))
+	byName := func(fst, snd platform.Entry) int {
+		return strings.Compare(strings.ToLower(fst.Name), strings.ToLower(snd.Name))
 	}
 	slices.SortFunc(dirs, byName)
 	slices.SortFunc(files, byName)
@@ -334,13 +334,13 @@ func (fd *fileDialog) list() {
 	fd.entries = slices.Concat(dirs, files)
 	items := make([]listItem, len(fd.entries))
 
-	for i, e := range fd.entries {
+	for i, ent := range fd.entries {
 		img := 1
-		if e.Dir {
+		if ent.Dir {
 			img = 0
 		}
 
-		items[i] = listItem{e.Name, img}
+		items[i] = listItem{ent.Name, img}
 	}
 
 	fd.view.setItems(items)
@@ -361,25 +361,25 @@ func (fd *fileDialog) selectedEntry() (platform.Entry, bool) {
 
 // viewClick puts a selected file's name in the name box.
 func (fd *fileDialog) viewClick() {
-	if e, ok := fd.selectedEntry(); ok && !e.Dir {
-		fd.name.setText(e.Name)
+	if ent, ok := fd.selectedEntry(); ok && !ent.Dir {
+		fd.name.setText(ent.Name)
 	}
 }
 
 // open is a double click on the view: a folder opens, a file is chosen.
 func (fd *fileDialog) open() {
-	e, ok := fd.selectedEntry()
+	ent, ok := fd.selectedEntry()
 	if !ok {
 		return
 	}
 
-	if e.Dir {
-		fd.navigate(fd.files.Join(fd.dir, e.Name))
+	if ent.Dir {
+		fd.navigate(fd.files.Join(fd.dir, ent.Name))
 
 		return
 	}
 
-	fd.name.setText(e.Name)
+	fd.name.setText(ent.Name)
 	fd.okClick()
 }
 
@@ -393,9 +393,9 @@ func (fd *fileDialog) upOneLevel() {
 // checked as the dialog's options ask, then chosen.
 func (fd *fileDialog) okClick() {
 	txt := strings.TrimSpace(fd.name.text())
-	if fd.window.focus == fd.view || txt == "" {
-		if e, ok := fd.selectedEntry(); ok && e.Dir {
-			fd.navigate(fd.files.Join(fd.dir, e.Name))
+	if fd.wdw.focus == fd.view || txt == "" {
+		if ent, ok := fd.selectedEntry(); ok && ent.Dir {
+			fd.navigate(fd.files.Join(fd.dir, ent.Name))
 
 			return
 		}
@@ -405,80 +405,80 @@ func (fd *fileDialog) okClick() {
 		return
 	}
 
-	p := txt
-	if !fd.files.IsAbs(p) {
-		p = fd.files.Join(fd.dir, p)
+	pth := txt
+	if !fd.files.IsAbs(pth) {
+		pth = fd.files.Join(fd.dir, pth)
 	}
 
-	if st, err := fd.files.Stat(p); err == nil && st.Dir {
-		fd.navigate(p)
+	if st, err := fd.files.Stat(pth); err == nil && st.Dir {
+		fd.navigate(pth)
 		fd.name.setText("")
 
 		return
 	}
 
-	fd.choose(fd.withDefaultExt(p))
+	fd.choose(fd.withDefaultExt(pth))
 }
 
 // withDefaultExt adds the default extension to a file name without one, when
 // the dialog saves or a file has that name.
-func (fd *fileDialog) withDefaultExt(p string) string {
-	if strings.Contains(fd.files.Base(p), ".") || fd.opts.defaultExt == "" {
-		return p
+func (fd *fileDialog) withDefaultExt(pth string) string {
+	if strings.Contains(fd.files.Base(pth), ".") || fd.opts.defaultExt == "" {
+		return pth
 	}
 
-	withExt := p + "." + strings.TrimPrefix(fd.opts.defaultExt, ".")
+	withExt := pth + "." + strings.TrimPrefix(fd.opts.defaultExt, ".")
 	if _, err := fd.files.Stat(withExt); fd.opts.save || err == nil {
 		return withExt
 	}
 
-	return p
+	return pth
 }
 
 // choose checks a file's path as the dialog's options ask, then chooses
 // it.
-func (fd *fileDialog) choose(p string) {
-	if st, err := fd.files.Stat(fd.files.Dir(p)); err != nil || !st.Dir {
-		fd.alert(false, p+"\nPath does not exist.\nPlease verify the correct path was given.", nil)
+func (fd *fileDialog) choose(pth string) {
+	if st, err := fd.files.Stat(fd.files.Dir(pth)); err != nil || !st.Dir {
+		fd.alert(false, pth+"\nPath does not exist.\nPlease verify the correct path was given.", nil)
 
 		return
 	}
 
-	_, err := fd.files.Stat(p)
+	_, err := fd.files.Stat(pth)
 	exists := err == nil
 
 	switch {
 	case fd.opts.save && exists && fd.opts.overwrite:
-		fd.alert(true, p+" already exists.\nDo you want to replace it?", func() {
-			fd.accept(p)
+		fd.alert(true, pth+" already exists.\nDo you want to replace it?", func() {
+			fd.accept(pth)
 		})
 	case !fd.opts.save && !exists && fd.opts.mustExist:
-		fd.alert(false, fd.files.Base(p)+"\nFile not found.\nPlease verify the correct file name was given.", nil)
+		fd.alert(false, fd.files.Base(pth)+"\nFile not found.\nPlease verify the correct file name was given.", nil)
 	default:
-		fd.accept(p)
+		fd.accept(pth)
 	}
 }
 
 // alert shows a warning over the dialog; yes runs if the player answers
 // Yes.
 func (fd *fileDialog) alert(yesNo bool, text string, yes func()) {
-	d := fd.app.desk
-	md := messageDialog(d, game.Warning, yesNo, text)
-	md.caption = fd.window.caption
+	dsk := fd.app.desk
+	md := messageDialog(dsk, game.Warning, yesNo, text)
+	md.caption = fd.wdw.caption
 	md.onModal = func(result int) {
-		d.remove(md)
+		dsk.remove(md)
 
 		if result == mrYes && yes != nil {
 			yes()
 		}
 	}
-	d.showModal(md)
+	dsk.showModal(md)
 }
 
-func (fd *fileDialog) accept(p string) {
-	fd.result = p
-	fd.app.lastDir = fd.files.Dir(p)
-	fd.window.endModal(mrOk)
+func (fd *fileDialog) accept(pth string) {
+	fd.result = pth
+	fd.app.lastDir = fd.files.Dir(pth)
+	fd.wdw.endModal(mrOk)
 }
 
 // The toolbar's glyphs: the folder one level up, painted with iconColors,
@@ -529,13 +529,13 @@ func (fd *fileDialog) addTransfers() {
 		glyph:   glyphUpload,
 		onPress: fd.upload,
 	}
-	addWidget(fd.window, fd.uploadButton, image.Rect(304, 4, 327, 26))
+	addWidget(fd.wdw, fd.uploadButton, image.Rect(304, 4, 327, 26))
 
 	fd.downloadButton = &toolButton{
 		glyph:   glyphDownload,
 		onPress: fd.download,
 	}
-	addWidget(fd.window, fd.downloadButton, image.Rect(328, 4, 351, 26))
+	addWidget(fd.wdw, fd.downloadButton, image.Rect(328, 4, 351, 26))
 }
 
 // upload asks for files to put in the folder shown.
@@ -565,8 +565,8 @@ func (fd *fileDialog) uploaded(names []string) {
 		return
 	}
 
-	if i := slices.IndexFunc(fd.entries, func(e platform.Entry) bool {
-		return e.Name == names[0]
+	if i := slices.IndexFunc(fd.entries, func(ent platform.Entry) bool {
+		return ent.Name == names[0]
 	}); i >= 0 {
 		fd.view.selected = i
 		fd.view.ensureVisible(i)
@@ -581,26 +581,26 @@ func (fd *fileDialog) uploaded(names []string) {
 // name box.
 func (fd *fileDialog) download() {
 	name := strings.TrimSpace(fd.name.text())
-	if e, ok := fd.selectedEntry(); ok && !e.Dir {
-		name = e.Name
+	if ent, ok := fd.selectedEntry(); ok && !ent.Dir {
+		name = ent.Name
 	}
 
 	if name == "" {
 		return
 	}
 
-	p := name
-	if !fd.files.IsAbs(p) {
-		p = fd.files.Join(fd.dir, p)
+	pth := name
+	if !fd.files.IsAbs(pth) {
+		pth = fd.files.Join(fd.dir, pth)
 	}
 
-	b, err := fd.files.ReadFile(p)
+	dat, err := fd.files.ReadFile(pth)
 	if err == nil {
-		err = fd.app.xfer.download(fd.files.Base(p), b)
+		err = fd.app.xfer.download(fd.files.Base(pth), dat)
 	}
 
 	if err != nil {
-		fd.alert(false, fd.files.Base(p)+"\n"+err.Error(), nil)
+		fd.alert(false, fd.files.Base(pth)+"\n"+err.Error(), nil)
 	}
 }
 
@@ -641,15 +641,15 @@ func (tb *toolButton) mouseDown(image.Point, bool) {
 	tb.invalidate()
 }
 
-func (tb *toolButton) mouseDrag(p image.Point) {
-	if in := p.In(tb.local()); in != tb.inside {
+func (tb *toolButton) mouseDrag(pnt image.Point) {
+	if in := pnt.In(tb.local()); in != tb.inside {
 		tb.inside = in
 		tb.invalidate()
 	}
 }
 
-func (tb *toolButton) mouseUp(imgP image.Point) {
-	click := tb.down && imgP.In(tb.local())
+func (tb *toolButton) mouseUp(pnt image.Point) {
+	click := tb.down && pnt.In(tb.local())
 	tb.down = false
 	tb.invalidate()
 
@@ -666,12 +666,12 @@ func (tb *toolButton) hover(_ image.Point, out bool) {
 }
 
 // addWidget adds a control the forms' layouts don't describe.
-func addWidget(window *window, wgt widget, rect image.Rectangle) {
-	ctr := wgt.base()
-	ctr.self = wgt
-	ctr.wdw = window
-	ctr.rect = rect
-	ctr.visible, ctr.enabled = true, true
-	ctr.font, ctr.fontColor, ctr.color = window.res.sans, colText, window.color
-	window.kids = append(window.kids, wgt)
+func addWidget(wdw *window, wgt widget, rect image.Rectangle) {
+	ctl := wgt.base()
+	ctl.self = wgt
+	ctl.wdw = wdw
+	ctl.rect = rect
+	ctl.visible, ctl.enabled = true, true
+	ctl.font, ctl.fontColor, ctl.color = wdw.res.sans, colText, wdw.color
+	wdw.kids = append(wdw.kids, wgt)
 }
