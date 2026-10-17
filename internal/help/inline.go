@@ -126,7 +126,11 @@ func (p *inliner) link(s string, i int, st style, buf *strings.Builder) int {
 	p.flush(buf, st)
 
 	if image {
-		p.spans = append(p.spans, Span{Text: text, Image: target, Link: st.link})
+		p.spans = append(p.spans, Span{
+			Text:  text,
+			Image: target,
+			Link:  st.link,
+		})
 	} else {
 		in := st
 		in.link = target

@@ -78,13 +78,21 @@ func (m *memory) List(dir string) ([]Entry, error) {
 
 	for p, t := range m.dirs {
 		if p != "/" && path.Dir(p) == dir {
-			out = append(out, Entry{Name: path.Base(p), Dir: true, ModTime: t})
+			out = append(out, Entry{
+				Name:    path.Base(p),
+				Dir:     true,
+				ModTime: t,
+			})
 		}
 	}
 
 	for p, b := range m.files {
 		if path.Dir(p) == dir {
-			out = append(out, Entry{Name: path.Base(p), Size: int64(len(b)), ModTime: m.times[p]})
+			out = append(out, Entry{
+				Name:    path.Base(p),
+				Size:    int64(len(b)),
+				ModTime: m.times[p],
+			})
 		}
 	}
 

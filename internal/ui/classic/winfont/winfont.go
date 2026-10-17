@@ -182,7 +182,10 @@ func (f *Font) readGlyphs(b []byte, version int) error {
 			return fmt.Errorf("winfont: glyph %d out of range", int(f.first)+i)
 		}
 
-		g := glyph{width: w, rows: make([]uint32, f.Height)}
+		g := glyph{
+			width: w,
+			rows:  make([]uint32, f.Height),
+		}
 		// Each byte column holds 8 pixels of every row, top to bottom.
 		for c := range cols {
 			for y := range f.Height {

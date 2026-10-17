@@ -117,7 +117,11 @@ var martItems = [5]int{
 
 // OpenMart is Actions → Buy Items.
 func (g *Game) OpenMart() {
-	g.Mart = MartWindow{Visible: true, Item: -1, Total: "0¥"}
+	g.Mart = MartWindow{
+		Visible: true,
+		Item:    -1,
+		Total:   "0¥",
+	}
 	g.show(MartForm)
 }
 

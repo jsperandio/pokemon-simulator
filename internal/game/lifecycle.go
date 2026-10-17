@@ -113,11 +113,18 @@ func (g *Game) Exported(file string) bool {
 // ExportPage is the page File → Export POKéMON information... writes,
 // generated at now.
 func (g *Game) ExportPage(now time.Time) []byte {
-	info := export.Info{Player: g.Stats.Name, DexCount: g.DexCount(), Date: now}
+	info := export.Info{
+		Player:   g.Stats.Name,
+		DexCount: g.DexCount(),
+		Date:     now,
+	}
 	for _, m := range g.Party() {
 		s := int(m.Species)
 		info.Party = append(info.Party, export.Member{
-			Entry: export.Entry{Number: s, Name: g.name(s)},
+			Entry: export.Entry{
+				Number: s,
+				Name:   g.name(s),
+			},
 			Level: m.Level,
 			XP:    m.XP,
 		})
@@ -125,7 +132,10 @@ func (g *Game) ExportPage(now time.Time) []byte {
 
 	for s := 1; s < len(g.InDex); s++ {
 		if g.InDex[s] {
-			info.Dex = append(info.Dex, export.Entry{Number: s, Name: g.name(s)})
+			info.Dex = append(info.Dex, export.Entry{
+				Number: s,
+				Name:   g.name(s),
+			})
 		}
 	}
 

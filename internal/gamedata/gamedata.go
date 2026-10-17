@@ -96,7 +96,10 @@ type Data struct {
 func Load(raw []byte) (*Data, error) {
 	text := strings.ReplaceAll(delphi.DecodeANSI(raw), "\r\n", "\n")
 	r := &lineReader{lines: strings.Split(text, "\n")}
-	d := &Data{Species: make([]Species, NumSpecies), Moves: make([]Move, NumMoves)}
+	d := &Data{
+		Species: make([]Species, NumSpecies),
+		Moves:   make([]Move, NumMoves),
+	}
 
 	for a := range NumTypes {
 		for t := range NumTypes {

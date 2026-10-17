@@ -104,7 +104,11 @@ func parseBlocks(lines []string) []Block {
 			n := headingLevel(line)
 			text := strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(line), "#"))
 			text = strings.TrimSpace(strings.TrimRight(text, "#"))
-			out = append(out, Block{Kind: Heading, Level: n, Spans: parseInline(text)})
+			out = append(out, Block{
+				Kind:  Heading,
+				Level: n,
+				Spans: parseInline(text),
+			})
 			i++
 		case isQuote(line):
 			var inner []string
@@ -112,7 +116,10 @@ func parseBlocks(lines []string) []Block {
 				inner = append(inner, unquote(lines[i]))
 			}
 
-			out = append(out, Block{Kind: Quote, Blocks: parseBlocks(inner)})
+			out = append(out, Block{
+				Kind:   Quote,
+				Blocks: parseBlocks(inner),
+			})
 		case isTable(lines, i):
 			var b Block
 			b, i = parseTable(lines, i)
@@ -127,7 +134,10 @@ func parseBlocks(lines []string) []Block {
 			}
 
 			text := strings.Join(trimLines(lines[start:i]), "\n")
-			out = append(out, Block{Kind: Paragraph, Spans: parseInline(text)})
+			out = append(out, Block{
+				Kind:  Paragraph,
+				Spans: parseInline(text),
+			})
 		}
 	}
 
