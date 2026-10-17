@@ -11,9 +11,15 @@ import (
 // computer into the folder the dialog shows, and Download gives the player
 // a copy of the file chosen. Files dropped on the game are uploaded too.
 
+// writer is where the files the player picks are copied: the game's storage.
+type writer interface {
+	Join(dir, name string) string
+	WriteFile(path string, data []byte) error
+}
+
 // browser is the browser's uploads and downloads.
 type browser struct {
-	files platform.Files
+	files writer
 }
 
 func (b browser) upload(dir string) <-chan []string {

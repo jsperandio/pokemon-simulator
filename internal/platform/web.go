@@ -35,10 +35,10 @@ var (
 	storeOnce sync.Once
 )
 
-// Default returns the platform's storage: here, the browser's. The first
+// DefaultStorageProvider returns the platform's storage: here, the browser's. The first
 // call reads the files the browser kept; without IndexedDB, the files
 // last as long as the page.
-func Default() Files {
+func DefaultStorageProvider() *memory {
 	storeOnce.Do(func() {
 		db, err := openDatabase()
 		if err == nil {
@@ -97,11 +97,19 @@ func (m *memory) Stat(p string) (Entry, error) {
 
 	p = path.Clean(p)
 	if t, ok := m.dirs[p]; ok {
-		return Entry{Name: path.Base(p), Dir: true, ModTime: t}, nil
+		return Entry{
+			Name:    path.Base(p),
+			Dir:     true,
+			ModTime: t,
+		}, nil
 	}
 
 	if b, ok := m.files[p]; ok {
-		return Entry{Name: path.Base(p), Size: int64(len(b)), ModTime: m.times[p]}, nil
+		return Entry{
+			Name:    path.Base(p),
+			Size:    int64(len(b)),
+			ModTime: m.times[p],
+		}, nil
 	}
 
 	return Entry{}, ErrNotExist

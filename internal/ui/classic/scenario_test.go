@@ -18,7 +18,6 @@ import (
 
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/game/scenario"
-	"github.com/jsperandio/pokemon-simulator/internal/platform"
 )
 
 // TestScenarios plays the traces of the original in
@@ -46,7 +45,7 @@ type uiDriver struct {
 
 // writes keeps the last file written: the save, on quitting.
 type writes struct {
-	platform.Files
+	storage
 	path string
 	data []byte
 }
@@ -54,7 +53,7 @@ type writes struct {
 func (w *writes) WriteFile(path string, data []byte) error {
 	w.path, w.data = path, data
 
-	return w.Files.WriteFile(path, data)
+	return w.storage.WriteFile(path, data)
 }
 
 // dialogs records the game's dialogs once the player has answered them,
@@ -95,7 +94,7 @@ func (ud *uiDriver) Launch(ply *scenario.Player, file string, save []byte, hook 
 
 	ta := newTestAppIn(ud.t, dir, args)
 	ud.ta = ta
-	ud.files = &writes{Files: ta.files}
+	ud.files = &writes{storage: ta.files}
 	ta.files = ud.files
 	ta.game.UI = dialogs{ta.game.UI, ud}
 	hook(ta.game)

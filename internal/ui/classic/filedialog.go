@@ -69,12 +69,25 @@ func (ff fileFilter) matches(name string) bool {
 	return false
 }
 
+// navigator is what a file dialog needs of the game's storage: to browse
+// it, and to read the file chosen.
+type navigator interface {
+	Roots() []string
+	List(dir string) ([]platform.Entry, error)
+	Stat(path string) (platform.Entry, error)
+	ReadFile(path string) ([]byte, error)
+	Join(dir, name string) string
+	Dir(path string) string
+	Base(path string) string
+	IsAbs(path string) bool
+}
+
 // fileDialog is an open file dialog.
 type fileDialog struct {
 	app     *Application
 	wdw     *window
 	opts    fileOptions
-	files   platform.Files
+	files   navigator
 	filters []fileFilter
 	dir     string
 	entries []platform.Entry // as the view lists them

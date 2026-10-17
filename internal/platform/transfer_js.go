@@ -10,7 +10,7 @@ import (
 // Upload asks the player for files with the browser's file picker, and
 // copies them into dir. It returns at once: the names of the files copied
 // come on the channel once they are, none if the player cancels.
-func Upload(files Files, dir string) <-chan []string {
+func Upload(dest writer, dir string) <-chan []string {
 	out := make(chan []string, 1)
 	input := js.Global().Get("document").Call("createElement", "input")
 	input.Set("type", "file")
@@ -44,7 +44,7 @@ func Upload(files Files, dir string) <-chan []string {
 				js.CopyBytesToGo(b, arr)
 
 				name := f.Get("name").String()
-				if err := files.WriteFile(files.Join(dir, name), b); err != nil {
+				if err := dest.WriteFile(dest.Join(dir, name), b); err != nil {
 					warn("POKéMON Simulator: " + name + ": " + err.Error())
 
 					continue

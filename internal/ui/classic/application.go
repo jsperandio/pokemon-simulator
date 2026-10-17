@@ -38,6 +38,14 @@ type musicPlayer interface {
 	Playing() bool
 }
 
+// storage is the game's storage: what the file dialogs browse, and what the
+// game reads and writes, from the folder the dialogs show first.
+type storage interface {
+	navigator
+	writer
+	Home() string
+}
+
 // transfers moves files between the game's storage and the player's
 // computer.
 type transfers interface {
@@ -53,7 +61,7 @@ type Application struct {
 	game    *game.Game
 	res     *resources
 	desk    *desktop
-	files   platform.Files
+	files   storage
 	args    []string // the command line's arguments, as the original's ParamStr
 	lastDir string   // the file dialogs' folder: the last file chosen's
 
@@ -98,7 +106,7 @@ var ErrQuit = ebiten.Termination
 // NewApplication makes the user interface for a new run of the game, at its loading
 // screen. args are the command line's arguments: a save file among them
 // is loaded instead of showing the start screen.
-func NewApplication(data *gamedata.Data, files platform.Files, args []string) (*Application, error) {
+func NewApplication(data *gamedata.Data, files storage, args []string) (*Application, error) {
 	res, err := loadResources()
 	if err != nil {
 		return nil, err

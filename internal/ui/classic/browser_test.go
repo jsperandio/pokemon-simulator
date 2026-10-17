@@ -8,13 +8,11 @@ import (
 	"image"
 	"testing"
 	"testing/fstest"
-
-	"github.com/jsperandio/pokemon-simulator/internal/platform"
 )
 
 // fakeTransfers stands in for the browser's file picker and downloads.
 type fakeTransfers struct {
-	files      platform.Files
+	files      writer
 	pick       map[string]string // what the player picks: name → content
 	uploadedTo string
 	downloads  map[string]string

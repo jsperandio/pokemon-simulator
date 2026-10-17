@@ -42,7 +42,7 @@ func newTestApp(t *testing.T) *testApp {
 func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	t.Helper()
 
-	app, err := NewApplication(testData(t), platform.Disk(dir), args)
+	app, err := NewApplication(testData(t), platform.NewDisk(dir), args)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -435,7 +435,7 @@ func TestCatchSaveLoad(t *testing.T) {
 	}
 
 	tb := newTestApp(t)
-	tb.files = platform.Disk(ta.dir)
+	tb.files = platform.NewDisk(ta.dir)
 	tb.wait(80)
 	tb.clickOn(tb.start.wdw, "LoadButton")
 	tb.wait(1)

@@ -34,7 +34,7 @@ func main() {
 		fail(err)
 	}
 
-	app, err := classic.NewApplication(data, platform.Default(), platform.Args())
+	app, err := classic.NewApplication(data, platform.DefaultStorageProvider(), platform.Args())
 	if err != nil {
 		fail(err)
 	}

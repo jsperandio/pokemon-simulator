@@ -18,13 +18,13 @@ type disk struct {
 	home string
 }
 
-// Default returns the platform's storage: here, the disk.
-func Default() Files {
+// DefaultStorageProvider returns the platform's storage: here, the disk.
+func DefaultStorageProvider() disk {
 	return disk{}
 }
 
-// Disk returns the disk with the dialogs starting in home.
-func Disk(home string) Files {
+// NewDisk returns the disk with the dialogs starting in home.
+func NewDisk(home string) disk {
 	return disk{
 		home,
 	}
@@ -49,7 +49,7 @@ func (d disk) Home() string {
 	return string(filepath.Separator)
 }
 
-func (disk) Roots() []string {
+func (d disk) Roots() []string {
 	if runtime.GOOS != "windows" {
 		return []string{"/"}
 	}
@@ -66,7 +66,7 @@ func (disk) Roots() []string {
 	return out
 }
 
-func (disk) List(dir string) ([]Entry, error) {
+func (d disk) List(dir string) ([]Entry, error) {
 	des, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func (disk) List(dir string) ([]Entry, error) {
 	return out, nil
 }
 
-func (disk) Stat(path string) (Entry, error) {
+func (d disk) Stat(path string) (Entry, error) {
 	st, err := os.Stat(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return Entry{}, ErrNotExist
@@ -115,31 +115,27 @@ func (disk) Stat(path string) (Entry, error) {
 	}, nil
 }
 
-func (disk) ReadFile(path string) ([]byte, error) {
+func (d disk) ReadFile(path string) ([]byte, error) {
 	return os.ReadFile(path) //nolint:gosec // the file the player chose
 }
 
-func (disk) WriteFile(path string, data []byte) error {
+func (d disk) WriteFile(path string, data []byte) error {
 	return os.WriteFile(path, data, 0o600)
 }
 
-func (disk) Mkdir(path string) error {
-	return os.Mkdir(path, 0o750)
-}
-
-func (disk) Join(dir, name string) string {
+func (d disk) Join(dir, name string) string {
 	return filepath.Join(dir, name)
 }
 
-func (disk) Dir(path string) string {
+func (d disk) Dir(path string) string {
 	return filepath.Dir(path)
 }
 
-func (disk) Base(path string) string {
+func (d disk) Base(path string) string {
 	return filepath.Base(path)
 }
 
-func (disk) IsAbs(path string) bool {
+func (d disk) IsAbs(path string) bool {
 	return filepath.IsAbs(path)
 }
 
@@ -187,7 +183,7 @@ func Args() []string {
 const Transfers bool = false
 
 // Upload does nothing on the disk; see Transfers.
-func Upload(Files, string) <-chan []string {
+func Upload(writer, string) <-chan []string {
 	return nil
 }
 
