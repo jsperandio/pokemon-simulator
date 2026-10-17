@@ -113,16 +113,16 @@ func TestSpinIncrement(t *testing.T) {
 	ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
 	ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
 
-	if ta.game.Corner.Bet != 100 {
-		t.Errorf("bet %d after two clicks up, want 100", ta.game.Corner.Bet)
+	if ta.game.GameCorner.Bet != 100 {
+		t.Errorf("bet %d after two clicks up, want 100", ta.game.GameCorner.Bet)
 	}
 
 	ta.click(widgetOrigin(se).Add(down.Min).Add(down.Size().Div(2)))
 	ta.key(ebiten.KeyUp)
 	ta.key(ebiten.KeyUp)
 
-	if ta.game.Corner.Bet != 150 || se.tb.String() != "150" {
-		t.Errorf("bet %d, text %q, want 150", ta.game.Corner.Bet, se.tb.String())
+	if ta.game.GameCorner.Bet != 150 || se.tb.String() != "150" {
+		t.Errorf("bet %d, text %q, want 150", ta.game.GameCorner.Bet, se.tb.String())
 	}
 }
 
@@ -213,8 +213,8 @@ func TestCornerDraws(t *testing.T) {
 
 	ta.wait(1)
 
-	if gcf.drawn.index != ta.game.Corner.Drawn {
-		t.Errorf("%d shows, the game drew %d", gcf.drawn.index, ta.game.Corner.Drawn)
+	if gcf.drawn.index != ta.game.GameCorner.Drawn {
+		t.Errorf("%d shows, the game drew %d", gcf.drawn.index, ta.game.GameCorner.Drawn)
 	}
 }
 
@@ -254,7 +254,7 @@ func TestDexFits(t *testing.T) {
 		Level:   5,
 		XP:      125,
 	}
-	sav.InDex[4] = true
+	sav.InPokedex[4] = true
 	dir := t.TempDir()
 	file := filepath.Join(dir, "dex.pgs")
 

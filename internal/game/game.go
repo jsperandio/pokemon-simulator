@@ -88,15 +88,15 @@ type Game struct {
 	// the one loaded.
 	SaveFile string
 
-	Menu   []*MenuItem // the game window's main menu
-	Start  StartScreen
-	Main   MainWindow
-	Stats  StatsWindow
-	Info   InfoWindow
-	Dex    DexWindow
-	Mart   MartWindow
-	Types  TypesWindow
-	Corner CornerWindow
+	Menu       []*MenuItem // the game window's main menu
+	Start      StartScreen
+	Main       MainWindow
+	Stats      StatsWindow
+	Info       InfoWindow
+	Pokedex    PokedexWindow
+	Pokemart   PokemartWindow
+	Types      TypesWindow
+	GameCorner GameCornerWindow
 
 	menu map[string]*MenuItem // Menu by item name
 }
@@ -106,13 +106,13 @@ type Window int
 
 // The windows the game shows.
 const (
-	MainForm   Window = iota // the game window (Form4)
-	StatsForm                // Statistics (Form5)
-	InfoForm                 // Battle Info (Form7)
-	DexForm                  // the POKéDEX (Form8)
-	MartForm                 // the Mart (Form9)
-	TypesForm                // Type Comparisons (FormA)
-	CornerForm               // the Game Corner (FormB)
+	MainForm       Window = iota // the game window (Form4)
+	StatsForm                    // Statistics (Form5)
+	InfoForm                     // Battle Info (Form7)
+	PokedexForm                  // the POKéDEX (Form8)
+	PokemartForm                 // the Mart (Form9)
+	TypesForm                    // Type Comparisons (FormA)
+	GameCornerForm               // the Game Corner (FormB)
 )
 
 // show tells the user interface that the original shows window w here.
@@ -242,10 +242,10 @@ func New(data *gamedata.Data, ui UI) *Game {
 
 	gam.Info.Lines = []string{""} // Memo1's design-time text
 
-	gam.Dex.Index = -1
-	gam.Mart.Item = -1
+	gam.Pokedex.Index = -1
+	gam.Pokemart.Item = -1
 	gam.Types.Species, gam.Types.Attack = -1, -1
-	gam.Corner.Prize, gam.Corner.Number, gam.Corner.Drawn = -1, -1, -1
+	gam.GameCorner.Prize, gam.GameCorner.Number, gam.GameCorner.Drawn = -1, -1, -1
 	gam.buildMenu()
 
 	return gam

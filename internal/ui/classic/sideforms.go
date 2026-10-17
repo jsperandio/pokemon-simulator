@@ -141,7 +141,7 @@ func (stf *statsForm) freshen() {
 		stf.counts["Percent"].setCaption(pct)
 	}
 
-	stf.counts["OwnedPKMNLbl"].setCaption(strconv.Itoa(gam.DexCount()))
+	stf.counts["OwnedPKMNLbl"].setCaption(strconv.Itoa(gam.PokedexCount()))
 
 	if stf.wantsFocusBack() {
 		stf.app.desk.activate(stf.app.main.wdw)
@@ -201,10 +201,10 @@ func newPokedexForm(app *Application) *pokedexForm {
 	pf.combo.items = app.pokedexItems() // FormShow
 	pf.wdw.onShow = pf.combo.reselect
 	pf.combo.onSelect = func(i int) {
-		app.game.SelectDex(i)
+		app.game.SelectPokedex(i)
 	}
 	get[*button](pf.wdw, "Button1").onClick = func() {
-		app.game.CloseDex()
+		app.game.ClosePokedex()
 	}
 	app.desk.add(pf.wdw)
 
@@ -215,13 +215,13 @@ func newPokedexForm(app *Application) *pokedexForm {
 // always; the attacks once the species is registered.
 func (pf *pokedexForm) sync() {
 	gam := pf.app.game
-	pf.combo.setIndex(gam.Dex.Index)
+	pf.combo.setIndex(gam.Pokedex.Index)
 
-	if gam.Dex.Index < 0 {
+	if gam.Pokedex.Index < 0 {
 		return
 	}
 
-	sid := gam.Dex.Index + 1
+	sid := gam.Pokedex.Index + 1
 	sp := gam.Data.SpeciesByID(sid)
 	wdw := pf.wdw
 	l2, l3 := get[*label](wdw, "Label2"), get[*label](wdw, "Label3")
@@ -238,7 +238,7 @@ func (pf *pokedexForm) sync() {
 	pf.image.setItems([]listItem{{"", sid - 1}})
 	get[*label](wdw, "Label1").setCaption(pf.combo.items[sid-1])
 
-	shown := gam.DexMovesShown(sid)
+	shown := gam.PokedexMovesShown(sid)
 
 	for i, nam := range []string{"Label6", "Label10", "Label11", "Label12"} {
 		name, typ := "???", "???"
@@ -280,20 +280,20 @@ func newPokemartForm(app *Application) *pokemartForm {
 	pmf.total = get[*edit](pmf.wdw, "Edit1")
 	gam := app.game
 	pmf.spin.onChangeValue = func(val int) {
-		gam.SetMartQuantity(val)
+		gam.SetPokemartQuantity(val)
 	}
 	pmf.radio.onClick = func() {
-		gam.SelectMartItem(pmf.radio.index)
+		gam.SelectPokemartItem(pmf.radio.index)
 	}
 	pmf.buy.onClick = func() {
 		app.call(gam.Buy)
 	}
 	get[*button](pmf.wdw, "Button2").onClick = func() {
-		gam.LeaveMart()
+		gam.LeavePokemart()
 	}
 
 	pmf.wdw.onShow = func() {
-		pmf.spin.tb.set(strconv.Itoa(gam.Mart.Quantity)) // FormShow, before the focus comes in
+		pmf.spin.tb.set(strconv.Itoa(gam.Pokemart.Quantity)) // FormShow, before the focus comes in
 	}
 	app.desk.add(pmf.wdw)
 
@@ -302,11 +302,11 @@ func newPokemartForm(app *Application) *pokemartForm {
 
 func (pmf *pokemartForm) sync() {
 	gam := pmf.app.game
-	pmf.radio.setIndex(gam.Mart.Item)
-	pmf.total.tb.set(gam.Mart.Total)
-	pmf.buy.setEnabled(gam.Mart.BuyEnabled)
+	pmf.radio.setIndex(gam.Pokemart.Item)
+	pmf.total.tb.set(gam.Pokemart.Total)
+	pmf.buy.setEnabled(gam.Pokemart.BuyEnabled)
 
-	fst, snd := gam.MartDescription()
+	fst, snd := gam.PokemartDescription()
 	get[*label](pmf.wdw, "Label2").setCaption(fst)
 	get[*label](pmf.wdw, "Label3").setCaption(snd)
 }
@@ -418,12 +418,12 @@ func newGameCornerForm(app *Application) *gameCornerForm {
 		app.call(gam.Draw)
 	}
 	get[*button](gcf.wdw, "Button2").onClick = func() {
-		gam.CloseCorner()
+		gam.CloseGameCorner()
 	}
 
 	gcf.wdw.onShow = func() { // FormShow, before the focus comes in and selects the bet
-		gcf.bet.maxValue = gam.Corner.MaxBet
-		gcf.bet.tb.set(strconv.Itoa(gam.Corner.Bet))
+		gcf.bet.maxValue = gam.GameCorner.MaxBet
+		gcf.bet.tb.set(strconv.Itoa(gam.GameCorner.Bet))
 	}
 	app.desk.add(gcf.wdw)
 
@@ -432,9 +432,9 @@ func newGameCornerForm(app *Application) *gameCornerForm {
 
 func (gcf *gameCornerForm) sync() {
 	gam := gcf.app.game
-	gcf.prize.setIndex(gam.Corner.Prize)
-	gcf.number.setIndex(gam.Corner.Number)
-	gcf.drawn.setIndex(gam.Corner.Drawn)
+	gcf.prize.setIndex(gam.GameCorner.Prize)
+	gcf.number.setIndex(gam.GameCorner.Number)
+	gcf.drawn.setIndex(gam.GameCorner.Drawn)
 }
 
 // drawTime is how long a play's draws show. The original repainted the

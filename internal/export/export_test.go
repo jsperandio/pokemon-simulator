@@ -27,9 +27,9 @@ func TestPage(t *testing.T) {
 			{Entry{150, "Mewtwo"}, 100, 1000000},
 			{Entry{252, "Treecko"}, 50, 130000},
 		},
-		Dex:      []Entry{{1, "Bulbasaur"}, {7, "Squirtle"}, {150, "Mewtwo"}, {252, "Treecko"}},
-		DexCount: 3,
-		Date:     time.Date(2026, 10, 11, 17, 32, 51, 0, time.Local),
+		Pokedex:      []Entry{{1, "Bulbasaur"}, {7, "Squirtle"}, {150, "Mewtwo"}, {252, "Treecko"}},
+		PokedexCount: 3,
+		Date:         time.Date(2026, 10, 11, 17, 32, 51, 0, time.Local),
 	})
 	if bytes.Equal(got, want) {
 		return

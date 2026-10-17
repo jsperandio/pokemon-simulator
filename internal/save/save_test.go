@@ -69,8 +69,8 @@ func TestFields(t *testing.T) {
 		t.Errorf("new game: %d POKéBalls and %d¥, want 3 and 0", f.PokeBalls, f.Money)
 	}
 
-	if !f.InDex[4] || f.InDex[1] {
-		t.Errorf("new game: POKéDEX has Charmander %t and Bulbasaur %t, want true and false", f.InDex[4], f.InDex[1])
+	if !f.InPokedex[4] || f.InPokedex[1] {
+		t.Errorf("new game: POKéDEX has Charmander %t and Bulbasaur %t, want true and false", f.InPokedex[4], f.InPokedex[1])
 	}
 
 	if p := f.Party(); len(p) != 1 || p[0] != (Slot{Species: 4, Level: 5, XP: 125}) {

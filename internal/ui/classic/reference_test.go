@@ -203,7 +203,7 @@ func shootMenus(t *testing.T) {
 		Level:   5,
 		XP:      125,
 	}
-	sav.InDex[25] = true
+	sav.InPokedex[25] = true
 	dir := t.TempDir()
 	file := filepath.Join(dir, "probe-screens-menus.pgs")
 

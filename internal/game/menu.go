@@ -46,17 +46,17 @@ func (g *Game) ClickMenu(name string) bool {
 	case "Mewtwo1":
 		g.StartWildBattle(150, 100)
 	case "Buy1":
-		g.OpenMart()
+		g.OpenPokemart()
 	case "Evolve1":
 		g.toggleEvolveMode()
 	case "ReleasePKMN1":
 		g.toggleReleaseMode()
 	case "ViewDEX1":
-		g.OpenDex()
+		g.OpenPokedex()
 	case "TypeComparisons1":
 		g.OpenTypes()
 	case "GameCorner1":
-		g.OpenCorner()
+		g.OpenGameCorner()
 	case "RepeatMusic1", "AlwaysshowattacksinPOKDEX1":
 		m := g.menu[name]
 		m.Checked = !m.Checked

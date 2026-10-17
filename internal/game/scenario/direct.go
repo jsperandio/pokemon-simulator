@@ -67,12 +67,12 @@ func (d *Direct) Click(path string) error {
 		"Form4.Button3":      gam.PickCancel,
 		"Form4.Button4":      gam.PickRandom,
 		"Form4.EvolveButton": gam.Evolve,
-		"Form8.Button1":      gam.CloseDex,
+		"Form8.Button1":      gam.ClosePokedex,
 		"Form9.Button1":      gam.Buy,
-		"Form9.Button2":      gam.LeaveMart,
+		"Form9.Button2":      gam.LeavePokemart,
 		"FormA.Button1":      gam.CloseTypes,
 		"FormB.Button1":      gam.Draw,
-		"FormB.Button2":      gam.CloseCorner,
+		"FormB.Button2":      gam.CloseGameCorner,
 	}[path]
 
 	if press == nil {
@@ -91,7 +91,7 @@ func (d *Direct) Radio(path string, idx int) error {
 	case "Form4.EvolveChoice":
 		g.ChooseEvolution(idx)
 	case "Form9.RadioGroup1":
-		g.SelectMartItem(idx)
+		g.SelectPokemartItem(idx)
 	case "FormB.RadioGroup1":
 		g.SelectPrize(idx)
 	case "FormB.RadioGroup2":
@@ -110,7 +110,7 @@ func (d *Direct) Combo(path string, i int) error {
 	case "Form4.ComboBox1":
 		g.PickSpecies(i)
 	case "Form8.ComboBox1":
-		g.SelectDex(i)
+		g.SelectPokedex(i)
 	case "FormA.ComboBox1":
 		g.SelectTypes(i, g.Types.Attack)
 	case "FormA.ComboBox2":
@@ -129,7 +129,7 @@ func (d *Direct) Type(path string, n int) error {
 	case "Form4.SpinEdit1":
 		g.PickLevel(n)
 	case "Form9.SpinEdit1":
-		g.SetMartQuantity(n)
+		g.SetPokemartQuantity(n)
 	case "FormB.SpinEdit1":
 		g.SetBet(n)
 	default:
@@ -144,7 +144,7 @@ func (d *Direct) Text(path string) (string, error) {
 	case "Form4":
 		return d.game.Main.Caption, nil
 	case "Form9.Edit1":
-		return d.game.Mart.Total, nil
+		return d.game.Pokemart.Total, nil
 	}
 
 	return "", fmt.Errorf("no text for %s", path)

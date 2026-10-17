@@ -57,7 +57,7 @@ func (g *Game) StartWildBattle(species, level int) {
 	win.Attacks = false
 	win.EnemyMoves = win.Enemy
 	g.EnemySpecies = species
-	win.Pokeball = g.InDex[species]
+	win.Pokeball = g.InPokedex[species]
 }
 
 // ClickParty is a double click on party member k (0-based) in the
@@ -352,11 +352,11 @@ func (g *Game) victory() {
 		money *= 4
 	}
 
-	if gp > 11 && !g.InDex[150] {
+	if gp > 11 && !g.InPokedex[150] {
 		money *= 6
 	}
 
-	if g.InDex[150] {
+	if g.InPokedex[150] {
 		money *= 8
 	}
 

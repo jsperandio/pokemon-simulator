@@ -71,7 +71,7 @@ func (g *Game) FindPKMN() {
 
 	// Each rule that applies draws a level; the last one counts.
 	level := g.Rand.Random(30) + 71
-	if !g.InDex[150] {
+	if !g.InPokedex[150] {
 		level = g.Rand.Random(30) + 61
 	}
 

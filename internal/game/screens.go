@@ -11,41 +11,41 @@ import (
 // The side screens (notes/side-screens.md): POKéDEX, Type Comparisons,
 // the Mart, the Game Corner, and the Statistics window's figures.
 
-// DexWindow is the POKéDEX (Form8).
-type DexWindow struct {
+// PokedexWindow is the POKéDEX (Form8).
+type PokedexWindow struct {
 	Visible bool
 	Index   int // ComboBox1.ItemIndex: the species shown − 1, or -1
 }
 
-// OpenDex is Actions → View POKéDEX (it keeps its selection).
-func (g *Game) OpenDex() {
-	g.Dex.Visible = true
-	g.show(DexForm)
+// OpenPokedex is Actions → View POKéDEX (it keeps its selection).
+func (g *Game) OpenPokedex() {
+	g.Pokedex.Visible = true
+	g.show(PokedexForm)
 }
 
-// ShowDex opens the POKéDEX on species k+1, as a new species does.
-func (g *Game) ShowDex(k int) {
-	g.Dex.Visible = true
-	g.show(DexForm)
-	g.SelectDex(k)
+// ShowPokedex opens the POKéDEX on species k+1, as a new species does.
+func (g *Game) ShowPokedex(k int) {
+	g.Pokedex.Visible = true
+	g.show(PokedexForm)
+	g.SelectPokedex(k)
 }
 
-// SelectDex shows species k+1 (ComboBox1's OnChange).
-func (g *Game) SelectDex(k int) {
+// SelectPokedex shows species k+1 (ComboBox1's OnChange).
+func (g *Game) SelectPokedex(k int) {
 	if k >= -1 && k < len(g.Data.Species) {
-		g.Dex.Index = k
+		g.Pokedex.Index = k
 	}
 }
 
-// CloseDex is "Close POKéDEX".
-func (g *Game) CloseDex() {
-	g.Dex.Visible = false
+// ClosePokedex is "Close POKéDEX".
+func (g *Game) ClosePokedex() {
+	g.Pokedex.Visible = false
 }
 
-// DexMovesShown reports whether the POKéDEX shows species s's attacks:
+// PokedexMovesShown reports whether the POKéDEX shows species s's attacks:
 // once it is registered, or always with the Debug option.
-func (g *Game) DexMovesShown(s int) bool {
-	registered := s >= 1 && s < len(g.InDex) && g.InDex[s]
+func (g *Game) PokedexMovesShown(s int) bool {
+	registered := s >= 1 && s < len(g.InPokedex) && g.InPokedex[s]
 
 	return registered || g.menu["AlwaysshowattacksinPOKDEX1"].Checked
 }
@@ -95,21 +95,21 @@ func (g *Game) CloseTypes() {
 	g.Types.Visible = false
 }
 
-// MartWindow is the POKéMON Mart (Form9).
-type MartWindow struct {
+// PokemartWindow is the POKéMON Mart (Form9).
+type PokemartWindow struct {
 	Visible    bool
-	Item       int // RadioGroup1.ItemIndex: MartPrices' index, or -1
+	Item       int // RadioGroup1.ItemIndex: PokemartPrices' index, or -1
 	Quantity   int // SpinEdit1.Value
 	Total      string
 	BuyEnabled bool
 }
 
-// MartPrices are the Mart's items' prices: POKéBalls, Great Balls, Ultra
+// PokemartPrices are the Mart's items' prices: POKéBalls, Great Balls, Ultra
 // Balls, Potions, Super Potions.
-var MartPrices = [5]uint32{1000, 3000, 6000, 2000, 5000}
+var PokemartPrices = [5]uint32{1000, 3000, 6000, 2000, 5000}
 
-// martItems are the items MartPrices prices; the Mart has no Master Ball.
-var martItems = [5]int{
+// pokemartItems are the items PokemartPrices prices; the Mart has no Master Ball.
+var pokemartItems = [5]int{
 	PokeBall,
 	GreatBall,
 	UltraBall,
@@ -117,51 +117,51 @@ var martItems = [5]int{
 	SuperPotion,
 }
 
-// OpenMart is Actions → Buy Items.
-func (g *Game) OpenMart() {
-	g.Mart = MartWindow{
+// OpenPokemart is Actions → Buy Items.
+func (g *Game) OpenPokemart() {
+	g.Pokemart = PokemartWindow{
 		Visible: true,
 		Item:    -1,
 		Total:   "0¥",
 	}
-	g.show(MartForm)
+	g.show(PokemartForm)
 }
 
-// martTotal is the price of the order, wrapping at 2³² as the original's
+// pokemartTotal is the price of the order, wrapping at 2³² as the original's
 // Cardinal arithmetic does.
-func (g *Game) martTotal() uint32 {
-	if g.Mart.Item < 0 {
+func (g *Game) pokemartTotal() uint32 {
+	if g.Pokemart.Item < 0 {
 		return 0
 	}
 
-	return uint32(g.Mart.Quantity) * MartPrices[g.Mart.Item] //nolint:gosec // the original's Cardinal arithmetic
+	return uint32(g.Pokemart.Quantity) * PokemartPrices[g.Pokemart.Item] //nolint:gosec // the original's Cardinal arithmetic
 }
 
-// SelectMartItem is a click on item k (TForm9.RadioGroup1Click).
-func (g *Game) SelectMartItem(k int) {
-	if k < 0 || k >= len(MartPrices) {
+// SelectPokemartItem is a click on item k (TForm9.RadioGroup1Click).
+func (g *Game) SelectPokemartItem(k int) {
+	if k < 0 || k >= len(PokemartPrices) {
 		return
 	}
 
-	g.Mart.Item = k
-	g.updateMart()
+	g.Pokemart.Item = k
+	g.updatePokemart()
 }
 
-// SetMartQuantity is typing a quantity (TForm9.SpinEdit1Change).
-func (g *Game) SetMartQuantity(n int) {
-	g.Mart.Quantity = n
-	g.updateMart()
+// SetPokemartQuantity is typing a quantity (TForm9.SpinEdit1Change).
+func (g *Game) SetPokemartQuantity(n int) {
+	g.Pokemart.Quantity = n
+	g.updatePokemart()
 }
 
-func (g *Game) updateMart() {
-	t := g.martTotal()
-	g.Mart.Total = strconv.FormatUint(uint64(t), 10) + "¥"
-	g.Mart.BuyEnabled = t != 0 && t <= g.Money
+func (g *Game) updatePokemart() {
+	t := g.pokemartTotal()
+	g.Pokemart.Total = strconv.FormatUint(uint64(t), 10) + "¥"
+	g.Pokemart.BuyEnabled = t != 0 && t <= g.Money
 }
 
-// MartDescription is the selected item's two lines of description.
-func (g *Game) MartDescription() (line1, line2 string) {
-	switch g.Mart.Item {
+// PokemartDescription is the selected item's two lines of description.
+func (g *Game) PokemartDescription() (line1, line2 string) {
+	switch g.Pokemart.Item {
 	case 0:
 		return "A standard POKéBALL.", "Used for catching POKéMON."
 	case 1:
@@ -179,34 +179,34 @@ func (g *Game) MartDescription() (line1, line2 string) {
 
 // Buy is the Mart's "Buy" (TForm9.Button1Click).
 func (g *Game) Buy() {
-	if !g.Mart.Visible || !g.Mart.BuyEnabled || g.Mart.Item < 0 {
+	if !g.Pokemart.Visible || !g.Pokemart.BuyEnabled || g.Pokemart.Item < 0 {
 		return
 	}
 
-	t := g.martTotal()
+	t := g.pokemartTotal()
 	g.Money -= t
-	*g.counter(martItems[g.Mart.Item]) += t / MartPrices[g.Mart.Item]
-	g.Mart.Visible = false
+	*g.counter(pokemartItems[g.Pokemart.Item]) += t / PokemartPrices[g.Pokemart.Item]
+	g.Pokemart.Visible = false
 }
 
-// LeaveMart is the Mart's "Leave".
-func (g *Game) LeaveMart() {
-	g.Mart.Visible = false
+// LeavePokemart is the Mart's "Leave".
+func (g *Game) LeavePokemart() {
+	g.Pokemart.Visible = false
 }
 
-// CornerWindow is the Game Corner (FormB).
-type CornerWindow struct {
+// GameCornerWindow is the Game Corner (FormB).
+type GameCornerWindow struct {
 	Visible bool
-	Prize   int // RadioGroup1.ItemIndex: CornerPrizes' index, or -1
+	Prize   int // RadioGroup1.ItemIndex: GameCornerPrizes' index, or -1
 	Number  int // RadioGroup2.ItemIndex: the number bet on, or -1
 	Drawn   int // RadioGroup3.ItemIndex: the number drawn, or -1
 	Bet     int // SpinEdit1.Value
 	MaxBet  int // SpinEdit1.MaxValue: the money when the window opened
 }
 
-// CornerPrizes are what the Game Corner pays in, after money: each item's
+// GameCornerPrizes are what the Game Corner pays in, after money: each item's
 // price there and its name.
-var CornerPrizes = [6]struct {
+var GameCornerPrizes = [6]struct {
 	Price uint32
 	Name  string
 }{
@@ -218,38 +218,38 @@ var CornerPrizes = [6]struct {
 	{500, "Super Potion"},
 }
 
-// OpenCorner is Actions → Game Corner.
-func (g *Game) OpenCorner() {
-	g.Corner.Visible = true
-	g.Corner.Bet = 0
-	g.Corner.Prize = -1
-	g.Corner.MaxBet = int(g.Money)
-	g.show(CornerForm)
+// OpenGameCorner is Actions → Game Corner.
+func (g *Game) OpenGameCorner() {
+	g.GameCorner.Visible = true
+	g.GameCorner.Bet = 0
+	g.GameCorner.Prize = -1
+	g.GameCorner.MaxBet = int(g.Money)
+	g.show(GameCornerForm)
 }
 
-// SelectPrize selects what to play for (0 money, then CornerPrizes).
+// SelectPrize selects what to play for (0 money, then GameCornerPrizes).
 func (g *Game) SelectPrize(k int) {
-	if k >= 0 && k <= len(CornerPrizes) {
-		g.Corner.Prize = k
+	if k >= 0 && k <= len(GameCornerPrizes) {
+		g.GameCorner.Prize = k
 	}
 }
 
 // SelectNumber selects the number to bet on.
 func (g *Game) SelectNumber(n int) {
 	if n >= 0 && n <= 9 {
-		g.Corner.Number = n
+		g.GameCorner.Number = n
 	}
 }
 
 // SetBet is typing the bet.
 func (g *Game) SetBet(n int) {
-	g.Corner.Bet = n
+	g.GameCorner.Bet = n
 }
 
 // Draw is "Draw number!" (TFormB.Button1Click): one number in ten wins ten
 // times the bet, in money or in items.
 func (g *Game) Draw() {
-	gcw := &g.Corner
+	gcw := &g.GameCorner
 
 	if !gcw.Visible {
 		return
@@ -307,13 +307,13 @@ func (g *Game) Draw() {
 // returns the money that goes with them and the message that announces
 // the prize.
 func (g *Game) payOut(bet uint32) (won uint32, msg string) {
-	if g.Corner.Prize == 0 { // "Money (Pays out 10:1¥)"
+	if g.GameCorner.Prize == 0 { // "Money (Pays out 10:1¥)"
 		won = bet * 10
 
 		return won, strconv.FormatUint(uint64(won), 10) + "¥!"
 	}
 
-	p := CornerPrizes[g.Corner.Prize-1]
+	p := GameCornerPrizes[g.GameCorner.Prize-1]
 	n := bet / p.Price
 	won = bet % p.Price * 10
 	msg = strconv.FormatUint(uint64(n), 10) + " " + p.Name
@@ -327,14 +327,14 @@ func (g *Game) payOut(bet uint32) (won uint32, msg string) {
 	}
 
 	msg += "!"
-	*g.counter(g.Corner.Prize - 1) += n
+	*g.counter(g.GameCorner.Prize - 1) += n
 
 	return won, msg
 }
 
-// CloseCorner is the Game Corner's "Close".
-func (g *Game) CloseCorner() {
-	g.Corner.Visible = false
+// CloseGameCorner is the Game Corner's "Close".
+func (g *Game) CloseGameCorner() {
+	g.GameCorner.Visible = false
 }
 
 // WinPercent is the Statistics window's win percentage, truncated to two
@@ -354,13 +354,13 @@ func (g *Game) WinPercent() (percent string, ok bool) {
 	return delphi.FloatToStr(x.Quo(delphi.NewExtended(100)).Float64()), true
 }
 
-// DexCount is the Statistics window's "In POKéDEX" figure, which counts
+// PokedexCount is the Statistics window's "In POKéDEX" figure, which counts
 // species 1–251 only.
-func (g *Game) DexCount() int {
+func (g *Game) PokedexCount() int {
 	n := 0
 
 	for s := 1; s <= 251; s++ {
-		if g.InDex[s] {
+		if g.InPokedex[s] {
 			n++
 		}
 	}

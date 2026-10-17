@@ -98,11 +98,11 @@ func TestTypeMultipliers(t *testing.T) {
 func TestDexCount(t *testing.T) {
 	g, _ := newGame(t)
 	for _, s := range []int{1, 150, 251, 252, 386} {
-		g.InDex[s] = true
+		g.InPokedex[s] = true
 	}
 
-	if n := g.DexCount(); n != 3 {
-		t.Errorf("DexCount = %d, want 3", n)
+	if n := g.PokedexCount(); n != 3 {
+		t.Errorf("PokedexCount = %d, want 3", n)
 	}
 }
 
@@ -263,7 +263,7 @@ func TestExportPage(t *testing.T) {
 	f.Owned[2] = save.Slot{Species: 252, Level: 50, XP: 130000}
 
 	for _, s := range []int{1, 7, 150, 252} {
-		f.InDex[s] = true
+		f.InPokedex[s] = true
 	}
 
 	if err := g.Load(`C:\Temp\probe-export.pgs`, f.Bytes()); err != nil {
@@ -383,9 +383,9 @@ func TestShowOrder(t *testing.T) {
 	g.NewGame("ash.pgs", "Ash")
 	check("NewGame", MainForm)
 	g.ChooseStarter(0)
-	check("ChooseStarter", DexForm, StatsForm, MainForm)
+	check("ChooseStarter", PokedexForm, StatsForm, MainForm)
 	g.StartWildBattle(25, 7)
 	check("StartWildBattle", InfoForm)
-	g.OpenDex()
-	check("OpenDex", DexForm)
+	g.OpenPokedex()
+	check("OpenPokedex", PokedexForm)
 }

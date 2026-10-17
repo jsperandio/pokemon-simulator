@@ -28,12 +28,12 @@ type Member struct {
 
 // Info is what the page shows.
 type Info struct {
-	Player string
-	Party  []Member
-	Dex    []Entry // the registered species, by number
-	// DexCount is the Statistics window's "In POKéDEX" figure, which
+	Player  string
+	Party   []Member
+	Pokedex []Entry // the registered species, by number
+	// PokedexCount is the Statistics window's "In POKéDEX" figure, which
 	// counts species 1–251 only; the page copies it.
-	DexCount int
+	PokedexCount int
 	// Date is when the page was generated, printed as Windows' US English
 	// locale prints it (the original followed the system's).
 	Date time.Time
@@ -62,9 +62,9 @@ func Page(info Info) []byte {
 			rowColor(i), i+1, m.Number, m.Name, m.Level, m.XP, toNext))
 	}
 
-	line(fmt.Sprintf("</table><p><table border><tr><td><b>In POKéDEX (%d/386)</b></td></tr>", info.DexCount))
+	line(fmt.Sprintf("</table><p><table border><tr><td><b>In POKéDEX (%d/386)</b></td></tr>", info.PokedexCount))
 
-	for i, e := range info.Dex {
+	for i, e := range info.Pokedex {
 		line(fmt.Sprintf("<tr bgcolor=%s><td># %03d %s", rowColor(i), e.Number, e.Name))
 	}
 

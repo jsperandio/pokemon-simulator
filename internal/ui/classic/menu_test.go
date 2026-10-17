@@ -42,7 +42,7 @@ func TestEveryMenuCommand(t *testing.T) {
 		Level:   100,
 		XP:      1000000,
 	}
-	sav.InDex[6], sav.InDex[150] = true, true
+	sav.InPokedex[6], sav.InPokedex[150] = true, true
 	dat := sav.Bytes()
 
 	var (

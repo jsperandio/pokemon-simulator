@@ -29,11 +29,11 @@ func (g *Game) AddPKMN(species int, name string, level uint8) {
 		i = len(g.Party()) + 1
 	}
 
-	if !g.InDex[species] {
+	if !g.InPokedex[species] {
 		g.log(name + " has been added to the POKéDEX!")
-		g.ShowDex(species - 1)
+		g.ShowPokedex(species - 1)
 
-		g.InDex[species] = true
+		g.InPokedex[species] = true
 	}
 
 	if i > len(g.Owned) {
@@ -164,7 +164,7 @@ func (g *Game) evolveNincada(slt *save.Slot, spc *gamedata.Species) {
 	}
 
 	slt.Species = 291
-	g.InDex[291] = true
+	g.InPokedex[291] = true
 	g.message(Information, g.name(290)+" evolved into "+g.name(291)+"!")
 
 	if g.Rand.Random(4) == 0 {
@@ -180,7 +180,7 @@ func (g *Game) evolveTo(m *save.Slot, spc *gamedata.Species) {
 	t := spc.EvolveTo
 	if g.confirm("Your " + spc.Name + " can evolve into " + g.name(t) + ". Do you want to evolve it?") {
 		m.Species = int32(t) //nolint:gosec // a species number
-		g.InDex[t] = true
+		g.InPokedex[t] = true
 		g.message(Information, spc.Name+" evolved into "+g.name(t)+"!")
 	}
 }
@@ -224,7 +224,7 @@ func (g *Game) Evolve() {
 		}
 
 		g.member(g.EvolveIndex).Species = int32(t)
-		g.InDex[t] = true
+		g.InPokedex[t] = true
 		g.message(Information, from+" evolved into "+g.name(t)+"!")
 	}
 

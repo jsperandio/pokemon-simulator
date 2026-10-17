@@ -407,7 +407,7 @@ func (p *Player) setupNumbers(cmd string, nums []int) error {
 		sav.BeatLance, sav.BeatAsh, sav.BeatLink, sav.GotJirachi, sav.GotDeoxys = nums[0] != 0, nums[1] != 0, nums[2] != 0, nums[3] != 0, nums[4] != 0
 	case "dex":
 		for _, species := range nums {
-			sav.InDex[species] = true
+			sav.InPokedex[species] = true
 		}
 	case "party":
 		return p.setupParty(nums)
@@ -437,7 +437,7 @@ func (p *Player) setupParty(nums []int) error {
 
 	s := &p.setup
 	s.Owned[len(s.Party())] = slt
-	s.InDex[nums[0]] = true
+	s.InPokedex[nums[0]] = true
 
 	return nil
 }
@@ -895,15 +895,15 @@ func (p *Player) click(path string) error {
 	case "Form4.EvolveButton":
 		shown = len(gam.Main.Choices) > 0
 	case "Form8.Button1":
-		shown = gam.Dex.Visible
+		shown = gam.Pokedex.Visible
 	case "Form9.Button1":
-		shown = gam.Mart.Visible && gam.Mart.BuyEnabled
+		shown = gam.Pokemart.Visible && gam.Pokemart.BuyEnabled
 	case "Form9.Button2":
-		shown = gam.Mart.Visible
+		shown = gam.Pokemart.Visible
 	case "FormA.Button1":
 		shown = gam.Types.Visible
 	case "FormB.Button1", "FormB.Button2":
-		shown = gam.Corner.Visible
+		shown = gam.GameCorner.Visible
 	default:
 		return fmt.Errorf("unknown button %s", path)
 	}
@@ -940,9 +940,9 @@ func (p *Player) radio(arg string) error {
 	case "Form4.EvolveChoice":
 		shown = len(g.Main.Choices) > 0
 	case "Form9.RadioGroup1":
-		shown = g.Mart.Visible
+		shown = g.Pokemart.Visible
 	case "FormB.RadioGroup1", "FormB.RadioGroup2":
-		shown = g.Corner.Visible
+		shown = g.GameCorner.Visible
 	}
 
 	if !shown {
@@ -969,7 +969,7 @@ func (p *Player) combo(arg string) error {
 	case "Form4.ComboBox1":
 		shown = g.Main.Picker
 	case "Form8.ComboBox1":
-		shown = g.Dex.Visible
+		shown = g.Pokedex.Visible
 	case "FormA.ComboBox1", "FormA.ComboBox2":
 		shown = g.Types.Visible
 	}
@@ -997,9 +997,9 @@ func (p *Player) typeText(arg string) error {
 	case "Form4.SpinEdit1":
 		shown = gam.Main.Picker
 	case "Form9.SpinEdit1":
-		shown = gam.Mart.Visible
+		shown = gam.Pokemart.Visible
 	case "FormB.SpinEdit1":
-		shown = gam.Corner.Visible
+		shown = gam.GameCorner.Visible
 	}
 
 	if !shown {
@@ -1053,15 +1053,15 @@ func (p *Player) state(string) error {
 
 	p.emit("state player badges=%d %s flags=%s", gam.GymProgress, strings.Join(counters, " "), strings.Join(flags, ","))
 
-	var dex []string
+	var registered []string
 
 	for s := 1; s <= save.NumSpecies; s++ {
-		if gam.InDex[s] {
-			dex = append(dex, strconv.Itoa(s))
+		if gam.InPokedex[s] {
+			registered = append(registered, strconv.Itoa(s))
 		}
 	}
 
-	p.emit("state dex %s", strings.Join(dex, ","))
+	p.emit("state dex %s", strings.Join(registered, ","))
 
 	party := make([]string, 0, len(gam.Party()))
 	for k, m := range gam.Party() {

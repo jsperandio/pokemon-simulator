@@ -28,7 +28,7 @@ func (g *Game) NewGame(file, name string) {
 	g.Main.Visible = true
 	g.show(MainForm)
 
-	g.InDex = [save.NumSpecies + 1]bool{}
+	g.InPokedex = [save.NumSpecies + 1]bool{}
 	g.Main.Starters = true
 	g.enable(false, "File1", "Action1")
 }
@@ -114,9 +114,9 @@ func (g *Game) Exported(file string) bool {
 // generated at now.
 func (g *Game) ExportPage(now time.Time) []byte {
 	info := export.Info{
-		Player:   g.Stats.Name,
-		DexCount: g.DexCount(),
-		Date:     now,
+		Player:       g.Stats.Name,
+		PokedexCount: g.PokedexCount(),
+		Date:         now,
 	}
 	for _, m := range g.Party() {
 		s := int(m.Species)
@@ -130,9 +130,9 @@ func (g *Game) ExportPage(now time.Time) []byte {
 		})
 	}
 
-	for s := 1; s < len(g.InDex); s++ {
-		if g.InDex[s] {
-			info.Dex = append(info.Dex, export.Entry{
+	for s := 1; s < len(g.InPokedex); s++ {
+		if g.InPokedex[s] {
+			info.Pokedex = append(info.Pokedex, export.Entry{
 				Number: s,
 				Name:   g.name(s),
 			})

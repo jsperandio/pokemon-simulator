@@ -316,13 +316,13 @@ func (app *Application) Message(kind game.DialogKind, yesNo bool, text string) b
 func (app *Application) show(gw game.Window) {
 	app.syncForms() // the controls as the game left them, before the focus comes in
 	app.desk.show(map[game.Window]*window{
-		game.MainForm:   app.main.wdw,
-		game.StatsForm:  app.stats.wdw,
-		game.InfoForm:   app.info.wdw,
-		game.DexForm:    app.pokedex.wdw,
-		game.MartForm:   app.pokemart.wdw,
-		game.TypesForm:  app.types.wdw,
-		game.CornerForm: app.gameCorner.wdw,
+		game.MainForm:       app.main.wdw,
+		game.StatsForm:      app.stats.wdw,
+		game.InfoForm:       app.info.wdw,
+		game.PokedexForm:    app.pokedex.wdw,
+		game.PokemartForm:   app.pokemart.wdw,
+		game.TypesForm:      app.types.wdw,
+		game.GameCornerForm: app.gameCorner.wdw,
 	}[gw])
 }
 
@@ -359,11 +359,11 @@ func (app *Application) sync() {
 		visible bool
 	}{
 		{app.info.wdw, gam.Info.Visible},
-		{app.pokedex.wdw, gam.Dex.Visible},
+		{app.pokedex.wdw, gam.Pokedex.Visible},
 		{app.stats.wdw, gam.Stats.Visible},
-		{app.pokemart.wdw, gam.Mart.Visible},
+		{app.pokemart.wdw, gam.Pokemart.Visible},
 		{app.types.wdw, gam.Types.Visible},
-		{app.gameCorner.wdw, gam.Corner.Visible},
+		{app.gameCorner.wdw, gam.GameCorner.Visible},
 		{app.main.wdw, gam.Main.Visible},
 	} {
 		switch {

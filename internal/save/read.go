@@ -33,13 +33,13 @@ func Read(b []byte) (*File, error) {
 		*c = uint32(rdr.number()) //nolint:gosec // the game keeps the low bits
 	}
 
-	dex := v1Species
+	pokedexSize := v1Species
 	if v2 {
-		dex = NumSpecies
+		pokedexSize = NumSpecies
 	}
 
-	for s := 1; s <= dex; s++ {
-		sav.InDex[s] = rdr.boolean()
+	for s := 1; s <= pokedexSize; s++ {
+		sav.InPokedex[s] = rdr.boolean()
 	}
 
 	for i := range sav.Owned {

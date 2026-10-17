@@ -37,8 +37,8 @@ type File struct {
 	Money, Wins, Losses, Fights, Catches                                  uint32
 	PokeBalls, GreatBalls, UltraBalls, MasterBalls, Potions, SuperPotions uint32
 
-	InDex [NumSpecies + 1]bool // InDex[s]: species s registered; [0] unused
-	Owned [Slots]Slot          // the party arrays, packed from slot 0; species 0 ends the party
+	InPokedex [NumSpecies + 1]bool // InPokedex[s]: species s registered; [0] unused
+	Owned     [Slots]Slot          // the party arrays, packed from slot 0; species 0 ends the party
 }
 
 // Slot is one entry of the party arrays.
@@ -95,7 +95,7 @@ func (f *File) Bytes() []byte {
 	}
 
 	for s := 1; s <= NumSpecies; s++ {
-		boolean(f.InDex[s])
+		boolean(f.InPokedex[s])
 	}
 
 	for _, s := range f.Owned {
