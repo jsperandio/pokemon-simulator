@@ -216,7 +216,7 @@ func format(name string, data []byte) string {
 		return "wav"
 	case bytes.HasPrefix(data, []byte("OggS")):
 		return "ogg"
-	case bytes.HasPrefix(data, []byte("ID3")), len(data) >= 2 && data[0] == 0xFF && data[1]&0xE0 == 0xE0:
+	case bytes.HasPrefix(data, []byte("ID3")), mpegFrame(data):
 		return "mp3"
 	}
 
@@ -230,4 +230,10 @@ func format(name string, data []byte) string {
 	}
 
 	return ""
+}
+
+// mpegFrame reports whether data starts with an MPEG audio frame: its
+// first 11 bits, the frame sync, are set.
+func mpegFrame(data []byte) bool {
+	return len(data) >= 2 && data[0] == 0xFF && data[1]&0xE0 == 0xE0
 }

@@ -277,7 +277,7 @@ func parseList(lines []string, i int) (b Block, next int) {
 			j++
 		}
 
-		if j == len(lines) || listMarker(lines[j]) == "" || isOrdered(listMarker(lines[j])) != ordered {
+		if j == len(lines) || !startsItem(lines[j], ordered) {
 			break
 		}
 
@@ -285,6 +285,14 @@ func parseList(lines []string, i int) (b Block, next int) {
 	}
 
 	return b, i
+}
+
+// startsItem reports whether line starts an item of a list that is
+// ordered, or not, as ordered says.
+func startsItem(line string, ordered bool) bool {
+	marker := listMarker(line)
+
+	return marker != "" && isOrdered(marker) == ordered
 }
 
 func isOrdered(marker string) bool {

@@ -45,7 +45,9 @@ func (g *Game) CloseDex() {
 // DexMovesShown reports whether the POKéDEX shows species s's attacks:
 // once it is registered, or always with the Debug option.
 func (g *Game) DexMovesShown(s int) bool {
-	return (s >= 1 && s < len(g.InDex) && g.InDex[s]) || g.menu["AlwaysshowattacksinPOKDEX1"].Checked
+	registered := s >= 1 && s < len(g.InDex) && g.InDex[s]
+
+	return registered || g.menu["AlwaysshowattacksinPOKDEX1"].Checked
 }
 
 // TypesWindow is Type Comparisons (FormA).
