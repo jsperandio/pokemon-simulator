@@ -14,18 +14,18 @@ func StrToInt(s string) (n int32, ok bool) {
 		return 0, false
 	}
 
-	v, ok := parseDigits(digits, base)
+	val, ok := parseDigits(digits, base)
 	if !ok {
 		return 0, false
 	}
 
 	switch {
-	case base == 16 && v < 1<<32:
-		return int32(uint32(v)), true //nolint:gosec // the bits, signed: "$FFFFFFFF" is -1
-	case neg && v <= 1<<31:
-		return int32(-int64(v)), true
-	case !neg && v < 1<<31:
-		return int32(v), true
+	case base == 16 && val < 1<<32:
+		return int32(uint32(val)), true //nolint:gosec // the bits, signed: "$FFFFFFFF" is -1
+	case neg && val <= 1<<31:
+		return int32(-int64(val)), true
+	case !neg && val < 1<<31:
+		return int32(val), true
 	}
 
 	return 0, false
@@ -33,50 +33,50 @@ func StrToInt(s string) (n int32, ok bool) {
 
 // splitNumber skips StrToInt's leading spaces, and the sign or the
 // hexadecimal prefix after them.
-func splitNumber(s string) (neg bool, base uint64, digits string) {
-	s = strings.TrimLeft(s, " ")
-	if s == "" {
+func splitNumber(txt string) (neg bool, base uint64, digits string) {
+	txt = strings.TrimLeft(txt, " ")
+	if txt == "" {
 		return false, 10, ""
 	}
 
-	switch s[0] {
+	switch txt[0] {
 	case '$', 'x', 'X':
-		return false, 16, s[1:]
+		return false, 16, txt[1:]
 	case '0':
-		if len(s) > 1 && s[1]|0x20 == 'x' {
-			return false, 16, s[2:]
+		if len(txt) > 1 && txt[1]|0x20 == 'x' {
+			return false, 16, txt[2:]
 		}
 	case '-':
-		return true, 10, s[1:]
+		return true, 10, txt[1:]
 	case '+':
-		return false, 10, s[1:]
+		return false, 10, txt[1:]
 	}
 
-	return false, 10, s
+	return false, 10, txt
 }
 
 // parseDigits reads digits in base 10 or 16, as long as the value stays
 // within 2³².
-func parseDigits(digits string, base uint64) (v uint64, ok bool) {
+func parseDigits(digits string, base uint64) (val uint64, ok bool) {
 	for i := range len(digits) {
 		c := digits[i]
 
-		var d uint64
+		var dig uint64
 
 		switch {
 		case '0' <= c && c <= '9':
-			d = uint64(c - '0')
+			dig = uint64(c - '0')
 		case base == 16 && 'a' <= c|0x20 && c|0x20 <= 'f':
-			d = uint64(c|0x20-'a') + 10
+			dig = uint64(c|0x20-'a') + 10
 		default:
 			return 0, false
 		}
 
-		v = v*base + d
-		if v > 1<<32 {
+		val = val*base + dig
+		if val > 1<<32 {
 			return 0, false
 		}
 	}
 
-	return v, true
+	return val, true
 }

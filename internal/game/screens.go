@@ -83,9 +83,9 @@ func (g *Game) TypeMultipliers() (first, second, total string, ok bool) {
 		return "", "", "", false
 	}
 
-	sp, mv := g.species(g.Types.Species+1), g.move(g.Types.Attack+1)
-	a := float32(g.Data.Effect(mv.Type, sp.Types[0]))
-	b := float32(g.Data.Effect(mv.Type, sp.Types[1]))
+	spc, mov := g.species(g.Types.Species+1), g.move(g.Types.Attack+1)
+	a := float32(g.Data.Effect(mov.Type, spc.Types[0]))
+	b := float32(g.Data.Effect(mov.Type, spc.Types[1]))
 
 	return delphi.FloatToStr(float64(a)), delphi.FloatToStr(float64(b)), delphi.FloatToStr(float64(a * b)), true
 }
@@ -249,25 +249,25 @@ func (g *Game) SetBet(n int) {
 // Draw is "Draw number!" (TFormB.Button1Click): one number in ten wins ten
 // times the bet, in money or in items.
 func (g *Game) Draw() {
-	c := &g.Corner
+	gcw := &g.Corner
 
-	if !c.Visible {
+	if !gcw.Visible {
 		return
 	}
 
-	if c.Bet < 0 || c.Bet > int(g.Money) {
+	if gcw.Bet < 0 || gcw.Bet > int(g.Money) {
 		return // silently
 	}
 
-	bet := uint32(c.Bet) //nolint:gosec // between 0 and Money, checked above
+	bet := uint32(gcw.Bet) //nolint:gosec // between 0 and Money, checked above
 
-	if c.Prize == -1 {
+	if gcw.Prize == -1 {
 		g.message(Warning, "Please select something to play for.")
 
 		return
 	}
 
-	if c.Number == -1 {
+	if gcw.Number == -1 {
 		g.message(Warning, "Please select a number to bet on.")
 
 		return
@@ -282,9 +282,9 @@ func (g *Game) Draw() {
 	}
 
 	for range 10000 { // the animation: the last draw counts
-		c.Drawn = g.Rand.Random(10)
+		gcw.Drawn = g.Rand.Random(10)
 		if draws != nil {
-			draws = append(draws, c.Drawn)
+			draws = append(draws, gcw.Drawn)
 		}
 	}
 
@@ -292,7 +292,7 @@ func (g *Game) Draw() {
 		g.OnDraws(draws)
 	}
 
-	if c.Number != c.Drawn {
+	if gcw.Number != gcw.Drawn {
 		return
 	}
 

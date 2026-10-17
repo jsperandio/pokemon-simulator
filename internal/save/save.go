@@ -61,20 +61,20 @@ func (f *File) Party() []Slot {
 
 // Bytes writes the save in version 2, byte for byte as the original does.
 func (f *File) Bytes() []byte {
-	var b bytes.Buffer
-	b.Grow(3 * Slots * 4)
+	var buf bytes.Buffer
+	buf.Grow(3 * Slots * 4)
 
 	line := func(s string) {
-		b.WriteString(s)
-		b.WriteString("\r\n")
+		buf.WriteString(s)
+		buf.WriteString("\r\n")
 	}
 	boolean := func(v bool) {
 		line(boolText(v))
 	}
 
 	line(Header)
-	b.Write(delphi.EncodeANSI(f.PlayerName))
-	b.WriteString("\r\n")
+	buf.Write(delphi.EncodeANSI(f.PlayerName))
+	buf.WriteString("\r\n")
 
 	flags := []bool{
 		f.BeatLance,
@@ -104,7 +104,7 @@ func (f *File) Bytes() []byte {
 		line(strconv.FormatUint(uint64(s.XP), 10))
 	}
 
-	return b.Bytes()
+	return buf.Bytes()
 }
 
 // boolText is a Boolean as the file writes it.

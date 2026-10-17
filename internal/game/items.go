@@ -122,13 +122,13 @@ func (g *Game) counter(k int) *uint32 {
 // enableItems enables the buttons of the items the player has, as the
 // battle allows (TForm5.EnableButtons).
 func (g *Game) enableItems() {
-	e := &g.Stats.ItemEnabled
-	for k := range e {
-		e[k] = *g.counter(k) != 0
+	enabled := &g.Stats.ItemEnabled
+	for k := range enabled {
+		enabled[k] = *g.counter(k) != 0
 	}
 
 	noBalls := func() {
-		e[PokeBall], e[GreatBall], e[UltraBall], e[MasterBall] = false, false, false, false
+		enabled[PokeBall], enabled[GreatBall], enabled[UltraBall], enabled[MasterBall] = false, false, false, false
 	}
 	if g.partyHas(150) && g.Main.EnemyImage == 149 {
 		noBalls() // one Mewtwo at a time
@@ -139,6 +139,6 @@ func (g *Game) enableItems() {
 	}
 
 	if g.InTournament {
-		e[Potion], e[SuperPotion] = false, false
+		enabled[Potion], enabled[SuperPotion] = false, false
 	}
 }

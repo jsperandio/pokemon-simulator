@@ -55,8 +55,8 @@ func openDatabase() (*database, error) {
 	return &database{req.Get("result")}, nil
 }
 
-// load reads every record into m.
-func (d *database) load(m *memory) error {
+// load reads every record into mem.
+func (d *database) load(mem *memory) error {
 	var req js.Value
 
 	if err := catch(func() {
@@ -67,14 +67,14 @@ func (d *database) load(m *memory) error {
 
 	done := make(chan error, 1)
 	next := js.FuncOf(func(js.Value, []js.Value) any {
-		c := req.Get("result")
-		if c.IsNull() || c.IsUndefined() {
+		cursor := req.Get("result")
+		if cursor.IsNull() || cursor.IsUndefined() {
 			done <- nil
 
 			return nil
 		}
 
-		v := c.Get("value")
+		v := cursor.Get("value")
 		t := time.UnixMilli(int64(v.Get("time").Float()))
 
 		var data []byte
@@ -84,8 +84,8 @@ func (d *database) load(m *memory) error {
 			js.CopyBytesToGo(data, arr)
 		}
 
-		m.restore(c.Get("key").String(), v.Get("dir").Truthy(), t, data)
-		c.Call("continue")
+		mem.restore(cursor.Get("key").String(), v.Get("dir").Truthy(), t, data)
+		cursor.Call("continue")
 
 		return nil
 	})
@@ -105,7 +105,7 @@ func (d *database) load(m *memory) error {
 }
 
 // put writes a file's or a folder's record and waits until it is kept.
-func (d *database) put(p string, dir bool, t time.Time, data []byte) error {
+func (d *database) put(pth string, dir bool, t time.Time, data []byte) error {
 	rec := js.Global().Get("Object").New()
 	rec.Set("dir", dir)
 	rec.Set("time", t.UnixMilli())
@@ -118,7 +118,7 @@ func (d *database) put(p string, dir bool, t time.Time, data []byte) error {
 
 	if err := catch(func() {
 		tx = d.db.Call("transaction", dbStore, "readwrite")
-		tx.Call("objectStore", dbStore).Call("put", rec, p)
+		tx.Call("objectStore", dbStore).Call("put", rec, pth)
 	}); err != nil {
 		return err
 	}
@@ -151,8 +151,8 @@ func await(target js.Value, ok string) error {
 	return <-done
 }
 
-// catch runs f, turning a JavaScript exception into an error.
-func catch(f func()) (err error) {
+// catch runs fn, turning a JavaScript exception into an error.
+func catch(fn func()) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			e, ok := r.(js.Error)
@@ -164,7 +164,7 @@ func catch(f func()) (err error) {
 		}
 	}()
 
-	f()
+	fn()
 
 	return nil
 }

@@ -98,9 +98,9 @@ type Player struct {
 	Saves     string              // if not "", the folder for the save the scenario quits with
 	After     func(action string) // if set, runs after each action, "> start" included
 
-	G *game.Game // the game, once launched
+	Game *game.Game // the game, once launched
 
-	d       Driver
+	drv     Driver
 	out     []string
 	rand    []randCall // the current run of Random calls, not written yet
 	answers []bool     // for the next Yes/No dialogs
@@ -114,8 +114,8 @@ type Player struct {
 }
 
 type randCall struct {
-	n int
-	v int
+	limit int
+	value int
 }
 
 // scenarioError stops a scenario from inside the game's calls.
@@ -140,7 +140,7 @@ func (p *Player) emit(format string, a ...any) {
 // random records a Random call. Runs of more than 16 calls with the same
 // range (the Game Corner's 10,000) are one line, as the probe wrote them.
 func (p *Player) random(n, v int) {
-	if len(p.rand) > 0 && p.rand[0].n != n {
+	if len(p.rand) > 0 && p.rand[0].limit != n {
 		p.flush()
 	}
 
@@ -153,13 +153,13 @@ func (p *Player) flush() {
 
 	if len(r) > 16 {
 		last := r[len(r)-1]
-		p.out = append(p.out, fmt.Sprintf("rand %d = %d (the last of %d)", last.n, last.v, len(r)))
+		p.out = append(p.out, fmt.Sprintf("rand %d = %d (the last of %d)", last.limit, last.value, len(r)))
 
 		return
 	}
 
 	for _, c := range r {
-		p.out = append(p.out, fmt.Sprintf("rand %d = %d", c.n, c.v))
+		p.out = append(p.out, fmt.Sprintf("rand %d = %d", c.limit, c.value))
 	}
 }
 
@@ -345,22 +345,22 @@ func (p *Player) portsave(name string) error {
 		return err
 	}
 
-	q := &Player{
+	sub := &Player{
 		Name:      name,
 		Dir:       p.Dir,
 		Data:      p.Data,
 		NewDriver: p.NewDriver,
 		Saves:     p.Saves,
 	}
-	if _, err := q.Play(string(src)); err != nil {
+	if _, err := sub.Play(string(src)); err != nil {
 		return fmt.Errorf("%s: %v", name, err)
 	}
 
-	if q.saved == nil {
+	if sub.saved == nil {
 		return fmt.Errorf("%s doesn't quit", name)
 	}
 
-	p.portSave = q.saved
+	p.portSave = sub.saved
 
 	return nil
 }
@@ -374,9 +374,9 @@ func (p *Player) setupNumbers(cmd string, nums []int) error {
 
 		return nil
 	}
-	s := &p.setup
+	sav := &p.setup
 
-	if c := counter(s, cmd); c != nil {
+	if c := counter(sav, cmd); c != nil {
 		if err := want(1); err != nil {
 			return err
 		}
@@ -398,16 +398,16 @@ func (p *Player) setupNumbers(cmd string, nums []int) error {
 			return err
 		}
 
-		s.GymProgress = uint8(nums[0]) //nolint:gosec // a value of the original's save
+		sav.GymProgress = uint8(nums[0]) //nolint:gosec // a value of the original's save
 	case "flags":
 		if err := want(5); err != nil {
 			return err
 		}
 
-		s.BeatLance, s.BeatAsh, s.BeatLink, s.GotJirachi, s.GotDeoxys = nums[0] != 0, nums[1] != 0, nums[2] != 0, nums[3] != 0, nums[4] != 0
+		sav.BeatLance, sav.BeatAsh, sav.BeatLink, sav.GotJirachi, sav.GotDeoxys = nums[0] != 0, nums[1] != 0, nums[2] != 0, nums[3] != 0, nums[4] != 0
 	case "dex":
-		for _, sp := range nums {
-			s.InDex[sp] = true
+		for _, species := range nums {
+			sav.InDex[species] = true
 		}
 	case "party":
 		return p.setupParty(nums)
@@ -425,18 +425,18 @@ func (p *Player) setupParty(nums []int) error {
 	}
 
 	l := uint32(nums[1]) //nolint:gosec // a value of the original's save
-	m := save.Slot{
+	slt := save.Slot{
 		Species: int32(nums[0]), //nolint:gosec // the same
 		Level:   uint8(nums[1]), //nolint:gosec // the same
 		XP:      l * l * l,
 	}
 
 	if len(nums) == 3 {
-		m.XP = uint32(nums[2]) //nolint:gosec // a value of the original's save
+		slt.XP = uint32(nums[2]) //nolint:gosec // a value of the original's save
 	}
 
 	s := &p.setup
-	s.Owned[len(s.Party())] = m
+	s.Owned[len(s.Party())] = slt
 	s.InDex[nums[0]] = true
 
 	return nil
@@ -449,7 +449,7 @@ func (p *Player) savePath(ext string) string {
 
 // launch starts the game: on the setup's save, or at the start screen.
 func (p *Player) launch() error {
-	p.d = p.NewDriver()
+	p.drv = p.NewDriver()
 	// The game always writes version 2; a new game is compared with an
 	// empty save.
 	p.start = p.setupBytes()
@@ -466,8 +466,8 @@ func (p *Player) launch() error {
 		b = p.setupBytes()
 	}
 
-	return p.d.Launch(p, p.savePath(".pgs"), b, func(g *game.Game) {
-		p.G = g
+	return p.drv.Launch(p, p.savePath(".pgs"), b, func(g *game.Game) {
+		p.Game = g
 		g.Rand.OnCall = p.random
 		g.OnLog = func(line string) {
 			p.emit("log %s", line)
@@ -548,7 +548,7 @@ func (p *Player) seed(arg string) error {
 		return err
 	}
 
-	p.G.Rand.Seed = uint32(n)
+	p.Game.Rand.Seed = uint32(n)
 
 	return nil
 }
@@ -572,11 +572,11 @@ func (p *Player) choose(arg string) error {
 		return err
 	}
 
-	if !partyClickable(p.G, i) {
+	if !partyClickable(p.Game, i) {
 		return fmt.Errorf("party member %d can't be clicked", i)
 	}
 
-	return p.d.Choose(i - 1)
+	return p.drv.Choose(i - 1)
 }
 
 // move attacks with attack k (1–4).
@@ -614,7 +614,7 @@ func (p *Player) fightBest(string) error {
 // fightWith attacks with the attack move picks until the battle is over.
 func (p *Player) fightWith(move func() int) error {
 	for range 200 {
-		if !p.G.Main.Go {
+		if !p.Game.Main.Go {
 			return nil // the battle is over
 		}
 
@@ -630,20 +630,20 @@ func (p *Player) fightWith(move func() int) error {
 func (p *Player) set(arg string) error {
 	name, value, _ := strings.Cut(arg, " ")
 
-	v, err := number(value)
+	val, err := number(value)
 	if err != nil {
 		return err
 	}
 
-	g := p.G
+	g := p.Game
 
 	switch c := counter(&g.File, name); {
 	case name == "EnemyHP":
-		g.EnemyHP = v
+		g.EnemyHP = val
 	case name == "OwnHP":
-		g.OwnHP = v
+		g.OwnHP = val
 	case c != nil:
-		*c = uint32(v) //nolint:gosec // a value the probe set in the original
+		*c = uint32(val) //nolint:gosec // a value the probe set in the original
 	default:
 		return fmt.Errorf("unknown variable %q", name)
 	}
@@ -654,18 +654,18 @@ func (p *Player) set(arg string) error {
 // throw throws ball k (1–4) until it catches, the battle is over or no
 // balls are left.
 func (p *Player) throw(arg string) error {
-	k, err := number(arg)
+	ball, err := number(arg)
 	if err != nil {
 		return err
 	}
 
-	g := p.G
+	g := p.Game
 	for range 200 {
-		if g.Main.EndFight || !g.Stats.Items || !g.Stats.ItemEnabled[k-1] {
+		if g.Main.EndFight || !g.Stats.Items || !g.Stats.ItemEnabled[ball-1] {
 			return nil // caught, the battle is over, or no balls left
 		}
 
-		if err := p.d.Item(k - 1); err != nil {
+		if err := p.drv.Item(ball - 1); err != nil {
 			return err
 		}
 	}
@@ -675,11 +675,11 @@ func (p *Player) throw(arg string) error {
 
 // end presses "End Fight".
 func (p *Player) end(string) error {
-	if !p.G.Main.EndFight {
+	if !p.Game.Main.EndFight {
 		return errors.New(`"End Fight" is hidden`)
 	}
 
-	return p.d.End()
+	return p.drv.End()
 }
 
 // item presses item button k (1–6).
@@ -689,11 +689,11 @@ func (p *Player) item(arg string) error {
 		return err
 	}
 
-	if !p.G.ItemUsable(k - 1) {
+	if !p.Game.ItemUsable(k - 1) {
 		return fmt.Errorf("item button %d is hidden or disabled", k)
 	}
 
-	return p.d.Item(k - 1)
+	return p.drv.Item(k - 1)
 }
 
 // text records the game window's caption or the Mart's total.
@@ -702,7 +702,7 @@ func (p *Player) text(arg string) error {
 		return fmt.Errorf("no text for %s", arg)
 	}
 
-	s, err := p.d.Text(arg)
+	s, err := p.drv.Text(arg)
 	if err != nil {
 		return err
 	}
@@ -727,22 +727,22 @@ func (p *Player) answer(arg string) error {
 
 // newGame starts a new game from the start screen, for the name typed.
 func (p *Player) newGame(name string) error {
-	if !p.G.Start.Visible {
+	if !p.Game.Start.Visible {
 		return errors.New("not at the start screen")
 	}
 
 	p.emit("namedialog -> %q", name)
 
-	return p.d.New(p.savePath(".pgs"), name)
+	return p.drv.New(p.savePath(".pgs"), name)
 }
 
 // load loads the scenario's save from the start screen.
 func (p *Player) load(string) error {
-	if !p.G.Start.Visible {
+	if !p.Game.Start.Visible {
 		return errors.New("not at the start screen")
 	}
 
-	return p.d.Load(p.savePath(".pgs"), p.setupBytes())
+	return p.drv.Load(p.savePath(".pgs"), p.setupBytes())
 }
 
 // starter chooses starter k (1-based).
@@ -752,69 +752,69 @@ func (p *Player) starter(arg string) error {
 		return err
 	}
 
-	if !p.G.Main.Starters {
+	if !p.Game.Main.Starters {
 		return errors.New("the starters are hidden")
 	}
 
-	return p.d.Starter(k - 1)
+	return p.drv.Starter(k - 1)
 }
 
 // export exports the POKéMON information.
 func (p *Player) export(string) error {
-	if !p.G.Item("File1").Enabled {
+	if !p.Game.Item("File1").Enabled {
 		return errors.New("the File menu is disabled")
 	}
 
-	return p.d.Export(p.savePath(".htm"))
+	return p.drv.Export(p.savePath(".htm"))
 }
 
 // quit closes the game window, and compares the save it wrote with the
 // one the scenario started from.
 func (p *Player) quit(string) error {
-	b, err := p.d.Quit()
+	dat, err := p.drv.Quit()
 	if err != nil {
 		return err
 	}
 
 	p.emit("exit 0")
 
-	if b == nil {
+	if dat == nil {
 		return errors.New("nothing to save")
 	}
 
-	p.saved = b
+	p.saved = dat
 	if p.Saves != "" {
-		if err := os.WriteFile(filepath.Join(p.Saves, p.Name+".pgs"), b, 0o600); err != nil {
+		if err := os.WriteFile(filepath.Join(p.Saves, p.Name+".pgs"), dat, 0o600); err != nil {
 			return err
 		}
 	}
 
-	p.diffSave(b)
+	p.diffSave(dat)
 
 	return nil
 }
 
 // attack selects attack k (1–4) or "Run!" (5) and presses "Go!".
 func (p *Player) attack(k int) error {
-	if !attackable(p.G, k) {
+	if !attackable(p.Game, k) {
 		return fmt.Errorf("attack %d can't be chosen", k)
 	}
 
-	return p.d.Attack(k - 1)
+	return p.drv.Attack(k - 1)
 }
 
 // bestMove is the attack (1–4) with the highest power times type
 // multipliers against the enemy, as the probe chose it.
 func (p *Player) bestMove() int {
-	g := p.G
+	g := p.Game
 	own := g.Data.SpeciesByID(int(g.Owned[g.OwnIndex-1].Species))
 	enemy := g.Data.SpeciesByID(g.EnemySpecies)
 	best, bestScore := 1, -1.0
 
 	for k, id := range own.Moves {
 		score := 0.0
-		if mv := g.Data.MoveByID(id); mv != nil {
-			score = float64(mv.Power) * g.Data.Effect(mv.Type, enemy.Types[0]) * g.Data.Effect(mv.Type, enemy.Types[1])
+		if mov := g.Data.MoveByID(id); mov != nil {
+			score = float64(mov.Power) * g.Data.Effect(mov.Type, enemy.Types[0]) * g.Data.Effect(mov.Type, enemy.Types[1])
 		}
 
 		if score > bestScore {
@@ -831,44 +831,44 @@ var accelerators = strings.NewReplacer("&&", "&", "&", "")
 
 // menu runs a main menu command given by captions: "Actions > Buy Items".
 func (p *Player) menu(path string) error {
-	items := p.G.Menu
+	items := p.Game.Menu
 
 	var chain []*game.MenuItem
 
 	for part := range strings.SplitSeq(path, " > ") {
-		var m *game.MenuItem
+		var found *game.MenuItem
 
-		for _, it := range items {
-			if accelerators.Replace(it.Caption) == part {
-				m = it
+		for _, mi := range items {
+			if accelerators.Replace(mi.Caption) == part {
+				found = mi
 
 				break
 			}
 		}
 
-		if m == nil {
+		if found == nil {
 			return fmt.Errorf("no item %q", part)
 		}
 
-		if !m.Enabled || !m.Visible {
+		if !found.Enabled || !found.Visible {
 			return fmt.Errorf("%q is disabled or hidden", part)
 		}
 
-		chain = append(chain, m)
-		items = m.Items
+		chain = append(chain, found)
+		items = found.Items
 	}
 
 	m := chain[len(chain)-1]
-	if !p.G.Main.Visible || (p.G.Main.Starters && m.Name != "Quit1") {
+	if !p.Game.Main.Visible || (p.Game.Main.Starters && m.Name != "Quit1") {
 		return errors.New("the game window isn't up")
 	}
 
-	return p.d.Menu(chain)
+	return p.drv.Menu(chain)
 }
 
 // dumpMenus dumps the main menu as the probe did.
 func (p *Player) dumpMenus(string) error {
-	p.menus(p.G.Menu, 0)
+	p.menus(p.Game.Menu, 0)
 
 	return nil
 }
@@ -883,27 +883,27 @@ func (p *Player) menus(items []*game.MenuItem, depth int) {
 
 // click presses a button, as long as the player could.
 func (p *Player) click(path string) error {
-	g := p.G
+	gam := p.Game
 
 	var shown bool
 
 	switch path {
 	case "Form1.AboutButton":
-		shown = g.Start.Visible
+		shown = gam.Start.Visible
 	case "Form4.Button2", "Form4.Button3", "Form4.Button4":
-		shown = g.Main.Picker
+		shown = gam.Main.Picker
 	case "Form4.EvolveButton":
-		shown = len(g.Main.Choices) > 0
+		shown = len(gam.Main.Choices) > 0
 	case "Form8.Button1":
-		shown = g.Dex.Visible
+		shown = gam.Dex.Visible
 	case "Form9.Button1":
-		shown = g.Mart.Visible && g.Mart.BuyEnabled
+		shown = gam.Mart.Visible && gam.Mart.BuyEnabled
 	case "Form9.Button2":
-		shown = g.Mart.Visible
+		shown = gam.Mart.Visible
 	case "FormA.Button1":
-		shown = g.Types.Visible
+		shown = gam.Types.Visible
 	case "FormB.Button1", "FormB.Button2":
-		shown = g.Corner.Visible
+		shown = gam.Corner.Visible
 	default:
 		return fmt.Errorf("unknown button %s", path)
 	}
@@ -912,7 +912,7 @@ func (p *Player) click(path string) error {
 		return fmt.Errorf("%s is hidden or disabled", path)
 	}
 
-	if err := p.d.Click(path); err != nil {
+	if err := p.drv.Click(path); err != nil {
 		return err
 	}
 
@@ -932,7 +932,7 @@ func (p *Player) radio(arg string) error {
 		return err
 	}
 
-	g := p.G
+	g := p.Game
 
 	var shown bool
 
@@ -949,7 +949,7 @@ func (p *Player) radio(arg string) error {
 		return fmt.Errorf("%s is hidden or unknown", path)
 	}
 
-	return p.d.Radio(path, n-1)
+	return p.drv.Radio(path, n-1)
 }
 
 // combo selects item i (0-based) of a combo box: "<path> <i>".
@@ -961,7 +961,7 @@ func (p *Player) combo(arg string) error {
 		return err
 	}
 
-	g := p.G
+	g := p.Game
 
 	var shown bool
 
@@ -978,13 +978,13 @@ func (p *Player) combo(arg string) error {
 		return fmt.Errorf("%s is hidden or unknown", path)
 	}
 
-	return p.d.Combo(path, i)
+	return p.drv.Combo(path, i)
 }
 
 // typeText types a number into a spin edit: "<path> <text>".
 func (p *Player) typeText(arg string) error {
 	path, text, _ := strings.Cut(arg, " ")
-	g := p.G
+	gam := p.Game
 
 	n, err := strconv.Atoi(text)
 	if err != nil {
@@ -995,23 +995,23 @@ func (p *Player) typeText(arg string) error {
 
 	switch path {
 	case "Form4.SpinEdit1":
-		shown = g.Main.Picker
+		shown = gam.Main.Picker
 	case "Form9.SpinEdit1":
-		shown = g.Mart.Visible
+		shown = gam.Mart.Visible
 	case "FormB.SpinEdit1":
-		shown = g.Corner.Visible
+		shown = gam.Corner.Visible
 	}
 
 	if !shown {
 		return fmt.Errorf("%s is hidden or unknown", path)
 	}
 
-	return p.d.Type(path, n)
+	return p.drv.Type(path, n)
 }
 
 // state dumps the variables as the probe did (notes/state.md).
 func (p *Player) state(string) error {
-	g := p.G
+	gam := p.Game
 	b := func(v bool) int {
 		if v {
 			return 1
@@ -1020,12 +1020,12 @@ func (p *Player) state(string) error {
 		return 0
 	}
 	p.emit("state battle wild=%d trainer=%d tournament=%d type=%d own=%d hp=%d enemy=%d level=%d hp=%d levels=%d-%d",
-		b(g.InWildBattle), b(g.InTrainerBattle), b(g.InTournament), g.BattleType, g.OwnIndex, g.OwnHP,
-		g.EnemySpecies, g.EnemyLevel, g.EnemyHP, g.MinLevel, g.MaxLevel)
+		b(gam.InWildBattle), b(gam.InTrainerBattle), b(gam.InTournament), gam.BattleType, gam.OwnIndex, gam.OwnHP,
+		gam.EnemySpecies, gam.EnemyLevel, gam.EnemyHP, gam.MinLevel, gam.MaxLevel)
 
-	cs := make([]string, 0, len(counterNames))
+	counters := make([]string, 0, len(counterNames))
 	for _, n := range counterNames {
-		cs = append(cs, fmt.Sprintf("%s=%d", n, *counter(&g.File, n)))
+		counters = append(counters, fmt.Sprintf("%s=%d", n, *counter(&gam.File, n)))
 	}
 
 	var flags []string
@@ -1038,11 +1038,11 @@ func (p *Player) state(string) error {
 		"GotDeoxys",
 	}
 	flagStates := []bool{
-		g.BeatLance,
-		g.BeatAsh,
-		g.BeatLink,
-		g.GotJirachi,
-		g.GotDeoxys,
+		gam.BeatLance,
+		gam.BeatAsh,
+		gam.BeatLink,
+		gam.GotJirachi,
+		gam.GotDeoxys,
 	}
 
 	for i, on := range flagStates {
@@ -1051,20 +1051,20 @@ func (p *Player) state(string) error {
 		}
 	}
 
-	p.emit("state player badges=%d %s flags=%s", g.GymProgress, strings.Join(cs, " "), strings.Join(flags, ","))
+	p.emit("state player badges=%d %s flags=%s", gam.GymProgress, strings.Join(counters, " "), strings.Join(flags, ","))
 
 	var dex []string
 
 	for s := 1; s <= save.NumSpecies; s++ {
-		if g.InDex[s] {
+		if gam.InDex[s] {
 			dex = append(dex, strconv.Itoa(s))
 		}
 	}
 
 	p.emit("state dex %s", strings.Join(dex, ","))
 
-	party := make([]string, 0, len(g.Party()))
-	for k, m := range g.Party() {
+	party := make([]string, 0, len(gam.Party()))
+	for k, m := range gam.Party() {
 		party = append(party, fmt.Sprintf("%d:%d/L%d/%d", k+1, m.Species, m.Level, m.XP))
 	}
 
@@ -1076,24 +1076,24 @@ func (p *Player) state(string) error {
 // diffSave lists the lines of the save written on quit that differ from
 // the one the scenario started from (1-based, as in notes/persistence.md).
 func (p *Player) diffSave(end []byte) {
-	a := strings.Split(string(p.start), "\r\n")
-	b := strings.Split(string(end), "\r\n")
+	was := strings.Split(string(p.start), "\r\n")
+	now := strings.Split(string(end), "\r\n")
 
-	if len(a) != len(b) {
-		p.emit("save %d lines, was %d", len(b)-1, len(a)-1)
+	if len(was) != len(now) {
+		p.emit("save %d lines, was %d", len(now)-1, len(was)-1)
 	}
 
 	same := true
 
-	for i := range min(len(a), len(b)) {
-		if a[i] != b[i] {
-			p.emit("save line %d: %q -> %q", i+1, delphi.DecodeANSI([]byte(a[i])), delphi.DecodeANSI([]byte(b[i])))
+	for i := range min(len(was), len(now)) {
+		if was[i] != now[i] {
+			p.emit("save line %d: %q -> %q", i+1, delphi.DecodeANSI([]byte(was[i])), delphi.DecodeANSI([]byte(now[i])))
 
 			same = false
 		}
 	}
 
-	if same && len(a) == len(b) {
+	if same && len(was) == len(now) {
 		p.emit("save unchanged")
 	}
 }

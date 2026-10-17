@@ -30,9 +30,9 @@ func Upload(dest writer, dir string) <-chan []string {
 			var names []string
 
 			for i := range list.Get("length").Int() {
-				f := list.Index(i)
+				file := list.Index(i)
 
-				buf, err := awaitPromise(f.Call("arrayBuffer"))
+				buf, err := awaitPromise(file.Call("arrayBuffer"))
 				if err != nil {
 					warn("POKéMON Simulator: " + err.Error())
 
@@ -43,7 +43,7 @@ func Upload(dest writer, dir string) <-chan []string {
 				b := make([]byte, arr.Get("length").Int())
 				js.CopyBytesToGo(b, arr)
 
-				name := f.Get("name").String()
+				name := file.Get("name").String()
 				if err := dest.WriteFile(dest.Join(dir, name), b); err != nil {
 					warn("POKéMON Simulator: " + name + ": " + err.Error())
 
@@ -93,7 +93,7 @@ func Download(name string, data []byte) error {
 }
 
 // awaitPromise waits for a promise and returns its value.
-func awaitPromise(p js.Value) (js.Value, error) {
+func awaitPromise(promise js.Value) (js.Value, error) {
 	vals := make(chan js.Value, 1)
 	errs := make(chan error, 1)
 	then := js.FuncOf(func(_ js.Value, args []js.Value) any {
@@ -110,7 +110,7 @@ func awaitPromise(p js.Value) (js.Value, error) {
 	defer then.Release()
 	defer fail.Release()
 
-	p.Call("then", then, fail)
+	promise.Call("then", then, fail)
 
 	select {
 	case v := <-vals:

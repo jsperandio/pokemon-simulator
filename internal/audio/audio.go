@@ -38,7 +38,7 @@ var (
 // Music is the music player. Its zero value plays on the sound card.
 type Music struct {
 	newPlayer func(io.Reader) (player, error) // nil for the sound card's
-	p         player
+	ply       player
 	stopped   bool // Stop stopped it
 }
 
@@ -72,7 +72,7 @@ func (m *Music) Open(name string, data []byte) error {
 		return err
 	}
 
-	m.p, m.stopped = p, false
+	m.ply, m.stopped = p, false
 	p.Play()
 
 	return nil
@@ -80,14 +80,14 @@ func (m *Music) Open(name string, data []byte) error {
 
 // Stop stops the music and rewinds it: Music → Stop Music.
 func (m *Music) Stop() error {
-	if m.p == nil {
+	if m.ply == nil {
 		return ErrNotOpen
 	}
 
-	m.p.Pause()
+	m.ply.Pause()
 
 	m.stopped = true
-	_, err := m.p.Seek(0, io.SeekStart)
+	_, err := m.ply.Seek(0, io.SeekStart)
 
 	return err
 }
@@ -100,27 +100,27 @@ func (m *Music) Update(repeat bool) {
 		return
 	}
 
-	if _, err := m.p.Seek(0, io.SeekStart); err == nil {
-		m.p.Play()
+	if _, err := m.ply.Seek(0, io.SeekStart); err == nil {
+		m.ply.Play()
 	}
 }
 
 // ended reports whether the music has played to its end: open, not
 // stopped, and no longer playing.
 func (m *Music) ended() bool {
-	return m.p != nil && !m.stopped && !m.p.IsPlaying()
+	return m.ply != nil && !m.stopped && !m.ply.IsPlaying()
 }
 
 // Playing reports whether the music plays: open, not stopped, and not at
 // its end.
 func (m *Music) Playing() bool {
-	return m.p != nil && !m.stopped && m.p.IsPlaying()
+	return m.ply != nil && !m.stopped && m.ply.IsPlaying()
 }
 
 func (m *Music) close() {
-	if m.p != nil {
-		_ = m.p.Close()
-		m.p = nil
+	if m.ply != nil {
+		_ = m.ply.Close()
+		m.ply = nil
 	}
 }
 
@@ -156,20 +156,20 @@ func soundCard(src io.Reader) (player, error) {
 
 // decode returns sound data as 16-bit stereo at the output's rate.
 func decode(name string, data []byte) (io.ReadSeeker, error) {
-	r := bytes.NewReader(data)
+	rdr := bytes.NewReader(data)
 
 	var (
-		s   io.ReadSeeker
-		err error
+		stream io.ReadSeeker
+		err    error
 	)
 
 	switch format(name, data) {
 	case "mp3":
-		s, err = mp3Stream(r)
+		stream, err = mp3Stream(rdr)
 	case "ogg":
-		s, err = oggStream(r)
+		stream, err = oggStream(rdr)
 	case "wav":
-		s, err = wavStream(r)
+		stream, err = wavStream(rdr)
 	default:
 		return nil, ErrFormat
 	}
@@ -178,7 +178,7 @@ func decode(name string, data []byte) (io.ReadSeeker, error) {
 		return nil, fmt.Errorf("%w: %v", ErrFormat, err)
 	}
 
-	return s, nil
+	return stream, nil
 }
 
 func mp3Stream(r io.Reader) (io.ReadSeeker, error) {

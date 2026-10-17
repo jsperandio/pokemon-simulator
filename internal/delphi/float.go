@@ -31,43 +31,43 @@ func FloatToStr(x float64) string {
 
 	// 15 significant digits: d.dddddddddddddde±x
 	mant, exp, _ := strings.Cut(strconv.FormatFloat(x, 'e', 14, 64), "e")
-	e, _ := strconv.Atoi(exp)
+	exponent, _ := strconv.Atoi(exp)
 	digits := strings.TrimRight(strings.Replace(mant, ".", "", 1), "0")
 	// Fixed notation for values of at least 0.00001 with at most 15 digits
 	// before the point; scientific otherwise ("1.5E-7", "1E20").
-	if x >= 0.00001 && e < 15 {
-		var s string
+	if x >= 0.00001 && exponent < 15 {
+		var txt string
 
 		switch {
-		case e < 0:
-			s = "0." + strings.Repeat("0", -e-1) + digits
-		case len(digits) <= e+1:
-			s = digits + strings.Repeat("0", e+1-len(digits))
+		case exponent < 0:
+			txt = "0." + strings.Repeat("0", -exponent-1) + digits
+		case len(digits) <= exponent+1:
+			txt = digits + strings.Repeat("0", exponent+1-len(digits))
 		default:
-			s = digits[:e+1] + "." + digits[e+1:]
+			txt = digits[:exponent+1] + "." + digits[exponent+1:]
 		}
 
-		return sign + s
+		return sign + txt
 	}
 
-	s := digits[:1]
+	txt := digits[:1]
 	if len(digits) > 1 {
-		s += "." + digits[1:]
+		txt += "." + digits[1:]
 	}
 
-	return sign + s + "E" + strconv.Itoa(e)
+	return sign + txt + "E" + strconv.Itoa(exponent)
 }
 
 // Extended is an x87 Extended value: the FPU computes with a 64-bit
 // mantissa and rounds to nearest even after every operation (Delphi's
 // default control word). Where the original truncates an Extended result,
 // the extra rounding can land below an integer that float64 would hit.
-type Extended struct{ f big.Float }
+type Extended struct{ val big.Float }
 
 // NewExtended returns x as an Extended (exact: a float64 always fits).
 func NewExtended(x float64) *Extended {
 	e := &Extended{}
-	e.f.SetPrec(64).SetMode(big.ToNearestEven).SetFloat64(x)
+	e.val.SetPrec(64).SetMode(big.ToNearestEven).SetFloat64(x)
 
 	return e
 }
@@ -75,7 +75,7 @@ func NewExtended(x float64) *Extended {
 // Quo returns e / y, rounded to 64 bits.
 func (e *Extended) Quo(y *Extended) *Extended {
 	r := NewExtended(0)
-	r.f.Quo(&e.f, &y.f)
+	r.val.Quo(&e.val, &y.val)
 
 	return r
 }
@@ -83,23 +83,23 @@ func (e *Extended) Quo(y *Extended) *Extended {
 // Mul returns e × y, rounded to 64 bits.
 func (e *Extended) Mul(y *Extended) *Extended {
 	r := NewExtended(0)
-	r.f.Mul(&e.f, &y.f)
+	r.val.Mul(&e.val, &y.val)
 
 	return r
 }
 
 // Int truncates toward zero, as Int does.
 func (e *Extended) Int() *Extended {
-	i, _ := e.f.Int(nil)
+	i, _ := e.val.Int(nil)
 	r := NewExtended(0)
-	r.f.SetInt(i)
+	r.val.SetInt(i)
 
 	return r
 }
 
 // Float64 rounds e to a Double, as storing it in a Double variable does.
 func (e *Extended) Float64() float64 {
-	x, _ := e.f.Float64()
+	x, _ := e.val.Float64()
 
 	return x
 }

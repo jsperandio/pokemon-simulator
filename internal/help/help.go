@@ -77,18 +77,18 @@ func Parse(src []byte) *Page {
 
 // PlainText returns spans' text without its styles.
 func PlainText(spans []Span) string {
-	var b strings.Builder
+	var sb strings.Builder
 
 	for _, s := range spans {
 		switch {
 		case s.Break:
-			b.WriteByte('\n')
+			sb.WriteByte('\n')
 		case s.Image == "":
-			b.WriteString(s.Text)
+			sb.WriteString(s.Text)
 		}
 	}
 
-	return b.String()
+	return sb.String()
 }
 
 // parseBlocks reads lines into blocks.
@@ -248,18 +248,18 @@ func trimLines(lines []string) []string {
 // parseList reads a list from line i, and returns the line after it. A
 // list goes on across blank lines while its items do, and an item takes
 // the lines that follow it up to the next block.
-func parseList(lines []string, i int) (b Block, next int) {
-	b = Block{Kind: List}
+func parseList(lines []string, i int) (blk Block, next int) {
+	blk = Block{Kind: List}
 	ordered := isOrdered(listMarker(lines[i]))
 
 	for i < len(lines) {
-		m := listMarker(lines[i])
-		if m == "" || isOrdered(m) != ordered {
+		marker := listMarker(lines[i])
+		if marker == "" || isOrdered(marker) != ordered {
 			break
 		}
 
 		t, _ := indent(lines[i])
-		text := []string{strings.TrimSpace(t[len(m):])}
+		text := []string{strings.TrimSpace(t[len(marker):])}
 
 		for i++; i < len(lines) && !isBlank(lines[i]) && !startsBlock(lines[i]); i++ {
 			text = append(text, strings.TrimLeft(lines[i], " "))
@@ -267,10 +267,10 @@ func parseList(lines []string, i int) (b Block, next int) {
 
 		item := Item{Spans: parseInline(strings.Join(text, "\n"))}
 		if ordered {
-			item.Marker = m
+			item.Marker = marker
 		}
 
-		b.Items = append(b.Items, item)
+		blk.Items = append(blk.Items, item)
 		j := i
 
 		for j < len(lines) && isBlank(lines[j]) {
@@ -284,7 +284,7 @@ func parseList(lines []string, i int) (b Block, next int) {
 		i = j
 	}
 
-	return b, i
+	return blk, i
 }
 
 // startsItem reports whether line starts an item of a list that is
@@ -322,9 +322,9 @@ func isTable(lines []string, i int) bool {
 }
 
 // parseTable reads a table from line i, and returns the line after it.
-func parseTable(lines []string, i int) (b Block, next int) {
+func parseTable(lines []string, i int) (blk Block, next int) {
 	cols := len(splitRow(lines[i+1]))
-	b = Block{Kind: Table}
+	blk = Block{Kind: Table}
 	row := func(line string) []Cell {
 		cells := make([]Cell, cols)
 		for k, c := range splitRow(line) {
@@ -335,13 +335,13 @@ func parseTable(lines []string, i int) (b Block, next int) {
 
 		return cells
 	}
-	b.Rows = append(b.Rows, row(lines[i]))
+	blk.Rows = append(blk.Rows, row(lines[i]))
 
 	for i += 2; i < len(lines) && !isBlank(lines[i]) && strings.Contains(lines[i], "|"); i++ {
-		b.Rows = append(b.Rows, row(lines[i]))
+		blk.Rows = append(blk.Rows, row(lines[i]))
 	}
 
-	return b, i
+	return blk, i
 }
 
 // splitRow splits a table row into its cells' texts, at the bars that

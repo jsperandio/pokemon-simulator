@@ -11,23 +11,23 @@ import (
 // Direct does the actions by calling the game's handlers, as the
 // original's controls did, with the Player as the game's UI.
 type Direct struct {
-	g *game.Game
+	game *game.Game
 }
 
 func (d *Direct) Launch(p *Player, file string, save []byte, hook func(*game.Game)) error {
-	d.g = game.New(p.Data, p)
-	hook(d.g)
+	d.game = game.New(p.Data, p)
+	hook(d.game)
 
 	if save == nil {
 		return nil
 	}
 
-	return d.g.Load(file, save)
+	return d.game.Load(file, save)
 }
 
 func (d *Direct) Menu(path []*game.MenuItem) error {
 	m := path[len(path)-1]
-	if !d.g.ClickMenu(m.Name) {
+	if !d.game.ClickMenu(m.Name) {
 		return fmt.Errorf("%s isn't a game command", m.Name)
 	}
 
@@ -35,44 +35,44 @@ func (d *Direct) Menu(path []*game.MenuItem) error {
 }
 
 func (d *Direct) Choose(i int) error {
-	d.g.ClickParty(i)
+	d.game.ClickParty(i)
 
 	return nil
 }
 
 func (d *Direct) Attack(k int) error {
-	d.g.Main.AttackIndex = k
-	d.g.Go()
+	d.game.Main.AttackIndex = k
+	d.game.Go()
 
 	return nil
 }
 
 func (d *Direct) Item(k int) error {
-	d.g.UseItem(k)
+	d.game.UseItem(k)
 
 	return nil
 }
 
 func (d *Direct) End() error {
-	d.g.EndFight()
+	d.game.EndFight()
 
 	return nil
 }
 
 func (d *Direct) Click(path string) error {
-	g := d.g
+	gam := d.game
 	press := map[string]func(){
 		"Form1.AboutButton":  func() {},
-		"Form4.Button2":      g.PickGo,
-		"Form4.Button3":      g.PickCancel,
-		"Form4.Button4":      g.PickRandom,
-		"Form4.EvolveButton": g.Evolve,
-		"Form8.Button1":      g.CloseDex,
-		"Form9.Button1":      g.Buy,
-		"Form9.Button2":      g.LeaveMart,
-		"FormA.Button1":      g.CloseTypes,
-		"FormB.Button1":      g.Draw,
-		"FormB.Button2":      g.CloseCorner,
+		"Form4.Button2":      gam.PickGo,
+		"Form4.Button3":      gam.PickCancel,
+		"Form4.Button4":      gam.PickRandom,
+		"Form4.EvolveButton": gam.Evolve,
+		"Form8.Button1":      gam.CloseDex,
+		"Form9.Button1":      gam.Buy,
+		"Form9.Button2":      gam.LeaveMart,
+		"FormA.Button1":      gam.CloseTypes,
+		"FormB.Button1":      gam.Draw,
+		"FormB.Button2":      gam.CloseCorner,
 	}[path]
 
 	if press == nil {
@@ -84,18 +84,18 @@ func (d *Direct) Click(path string) error {
 	return nil
 }
 
-func (d *Direct) Radio(path string, k int) error {
-	g := d.g
+func (d *Direct) Radio(path string, idx int) error {
+	g := d.game
 
 	switch path {
 	case "Form4.EvolveChoice":
-		g.ChooseEvolution(k)
+		g.ChooseEvolution(idx)
 	case "Form9.RadioGroup1":
-		g.SelectMartItem(k)
+		g.SelectMartItem(idx)
 	case "FormB.RadioGroup1":
-		g.SelectPrize(k)
+		g.SelectPrize(idx)
 	case "FormB.RadioGroup2":
-		g.SelectNumber(k)
+		g.SelectNumber(idx)
 	default:
 		return fmt.Errorf("unknown radio group %s", path)
 	}
@@ -104,7 +104,7 @@ func (d *Direct) Radio(path string, k int) error {
 }
 
 func (d *Direct) Combo(path string, i int) error {
-	g := d.g
+	g := d.game
 
 	switch path {
 	case "Form4.ComboBox1":
@@ -123,7 +123,7 @@ func (d *Direct) Combo(path string, i int) error {
 }
 
 func (d *Direct) Type(path string, n int) error {
-	g := d.g
+	g := d.game
 
 	switch path {
 	case "Form4.SpinEdit1":
@@ -142,36 +142,36 @@ func (d *Direct) Type(path string, n int) error {
 func (d *Direct) Text(path string) (string, error) {
 	switch path {
 	case "Form4":
-		return d.g.Main.Caption, nil
+		return d.game.Main.Caption, nil
 	case "Form9.Edit1":
-		return d.g.Mart.Total, nil
+		return d.game.Mart.Total, nil
 	}
 
 	return "", fmt.Errorf("no text for %s", path)
 }
 
 func (d *Direct) New(file, name string) error {
-	d.g.NewGame(file, name)
+	d.game.NewGame(file, name)
 
 	return nil
 }
 
 func (d *Direct) Load(file string, save []byte) error {
-	return d.g.Load(file, save)
+	return d.game.Load(file, save)
 }
 
 func (d *Direct) Starter(k int) error {
-	d.g.ChooseStarter(k)
+	d.game.ChooseStarter(k)
 
 	return nil
 }
 
 func (d *Direct) Export(file string) error {
-	d.g.Exported(file)
+	d.game.Exported(file)
 
 	return nil
 }
 
 func (d *Direct) Quit() ([]byte, error) {
-	return d.g.Close(), nil
+	return d.game.Close(), nil
 }

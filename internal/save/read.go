@@ -14,23 +14,23 @@ import (
 // with an I/O error half-way through a damaged file, it reads nothing then.
 func Read(b []byte) (*File, error) {
 	text := strings.TrimSuffix(strings.ReplaceAll(string(b), "\r\n", "\n"), "\n")
-	r := &reader{lines: strings.Split(text, "\n")}
-	f := &File{}
-	f.PlayerName = r.text()
-	v2 := f.PlayerName == Header
+	rdr := &reader{lines: strings.Split(text, "\n")}
+	sav := &File{}
+	sav.PlayerName = rdr.text()
+	v2 := sav.PlayerName == Header
 
 	if v2 {
-		f.PlayerName = r.text()
+		sav.PlayerName = rdr.text()
 	}
 
-	f.BeatLance, f.BeatAsh, f.BeatLink = r.boolean(), r.boolean(), r.boolean()
+	sav.BeatLance, sav.BeatAsh, sav.BeatLink = rdr.boolean(), rdr.boolean(), rdr.boolean()
 	if v2 {
-		f.GotJirachi, f.GotDeoxys = r.boolean(), r.boolean()
+		sav.GotJirachi, sav.GotDeoxys = rdr.boolean(), rdr.boolean()
 	}
 
-	f.GymProgress = uint8(r.number()) //nolint:gosec // the game keeps the low bits
-	for _, c := range f.counters() {
-		*c = uint32(r.number()) //nolint:gosec // the game keeps the low bits
+	sav.GymProgress = uint8(rdr.number()) //nolint:gosec // the game keeps the low bits
+	for _, c := range sav.counters() {
+		*c = uint32(rdr.number()) //nolint:gosec // the game keeps the low bits
 	}
 
 	dex := v1Species
@@ -39,28 +39,28 @@ func Read(b []byte) (*File, error) {
 	}
 
 	for s := 1; s <= dex; s++ {
-		f.InDex[s] = r.boolean()
+		sav.InDex[s] = rdr.boolean()
 	}
 
-	for i := range f.Owned {
-		f.Owned[i] = Slot{
-			Species: int32(r.number()),  //nolint:gosec // the game keeps the low bits
-			Level:   uint8(r.number()),  //nolint:gosec // the game keeps the low bits
-			XP:      uint32(r.number()), //nolint:gosec // the game keeps the low bits
+	for i := range sav.Owned {
+		sav.Owned[i] = Slot{
+			Species: int32(rdr.number()),  //nolint:gosec // the game keeps the low bits
+			Level:   uint8(rdr.number()),  //nolint:gosec // the game keeps the low bits
+			XP:      uint32(rdr.number()), //nolint:gosec // the game keeps the low bits
 		}
 	}
 
-	if r.err != nil {
-		return nil, r.err
+	if rdr.err != nil {
+		return nil, rdr.err
 	}
 
-	return f, nil
+	return sav, nil
 }
 
 // reader hands out the lines one value at a time and keeps the first error.
 type reader struct {
 	lines []string
-	n     int
+	idx   int
 	err   error
 }
 
@@ -69,15 +69,15 @@ func (r *reader) text() string {
 		return ""
 	}
 
-	if r.n >= len(r.lines) {
-		r.err = fmt.Errorf("save: the file ends at line %d", r.n+1)
+	if r.idx >= len(r.lines) {
+		r.err = fmt.Errorf("save: the file ends at line %d", r.idx+1)
 
 		return ""
 	}
 
-	r.n++
+	r.idx++
 
-	return delphi.DecodeANSI([]byte(r.lines[r.n-1]))
+	return delphi.DecodeANSI([]byte(r.lines[r.idx-1]))
 }
 
 // boolean is true for "TRUE" only, as the game's comparison is.
@@ -94,7 +94,7 @@ func (r *reader) number() int64 {
 
 	v, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
 	if err != nil {
-		r.err = fmt.Errorf("save: line %d: want a whole number, got %q", r.n, s)
+		r.err = fmt.Errorf("save: line %d: want a whole number, got %q", r.idx, s)
 	}
 
 	return v

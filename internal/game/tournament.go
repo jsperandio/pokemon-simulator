@@ -148,8 +148,8 @@ func (g *Game) drawLevels() {
 
 // isEvolved reports whether some species evolves into s.
 func (g *Game) isEvolved(s int) bool {
-	for _, sp := range g.Data.Species {
-		if sp.EvolveTo == s {
+	for _, spc := range g.Data.Species {
+		if spc.EvolveTo == s {
 			return true
 		}
 	}
@@ -174,18 +174,18 @@ func (g *Game) trainerName(i int) string {
 // handleTournament follows a tournament win (TForm4.HandleTournament): the
 // next round, or the prize after the eighth.
 func (g *Game) handleTournament() {
-	r := int(g.BattleType % 10) // the round won
-	if r < 8 {
+	round := int(g.BattleType % 10) // the round won
+	if round < 8 {
 		g.message(Information, fmt.Sprintf("Congratulations! You beat %s! Next up is trainer #%d, %s with a L.%d %s.",
-			g.trainerName(r-1), r+1, g.trainerName(r), g.TournamentLevels[r], g.name(g.TournamentSpecies[r])))
+			g.trainerName(round-1), round+1, g.trainerName(round), g.TournamentLevels[round], g.name(g.TournamentSpecies[round])))
 
 		g.BattleType++
-		g.StartTrainerBattle(g.TournamentSpecies[r], int(g.TournamentLevels[r]), g.trainerName(r))
+		g.StartTrainerBattle(g.TournamentSpecies[round], int(g.TournamentLevels[round]), g.trainerName(round))
 
 		g.InTournament = true
 	}
 
-	if r != 8 {
+	if round != 8 {
 		return
 	}
 

@@ -70,23 +70,23 @@ func (g *Game) ClickParty(k int) {
 	}
 
 	i := k + 1
-	m := g.member(i)
-	s := int(m.Species)
+	slt := g.member(i)
+	s := int(slt.Species)
 	name := g.name(s)
 	toNext := 0
 
-	if m.Level < 100 {
-		n := int(m.Level) + 1
-		toNext = n*n*n - int(m.XP)
+	if slt.Level < 100 {
+		n := int(slt.Level) + 1
+		toNext = n*n*n - int(slt.XP)
 	}
 
-	g.message(Information, fmt.Sprintf("# %03d %s, L.%d, XP:%d, XP to next level:%d", s, name, m.Level, m.XP, toNext))
+	g.message(Information, fmt.Sprintf("# %03d %s, L.%d, XP:%d, XP to next level:%d", s, name, slt.Level, slt.XP, toNext))
 
 	if g.InWildBattle && g.confirm("Choose "+name+"?") {
 		g.choose(i)
 	}
 
-	inLevelRange := g.MinLevel <= m.Level && m.Level <= g.MaxLevel
+	inLevelRange := g.MinLevel <= slt.Level && slt.Level <= g.MaxLevel
 	if g.InTrainerBattle && inLevelRange && g.confirm("Choose "+name+"?") {
 		g.choose(i)
 	}
@@ -165,18 +165,18 @@ func (g *Game) battleOver() {
 // victory when the enemy faints.
 func (g *Game) ownAttack(k int) {
 	crit := g.Rand.Random(10)+1 == 10
-	r := g.Rand.Random(20)
+	roll := g.Rand.Random(20)
 	m := g.member(g.OwnIndex)
 	own := g.species(int(m.Species))
 	enemy := g.species(g.EnemySpecies)
-	mv := g.move(own.Moves[k])
-	g.log(own.Name + " used " + mv.Name + "!")
+	mov := g.move(own.Moves[k])
+	g.log(own.Name + " used " + mov.Name + "!")
 
 	if crit {
 		g.log("Critical hit!")
 	}
 
-	d := g.hit(r, mv, int(m.Level), crit, enemy)
+	d := g.hit(roll, mov, int(m.Level), crit, enemy)
 	g.logf("%s did %d points of damage to enemy %s.", own.Name, d, enemy.Name)
 
 	g.EnemyHP -= d
@@ -197,22 +197,22 @@ func (g *Game) ownAttack(k int) {
 func (g *Game) oppAttack() {
 	k := g.Rand.Random(4)
 	crit := g.Rand.Random(10)+1 == 10
-	r := g.Rand.Random(20)
-	m := g.member(g.OwnIndex)
-	own := g.species(int(m.Species))
+	roll := g.Rand.Random(20)
+	slt := g.member(g.OwnIndex)
+	own := g.species(int(slt.Species))
 	enemy := g.species(g.EnemySpecies)
-	mv := g.move(enemy.Moves[k])
-	g.log("Enemy " + enemy.Name + " used " + mv.Name + "!")
+	mov := g.move(enemy.Moves[k])
+	g.log("Enemy " + enemy.Name + " used " + mov.Name + "!")
 
 	if crit {
 		g.log("Critical hit!")
 	}
 
-	d := g.hit(r, mv, int(g.EnemyLevel), crit, own)
+	d := g.hit(roll, mov, int(g.EnemyLevel), crit, own)
 	g.logf("Enemy %s did %d points of damage to %s.", enemy.Name, d, own.Name)
 
 	g.OwnHP -= d
-	g.Main.OwnColor = gaugeColor(g.OwnHP, int(m.Level))
+	g.Main.OwnColor = gaugeColor(g.OwnHP, int(slt.Level))
 
 	if g.OwnHP < 0 {
 		g.OwnHP = 0
@@ -235,18 +235,18 @@ func (g *Game) oppAttack() {
 
 // move returns move id, or a placeholder for one the tables don't have.
 func (g *Game) move(id int) *gamedata.Move {
-	if mv := g.Data.MoveByID(id); mv != nil {
-		return mv
+	if mov := g.Data.MoveByID(id); mov != nil {
+		return mov
 	}
 
 	return &gamedata.Move{ID: id}
 }
 
 // hit logs the type messages of an attack on def and returns its damage.
-func (g *Game) hit(r int, mv *gamedata.Move, level int, crit bool, def *gamedata.Species) int {
-	t1 := g.Data.Effect(mv.Type, def.Types[0])
-	t2 := g.Data.Effect(mv.Type, def.Types[1])
-	d := Damage(r, mv.Power, level, crit, t1, t2)
+func (g *Game) hit(r int, mov *gamedata.Move, level int, crit bool, def *gamedata.Species) int {
+	t1 := g.Data.Effect(mov.Type, def.Types[0])
+	t2 := g.Data.Effect(mov.Type, def.Types[1])
+	damage := Damage(r, mov.Power, level, crit, t1, t2)
 
 	if superEffective(t1, t2) {
 		g.log("It's super effective!")
@@ -259,10 +259,10 @@ func (g *Game) hit(r int, mv *gamedata.Move, level int, crit bool, def *gamedata
 	if t1 == 0 || t2 == 0 {
 		g.log("It doesn't affect " + def.Name + "!")
 
-		d = 0
+		damage = 0
 	}
 
-	return d
+	return damage
 }
 
 // superEffective reports whether the multipliers t1 and t2 of an attack
@@ -312,28 +312,28 @@ func Damage(r, power, level int, crit bool, t1, t2 float64) int {
 func (g *Game) victory() {
 	g.battleOver()
 
-	m := g.member(g.OwnIndex)
-	own := g.name(int(m.Species))
+	slt := g.member(g.OwnIndex)
+	own := g.name(int(slt.Species))
 	g.log("Enemy " + g.name(g.EnemySpecies) + " fainted!")
 
 	e := uint32(g.EnemyLevel)
 	gain := e*e*e - (e-1)*(e-1)*(e-1)
 	g.logf("%s gained %d experience points!", own, gain)
 
-	m.XP += gain
-	old := m.Level
+	slt.XP += gain
+	old := slt.Level
 	// No levels mid-tournament or in the R/B/Y and Ru/Sa Elite Four:
 	// they catch up at the next win, loss or tournament end.
 	if g.BattleType < 11 || g.BattleType%10 > 7 {
-		m.Level = levelFor(m.Level, m.XP)
+		slt.Level = levelFor(slt.Level, slt.XP)
 	}
 
-	if m.XP > maxXP {
-		m.Level, m.XP = 100, maxXP
+	if slt.XP > maxXP {
+		slt.Level, slt.XP = 100, maxXP
 	}
 
-	if m.Level > old {
-		g.logf("%s grew to level %d!", own, m.Level)
+	if slt.Level > old {
+		g.logf("%s grew to level %d!", own, slt.Level)
 	}
 
 	r := g.Rand.Random(3) + 1

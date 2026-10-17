@@ -95,88 +95,88 @@ type Data struct {
 // the last section.
 func Load(raw []byte) (*Data, error) {
 	text := strings.ReplaceAll(delphi.DecodeANSI(raw), "\r\n", "\n")
-	r := &lineReader{lines: strings.Split(text, "\n")}
-	d := &Data{
+	lr := &lineReader{lines: strings.Split(text, "\n")}
+	gdt := &Data{
 		Species: make([]Species, NumSpecies),
 		Moves:   make([]Move, NumMoves),
 	}
 
 	for a := range NumTypes {
 		for t := range NumTypes {
-			d.Effectiveness[a][t] = r.float()
+			gdt.Effectiveness[a][t] = lr.float()
 		}
 	}
 
-	for i := range d.Species {
-		d.Species[i].ID = i + 1
-		d.Species[i].Name = r.text()
+	for i := range gdt.Species {
+		gdt.Species[i].ID = i + 1
+		gdt.Species[i].Name = lr.text()
 	}
 
-	d.Badges = r.texts(NumBadges)
-	for i := range d.Species {
-		d.Species[i].Types = [2]Type{Type(r.int()), Type(r.int())}
+	gdt.Badges = lr.texts(NumBadges)
+	for i := range gdt.Species {
+		gdt.Species[i].Types = [2]Type{Type(lr.int()), Type(lr.int())}
 	}
 
-	for i := range d.Species {
-		d.Species[i].EvolveLevel = r.int()
+	for i := range gdt.Species {
+		gdt.Species[i].EvolveLevel = lr.int()
 	}
 
-	for i := range d.Species {
-		d.Species[i].EvolveTo = r.int()
+	for i := range gdt.Species {
+		gdt.Species[i].EvolveTo = lr.int()
 	}
 
-	for i := range d.Moves {
-		d.Moves[i].ID = i + 1
-		d.Moves[i].Name = r.text()
+	for i := range gdt.Moves {
+		gdt.Moves[i].ID = i + 1
+		gdt.Moves[i].Name = lr.text()
 	}
 
-	for i := range d.Moves {
-		d.Moves[i].Power = r.int()
+	for i := range gdt.Moves {
+		gdt.Moves[i].Power = lr.int()
 	}
 
-	for i := range d.Moves {
-		d.Moves[i].Type = Type(r.int())
+	for i := range gdt.Moves {
+		gdt.Moves[i].Type = Type(lr.int())
 	}
 
-	for i := range d.TypeNames {
-		d.TypeNames[i] = r.text()
+	for i := range gdt.TypeNames {
+		gdt.TypeNames[i] = lr.text()
 	}
 
-	for i := range d.Species {
-		for m := range d.Species[i].Moves {
-			d.Species[i].Moves[m] = r.int()
+	for i := range gdt.Species {
+		for m := range gdt.Species[i].Moves {
+			gdt.Species[i].Moves[m] = lr.int()
 		}
 	}
 
-	d.Prizes = r.texts(NumPrizes)
-	d.TrainerNames = r.texts(NumTrainerNames)
+	gdt.Prizes = lr.texts(NumPrizes)
+	gdt.TrainerNames = lr.texts(NumTrainerNames)
 
-	if r.err != nil {
-		return nil, r.err
+	if lr.err != nil {
+		return nil, lr.err
 	}
 
-	if err := d.validate(); err != nil {
+	if err := gdt.validate(); err != nil {
 		return nil, err
 	}
 
-	return d, nil
+	return gdt, nil
 }
 
 // validate checks that every reference points at an existing entry, so
 // that a modified file fails here rather than in the middle of a battle.
 func (d *Data) validate() error {
-	for _, s := range d.Species {
-		if !s.Types[0].valid() || !s.Types[1].validOrNone() {
-			return fmt.Errorf("pokegame.dat: %s has invalid types %v", s.Name, s.Types)
+	for _, spc := range d.Species {
+		if !spc.Types[0].valid() || !spc.Types[1].validOrNone() {
+			return fmt.Errorf("pokegame.dat: %s has invalid types %v", spc.Name, spc.Types)
 		}
 
-		if s.EvolveTo < 0 || s.EvolveTo > NumSpecies {
-			return fmt.Errorf("pokegame.dat: %s evolves into unknown species %d", s.Name, s.EvolveTo)
+		if spc.EvolveTo < 0 || spc.EvolveTo > NumSpecies {
+			return fmt.Errorf("pokegame.dat: %s evolves into unknown species %d", spc.Name, spc.EvolveTo)
 		}
 
-		for _, m := range s.Moves {
+		for _, m := range spc.Moves {
 			if d.MoveByID(m) == nil {
-				return fmt.Errorf("pokegame.dat: %s knows unknown move %d", s.Name, m)
+				return fmt.Errorf("pokegame.dat: %s knows unknown move %d", spc.Name, m)
 			}
 		}
 	}
@@ -231,7 +231,7 @@ func (d *Data) Effect(atk, def Type) float64 {
 // remembers the first error.
 type lineReader struct {
 	lines []string
-	n     int
+	idx   int
 	err   error
 }
 
@@ -240,15 +240,15 @@ func (lr *lineReader) text() string {
 		return ""
 	}
 
-	if lr.n >= len(lr.lines) {
-		lr.err = fmt.Errorf("pokegame.dat: unexpected end of file at line %d", lr.n+1)
+	if lr.idx >= len(lr.lines) {
+		lr.err = fmt.Errorf("pokegame.dat: unexpected end of file at line %d", lr.idx+1)
 
 		return ""
 	}
 
-	lr.n++
+	lr.idx++
 
-	return lr.lines[lr.n-1]
+	return lr.lines[lr.idx-1]
 }
 
 func (lr *lineReader) texts(n int) []string {
@@ -268,7 +268,7 @@ func (lr *lineReader) int() int {
 
 	v, err := strconv.Atoi(strings.TrimSpace(s))
 	if err != nil {
-		lr.err = fmt.Errorf("pokegame.dat: line %d: want a whole number, got %q", lr.n, s)
+		lr.err = fmt.Errorf("pokegame.dat: line %d: want a whole number, got %q", lr.idx, s)
 	}
 
 	return v
@@ -282,7 +282,7 @@ func (lr *lineReader) float() float64 {
 
 	v, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
 	if err != nil {
-		lr.err = fmt.Errorf("pokegame.dat: line %d: want a number, got %q", lr.n, s)
+		lr.err = fmt.Errorf("pokegame.dat: line %d: want a number, got %q", lr.idx, s)
 	}
 
 	return v

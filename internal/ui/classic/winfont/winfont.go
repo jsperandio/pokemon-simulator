@@ -33,56 +33,56 @@ type glyph struct {
 }
 
 // Parse returns the fonts of a .fon file.
-func Parse(b []byte) ([]*Font, error) {
-	if len(b) < 0x40 || string(b[:2]) != "MZ" {
+func Parse(dat []byte) ([]*Font, error) {
+	if len(dat) < 0x40 || string(dat[:2]) != "MZ" {
 		return nil, errors.New("winfont: not an executable")
 	}
 
-	ne := int(binary.LittleEndian.Uint32(b[0x3C:]))
-	if ne+0x26 > len(b) || string(b[ne:ne+2]) != "NE" {
+	ne := int(binary.LittleEndian.Uint32(dat[0x3C:]))
+	if ne+0x26 > len(dat) || string(dat[ne:ne+2]) != "NE" {
 		return nil, errors.New("winfont: not a 16-bit (NE) executable")
 	}
 
-	p := ne + int(binary.LittleEndian.Uint16(b[ne+0x24:]))
-	if p+2 > len(b) {
+	pos := ne + int(binary.LittleEndian.Uint16(dat[ne+0x24:]))
+	if pos+2 > len(dat) {
 		return nil, errors.New("winfont: bad resource table")
 	}
 
-	shift := binary.LittleEndian.Uint16(b[p:])
-	p += 2
+	shift := binary.LittleEndian.Uint16(dat[pos:])
+	pos += 2
 
 	var fonts []*Font
 
 	for {
-		if p+8 > len(b) {
+		if pos+8 > len(dat) {
 			return nil, errors.New("winfont: truncated resource table")
 		}
 
-		typ, n := binary.LittleEndian.Uint16(b[p:]), int(binary.LittleEndian.Uint16(b[p+2:]))
-		p += 8
+		typ, n := binary.LittleEndian.Uint16(dat[pos:]), int(binary.LittleEndian.Uint16(dat[pos+2:]))
+		pos += 8
 
 		if typ == 0 {
 			break
 		}
 
 		for range n {
-			if p+12 > len(b) {
+			if pos+12 > len(dat) {
 				return nil, errors.New("winfont: truncated resource table")
 			}
 
-			off := int(binary.LittleEndian.Uint16(b[p:])) << shift
-			size := int(binary.LittleEndian.Uint16(b[p+2:])) << shift
-			p += 12
+			off := int(binary.LittleEndian.Uint16(dat[pos:])) << shift
+			size := int(binary.LittleEndian.Uint16(dat[pos+2:])) << shift
+			pos += 12
 
 			if typ != 0x8008 { // RT_FONT
 				continue
 			}
 
-			if off+size > len(b) {
+			if off+size > len(dat) {
 				return nil, errors.New("winfont: resource out of the file")
 			}
 
-			f, err := parseFNT(b[off : off+size])
+			f, err := parseFNT(dat[off : off+size])
 			if err != nil {
 				return nil, err
 			}
@@ -99,36 +99,36 @@ func Parse(b []byte) ([]*Font, error) {
 }
 
 // parseFNT reads a version 2 or 3 FNT resource.
-func parseFNT(b []byte) (*Font, error) {
-	if len(b) < 118 {
+func parseFNT(dat []byte) (*Font, error) {
+	if len(dat) < 118 {
 		return nil, errors.New("winfont: truncated font")
 	}
 
-	version := u16(b, 0)
+	version := u16(dat, 0)
 
 	if version != 0x200 && version != 0x300 {
 		return nil, fmt.Errorf("winfont: FNT version %#x", version)
 	}
 
-	if u16(b, 66)&1 != 0 {
+	if u16(dat, 66)&1 != 0 {
 		return nil, errors.New("winfont: a vector font")
 	}
 
-	f := &Font{
-		Name:   faceName(b, u32(b, 105)),
-		Points: u16(b, 68),
-		Ascent: u16(b, 74),
-		Height: u16(b, 88),
-		first:  b[95],
-		last:   b[96],
+	fnt := &Font{
+		Name:   faceName(dat, u32(dat, 105)),
+		Points: u16(dat, 68),
+		Ascent: u16(dat, 74),
+		Height: u16(dat, 88),
+		first:  dat[95],
+		last:   dat[96],
 	}
-	f.dflt = f.first + b[97]
+	fnt.dflt = fnt.first + dat[97]
 
-	if err := f.readGlyphs(b, version); err != nil {
+	if err := fnt.readGlyphs(dat, version); err != nil {
 		return nil, err
 	}
 
-	return f, nil
+	return fnt, nil
 }
 
 func u16(b []byte, o int) int {
@@ -156,44 +156,44 @@ func faceName(b []byte, face int) string {
 
 // readGlyphs reads the character table of an FNT resource of the given
 // version, and the glyphs' bitmaps it points at.
-func (f *Font) readGlyphs(b []byte, version int) error {
+func (f *Font) readGlyphs(dat []byte, version int) error {
 	table, entry := 118, 4
 	if version == 0x300 {
 		table, entry = 148, 6
 	}
 
 	n := int(f.last) - int(f.first) + 1
-	if n <= 0 || table+n*entry > len(b) || f.Height <= 0 {
+	if n <= 0 || table+n*entry > len(dat) || f.Height <= 0 {
 		return errors.New("winfont: bad character table")
 	}
 
 	f.glyphs = make([]glyph, n)
 	for i := range f.glyphs {
 		e := table + i*entry
-		w := u16(b, e)
+		wid := u16(dat, e)
 
-		off := u16(b, e+2)
+		off := u16(dat, e+2)
 		if version == 0x300 {
-			off = u32(b, e+2)
+			off = u32(dat, e+2)
 		}
 
-		cols := (w + 7) / 8
-		if w > 32 || off+cols*f.Height > len(b) {
+		cols := (wid + 7) / 8
+		if wid > 32 || off+cols*f.Height > len(dat) {
 			return fmt.Errorf("winfont: glyph %d out of range", int(f.first)+i)
 		}
 
-		g := glyph{
-			width: w,
+		gly := glyph{
+			width: wid,
 			rows:  make([]uint32, f.Height),
 		}
 		// Each byte column holds 8 pixels of every row, top to bottom.
 		for c := range cols {
 			for y := range f.Height {
-				g.rows[y] |= uint32(b[off+c*f.Height+y]) << (24 - 8*c)
+				gly.rows[y] |= uint32(dat[off+c*f.Height+y]) << (24 - 8*c)
 			}
 		}
 
-		f.glyphs[i] = g
+		f.glyphs[i] = gly
 	}
 
 	return nil
@@ -227,8 +227,8 @@ func (f *Font) Width(s string, bold bool) int {
 func (f *Font) Draw(dst *image.RGBA, clip image.Rectangle, x, y int, s string, c color.RGBA, bold bool) int {
 	clip = clip.Intersect(dst.Rect)
 
-	for _, ch := range delphi.EncodeANSI(s) {
-		g := f.glyph(ch)
+	for _, chr := range delphi.EncodeANSI(s) {
+		g := f.glyph(chr)
 		f.drawGlyph(dst, clip, x, y, g, c)
 
 		if bold {
@@ -243,7 +243,7 @@ func (f *Font) Draw(dst *image.RGBA, clip image.Rectangle, x, y int, s string, c
 	return x
 }
 
-func (f *Font) drawGlyph(dst *image.RGBA, clip image.Rectangle, x, y int, g *glyph, c color.RGBA) {
+func (f *Font) drawGlyph(dst *image.RGBA, clip image.Rectangle, x, y int, g *glyph, clr color.RGBA) {
 	for row, bits := range g.rows {
 		py := y + row
 		if py < clip.Min.Y || py >= clip.Max.Y || bits == 0 {
@@ -261,7 +261,7 @@ func (f *Font) drawGlyph(dst *image.RGBA, clip image.Rectangle, x, y int, g *gly
 			}
 
 			i := dst.PixOffset(px, py)
-			dst.Pix[i], dst.Pix[i+1], dst.Pix[i+2], dst.Pix[i+3] = c.R, c.G, c.B, c.A
+			dst.Pix[i], dst.Pix[i+1], dst.Pix[i+2], dst.Pix[i+3] = clr.R, clr.G, clr.B, clr.A
 		}
 	}
 }

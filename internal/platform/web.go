@@ -99,24 +99,24 @@ func (m *memory) List(dir string) ([]Entry, error) {
 	return out, nil
 }
 
-func (m *memory) Stat(p string) (Entry, error) {
+func (m *memory) Stat(pth string) (Entry, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	p = path.Clean(p)
-	if t, ok := m.dirs[p]; ok {
+	pth = path.Clean(pth)
+	if t, ok := m.dirs[pth]; ok {
 		return Entry{
-			Name:    path.Base(p),
+			Name:    path.Base(pth),
 			Dir:     true,
 			ModTime: t,
 		}, nil
 	}
 
-	if b, ok := m.files[p]; ok {
+	if b, ok := m.files[pth]; ok {
 		return Entry{
-			Name:    path.Base(p),
+			Name:    path.Base(pth),
 			Size:    int64(len(b)),
-			ModTime: m.times[p],
+			ModTime: m.times[pth],
 		}, nil
 	}
 
@@ -135,11 +135,11 @@ func (m *memory) ReadFile(p string) ([]byte, error) {
 	return append([]byte(nil), b...), nil
 }
 
-func (m *memory) WriteFile(p string, data []byte) error {
+func (m *memory) WriteFile(pth string, data []byte) error {
 	m.mu.Lock()
 
-	p = path.Clean(p)
-	if _, ok := m.dirs[path.Dir(p)]; !ok {
+	pth = path.Clean(pth)
+	if _, ok := m.dirs[path.Dir(pth)]; !ok {
 		m.mu.Unlock()
 
 		return ErrNotExist
@@ -147,8 +147,8 @@ func (m *memory) WriteFile(p string, data []byte) error {
 
 	now := time.Now()
 
-	m.files[p] = append([]byte(nil), data...)
-	m.times[p] = now
+	m.files[pth] = append([]byte(nil), data...)
+	m.times[pth] = now
 	db := m.db
 	m.mu.Unlock()
 
@@ -156,21 +156,21 @@ func (m *memory) WriteFile(p string, data []byte) error {
 		return nil
 	}
 
-	return db.put(p, false, now, data)
+	return db.put(pth, false, now, data)
 }
 
-func (m *memory) Mkdir(p string) error {
+func (m *memory) Mkdir(pth string) error {
 	m.mu.Lock()
 
-	p = path.Clean(p)
-	if _, ok := m.dirs[path.Dir(p)]; !ok {
+	pth = path.Clean(pth)
+	if _, ok := m.dirs[path.Dir(pth)]; !ok {
 		m.mu.Unlock()
 
 		return ErrNotExist
 	}
 
 	now := time.Now()
-	m.dirs[p] = now
+	m.dirs[pth] = now
 	db := m.db
 	m.mu.Unlock()
 
@@ -178,34 +178,34 @@ func (m *memory) Mkdir(p string) error {
 		return nil
 	}
 
-	return db.put(p, true, now, nil)
+	return db.put(pth, true, now, nil)
 }
 
 // restore adds a file or folder read from the database, and the folders
 // it is in.
-func (m *memory) restore(p string, dir bool, t time.Time, data []byte) {
+func (m *memory) restore(pth string, dir bool, t time.Time, data []byte) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	p = path.Clean(p)
-	if !strings.HasPrefix(p, "/") {
+	pth = path.Clean(pth)
+	if !strings.HasPrefix(pth, "/") {
 		return
 	}
 
-	for d := path.Dir(p); d != "/"; d = path.Dir(d) {
+	for d := path.Dir(pth); d != "/"; d = path.Dir(d) {
 		if _, ok := m.dirs[d]; !ok {
 			m.dirs[d] = t
 		}
 	}
 
 	if dir {
-		m.dirs[p] = t
+		m.dirs[pth] = t
 
 		return
 	}
 
-	m.files[p] = data
-	m.times[p] = t
+	m.files[pth] = data
+	m.times[pth] = t
 }
 
 func (m *memory) Join(dir, name string) string {

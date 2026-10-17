@@ -53,12 +53,12 @@ type Component struct {
 // Find returns the descendant of c with the given name, or nil.
 func (c *Component) Find(name string) *Component {
 	for i := range c.Children {
-		ch := &c.Children[i]
-		if ch.Name == name {
-			return ch
+		chd := &c.Children[i]
+		if chd.Name == name {
+			return chd
 		}
 
-		if found := ch.Find(name); found != nil {
+		if found := chd.Find(name); found != nil {
 			return found
 		}
 	}

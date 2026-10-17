@@ -123,18 +123,18 @@ var branches = map[int]struct {
 
 // evolve is Evolution Mode's double click on party member i.
 func (g *Game) evolve(i int) {
-	m := g.member(i)
-	s := int(m.Species)
-	sp := g.species(s)
-	name := sp.Name
-	level := uint8(sp.EvolveLevel) //nolint:gosec // a Byte in the original
-	b, branched := branches[s]
+	slt := g.member(i)
+	species := int(slt.Species)
+	spc := g.species(species)
+	name := spc.Name
+	level := uint8(spc.EvolveLevel) //nolint:gosec // a Byte in the original
+	b, branched := branches[species]
 
 	switch {
 	case level == 0:
 		g.message(Information, name+" can't evolve.")
-	case m.Level < level:
-		g.message(Information, fmt.Sprintf("Your %s needs to grow %d more level(s) before it can evolve.", name, level-m.Level))
+	case slt.Level < level:
+		g.message(Information, fmt.Sprintf("Your %s needs to grow %d more level(s) before it can evolve.", name, level-slt.Level))
 	case branched:
 		g.message(Information, "Please select what you would like to evolve your "+b.from+" to.")
 
@@ -142,10 +142,10 @@ func (g *Game) evolve(i int) {
 		g.Main.Choice = 0
 		g.EvolveIndex = i
 		g.Stats.PartyEnabled = false
-	case s == 290:
-		g.evolveNincada(m, sp)
+	case species == 290:
+		g.evolveNincada(slt, spc)
 	default:
-		g.evolveTo(m, sp)
+		g.evolveTo(slt, spc)
 	}
 
 	g.menu["Evolve1"].Checked = false
@@ -155,15 +155,15 @@ func (g *Game) evolve(i int) {
 
 // evolveNincada asks to evolve Nincada into Ninjask, which gives a Shedinja
 // too 3 of 4 times. After a No it asks as for any other species.
-func (g *Game) evolveNincada(m *save.Slot, sp *gamedata.Species) {
+func (g *Game) evolveNincada(slt *save.Slot, spc *gamedata.Species) {
 	ninjask := g.species(290).EvolveTo
 	if !g.confirm("Your " + g.name(290) + " can evolve into " + g.name(ninjask) + ". Do you want to evolve it? NOTE: Nincada will evolve into Ninjask AND Shedinja every 3 of 4 times.") {
-		g.evolveTo(m, sp)
+		g.evolveTo(slt, spc)
 
 		return
 	}
 
-	m.Species = 291
+	slt.Species = 291
 	g.InDex[291] = true
 	g.message(Information, g.name(290)+" evolved into "+g.name(291)+"!")
 
@@ -171,17 +171,17 @@ func (g *Game) evolveNincada(m *save.Slot, sp *gamedata.Species) {
 		g.message(Information, "Shedinja didn't appear.")
 	} else {
 		g.message(Information, "Nincada also evolved into Shedinja!")
-		g.AddPKMN(292, "Shedinja", m.Level)
+		g.AddPKMN(292, "Shedinja", slt.Level)
 	}
 }
 
 // evolveTo asks to evolve m into what its species evolves to.
-func (g *Game) evolveTo(m *save.Slot, sp *gamedata.Species) {
-	t := sp.EvolveTo
-	if g.confirm("Your " + sp.Name + " can evolve into " + g.name(t) + ". Do you want to evolve it?") {
+func (g *Game) evolveTo(m *save.Slot, spc *gamedata.Species) {
+	t := spc.EvolveTo
+	if g.confirm("Your " + spc.Name + " can evolve into " + g.name(t) + ". Do you want to evolve it?") {
 		m.Species = int32(t) //nolint:gosec // a species number
 		g.InDex[t] = true
-		g.message(Information, sp.Name+" evolved into "+g.name(t)+"!")
+		g.message(Information, spc.Name+" evolved into "+g.name(t)+"!")
 	}
 }
 

@@ -35,7 +35,7 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 				t.Fatal(err)
 			}
 
-			p := &Player{
+			ply := &Player{
 				Name: name,
 				Dir:  dir,
 				Data: data,
@@ -45,14 +45,14 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 				Saves: saves,
 			}
 
-			want, err := p.Play(string(src))
+			want, err := ply.Play(string(src))
 			if err != nil {
-				t.Errorf("%v\n%s", err, tail(p.out, 8))
+				t.Errorf("%v\n%s", err, tail(ply.out, 8))
 
 				return
 			}
 
-			compare(t, want, p.out)
+			compare(t, want, ply.out)
 		})
 	}
 }
@@ -63,18 +63,18 @@ func compare(t *testing.T, want, got []string) {
 	t.Helper()
 
 	for i := range max(len(want), len(got)) {
-		w, g := "(end)", "(end)"
+		wantLine, gotLine := "(end)", "(end)"
 		if i < len(want) {
-			w = want[i]
+			wantLine = want[i]
 		}
 
 		if i < len(got) {
-			g = got[i]
+			gotLine = got[i]
 		}
 
-		if w != g {
+		if wantLine != gotLine {
 			t.Errorf("line %d differs:\noriginal: %s\nport:     %s\nthe port's trace before it:\n%s",
-				i+1, w, g, tail(got[:min(i, len(got))], 8))
+				i+1, wantLine, gotLine, tail(got[:min(i, len(got))], 8))
 
 			return
 		}

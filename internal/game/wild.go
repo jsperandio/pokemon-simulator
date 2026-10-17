@@ -64,30 +64,30 @@ func (g *Game) FindPKMN() {
 		return
 	}
 
-	s := g.Rand.Random(386) + 1
-	for !g.wildAllowed(s) {
-		s = g.Rand.Random(386) + 1
+	species := g.Rand.Random(386) + 1
+	for !g.wildAllowed(species) {
+		species = g.Rand.Random(386) + 1
 	}
 
 	// Each rule that applies draws a level; the last one counts.
-	l := g.Rand.Random(30) + 71
+	level := g.Rand.Random(30) + 71
 	if !g.InDex[150] {
-		l = g.Rand.Random(30) + 61
+		level = g.Rand.Random(30) + 61
 	}
 
 	if !g.BeatAsh {
-		l = g.Rand.Random(20) + 61
+		level = g.Rand.Random(20) + 61
 	}
 
 	gp := g.GymProgress
 	for _, rule := range wildLevels {
 		if gp < rule.below {
-			l = g.Rand.Random(rule.n) + rule.base
+			level = g.Rand.Random(rule.n) + rule.base
 		}
 	}
 
 	g.BattleType = 2
-	g.StartWildBattle(s, l)
+	g.StartWildBattle(species, level)
 }
 
 // wildLevels are the level rules by badge count, in the order they draw.

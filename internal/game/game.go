@@ -220,42 +220,42 @@ func (g *Game) Party() []save.Slot {
 // original's forms when they are created. The random generator is seeded
 // from the clock, as the original's Randomize did.
 func New(data *gamedata.Data, ui UI) *Game {
-	g := &Game{
+	gam := &Game{
 		Data: data,
 		UI:   ui,
 		Rand: &delphi.Rand{},
 	}
 
-	g.Rand.Randomize()
+	gam.Rand.Randomize()
 
-	g.Start.Visible = true
+	gam.Start.Visible = true
 
-	g.Main = MainWindow{
+	gam.Main = MainWindow{
 		Caption:     Title,
 		AttackIndex: -1,
 		PickSpecies: -1,
 		PickLevel:   100,
 	}
 
-	g.Stats.PartyEnabled = true
-	g.Stats.ItemEnabled = [6]bool{true, true, true, true, true, true}
+	gam.Stats.PartyEnabled = true
+	gam.Stats.ItemEnabled = [6]bool{true, true, true, true, true, true}
 
-	g.Info.Lines = []string{""} // Memo1's design-time text
+	gam.Info.Lines = []string{""} // Memo1's design-time text
 
-	g.Dex.Index = -1
-	g.Mart.Item = -1
-	g.Types.Species, g.Types.Attack = -1, -1
-	g.Corner.Prize, g.Corner.Number, g.Corner.Drawn = -1, -1, -1
-	g.buildMenu()
+	gam.Dex.Index = -1
+	gam.Mart.Item = -1
+	gam.Types.Species, gam.Types.Attack = -1, -1
+	gam.Corner.Prize, gam.Corner.Number, gam.Corner.Drawn = -1, -1, -1
+	gam.buildMenu()
 
-	return g
+	return gam
 }
 
 // species returns species s, or a nameless placeholder for an index the
 // original would read out of its tables.
 func (g *Game) species(s int) *gamedata.Species {
-	if sp := g.Data.SpeciesByID(s); sp != nil {
-		return sp
+	if spc := g.Data.SpeciesByID(s); spc != nil {
+		return spc
 	}
 
 	return &gamedata.Species{ID: s}
