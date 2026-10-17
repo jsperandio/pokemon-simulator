@@ -232,54 +232,54 @@ type lineReader struct {
 	err   error
 }
 
-func (r *lineReader) text() string {
-	if r.err != nil {
+func (lr *lineReader) text() string {
+	if lr.err != nil {
 		return ""
 	}
 
-	if r.n >= len(r.lines) {
-		r.err = fmt.Errorf("pokegame.dat: unexpected end of file at line %d", r.n+1)
+	if lr.n >= len(lr.lines) {
+		lr.err = fmt.Errorf("pokegame.dat: unexpected end of file at line %d", lr.n+1)
 
 		return ""
 	}
 
-	r.n++
+	lr.n++
 
-	return r.lines[r.n-1]
+	return lr.lines[lr.n-1]
 }
 
-func (r *lineReader) texts(n int) []string {
+func (lr *lineReader) texts(n int) []string {
 	s := make([]string, n)
 	for i := range s {
-		s[i] = r.text()
+		s[i] = lr.text()
 	}
 
 	return s
 }
 
-func (r *lineReader) int() int {
-	s := r.text()
-	if r.err != nil {
+func (lr *lineReader) int() int {
+	s := lr.text()
+	if lr.err != nil {
 		return 0
 	}
 
 	v, err := strconv.Atoi(strings.TrimSpace(s))
 	if err != nil {
-		r.err = fmt.Errorf("pokegame.dat: line %d: want a whole number, got %q", r.n, s)
+		lr.err = fmt.Errorf("pokegame.dat: line %d: want a whole number, got %q", lr.n, s)
 	}
 
 	return v
 }
 
-func (r *lineReader) float() float64 {
-	s := r.text()
-	if r.err != nil {
+func (lr *lineReader) float() float64 {
+	s := lr.text()
+	if lr.err != nil {
 		return 0
 	}
 
 	v, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
 	if err != nil {
-		r.err = fmt.Errorf("pokegame.dat: line %d: want a number, got %q", r.n, s)
+		lr.err = fmt.Errorf("pokegame.dat: line %d: want a number, got %q", lr.n, s)
 	}
 
 	return v
