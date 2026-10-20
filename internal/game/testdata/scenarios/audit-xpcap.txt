@@ -1,0 +1,54 @@
+# Audit: two members over 1,000,000 XP; a loss recomputes every level, with the cap.
+party 6 50 2000000
+party 1 5 3000000
+> start
+> seed 11
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 133
+rand 386 = 60
+rand 386 = 238
+rand 30 = 29
+rand 30 = 19
+rand 20 = 15
+rand 30 = 17
+rand 20 = 9
+rand 20 = 19
+rand 10 = 6
+rand 10 = 4
+rand 19 = 0
+rand 9 = 4
+log Wild Elekid appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 001 Bulbasaur, L.5, XP:3000000, XP to next level:-2999784" -> OK
+dialog confirmation "Choose Bulbasaur?" -> Yes
+log Bulbasaur, I choose you!
+> set EnemyHP 999
+> set OwnHP 1
+> move 1
+rand 10 = 2
+rand 20 = 12
+log Bulbasaur used Tackle!
+log Bulbasaur did 5 points of damage to enemy Elekid.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 16
+log Enemy Elekid used Quick Attack!
+log Enemy Elekid did 12 points of damage to Bulbasaur.
+log Bulbasaur fainted!
+log You lost 0¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=239 level=6 hp=994 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=1 Fights=2 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,6
+state party 1:6/L100/1000000 2:1/L100/1000000
+> quit
+exit 0
+save line 11: "0" -> "1"
+save line 12: "0" -> "2"
+save line 407: "50" -> "100"
+save line 408: "2000000" -> "1000000"
+save line 410: "5" -> "100"
+save line 411: "3000000" -> "1000000"

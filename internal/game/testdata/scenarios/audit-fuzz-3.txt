@@ -1,0 +1,1463 @@
+# Audit: random battles (generator seed 20261020, scenario 3) at 16 badges.
+badges 16
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 200 8
+party 116 62
+party 72 84
+party 2 60
+party 157 68
+party 335 67
+> start
+> seed 1676169431
+> menu Actions > Fight a Trainer > Trainers > Beginner > Yellow
+log Yellow wants to fight!
+log Yellow sent out Pikachu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 200 Misdreavus, L.8, XP:512, XP to next level:217" -> OK
+dialog confirmation "Choose Misdreavus?" -> Yes
+log Misdreavus, I choose you!
+> fight 3
+rand 10 = 9
+rand 20 = 0
+log Misdreavus used Psychic!
+log Critical hit!
+log Misdreavus did 12 points of damage to enemy Pikachu.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 14
+log Enemy Pikachu used Slam!
+log It doesn't affect Misdreavus!
+log Enemy Pikachu did 0 points of damage to Misdreavus.
+rand 10 = 6
+rand 20 = 14
+log Misdreavus used Psychic!
+log Misdreavus did 20 points of damage to enemy Pikachu.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 11
+log Enemy Pikachu used Thundershock!
+log Enemy Pikachu did 5 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 4
+log Misdreavus used Psychic!
+log Misdreavus did 10 points of damage to enemy Pikachu.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 7
+log Enemy Pikachu used Slam!
+log Critical hit!
+log It doesn't affect Misdreavus!
+log Enemy Pikachu did 0 points of damage to Misdreavus.
+rand 10 = 6
+rand 20 = 14
+log Misdreavus used Psychic!
+log Misdreavus did 20 points of damage to enemy Pikachu.
+log Enemy Pikachu fainted!
+log Misdreavus gained 61 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=75 enemy=25 level=5 hp=0 levels=2-100
+state player badges=16 Money=101500 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L60/216000 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Pryce
+log Pryce wants to fight!
+log Pryce sent out Dewgong!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 002 Ivysaur, L.60, XP:216000, XP to next level:10981" -> OK
+dialog confirmation "Choose Ivysaur?" -> Yes
+log Ivysaur, I choose you!
+> fightbest
+rand 10 = 5
+rand 20 = 17
+log Ivysaur used Razor Leaf!
+log It's super effective!
+log Ivysaur did 182 points of damage to enemy Dewgong.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 18
+log Enemy Dewgong used Hydro Pump!
+log It's not very effective...
+log Enemy Dewgong did 75 points of damage to Ivysaur.
+rand 10 = 5
+rand 20 = 4
+log Ivysaur used Razor Leaf!
+log It's super effective!
+log Ivysaur did 156 points of damage to enemy Dewgong.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 13
+log Enemy Dewgong used Aurora Beam!
+log It's super effective!
+log Enemy Dewgong did 238 points of damage to Ivysaur.
+rand 10 = 4
+rand 20 = 9
+log Ivysaur used Razor Leaf!
+log It's super effective!
+log Ivysaur did 166 points of damage to enemy Dewgong.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 7
+log Enemy Dewgong used Headbutt!
+log Enemy Dewgong did 87 points of damage to Ivysaur.
+rand 10 = 5
+rand 20 = 9
+log Ivysaur used Razor Leaf!
+log It's super effective!
+log Ivysaur did 166 points of damage to enemy Dewgong.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 0
+log Enemy Dewgong used Headbutt!
+log Enemy Dewgong did 80 points of damage to Ivysaur.
+rand 10 = 3
+rand 20 = 0
+log Ivysaur used Razor Leaf!
+log It's super effective!
+log Ivysaur did 148 points of damage to enemy Dewgong.
+log Enemy Dewgong fainted!
+log Ivysaur gained 16651 experience points!
+log Ivysaur grew to level 61!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=4 hp=120 enemy=87 level=75 hp=0 levels=2-100
+state player badges=16 Money=107500 Wins=2 Losses=0 Fights=2 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 366
+rand 30 = 16
+rand 30 = 20
+log Wild Huntail appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 116 Horsea, L.62, XP:238328, XP to next level:11719" -> OK
+dialog confirmation "Choose Horsea?" -> Yes
+log Horsea, I choose you!
+> fight 1
+rand 10 = 4
+rand 20 = 3
+log Horsea used Bubble!
+log It's not very effective...
+log Horsea did 19 points of damage to enemy Huntail.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 14
+log Enemy Huntail used Bite!
+log Enemy Huntail did 97 points of damage to Horsea.
+rand 10 = 8
+rand 20 = 3
+log Horsea used Bubble!
+log It's not very effective...
+log Horsea did 19 points of damage to enemy Huntail.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 17
+log Enemy Huntail used Bite!
+log Enemy Huntail did 100 points of damage to Horsea.
+rand 10 = 0
+rand 20 = 17
+log Horsea used Bubble!
+log It's not very effective...
+log Horsea did 26 points of damage to enemy Huntail.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 3
+log Enemy Huntail used Whirlpool!
+log It's not very effective...
+log Enemy Huntail did 61 points of damage to Horsea.
+rand 10 = 2
+rand 20 = 15
+log Horsea used Bubble!
+log It's not very effective...
+log Horsea did 25 points of damage to enemy Huntail.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 13
+log Enemy Huntail used Hydro Pump!
+log It's not very effective...
+log Enemy Huntail did 78 points of damage to Horsea.
+rand 10 = 7
+rand 20 = 6
+log Horsea used Bubble!
+log It's not very effective...
+log Horsea did 21 points of damage to enemy Huntail.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 16
+log Enemy Huntail used Whirlpool!
+log It's not very effective...
+log Enemy Huntail did 67 points of damage to Horsea.
+rand 10 = 1
+rand 20 = 1
+log Horsea used Bubble!
+log It's not very effective...
+log Horsea did 18 points of damage to enemy Huntail.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 9
+log Enemy Huntail used Whirlpool!
+log It's not very effective...
+log Enemy Huntail did 64 points of damage to Horsea.
+rand 10 = 9
+rand 20 = 1
+log Horsea used Bubble!
+log Critical hit!
+log It's not very effective...
+log Horsea did 37 points of damage to enemy Huntail.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 7
+log Enemy Huntail used Hydro Pump!
+log It's not very effective...
+log Enemy Huntail did 75 points of damage to Horsea.
+rand 10 = 2
+rand 20 = 10
+log Horsea used Bubble!
+log It's not very effective...
+log Horsea did 23 points of damage to enemy Huntail.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 8
+log Enemy Huntail used Bite!
+log Enemy Huntail did 91 points of damage to Horsea.
+log Horsea fainted!
+log You lost 53750¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=367 level=81 hp=622 levels=2-100
+state player badges=16 Money=53750 Wins=2 Losses=1 Fights=4 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 341
+rand 30 = 11
+rand 30 = 4
+log Wild Crawdaunt appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 116 Horsea, L.62, XP:238328, XP to next level:11719" -> OK
+dialog confirmation "Choose Horsea?" -> Yes
+log Horsea, I choose you!
+> fight 3
+rand 10 = 9
+rand 20 = 14
+log Horsea used Water Gun!
+log Critical hit!
+log It's not very effective...
+log Horsea did 84 points of damage to enemy Crawdaunt.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 10
+log Enemy Crawdaunt used Hydro Pump!
+log It's not very effective...
+log Enemy Crawdaunt did 61 points of damage to Horsea.
+rand 10 = 4
+rand 20 = 17
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 43 points of damage to enemy Crawdaunt.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 6
+log Enemy Crawdaunt used Hydro Pump!
+log It's not very effective...
+log Enemy Crawdaunt did 59 points of damage to Horsea.
+rand 10 = 9
+rand 20 = 2
+log Horsea used Water Gun!
+log Critical hit!
+log It's not very effective...
+log Horsea did 72 points of damage to enemy Crawdaunt.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 1
+log Enemy Crawdaunt used Hydro Pump!
+log It's not very effective...
+log Enemy Crawdaunt did 57 points of damage to Horsea.
+rand 10 = 8
+rand 20 = 10
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 40 points of damage to enemy Crawdaunt.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 11
+log Enemy Crawdaunt used Vice Grip!
+log Enemy Crawdaunt did 98 points of damage to Horsea.
+rand 10 = 1
+rand 20 = 17
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 43 points of damage to enemy Crawdaunt.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 6
+log Enemy Crawdaunt used Water Gun!
+log Critical hit!
+log It's not very effective...
+log Enemy Crawdaunt did 80 points of damage to Horsea.
+rand 10 = 3
+rand 20 = 15
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 42 points of damage to enemy Crawdaunt.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 12
+log Enemy Crawdaunt used Hydro Pump!
+log It's not very effective...
+log Enemy Crawdaunt did 62 points of damage to Horsea.
+rand 10 = 8
+rand 20 = 3
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 36 points of damage to enemy Crawdaunt.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 2
+log Enemy Crawdaunt used Hydro Pump!
+log It's not very effective...
+log Enemy Crawdaunt did 57 points of damage to Horsea.
+rand 10 = 6
+rand 20 = 9
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 39 points of damage to enemy Crawdaunt.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 8
+log Enemy Crawdaunt used Hydro Pump!
+log It's not very effective...
+log Enemy Crawdaunt did 60 points of damage to Horsea.
+rand 10 = 0
+rand 20 = 17
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 43 points of damage to enemy Crawdaunt.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 17
+log Enemy Crawdaunt used Water Gun!
+log It's not very effective...
+log Enemy Crawdaunt did 45 points of damage to Horsea.
+rand 10 = 4
+rand 20 = 13
+log Horsea used Water Gun!
+log It's not very effective...
+log Horsea did 41 points of damage to enemy Crawdaunt.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 0
+log Enemy Crawdaunt used Body Slam!
+log Enemy Crawdaunt did 94 points of damage to Horsea.
+log Horsea fainted!
+log You lost 26875¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=342 level=65 hp=167 levels=2-100
+state player badges=16 Money=26875 Wins=2 Losses=2 Fights=6 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 67
+rand 30 = 8
+rand 30 = 15
+log Wild Machamp appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 157 Typhlosion, L.68, XP:314432, XP to next level:14077" -> OK
+dialog confirmation "Choose Typhlosion?" -> Yes
+log Typhlosion, I choose you!
+> fight 3
+rand 10 = 0
+rand 20 = 6
+log Typhlosion used Fire Spin!
+log Typhlosion did 91 points of damage to enemy Machamp.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 15
+log Enemy Machamp used Karate Chop!
+log Enemy Machamp did 92 points of damage to Typhlosion.
+rand 10 = 4
+rand 20 = 15
+log Typhlosion used Fire Spin!
+log Typhlosion did 100 points of damage to enemy Machamp.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 0
+log Enemy Machamp used Low Kick!
+log Enemy Machamp did 92 points of damage to Typhlosion.
+rand 10 = 2
+rand 20 = 3
+log Typhlosion used Fire Spin!
+log Typhlosion did 88 points of damage to enemy Machamp.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 9
+log Enemy Machamp used Low Kick!
+log Enemy Machamp did 101 points of damage to Typhlosion.
+rand 10 = 7
+rand 20 = 12
+log Typhlosion used Fire Spin!
+log Typhlosion did 97 points of damage to enemy Machamp.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 4
+log Enemy Machamp used Karate Chop!
+log Enemy Machamp did 81 points of damage to Typhlosion.
+rand 10 = 1
+rand 20 = 14
+log Typhlosion used Fire Spin!
+log Typhlosion did 99 points of damage to enemy Machamp.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 12
+log Enemy Machamp used Karate Chop!
+log Critical hit!
+log Enemy Machamp did 178 points of damage to Typhlosion.
+rand 10 = 0
+rand 20 = 17
+log Typhlosion used Fire Spin!
+log Typhlosion did 102 points of damage to enemy Machamp.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 0
+log Enemy Machamp used Low Kick!
+log Enemy Machamp did 92 points of damage to Typhlosion.
+rand 10 = 1
+rand 20 = 7
+log Typhlosion used Fire Spin!
+log Typhlosion did 92 points of damage to enemy Machamp.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 17
+log Enemy Machamp used Low Kick!
+log Enemy Machamp did 109 points of damage to Typhlosion.
+log Typhlosion fainted!
+log You lost 13438¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=68 level=76 hp=91 levels=2-100
+state player badges=16 Money=13437 Wins=2 Losses=3 Fights=8 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a Trainer > Trainers > Intermediate > Prof.Oak
+log Prof. Oak wants to fight!
+log Prof. Oak sent out Kingler!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 335 Zangoose, L.67, XP:300763, XP to next level:13669" -> OK
+dialog confirmation "Choose Zangoose?" -> Yes
+log Zangoose, I choose you!
+> fight 1
+rand 10 = 1
+rand 20 = 9
+log Zangoose used Scratch!
+log Zangoose did 49 points of damage to enemy Kingler.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 11
+log Enemy Kingler used Water Gun!
+log Enemy Kingler did 66 points of damage to Zangoose.
+rand 10 = 5
+rand 20 = 14
+log Zangoose used Scratch!
+log Zangoose did 54 points of damage to enemy Kingler.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 5
+log Enemy Kingler used Water Gun!
+log Enemy Kingler did 60 points of damage to Zangoose.
+rand 10 = 5
+rand 20 = 16
+log Zangoose used Scratch!
+log Zangoose did 56 points of damage to enemy Kingler.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 0
+log Enemy Kingler used Stomp!
+log Enemy Kingler did 65 points of damage to Zangoose.
+rand 10 = 6
+rand 20 = 0
+log Zangoose used Scratch!
+log Zangoose did 40 points of damage to enemy Kingler.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 8
+log Enemy Kingler used Vice Grip!
+log Enemy Kingler did 73 points of damage to Zangoose.
+rand 10 = 1
+rand 20 = 13
+log Zangoose used Scratch!
+log Zangoose did 53 points of damage to enemy Kingler.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 15
+log Enemy Kingler used Vice Grip!
+log Enemy Kingler did 80 points of damage to Zangoose.
+rand 10 = 2
+rand 20 = 5
+log Zangoose used Scratch!
+log Zangoose did 45 points of damage to enemy Kingler.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 1
+log Enemy Kingler used Stomp!
+log Enemy Kingler did 66 points of damage to Zangoose.
+rand 10 = 3
+rand 20 = 10
+log Zangoose used Scratch!
+log Zangoose did 50 points of damage to enemy Kingler.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 11
+log Enemy Kingler used Hydro Pump!
+log Enemy Kingler did 96 points of damage to Zangoose.
+rand 10 = 3
+rand 20 = 10
+log Zangoose used Scratch!
+log Zangoose did 50 points of damage to enemy Kingler.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 6
+log Enemy Kingler used Vice Grip!
+log Critical hit!
+log Enemy Kingler did 142 points of damage to Zangoose.
+rand 10 = 9
+rand 20 = 4
+log Zangoose used Scratch!
+log Critical hit!
+log Zangoose did 88 points of damage to enemy Kingler.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 3
+log Enemy Kingler used Vice Grip!
+log Enemy Kingler did 68 points of damage to Zangoose.
+log Zangoose fainted!
+log You lost 6719¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=6 hp=0 enemy=99 level=50 hp=15 levels=2-100
+state player badges=16 Money=6718 Wins=2 Losses=4 Fights=10 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 274
+rand 30 = 17
+rand 30 = 24
+log Wild Shiftry appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 116 Horsea, L.62, XP:238328, XP to next level:11719" -> OK
+dialog confirmation "Choose Horsea?" -> Yes
+log Horsea, I choose you!
+> fight 2
+rand 10 = 2
+rand 20 = 14
+log Horsea used Tackle!
+log Horsea did 47 points of damage to enemy Shiftry.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 2
+log Enemy Shiftry used Mega Drain!
+log It's super effective!
+log Enemy Shiftry did 230 points of damage to Horsea.
+rand 10 = 1
+rand 20 = 13
+log Horsea used Tackle!
+log Horsea did 46 points of damage to enemy Shiftry.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 10
+log Enemy Shiftry used Razor Leaf!
+log Critical hit!
+log It's super effective!
+log Enemy Shiftry did 476 points of damage to Horsea.
+log Horsea fainted!
+log You lost 3359¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=275 level=85 hp=757 levels=2-100
+state player badges=16 Money=3359 Wins=2 Losses=5 Fights=12 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Jasmine
+log Jasmine wants to fight!
+log Jasmine sent out Steelix!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 072 Tentacool, L.84, XP:592704, XP to next level:21421" -> OK
+dialog confirmation "Choose Tentacool?" -> Yes
+log Tentacool, I choose you!
+> fight 3
+rand 10 = 4
+rand 20 = 12
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 14
+log Enemy Steelix used Tackle!
+log Enemy Steelix did 53 points of damage to Tentacool.
+rand 10 = 9
+rand 20 = 4
+log Tentacool used Poison Sting!
+log Critical hit!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 16
+log Enemy Steelix used Tackle!
+log Enemy Steelix did 55 points of damage to Tentacool.
+rand 10 = 0
+rand 20 = 18
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 17
+log Enemy Steelix used Rock Throw!
+log Enemy Steelix did 98 points of damage to Tentacool.
+rand 10 = 8
+rand 20 = 1
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 7
+log Enemy Steelix used Earthquake!
+log It's super effective!
+log Enemy Steelix did 260 points of damage to Tentacool.
+rand 10 = 3
+rand 20 = 0
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 14
+log Enemy Steelix used Tackle!
+log Enemy Steelix did 53 points of damage to Tentacool.
+rand 10 = 8
+rand 20 = 16
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 1
+log Enemy Steelix used Slam!
+log Enemy Steelix did 61 points of damage to Tentacool.
+rand 10 = 0
+rand 20 = 6
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 18
+log Enemy Steelix used Rock Throw!
+log Critical hit!
+log Enemy Steelix did 198 points of damage to Tentacool.
+rand 10 = 3
+rand 20 = 10
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 17
+log Enemy Steelix used Tackle!
+log Enemy Steelix did 56 points of damage to Tentacool.
+rand 10 = 3
+rand 20 = 4
+log Tentacool used Poison Sting!
+log It doesn't affect Steelix!
+log Tentacool did 0 points of damage to enemy Steelix.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 19
+log Enemy Steelix used Earthquake!
+log It's super effective!
+log Enemy Steelix did 284 points of damage to Tentacool.
+log Tentacool fainted!
+log You lost 1680¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=208 level=70 hp=700 levels=2-100
+state player badges=16 Money=1679 Wins=2 Losses=6 Fights=14 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Pryce
+log Pryce wants to fight!
+log Pryce sent out Dewgong!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 200 Misdreavus, L.8, XP:573, XP to next level:156" -> OK
+dialog confirmation "Choose Misdreavus?" -> Yes
+log Misdreavus, I choose you!
+> fight 2
+rand 10 = 1
+rand 20 = 18
+log Misdreavus used Psybeam!
+log Misdreavus did 20 points of damage to enemy Dewgong.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 2
+log Enemy Dewgong used Aurora Beam!
+log Enemy Dewgong did 108 points of damage to Misdreavus.
+log Misdreavus fainted!
+log You lost 840¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=87 level=75 hp=730 levels=2-100
+state player badges=16 Money=839 Wins=2 Losses=7 Fights=16 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L8/573 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Bugsy
+log Bugsy wants to fight!
+log Bugsy sent out Scyther!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 200 Misdreavus, L.8, XP:573, XP to next level:156" -> OK
+dialog confirmation "Choose Misdreavus?" -> Yes
+log Misdreavus, I choose you!
+> fight 4
+rand 10 = 0
+rand 20 = 10
+log Misdreavus used Night Shade!
+log Misdreavus did 8 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 6
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 4
+rand 20 = 13
+log Misdreavus used Night Shade!
+log Misdreavus did 11 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 4
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 6
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 8 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 1
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 6
+log Misdreavus used Night Shade!
+log Misdreavus did 4 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 12
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 7
+rand 20 = 11
+log Misdreavus used Night Shade!
+log Misdreavus did 9 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 17
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 3
+rand 20 = 0
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 1
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 4
+rand 20 = 6
+log Misdreavus used Night Shade!
+log Misdreavus did 4 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 5
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 3
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 15
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 7
+rand 20 = 5
+log Misdreavus used Night Shade!
+log Misdreavus did 3 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 14
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 8
+rand 20 = 8
+log Misdreavus used Night Shade!
+log Misdreavus did 6 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 19
+log Enemy Scyther used Quick Attack!
+log Critical hit!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 2
+rand 20 = 4
+log Misdreavus used Night Shade!
+log Misdreavus did 2 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 18
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 7
+rand 20 = 6
+log Misdreavus used Night Shade!
+log Misdreavus did 4 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 8
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 3
+rand 20 = 11
+log Misdreavus used Night Shade!
+log Misdreavus did 9 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 15
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 4
+log Misdreavus used Night Shade!
+log Misdreavus did 2 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 16
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 7
+rand 20 = 1
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 3
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 2
+rand 20 = 5
+log Misdreavus used Night Shade!
+log Misdreavus did 3 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 11
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 2
+rand 20 = 15
+log Misdreavus used Night Shade!
+log Misdreavus did 13 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 17
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 4
+rand 20 = 6
+log Misdreavus used Night Shade!
+log Misdreavus did 4 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 8
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 3
+rand 20 = 18
+log Misdreavus used Night Shade!
+log Misdreavus did 16 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 14
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 8
+rand 20 = 1
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 0
+rand 20 = 7
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 3
+rand 20 = 0
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 16
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 0
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 6
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 14
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 24 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 1
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 7
+rand 20 = 17
+log Misdreavus used Night Shade!
+log Misdreavus did 15 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 8
+log Enemy Scyther used Body Slam!
+log Critical hit!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 12
+log Misdreavus used Night Shade!
+log Misdreavus did 10 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 10
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 2
+rand 20 = 10
+log Misdreavus used Night Shade!
+log Misdreavus did 8 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 1
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 17
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 30 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 5
+rand 20 = 18
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 0
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 13
+log Enemy Scyther used Quick Attack!
+log Critical hit!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 0
+rand 20 = 6
+log Misdreavus used Night Shade!
+log Misdreavus did 4 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 7
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 13
+log Misdreavus used Night Shade!
+log Misdreavus did 11 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 9
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 13
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 22 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 8
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 2
+rand 20 = 7
+log Misdreavus used Night Shade!
+log Misdreavus did 5 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 8
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 7
+rand 20 = 18
+log Misdreavus used Night Shade!
+log Misdreavus did 16 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 3
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 19
+log Misdreavus used Night Shade!
+log Misdreavus did 17 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 17
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 11
+log Misdreavus used Night Shade!
+log Misdreavus did 9 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 15
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 8
+rand 20 = 12
+log Misdreavus used Night Shade!
+log Misdreavus did 10 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 14
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 9
+log Misdreavus used Night Shade!
+log Misdreavus did 7 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 18
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 8
+rand 20 = 5
+log Misdreavus used Night Shade!
+log Misdreavus did 3 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 12
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 0
+rand 20 = 19
+log Misdreavus used Night Shade!
+log Misdreavus did 17 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 15
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 1
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 19
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 19
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 34 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 14
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 8
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 12 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 10
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 0
+rand 20 = 14
+log Misdreavus used Night Shade!
+log Misdreavus did 12 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 2
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 0
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 0
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 0
+rand 20 = 14
+log Misdreavus used Night Shade!
+log Misdreavus did 12 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 11
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 0
+rand 20 = 3
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 11
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 7
+log Misdreavus used Night Shade!
+log Misdreavus did 5 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 15
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 3
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 14
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 8
+rand 20 = 0
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 1
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 3
+rand 20 = 8
+log Misdreavus used Night Shade!
+log Misdreavus did 6 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 3
+log Enemy Scyther used Swift!
+log Critical hit!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 6
+rand 20 = 3
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 2
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 3
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 17
+log Enemy Scyther used Slash!
+log Critical hit!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 4
+rand 20 = 8
+log Misdreavus used Night Shade!
+log Misdreavus did 6 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 13
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 3
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 17
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 4
+rand 20 = 16
+log Misdreavus used Night Shade!
+log Misdreavus did 14 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 15
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 7
+rand 20 = 7
+log Misdreavus used Night Shade!
+log Misdreavus did 5 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 17
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 6
+rand 20 = 0
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 12
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 2
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 17
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 3
+rand 20 = 3
+log Misdreavus used Night Shade!
+log Misdreavus did 1 points of damage to enemy Scyther.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 5
+log Enemy Scyther used Swift!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 5
+log Misdreavus used Night Shade!
+log Misdreavus did 3 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 11
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 5
+rand 20 = 11
+log Misdreavus used Night Shade!
+log Misdreavus did 9 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 15
+log Enemy Scyther used Quick Attack!
+log Critical hit!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 4
+rand 20 = 6
+log Misdreavus used Night Shade!
+log Misdreavus did 4 points of damage to enemy Scyther.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 13
+log Enemy Scyther used Slash!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 1
+rand 20 = 15
+log Misdreavus used Night Shade!
+log Misdreavus did 13 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 7
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 6
+rand 20 = 16
+log Misdreavus used Night Shade!
+log Misdreavus did 14 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 5
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 6
+rand 20 = 12
+log Misdreavus used Night Shade!
+log Misdreavus did 10 points of damage to enemy Scyther.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 19
+log Enemy Scyther used Quick Attack!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 3
+rand 20 = 19
+log Misdreavus used Night Shade!
+log Misdreavus did 17 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 10
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 0
+rand 20 = 7
+log Misdreavus used Night Shade!
+log Misdreavus did 5 points of damage to enemy Scyther.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 17
+log Enemy Scyther used Body Slam!
+log It doesn't affect Misdreavus!
+log Enemy Scyther did 0 points of damage to Misdreavus.
+rand 10 = 9
+rand 20 = 14
+log Misdreavus used Night Shade!
+log Critical hit!
+log Misdreavus did 24 points of damage to enemy Scyther.
+log Enemy Scyther fainted!
+log Misdreavus gained 8269 experience points!
+log Misdreavus grew to level 20!
+rand 3 = 1
+log You got 3000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=80 enemy=123 level=53 hp=0 levels=2-100
+state player badges=16 Money=3839 Wins=3 Losses=7 Fights=17 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 2,72,116,157,200,335
+state party 1:200/L20/8842 2:116/L62/238328 3:72/L84/592704 4:2/L61/232651 5:157/L68/314432 6:335/L67/300763
+> quit
+exit 0
+save line 9: "100000" -> "3839"
+save line 10: "0" -> "3"
+save line 11: "0" -> "7"
+save line 12: "0" -> "17"
+save line 407: "8" -> "20"
+save line 408: "512" -> "8842"
+save line 416: "60" -> "61"
+save line 417: "216000" -> "232651"

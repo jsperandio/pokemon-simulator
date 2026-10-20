@@ -1,0 +1,144 @@
+# Audit: the Game Corner pays every prize (the number is the 10,000th draw of each seed).
+# Last, a bet of all the money the window opened with is lost, and Draw again with
+# that bet, now above the money, does nothing.
+Money 100000
+party 25 10
+> start
+> menu Actions > Game Corner
+> radio FormB.RadioGroup1 1
+> type FormB.SpinEdit1 777
+> radio FormB.RadioGroup2 1
+> seed 101
+> click FormB.Button1
+rand 10 = 0 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "7770¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=106993 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 2
+> type FormB.SpinEdit1 250
+> radio FormB.RadioGroup2 3
+> seed 102
+> click FormB.Button1
+rand 10 = 2 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "2 POKéBalls and 500¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=107243 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 3
+> type FormB.SpinEdit1 300
+> radio FormB.RadioGroup2 5
+> seed 103
+> click FormB.Button1
+rand 10 = 4 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "1 Great Ball!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=106943 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 4
+> type FormB.SpinEdit1 1250
+> radio FormB.RadioGroup2 7
+> seed 104
+> click FormB.Button1
+rand 10 = 6 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "2 Ultra Balls and 500¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=106193 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 5
+> type FormB.SpinEdit1 2400
+> radio FormB.RadioGroup2 9
+> seed 105
+> click FormB.Button1
+rand 10 = 8 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "0 Master Ball and 24000¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=127793 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 6
+> type FormB.SpinEdit1 450
+> radio FormB.RadioGroup2 1
+> seed 106
+> click FormB.Button1
+rand 10 = 0 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "2 Potions and 500¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=127843 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=2 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 7
+> type FormB.SpinEdit1 0
+> radio FormB.RadioGroup2 3
+> seed 107
+> click FormB.Button1
+rand 10 = 2 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "0 Super Potion!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=127843 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=2 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 2
+> type FormB.SpinEdit1 99
+> radio FormB.RadioGroup2 5
+> seed 108
+> click FormB.Button1
+rand 10 = 4 (the last of 10000)
+dialog information "Congratulations! You won! And your prize is..." -> OK
+dialog information "0 POKéBall and 990¥!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=128734 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=2 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> radio FormB.RadioGroup1 1
+> type FormB.SpinEdit1 5000
+> radio FormB.RadioGroup2 8
+> seed 109
+> click FormB.Button1
+rand 10 = 6 (the last of 10000)
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=123734 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=2 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> type FormB.SpinEdit1 100000
+> seed 109
+> click FormB.Button1
+rand 10 = 6 (the last of 10000)
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=23734 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=2 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> click FormB.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=23734 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=1 UltraBalls=2 MasterBalls=0 Potions=2 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> quit
+exit 0
+save line 9: "100000" -> "23734"
+save line 14: "3" -> "5"
+save line 15: "0" -> "1"
+save line 16: "0" -> "2"
+save line 18: "0" -> "2"

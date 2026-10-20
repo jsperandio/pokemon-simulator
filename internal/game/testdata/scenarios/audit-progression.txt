@@ -1,0 +1,1038 @@
+# Audit: the whole progression, 0 to 24 badges, the Elite Fours, Ash and Link, each battle
+# won with the enemy's HP set to 1.
+Money 0
+party 149 100
+> start
+> seed 7
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Brock
+log Brock wants to fight!
+log Brock sent out Geodude!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 2
+rand 20 = 16
+log Dragonite used Dragonbreath!
+log Dragonite did 116 points of damage to enemy Geodude.
+log Enemy Geodude fainted!
+log Dragonite gained 397 experience points!
+rand 3 = 0
+log You got 250¥!
+> end
+dialog information "You earned the BoulderBadge!" -> OK
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Misty
+log Misty wants to fight!
+log Misty sent out Staryu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 1
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 362 points of damage to enemy Staryu.
+log Enemy Staryu fainted!
+log Dragonite gained 919 experience points!
+rand 3 = 0
+log You got 250¥!
+> end
+dialog information "You earned the CascadeBadge!" -> OK
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Lt. Surge
+log Lt. Surge wants to fight!
+log Lt. Surge sent out Raichu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 2
+rand 20 = 12
+log Dragonite used Hyper Beam!
+log Dragonite did 182 points of damage to enemy Raichu.
+log Enemy Raichu fainted!
+log Dragonite gained 1387 experience points!
+rand 3 = 2
+log You got 1000¥!
+> end
+dialog information "You earned the ThunderBadge!" -> OK
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Erika
+log Erika wants to fight!
+log Erika sent out Vileplume!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 0
+rand 20 = 16
+log Dragonite used Hyper Beam!
+log Dragonite did 186 points of damage to enemy Vileplume.
+log Enemy Vileplume fainted!
+log Dragonite gained 1801 experience points!
+rand 3 = 1
+log You got 500¥!
+> end
+dialog information "You earned the RainbowBadge!" -> OK
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Sabrina
+log Sabrina wants to fight!
+log Sabrina sent out Venomoth!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 4
+rand 20 = 7
+log Dragonite used Thunder!
+log Dragonite did 187 points of damage to enemy Venomoth.
+log Enemy Venomoth fainted!
+log Dragonite gained 2269 experience points!
+rand 3 = 2
+log You got 2000¥!
+> end
+dialog information "You earned the MarshBadge!" -> OK
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Janine
+log Janine wants to fight!
+log Janine sent out Muk!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 1
+log Dragonite used Thunder!
+log Dragonite did 181 points of damage to enemy Muk.
+log Enemy Muk fainted!
+log Dragonite gained 2977 experience points!
+rand 3 = 0
+log You got 500¥!
+> end
+dialog information "You earned the SoulBadge!" -> OK
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Blaine
+log Blaine wants to fight!
+log Blaine sent out Magmar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 18
+log Dragonite used Thunder!
+log Dragonite did 198 points of damage to enemy Magmar.
+log Enemy Magmar fainted!
+log Dragonite gained 3571 experience points!
+rand 3 = 2
+log You got 2000¥!
+> end
+dialog information "You earned the VolcanoBadge!" -> OK
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Gary
+log Gary wants to fight!
+log Gary sent out Nidoking!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 9
+rand 20 = 16
+log Dragonite used Hyper Beam!
+log Critical hit!
+log Dragonite did 372 points of damage to enemy Nidoking.
+log Enemy Nidoking fainted!
+log Dragonite gained 4681 experience points!
+rand 3 = 0
+log You got 500¥!
+> end
+dialog information "You earned the EarthBadge!" -> OK
+dialog information "You beat Gary, the final Kanto leader! You can now battle the Elite Four! Also, you get a 2500¥ bonus!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=3 own=1 hp=1000 enemy=34 level=40 hp=0 levels=2-100
+state player badges=8 Money=9500 Wins=8 Losses=0 Fights=8 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 149
+state party 1:149/L100/1000000
+> menu Actions > Fight a Trainer > G/S/C Elite Four
+log Will wants to fight!
+log Will sent out Xatu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 3
+rand 20 = 5
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 370 points of damage to enemy Xatu.
+log Enemy Xatu fainted!
+log Dragonite gained 4681 experience points!
+rand 3 = 2
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Will! Your next opponent is Koga." -> OK
+log Koga wants to fight!
+log Koga sent out Forretress!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 2
+rand 20 = 19
+log Dragonite used Thunder!
+log Dragonite did 199 points of damage to enemy Forretress.
+log Enemy Forretress fainted!
+log Dragonite gained 5419 experience points!
+rand 3 = 2
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Koga! Your next opponent is Bruno." -> OK
+log Bruno wants to fight!
+log Bruno sent out Onix!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 1
+rand 20 = 4
+log Dragonite used Dragonbreath!
+log Dragonite did 104 points of damage to enemy Onix.
+log Enemy Onix fainted!
+log Dragonite gained 5419 experience points!
+rand 3 = 2
+log You got 4000¥!
+> end
+dialog information "Congratulations! You beat Bruno! Your next opponent is Karen." -> OK
+log Karen wants to fight!
+log Karen sent out Gengar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 3
+log Dragonite used Thunder!
+log Dragonite did 183 points of damage to enemy Gengar.
+log Enemy Gengar fainted!
+log Dragonite gained 5941 experience points!
+rand 3 = 1
+log You got 2000¥!
+> end
+dialog information "You have proven your worth against the G/S/C Elite Four. Now, it is time for you to fight the G/S/C Elite Four Champion: Lance!" -> OK
+log Lance wants to fight!
+log Lance sent out Dragonite!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 2
+rand 20 = 9
+log Dragonite used Dragonbreath!
+log It's super effective!
+log Dragonite did 218 points of damage to enemy Dragonite.
+log Enemy Dragonite fainted!
+log Dragonite gained 7351 experience points!
+rand 3 = 0
+log You got 1000¥!
+> end
+dialog information "You beat Lance, the Elite Four champion! You can now battle the Johto Gym Leaders! Also, you get a Master Ball!" -> OK
+dialog information "This Ball will catch any POKéMON at any HP. Use it wisely." -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=8 own=1 hp=1000 enemy=149 level=50 hp=0 levels=2-100
+state player badges=8 Money=24500 Wins=13 Losses=0 Fights=13 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=1 Potions=0 SuperPotions=0 flags=BeatLance
+state dex 149
+state party 1:149/L100/1000000
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Falkner
+log Falkner wants to fight!
+log Falkner sent out Pidgeotto!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 8
+rand 20 = 3
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 366 points of damage to enemy Pidgeotto.
+log Enemy Pidgeotto fainted!
+log Dragonite gained 7351 experience points!
+rand 3 = 1
+log You got 2000¥!
+> end
+dialog information "You earned the ZephyrBadge!" -> OK
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Bugsy
+log Bugsy wants to fight!
+log Bugsy sent out Scyther!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 1
+rand 20 = 0
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 360 points of damage to enemy Scyther.
+log Enemy Scyther fainted!
+log Dragonite gained 8269 experience points!
+rand 3 = 1
+log You got 2000¥!
+> end
+dialog information "You earned the HiveBadge!" -> OK
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Whitney
+log Whitney wants to fight!
+log Whitney sent out Miltank!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 3
+rand 20 = 18
+log Dragonite used Thunder!
+log Dragonite did 198 points of damage to enemy Miltank.
+log Enemy Miltank fainted!
+log Dragonite gained 9577 experience points!
+rand 3 = 1
+log You got 2000¥!
+> end
+dialog information "You earned the PlainBadge!" -> OK
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Morty
+log Morty wants to fight!
+log Morty sent out Gengar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 3
+rand 20 = 13
+log Dragonite used Thunder!
+log Dragonite did 193 points of damage to enemy Gengar.
+log Enemy Gengar fainted!
+log Dragonite gained 10981 experience points!
+rand 3 = 0
+log You got 1000¥!
+> end
+dialog information "You earned the FogBadge!" -> OK
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Chuck
+log Chuck wants to fight!
+log Chuck sent out Poliwrath!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 5
+rand 20 = 1
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 362 points of damage to enemy Poliwrath.
+log Enemy Poliwrath fainted!
+log Dragonite gained 12097 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "You earned the StormBadge!" -> OK
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Jasmine
+log Jasmine wants to fight!
+log Jasmine sent out Steelix!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 7
+rand 20 = 2
+log Dragonite used Dragonbreath!
+log Dragonite did 102 points of damage to enemy Steelix.
+log Enemy Steelix fainted!
+log Dragonite gained 14491 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "You earned the MineralBadge!" -> OK
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Pryce
+log Pryce wants to fight!
+log Pryce sent out Dewgong!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 2
+rand 20 = 0
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 360 points of damage to enemy Dewgong.
+log Enemy Dewgong fainted!
+log Dragonite gained 16651 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "You earned the GlacierBadge!" -> OK
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Clair
+log Clair wants to fight!
+log Clair sent out Kingdra!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 8
+rand 20 = 16
+log Dragonite used Dragonbreath!
+log It's super effective!
+log Dragonite did 232 points of damage to enemy Kingdra.
+log Enemy Kingdra fainted!
+log Dragonite gained 19927 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "You earned the RisingBadge!" -> OK
+dialog information "You beat Clair, the final Johto leader! You can now battle Ash! Also, you get a 3000¥ bonus!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=3 own=1 hp=1000 enemy=230 level=82 hp=0 levels=2-100
+state player badges=16 Money=49500 Wins=21 Losses=0 Fights=21 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=1 Potions=0 SuperPotions=0 flags=BeatLance
+state dex 149
+state party 1:149/L100/1000000
+> menu Actions > Fight a Trainer > Ash
+log Ash wants to fight!
+log Ash sent out Pikachu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 2
+rand 20 = 19
+log Dragonite used Hyper Beam!
+log Dragonite did 189 points of damage to enemy Pikachu.
+log Enemy Pikachu fainted!
+log Dragonite gained 26791 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "You beat Ash! You can now battle me! Also, you get a Celebi at L.5!" -> OK
+log Celebi has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=9 own=1 hp=1000 enemy=25 level=95 hp=0 levels=2-100
+state player badges=16 Money=51000 Wins=22 Losses=0 Fights=22 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=1 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh
+state dex 149,251
+state party 1:149/L100/1000000 2:251/L5/125
+> menu Actions > Fight a Trainer > Me
+log Link wants to fight!
+log Link sent out Mew!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 0
+rand 20 = 5
+log Dragonite used Thunder!
+log Dragonite did 185 points of damage to enemy Mew.
+log Enemy Mew fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "You beat me! You can now battle and/or catch Mewtwo! You can also fight the Hoenn Gym Leaders! And as if that wasn't enough, you also get a Mew at L.10!" -> OK
+log Mew has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=10 own=1 hp=1000 enemy=151 level=100 hp=0 levels=2-100
+state player badges=16 Money=52500 Wins=23 Losses=0 Fights=23 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=1 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink
+state dex 149,151,251
+state party 1:149/L100/1000000 2:251/L5/125 3:151/L10/1000
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Roxanne
+log Roxanne wants to fight!
+log Roxanne sent out Nosepass!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 8
+rand 20 = 13
+log Dragonite used Thunder!
+log Dragonite did 193 points of damage to enemy Nosepass.
+log Enemy Nosepass fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You earned the StoneBadge!" -> OK
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Brawly
+log Brawly wants to fight!
+log Brawly sent out Makuhita!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 6
+rand 20 = 17
+log Dragonite used Thunder!
+log Dragonite did 197 points of damage to enemy Makuhita.
+log Enemy Makuhita fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "You earned the KnuckleBadge!" -> OK
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Wattson
+log Wattson wants to fight!
+log Wattson sent out Magneton!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 5
+rand 20 = 0
+log Dragonite used Dragonbreath!
+log Dragonite did 100 points of damage to enemy Magneton.
+log Enemy Magneton fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You earned the DynamoBadge!" -> OK
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Flannery
+log Flannery wants to fight!
+log Flannery sent out Torkoal!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 5
+rand 20 = 12
+log Dragonite used Thunder!
+log Dragonite did 192 points of damage to enemy Torkoal.
+log Enemy Torkoal fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "You earned the HeatBadge!" -> OK
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Norman
+log Norman wants to fight!
+log Norman sent out Slaking!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 9
+rand 20 = 16
+log Dragonite used Thunder!
+log Critical hit!
+log Dragonite did 392 points of damage to enemy Slaking.
+log Enemy Slaking fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "You earned the BalanceBadge!" -> OK
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Winona
+log Winona wants to fight!
+log Winona sent out Altaria!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 4
+rand 20 = 17
+log Dragonite used Dragonbreath!
+log It's super effective!
+log Dragonite did 234 points of damage to enemy Altaria.
+log Enemy Altaria fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "You earned the FeatherBadge!" -> OK
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Tate & Liza
+log Tate & Liza wants to fight!
+log Tate & Liza sent out Lunatone!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 1
+rand 20 = 9
+log Dragonite used Thunder!
+log Dragonite did 189 points of damage to enemy Lunatone.
+log Enemy Lunatone fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You earned the MindBadge!" -> OK
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Wallace
+log Wallace wants to fight!
+log Wallace sent out Milotic!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 0
+rand 20 = 18
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 396 points of damage to enemy Milotic.
+log Enemy Milotic fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You earned the RainBadge!" -> OK
+dialog information "You beat Wallace, the final Hoenn leader! You can now battle the R/B/Y and Ru/Sa Elites! Also, you get a 5000¥ bonus!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=3 own=1 hp=1000 enemy=350 level=100 hp=0 levels=2-100
+state player badges=24 Money=89000 Wins=31 Losses=0 Fights=31 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=1 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink
+state dex 149,151,251
+state party 1:149/L100/1000000 2:251/L5/125 3:151/L10/1000
+> menu Actions > Fight a Trainer > Other Elites > R/B/Y Elite Four
+log Lorelei wants to fight!
+log Lorelei sent out Lapras!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 9
+rand 20 = 0
+log Dragonite used Thunder!
+log Critical hit!
+log It's super effective!
+log Dragonite did 720 points of damage to enemy Lapras.
+log Enemy Lapras fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "Congratulations! You beat Lorelei! Your next opponent is Bruno." -> OK
+log Bruno wants to fight!
+log Bruno sent out Onix!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 3
+rand 20 = 6
+log Dragonite used Dragonbreath!
+log Dragonite did 106 points of damage to enemy Onix.
+log Enemy Onix fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "Congratulations! You beat Bruno! Your next opponent is Agatha." -> OK
+log Agatha wants to fight!
+log Agatha sent out Gengar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 7
+rand 20 = 1
+log Dragonite used Thunder!
+log Dragonite did 181 points of damage to enemy Gengar.
+log Enemy Gengar fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "Congratulations! You beat Agatha! Your next opponent is Lance." -> OK
+log Lance wants to fight!
+log Lance sent out Dragonite!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 9
+rand 20 = 7
+log Dragonite used Dragonbreath!
+log Critical hit!
+log It's super effective!
+log Dragonite did 428 points of damage to enemy Dragonite.
+log Enemy Dragonite fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "You have proven your worth against the R/B/Y Elite Four. Now, it is time for you to fight the R/B/Y Elite Four Champion: Gary!" -> OK
+log Gary wants to fight!
+log Gary sent out Alakazam!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 8
+rand 20 = 16
+log Dragonite used Thunder!
+log Dragonite did 196 points of damage to enemy Alakazam.
+log Enemy Alakazam fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "You beat Gary, the R/B/Y Elite Four champion! You get a bonus of 7500¥!" -> OK
+dialog information "Also, you get a Jirachi at L.5!" -> OK
+log Jirachi has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=75 own=1 hp=1000 enemy=65 level=100 hp=0 levels=2-100
+state player badges=24 Money=114500 Wins=36 Losses=0 Fights=36 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=1 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink,GotJirachi
+state dex 149,151,251,385
+state party 1:149/L100/1000000 2:251/L5/125 3:151/L10/1000 4:385/L5/125
+> menu Actions > Fight a Trainer > Other Elites > Ru/Sa Elite Four
+log Sidney wants to fight!
+log Sidney sent out Mightyena!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 3
+rand 20 = 11
+log Dragonite used Thunder!
+log Dragonite did 191 points of damage to enemy Mightyena.
+log Enemy Mightyena fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+dialog information "Congratulations! You beat Sidney! Your next opponent is Phoebe." -> OK
+log Phoebe wants to fight!
+log Phoebe sent out Banette!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 4
+rand 20 = 13
+log Dragonite used Thunder!
+log Dragonite did 193 points of damage to enemy Banette.
+log Enemy Banette fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "Congratulations! You beat Phoebe! Your next opponent is Glacia." -> OK
+log Glacia wants to fight!
+log Glacia sent out Walrein!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 0
+rand 20 = 16
+log Dragonite used Thunder!
+log It's super effective!
+log Dragonite did 392 points of damage to enemy Walrein.
+log Enemy Walrein fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+dialog information "Congratulations! You beat Glacia! Your next opponent is Drake." -> OK
+log Drake wants to fight!
+log Drake sent out Flygon!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 0
+rand 20 = 19
+log Dragonite used Dragonbreath!
+log It's super effective!
+log Dragonite did 238 points of damage to enemy Flygon.
+log Enemy Flygon fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You have proven your worth against the Ru/Sa Elite Four. Now, it is time for you to fight the Ru/Sa Elite Four Champion: Steven!" -> OK
+log Steven wants to fight!
+log Steven sent out Metagross!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 5
+rand 20 = 12
+log Dragonite used Thunder!
+log Dragonite did 192 points of damage to enemy Metagross.
+log Enemy Metagross fainted!
+log Dragonite gained 29701 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+dialog information "You beat Steven, the Ru/Sa Elite Four champion! You get a bonus of 7500¥!" -> OK
+dialog information "Also, you get a Deoxys at L.5!" -> OK
+log Deoxys has been added to the POKéDEX!
+> state
+state battle wild=0 trainer=0 tournament=0 type=85 own=1 hp=1000 enemy=376 level=100 hp=0 levels=2-100
+state player badges=24 Money=141500 Wins=41 Losses=0 Fights=41 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=1 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink,GotJirachi,GotDeoxys
+state dex 149,151,251,385,386
+state party 1:149/L100/1000000 2:251/L5/125 3:151/L10/1000 4:385/L5/125 5:386/L5/125
+> menus
+menu File [enabled=true visible=true]
+menu   Export POKéMON information... [enabled=true visible=true]
+menu   Quit [enabled=true visible=true]
+menu Actions [enabled=true visible=true]
+menu   Fight a Trainer [enabled=true visible=true]
+menu     Trainers [enabled=true visible=true]
+menu       Beginner [enabled=true visible=true]
+menu         Red [enabled=true visible=true]
+menu         Blue [enabled=true visible=true]
+menu         Green [enabled=true visible=true]
+menu         Yellow [enabled=true visible=true]
+menu         Gold [enabled=true visible=true]
+menu         Silver [enabled=true visible=true]
+menu         Crystal [enabled=true visible=true]
+menu       Novice [enabled=true visible=true]
+menu         Ruby [enabled=true visible=true]
+menu         Sapphire [enabled=true visible=true]
+menu         Emerald [enabled=true visible=true]
+menu       Intermediate [enabled=true visible=true]
+menu         Prof.Oak [enabled=true visible=true]
+menu         Prof.Elm [enabled=true visible=true]
+menu         Prof.Birch [enabled=true visible=true]
+menu       Advanced [enabled=true visible=true]
+menu         Jesse [enabled=true visible=true]
+menu         James [enabled=true visible=true]
+menu       Expert [enabled=true visible=true]
+menu         Giovanni [enabled=true visible=true]
+menu     Kanto Gym Leaders [enabled=true visible=true]
+menu       Brock [enabled=true visible=true]
+menu       Misty [enabled=true visible=true]
+menu       Lt. Surge [enabled=true visible=true]
+menu       Erika [enabled=true visible=true]
+menu       Sabrina [enabled=true visible=true]
+menu       Janine [enabled=true visible=true]
+menu       Blaine [enabled=true visible=true]
+menu       Gary [enabled=true visible=true]
+menu     G/S/C Elite Four [enabled=true visible=true]
+menu     Johto Gym Leaders [enabled=true visible=true]
+menu       Falkner [enabled=true visible=true]
+menu       Bugsy [enabled=true visible=true]
+menu       Whitney [enabled=true visible=true]
+menu       Morty [enabled=true visible=true]
+menu       Chuck [enabled=true visible=true]
+menu       Jasmine [enabled=true visible=true]
+menu       Pryce [enabled=true visible=true]
+menu       Clair [enabled=true visible=true]
+menu     Ash [enabled=true visible=true]
+menu     Me [enabled=true visible=true]
+menu     Hoenn Gym Leaders (L.100) [enabled=true visible=true]
+menu       Roxanne [enabled=true visible=true]
+menu       Brawly [enabled=true visible=true]
+menu       Wattson [enabled=true visible=true]
+menu       Flannery [enabled=true visible=true]
+menu       Norman [enabled=true visible=true]
+menu       Winona [enabled=true visible=true]
+menu       Tate & Liza [enabled=true visible=true]
+menu       Wallace [enabled=true visible=true]
+menu     Other Elites [enabled=true visible=true]
+menu       R/B/Y Elite Four [enabled=true visible=true]
+menu       Ru/Sa Elite Four [enabled=true visible=true]
+menu   Fight a wild POKéMON [enabled=true visible=true]
+menu     Search for a POKéMON [enabled=true visible=true]
+menu     Mewtwo [enabled=true visible=true]
+menu   Tournaments [enabled=true visible=true]
+menu     Very Easy (Levels 2-10) [enabled=true visible=true]
+menu     Easy (Levels 10-30) [enabled=true visible=true]
+menu     Intermediate (Levels 30-50) [enabled=true visible=true]
+menu     Hard (Levels 50-70) [enabled=true visible=true]
+menu     Very Hard (Levels 70-99) [enabled=true visible=true]
+menu     Prime Cup (Level 100) [enabled=true visible=true]
+menu   Buy Items [enabled=true visible=true]
+menu   Evolve a POKéMON [enabled=true visible=true]
+menu   Release a POKéMON [enabled=true visible=true]
+menu   View POKéDEX [enabled=true visible=true]
+menu   Type Comparisons [enabled=true visible=true]
+menu   Game Corner [enabled=true visible=true]
+menu Music [enabled=true visible=true]
+menu   Open file... [enabled=true visible=true]
+menu   Repeat Music [enabled=true visible=true]
+menu   Stop Music [enabled=true visible=true]
+menu Help [enabled=true visible=true]
+menu   Contents [enabled=true visible=true]
+menu   About... [enabled=true visible=true]
+menu Debug [enabled=true visible=false]
+menu   Make Visible [enabled=true visible=true]
+menu   Always show attacks in POKéDEX [enabled=true visible=true]
+> quit
+exit 0
+save line 3: "FALSE" -> "TRUE"
+save line 4: "FALSE" -> "TRUE"
+save line 5: "FALSE" -> "TRUE"
+save line 6: "FALSE" -> "TRUE"
+save line 7: "FALSE" -> "TRUE"
+save line 8: "0" -> "24"
+save line 9: "0" -> "141500"
+save line 10: "0" -> "41"
+save line 12: "0" -> "41"
+save line 17: "0" -> "1"
+save line 170: "FALSE" -> "TRUE"
+save line 270: "FALSE" -> "TRUE"
+save line 404: "FALSE" -> "TRUE"
+save line 405: "FALSE" -> "TRUE"
+save line 409: "0" -> "251"
+save line 410: "0" -> "5"
+save line 411: "0" -> "125"
+save line 412: "0" -> "151"
+save line 413: "0" -> "10"
+save line 414: "0" -> "1000"
+save line 415: "0" -> "385"
+save line 416: "0" -> "5"
+save line 417: "0" -> "125"
+save line 418: "0" -> "386"
+save line 419: "0" -> "5"
+save line 420: "0" -> "125"

@@ -1,0 +1,126 @@
+# Audit: every branched evolution, "Don't evolve", a level short, and a species that can't evolve.
+party 44 36
+party 61 42
+party 79 27
+party 236 20
+party 265 7
+party 366 20
+party 133 30
+party 1 15
+party 3 50
+party 44 36
+> start
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 1
+dialog information "# 044 Gloom, L.36, XP:46656, XP to next level:3997" -> OK
+dialog information "Please select what you would like to evolve your Gloom to." -> OK
+> radio Form4.EvolveChoice 3
+> click Form4.EvolveButton
+dialog information "Gloom evolved into Bellossom!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 2
+dialog information "# 061 Poliwhirl, L.42, XP:74088, XP to next level:5419" -> OK
+dialog information "Please select what you would like to evolve your Poliwhirl to." -> OK
+> radio Form4.EvolveChoice 2
+> click Form4.EvolveButton
+dialog information "Poliwhirl evolved into Poliwrath!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 3
+dialog information "# 079 Slowpoke, L.27, XP:19683, XP to next level:2269" -> OK
+dialog information "Please select what you would like to evolve your Slowpoke to." -> OK
+> radio Form4.EvolveChoice 3
+> click Form4.EvolveButton
+dialog information "Slowpoke evolved into Slowking!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 4
+dialog information "# 236 Tyrogue, L.20, XP:8000, XP to next level:1261" -> OK
+dialog information "Please select what you would like to evolve your Tyrouge to." -> OK
+> radio Form4.EvolveChoice 4
+> click Form4.EvolveButton
+dialog information "Tyrouge evolved into Hitmontop!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 5
+dialog information "# 265 Wurmple, L.7, XP:343, XP to next level:169" -> OK
+dialog information "Please select what you would like to evolve your Wurmple to." -> OK
+> radio Form4.EvolveChoice 2
+> click Form4.EvolveButton
+dialog information " evolved into Silcoon!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 6
+dialog information "# 366 Clamperl, L.20, XP:8000, XP to next level:1261" -> OK
+dialog information "Please select what you would like to evolve your Clamperl to." -> OK
+> radio Form4.EvolveChoice 3
+> click Form4.EvolveButton
+dialog information " evolved into Gorebyss!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 7
+dialog information "# 133 Eevee, L.30, XP:27000, XP to next level:2791" -> OK
+dialog information "Please select what you would like to evolve your Eevee to." -> OK
+> radio Form4.EvolveChoice 1
+> click Form4.EvolveButton
+dialog information "Evolution cancelled." -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 7
+dialog information "# 133 Eevee, L.30, XP:27000, XP to next level:2791" -> OK
+dialog information "Please select what you would like to evolve your Eevee to." -> OK
+> radio Form4.EvolveChoice 6
+> click Form4.EvolveButton
+dialog information "Eevee evolved into Umbreon!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 8
+dialog information "# 001 Bulbasaur, L.15, XP:3375, XP to next level:721" -> OK
+dialog information "Your Bulbasaur needs to grow 1 more level(s) before it can evolve." -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 9
+dialog information "# 003 Venusaur, L.50, XP:125000, XP to next level:7651" -> OK
+dialog information "Venusaur can't evolve." -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Evolution Mode cancelled." -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 10
+dialog information "# 044 Gloom, L.36, XP:46656, XP to next level:3997" -> OK
+dialog information "Please select what you would like to evolve your Gloom to." -> OK
+> radio Form4.EvolveChoice 2
+> click Form4.EvolveButton
+dialog information "Gloom evolved into Vileplume!" -> OK
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> choose 4
+dialog information "# 237 Hitmontop, L.20, XP:8000, XP to next level:1261" -> OK
+dialog information "Hitmontop can't evolve." -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,3,44,45,61,62,79,133,182,197,199,236,237,265,266,366,368
+state party 1:182/L36/46656 2:62/L42/74088 3:199/L27/19683 4:237/L20/8000 5:266/L7/343 6:368/L20/8000 7:197/L30/27000 8:1/L15/3375 9:3/L50/125000 10:45/L36/46656
+> quit
+exit 0
+save line 64: "FALSE" -> "TRUE"
+save line 81: "FALSE" -> "TRUE"
+save line 201: "FALSE" -> "TRUE"
+save line 216: "FALSE" -> "TRUE"
+save line 218: "FALSE" -> "TRUE"
+save line 256: "FALSE" -> "TRUE"
+save line 285: "FALSE" -> "TRUE"
+save line 387: "FALSE" -> "TRUE"
+save line 406: "44" -> "182"
+save line 409: "61" -> "62"
+save line 412: "79" -> "199"
+save line 415: "236" -> "237"
+save line 418: "265" -> "266"
+save line 421: "366" -> "368"
+save line 424: "133" -> "197"
+save line 433: "44" -> "45"

@@ -250,14 +250,39 @@ func (ud *uiDriver) Menu(path []*game.MenuItem) error {
 
 func (ud *uiDriver) Choose(i int) error {
 	ta := ud.ta
-	lv := ta.stats.party
-	rect := lv.itemRect(i)
-	pnt := widgetOrigin(lv).Add(rect.Min).Add(rect.Size().Div(2))
+	pnt := ud.reach(ta.stats.wdw, ta.stats.party, i)
 	ud.front(ta.stats.wdw, pnt)
 	ta.doubleClick(pnt)
 	ud.settle()
 
 	return nil
+}
+
+// reach returns the middle of item i's icon in lv, in wdw: the list takes
+// a click on an item's icon or caption only. When the icon is out of
+// view, it first clicks the scroll bar's arrows, as the player would.
+func (ud *uiDriver) reach(wdw *window, lv *listView, i int) image.Point {
+	_, icon, _ := lv.metrics()
+	bar := &lv.scroll
+
+	for {
+		rect := lv.itemRect(i)
+		mid := rect.Min.Add(image.Pt(icon.X/2, rect.Dy()/2))
+
+		if mid.In(lv.client()) && !mid.In(bar.rect) {
+			return widgetOrigin(lv).Add(mid)
+		}
+
+		arrow := image.Pt(bar.rect.Max.X-bar.arrow()/2-1, bar.rect.Min.Y+bar.rect.Dy()/2)
+		if mid.X < lv.client().Min.X {
+			arrow.X = bar.rect.Min.X + bar.arrow()/2
+		}
+
+		before := bar.pos
+
+		ud.clickAt(wdw, widgetOrigin(lv).Add(arrow))
+		require.NotEqual(ud.t, before, bar.pos, "the party list doesn't scroll to member %d", i+1)
+	}
 }
 
 // radio clicks radio button idx of rg.

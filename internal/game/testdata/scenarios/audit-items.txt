@@ -1,0 +1,101 @@
+# Audit: Potions and Super Potions after real damage, then the fight.
+Potions 10
+SuperPotions 10
+party 149 100
+> start
+> seed 7
+> menu Actions > Fight a Trainer > Trainers > Beginner > Red
+log Red wants to fight!
+log Red sent out Charmander!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 149 Dragonite, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Dragonite?" -> Yes
+log Dragonite, I choose you!
+> set EnemyHP 999
+> move 1
+rand 10 = 2
+rand 20 = 16
+log Dragonite used Hyper Beam!
+log Dragonite did 186 points of damage to enemy Charmander.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 1
+log Enemy Charmander used Cut!
+log Enemy Charmander did 1 points of damage to Dragonite.
+> item 5
+log Dragonite recovered 1 HP!
+rand 4 = 0
+rand 10 = 2
+rand 20 = 12
+log Enemy Charmander used Scratch!
+log Enemy Charmander did 5 points of damage to Dragonite.
+> item 6
+log Dragonite recovered 5 HP!
+rand 4 = 2
+rand 10 = 0
+rand 20 = 16
+log Enemy Charmander used Ember!
+log It's not very effective...
+log Enemy Charmander did 5 points of damage to Dragonite.
+> item 5
+log Dragonite recovered 5 HP!
+rand 4 = 2
+rand 10 = 4
+rand 20 = 7
+log Enemy Charmander used Ember!
+log It's not very effective...
+log Enemy Charmander did 1 points of damage to Dragonite.
+> fightbest
+rand 10 = 6
+rand 20 = 13
+log Dragonite used Thunder!
+log Dragonite did 193 points of damage to enemy Charmander.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 12
+log Enemy Charmander used Scratch!
+log Enemy Charmander did 5 points of damage to Dragonite.
+rand 10 = 9
+rand 20 = 14
+log Dragonite used Thunder!
+log Critical hit!
+log Dragonite did 388 points of damage to enemy Charmander.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 5
+log Enemy Charmander used Flamethrower!
+log It's not very effective...
+log Enemy Charmander did 1 points of damage to Dragonite.
+rand 10 = 3
+rand 20 = 5
+log Dragonite used Thunder!
+log Dragonite did 185 points of damage to enemy Charmander.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 19
+log Enemy Charmander used Flamethrower!
+log It's not very effective...
+log Enemy Charmander did 7 points of damage to Dragonite.
+rand 10 = 6
+rand 20 = 3
+log Dragonite used Thunder!
+log Dragonite did 183 points of damage to enemy Charmander.
+log Enemy Charmander fainted!
+log Dragonite gained 61 experience points!
+rand 3 = 0
+log You got 250¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=986 enemy=4 level=5 hp=0 levels=2-100
+state player badges=0 Money=250 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=8 SuperPotions=9 flags=
+state dex 149
+state party 1:149/L100/1000000
+> quit
+exit 0
+save line 9: "0" -> "250"
+save line 10: "0" -> "1"
+save line 12: "0" -> "1"
+save line 18: "10" -> "8"
+save line 19: "10" -> "9"

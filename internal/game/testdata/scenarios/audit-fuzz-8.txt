@@ -1,0 +1,701 @@
+# Audit: random battles (generator seed 20261020, scenario 8) at 24 badges.
+badges 24
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 25 55
+party 322 69
+party 372 14
+party 224 85
+party 32 32
+party 386 51
+> start
+> seed 101326456
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 14
+rand 30 = 17
+rand 30 = 14
+log Wild Beedrill appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 322 Numel, L.69, XP:328509, XP to next level:14491" -> OK
+dialog confirmation "Choose Numel?" -> Yes
+log Numel, I choose you!
+> fight 1
+rand 10 = 7
+rand 20 = 7
+log Numel used Tackle!
+log Numel did 45 points of damage to enemy Beedrill.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 14
+log Enemy Beedrill used Pin Missile!
+log It's not very effective...
+log Enemy Beedrill did 41 points of damage to Numel.
+rand 10 = 9
+rand 20 = 12
+log Numel used Tackle!
+log Critical hit!
+log Numel did 100 points of damage to enemy Beedrill.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 16
+log Enemy Beedrill used Fury Attack!
+log Enemy Beedrill did 88 points of damage to Numel.
+rand 10 = 9
+rand 20 = 3
+log Numel used Tackle!
+log Critical hit!
+log Numel did 82 points of damage to enemy Beedrill.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 7
+log Enemy Beedrill used Pin Missile!
+log It's not very effective...
+log Enemy Beedrill did 37 points of damage to Numel.
+rand 10 = 5
+rand 20 = 10
+log Numel used Tackle!
+log Numel did 48 points of damage to enemy Beedrill.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 0
+log Enemy Beedrill used Fury Attack!
+log Enemy Beedrill did 72 points of damage to Numel.
+rand 10 = 7
+rand 20 = 18
+log Numel used Tackle!
+log Numel did 56 points of damage to enemy Beedrill.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 7
+log Enemy Beedrill used Pin Missile!
+log It's not very effective...
+log Enemy Beedrill did 37 points of damage to Numel.
+rand 10 = 4
+rand 20 = 3
+log Numel used Tackle!
+log Numel did 41 points of damage to enemy Beedrill.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 0
+log Enemy Beedrill used Fury Attack!
+log Enemy Beedrill did 72 points of damage to Numel.
+rand 10 = 9
+rand 20 = 15
+log Numel used Tackle!
+log Critical hit!
+log Numel did 106 points of damage to enemy Beedrill.
+rand 4 = 1
+rand 10 = 5
+rand 20 = 4
+log Enemy Beedrill used Poison Sting!
+log It's not very effective...
+log Enemy Beedrill did 38 points of damage to Numel.
+rand 10 = 2
+rand 20 = 1
+log Numel used Tackle!
+log Numel did 39 points of damage to enemy Beedrill.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 11
+log Enemy Beedrill used Pin Missile!
+log It's not very effective...
+log Enemy Beedrill did 39 points of damage to Numel.
+rand 10 = 8
+rand 20 = 9
+log Numel used Tackle!
+log Numel did 47 points of damage to enemy Beedrill.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 6
+log Enemy Beedrill used Poison Sting!
+log It's not very effective...
+log Enemy Beedrill did 39 points of damage to Numel.
+rand 10 = 3
+rand 20 = 9
+log Numel used Tackle!
+log Numel did 47 points of damage to enemy Beedrill.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 18
+log Enemy Beedrill used Tackle!
+log Enemy Beedrill did 60 points of damage to Numel.
+rand 10 = 4
+rand 20 = 0
+log Numel used Tackle!
+log Numel did 38 points of damage to enemy Beedrill.
+rand 4 = 1
+rand 10 = 5
+rand 20 = 6
+log Enemy Beedrill used Poison Sting!
+log It's not very effective...
+log Enemy Beedrill did 39 points of damage to Numel.
+rand 10 = 2
+rand 20 = 12
+log Numel used Tackle!
+log Numel did 50 points of damage to enemy Beedrill.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 2
+log Enemy Beedrill used Pin Missile!
+log It's not very effective...
+log Enemy Beedrill did 35 points of damage to Numel.
+rand 10 = 7
+rand 20 = 0
+log Numel used Tackle!
+log Numel did 38 points of damage to enemy Beedrill.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 12
+log Enemy Beedrill used Pin Missile!
+log It's not very effective...
+log Enemy Beedrill did 40 points of damage to Numel.
+rand 10 = 9
+rand 20 = 11
+log Numel used Tackle!
+log Critical hit!
+log Numel did 98 points of damage to enemy Beedrill.
+log Enemy Beedrill fainted!
+log Numel gained 16651 experience points!
+log Numel grew to level 70!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=2 hp=53 enemy=15 level=75 hp=0 levels=2-100
+state player badges=24 Money=106000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345160 3:372/L14/2744 4:224/L85/614125 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a Trainer > Trainers > Beginner > Blue
+log Blue wants to fight!
+log Blue sent out Squirtle!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 372 Shelgon, L.14, XP:2744, XP to next level:631" -> OK
+dialog confirmation "Choose Shelgon?" -> Yes
+log Shelgon, I choose you!
+> fight 1
+rand 10 = 4
+rand 20 = 19
+log Shelgon used Bite!
+log Shelgon did 25 points of damage to enemy Squirtle.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 0
+log Enemy Squirtle used Bubble!
+log It's not very effective...
+log Enemy Squirtle did 1 points of damage to Shelgon.
+rand 10 = 5
+rand 20 = 11
+log Shelgon used Bite!
+log Shelgon did 17 points of damage to enemy Squirtle.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 6
+log Enemy Squirtle used Water Gun!
+log It's not very effective...
+log Enemy Squirtle did 1 points of damage to Shelgon.
+rand 10 = 6
+rand 20 = 8
+log Shelgon used Bite!
+log Shelgon did 14 points of damage to enemy Squirtle.
+log Enemy Squirtle fainted!
+log Shelgon gained 61 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=3 hp=138 enemy=7 level=5 hp=0 levels=2-100
+state player badges=24 Money=112000 Wins=2 Losses=0 Fights=2 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345160 3:372/L14/2805 4:224/L85/614125 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a Trainer > Trainers > Beginner > Green
+log Green wants to fight!
+log Green sent out Bulbasaur!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 322 Numel, L.70, XP:345160, XP to next level:12751" -> OK
+dialog confirmation "Choose Numel?" -> Yes
+log Numel, I choose you!
+> fight 1
+rand 10 = 1
+rand 20 = 18
+log Numel used Tackle!
+log Numel did 57 points of damage to enemy Bulbasaur.
+log Enemy Bulbasaur fainted!
+log Numel gained 61 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=2 hp=700 enemy=1 level=5 hp=0 levels=2-100
+state player badges=24 Money=113500 Wins=3 Losses=0 Fights=3 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/614125 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 354
+rand 30 = 29
+rand 30 = 16
+log Wild Duskull appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 386 Deoxys, L.51, XP:132651, XP to next level:7957" -> OK
+dialog confirmation "Choose Deoxys?" -> Yes
+log Deoxys, I choose you!
+> throw 1
+log You threw a POKéBall.
+rand 50 = 42
+log Sorry, Duskull wasn't caught.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 4
+log Enemy Duskull used Psywave!
+log It's not very effective...
+log Enemy Duskull did 48 points of damage to Deoxys.
+log You threw a POKéBall.
+rand 50 = 34
+log Sorry, Duskull wasn't caught.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 5
+log Enemy Duskull used Lick!
+log It's super effective!
+log Enemy Duskull did 151 points of damage to Deoxys.
+log You threw a POKéBall.
+rand 50 = 24
+log Sorry, Duskull wasn't caught.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 1
+log Enemy Duskull used Night Shade!
+log It's super effective!
+log Enemy Duskull did 136 points of damage to Deoxys.
+log You threw a POKéBall.
+rand 50 = 16
+log Sorry, Duskull wasn't caught.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 10
+log Enemy Duskull used Take Down!
+log Enemy Duskull did 96 points of damage to Deoxys.
+log You threw a POKéBall.
+rand 50 = 13
+log Sorry, Duskull wasn't caught.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 10
+log Enemy Duskull used Lick!
+log It's super effective!
+log Enemy Duskull did 161 points of damage to Deoxys.
+log Deoxys fainted!
+log You lost 56750¥!
+> fight 1
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=6 hp=0 enemy=355 level=77 hp=770 levels=2-100
+state player badges=24 Money=56750 Wins=3 Losses=1 Fights=5 Catches=0 PokeBalls=45 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/614125 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 8
+rand 30 = 20
+rand 30 = 5
+log Wild Blastoise appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 032 Nidoran[M], L.32, XP:32768, XP to next level:3169" -> OK
+dialog confirmation "Choose Nidoran[M]?" -> Yes
+log Nidoran[M], I choose you!
+> fightbest
+rand 10 = 6
+rand 20 = 14
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 42 points of damage to enemy Blastoise.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 7
+log Enemy Blastoise used Bubblebeam!
+log Enemy Blastoise did 56 points of damage to Nidoran[M].
+rand 10 = 3
+rand 20 = 14
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 42 points of damage to enemy Blastoise.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 2
+log Enemy Blastoise used Skull Bash!
+log Enemy Blastoise did 104 points of damage to Nidoran[M].
+rand 10 = 6
+rand 20 = 4
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 32 points of damage to enemy Blastoise.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 15
+log Enemy Blastoise used Water Gun!
+log Enemy Blastoise did 90 points of damage to Nidoran[M].
+rand 10 = 5
+rand 20 = 1
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 29 points of damage to enemy Blastoise.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 13
+log Enemy Blastoise used Bubblebeam!
+log Enemy Blastoise did 62 points of damage to Nidoran[M].
+rand 10 = 4
+rand 20 = 0
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 28 points of damage to enemy Blastoise.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 9
+log Enemy Blastoise used Skull Bash!
+log Enemy Blastoise did 111 points of damage to Nidoran[M].
+log Nidoran[M] fainted!
+log You lost 28375¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=9 level=66 hp=487 levels=2-100
+state player badges=24 Money=28375 Wins=3 Losses=2 Fights=7 Catches=0 PokeBalls=45 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/614125 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 190
+rand 30 = 7
+rand 30 = 21
+log Wild Sunkern appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 025 Pikachu, L.55, XP:166375, XP to next level:9241" -> OK
+dialog confirmation "Choose Pikachu?" -> Yes
+log Pikachu, I choose you!
+> fight 3
+rand 10 = 7
+rand 20 = 8
+log Pikachu used Slam!
+log Pikachu did 53 points of damage to enemy Sunkern.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 16
+log Enemy Sunkern used Mega Drain!
+log Enemy Sunkern did 124 points of damage to Pikachu.
+rand 10 = 3
+rand 20 = 15
+log Pikachu used Slam!
+log Pikachu did 60 points of damage to enemy Sunkern.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 14
+log Enemy Sunkern used Mega Drain!
+log Enemy Sunkern did 122 points of damage to Pikachu.
+rand 10 = 9
+rand 20 = 15
+log Pikachu used Slam!
+log Critical hit!
+log Pikachu did 120 points of damage to enemy Sunkern.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 7
+log Enemy Sunkern used Absorb!
+log Enemy Sunkern did 58 points of damage to Pikachu.
+rand 10 = 1
+rand 20 = 11
+log Pikachu used Slam!
+log Pikachu did 56 points of damage to enemy Sunkern.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 5
+log Enemy Sunkern used Body Slam!
+log Enemy Sunkern did 126 points of damage to Pikachu.
+rand 10 = 5
+rand 20 = 6
+log Pikachu used Slam!
+log Pikachu did 51 points of damage to enemy Sunkern.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 3
+log Enemy Sunkern used Absorb!
+log Critical hit!
+log Enemy Sunkern did 109 points of damage to Pikachu.
+rand 10 = 1
+rand 20 = 6
+log Pikachu used Slam!
+log Pikachu did 51 points of damage to enemy Sunkern.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 5
+log Enemy Sunkern used Razor Leaf!
+log Enemy Sunkern did 109 points of damage to Pikachu.
+log Pikachu fainted!
+log You lost 14188¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=191 level=82 hp=429 levels=2-100
+state player badges=24 Money=14187 Wins=3 Losses=3 Fights=9 Catches=0 PokeBalls=45 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/614125 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Clair
+log Clair wants to fight!
+log Clair sent out Kingdra!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 224 Octillery, L.85, XP:614125, XP to next level:21931" -> OK
+dialog confirmation "Choose Octillery?" -> Yes
+log Octillery, I choose you!
+> fight 4
+rand 10 = 3
+rand 20 = 4
+log Octillery used Aurora Beam!
+log Octillery did 125 points of damage to enemy Kingdra.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 8
+log Enemy Kingdra used Body Slam!
+log Enemy Kingdra did 129 points of damage to Octillery.
+rand 10 = 2
+rand 20 = 14
+log Octillery used Aurora Beam!
+log Octillery did 135 points of damage to enemy Kingdra.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 15
+log Enemy Kingdra used Bubble!
+log It's not very effective...
+log Enemy Kingdra did 33 points of damage to Octillery.
+rand 10 = 1
+rand 20 = 14
+log Octillery used Aurora Beam!
+log Octillery did 135 points of damage to enemy Kingdra.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 10
+log Enemy Kingdra used Body Slam!
+log Enemy Kingdra did 131 points of damage to Octillery.
+rand 10 = 7
+rand 20 = 8
+log Octillery used Aurora Beam!
+log Octillery did 129 points of damage to enemy Kingdra.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 14
+log Enemy Kingdra used Bubble!
+log It's not very effective...
+log Enemy Kingdra did 32 points of damage to Octillery.
+rand 10 = 3
+rand 20 = 6
+log Octillery used Aurora Beam!
+log Octillery did 127 points of damage to enemy Kingdra.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 15
+log Enemy Kingdra used Body Slam!
+log Enemy Kingdra did 136 points of damage to Octillery.
+rand 10 = 2
+rand 20 = 6
+log Octillery used Aurora Beam!
+log Octillery did 127 points of damage to enemy Kingdra.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 1
+log Enemy Kingdra used Body Slam!
+log Enemy Kingdra did 122 points of damage to Octillery.
+rand 10 = 9
+rand 20 = 5
+log Octillery used Aurora Beam!
+log Critical hit!
+log Octillery did 253 points of damage to enemy Kingdra.
+log Enemy Kingdra fainted!
+log Octillery gained 19927 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=4 hp=267 enemy=230 level=82 hp=0 levels=2-100
+state player badges=24 Money=20187 Wins=4 Losses=3 Fights=10 Catches=0 PokeBalls=45 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/634052 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 18
+rand 30 = 5
+rand 30 = 24
+log Wild Rattata appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 372 Shelgon, L.14, XP:2805, XP to next level:570" -> OK
+dialog confirmation "Choose Shelgon?" -> Yes
+log Shelgon, I choose you!
+> throw 3
+log You threw an Ultra Ball.
+rand 250 = 53
+log Sorry, Rattata wasn't caught.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 9
+log Enemy Rattata used Slam!
+log Enemy Rattata did 84 points of damage to Shelgon.
+log You threw an Ultra Ball.
+rand 250 = 60
+log Sorry, Rattata wasn't caught.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 17
+log Enemy Rattata used Quick Attack!
+log Enemy Rattata did 104 points of damage to Shelgon.
+log Shelgon fainted!
+log You lost 10094¥!
+> fight 4
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=19 level=85 hp=850 levels=2-100
+state player badges=24 Money=10093 Wins=4 Losses=4 Fights=12 Catches=0 PokeBalls=45 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/634052 5:32/L32/32768 6:386/L51/132651
+> menu Actions > Fight a Trainer > Trainers > Novice > Emerald
+log Emerald wants to fight!
+log Emerald sent out Grovyle!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 032 Nidoran[M], L.32, XP:32768, XP to next level:3169" -> OK
+dialog confirmation "Choose Nidoran[M]?" -> Yes
+log Nidoran[M], I choose you!
+> fight 2
+rand 10 = 5
+rand 20 = 19
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 47 points of damage to enemy Grovyle.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 1
+log Enemy Grovyle used Razor Leaf!
+log Critical hit!
+log It's not very effective...
+log Enemy Grovyle did 26 points of damage to Nidoran[M].
+rand 10 = 5
+rand 20 = 9
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 37 points of damage to enemy Grovyle.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 5
+log Enemy Grovyle used Cut!
+log Enemy Grovyle did 25 points of damage to Nidoran[M].
+rand 10 = 0
+rand 20 = 7
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 35 points of damage to enemy Grovyle.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 11
+log Enemy Grovyle used Cut!
+log Enemy Grovyle did 31 points of damage to Nidoran[M].
+rand 10 = 5
+rand 20 = 17
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 45 points of damage to enemy Grovyle.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 2
+log Enemy Grovyle used Cut!
+log Enemy Grovyle did 22 points of damage to Nidoran[M].
+rand 10 = 2
+rand 20 = 9
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 37 points of damage to enemy Grovyle.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 19
+log Enemy Grovyle used Cut!
+log Critical hit!
+log Enemy Grovyle did 78 points of damage to Nidoran[M].
+rand 10 = 0
+rand 20 = 10
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 38 points of damage to enemy Grovyle.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 1
+log Enemy Grovyle used Pound!
+log Enemy Grovyle did 8 points of damage to Nidoran[M].
+rand 10 = 2
+rand 20 = 0
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 28 points of damage to enemy Grovyle.
+log Enemy Grovyle fainted!
+log Nidoran[M] gained 1801 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=5 hp=130 enemy=253 level=25 hp=0 levels=2-100
+state player badges=24 Money=13093 Wins=5 Losses=4 Fights=13 Catches=0 PokeBalls=45 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/634052 5:32/L32/34569 6:386/L51/132651
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 271
+rand 30 = 16
+rand 30 = 15
+log Wild Ludicolo appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 224 Octillery, L.85, XP:634052, XP to next level:2004" -> OK
+dialog confirmation "Choose Octillery?" -> Yes
+log Octillery, I choose you!
+> throw 2
+log You threw a Great Ball.
+rand 100 = 48
+log Sorry, Ludicolo wasn't caught.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 1
+log Enemy Ludicolo used Solarbeam!
+log It's super effective!
+log Enemy Ludicolo did 270 points of damage to Octillery.
+log You threw a Great Ball.
+rand 100 = 74
+log Sorry, Ludicolo wasn't caught.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 12
+log Enemy Ludicolo used Solarbeam!
+log Critical hit!
+log It's super effective!
+log Enemy Ludicolo did 585 points of damage to Octillery.
+log Octillery fainted!
+log You lost 6547¥!
+> fight 1
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=4 hp=0 enemy=272 level=76 hp=760 levels=2-100
+state player badges=24 Money=6546 Wins=5 Losses=5 Fights=15 Catches=0 PokeBalls=45 GreatBalls=18 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 25,32,224,322,372,386
+state party 1:25/L55/166375 2:322/L70/345221 3:372/L14/2805 4:224/L85/634052 5:32/L32/34569 6:386/L51/132651
+> quit
+exit 0
+save line 9: "100000" -> "6546"
+save line 10: "0" -> "5"
+save line 11: "0" -> "5"
+save line 12: "0" -> "15"
+save line 14: "50" -> "45"
+save line 15: "20" -> "18"
+save line 16: "20" -> "18"
+save line 410: "69" -> "70"
+save line 411: "328509" -> "345221"
+save line 414: "2744" -> "2805"
+save line 417: "614125" -> "634052"
+save line 420: "32768" -> "34569"

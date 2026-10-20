@@ -1,0 +1,716 @@
+# Audit: random battles (generator seed 20261020, scenario 1) at 24 badges.
+badges 24
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 237 100
+party 335 45
+party 109 66
+party 32 88
+party 255 15
+party 76 9
+> start
+> seed 1385307979
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 107
+rand 30 = 11
+rand 30 = 8
+log Wild Lickitung appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 255 Torchic, L.15, XP:3375, XP to next level:721" -> OK
+dialog confirmation "Choose Torchic?" -> Yes
+log Torchic, I choose you!
+> item 5
+log It won't have any effect.
+> throw 1
+log You threw a POKéBall.
+rand 50 = 45
+log Sorry, Lickitung wasn't caught.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 12
+log Enemy Lickitung used Stomp!
+log Enemy Lickitung did 105 points of damage to Torchic.
+log You threw a POKéBall.
+rand 50 = 28
+log Sorry, Lickitung wasn't caught.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 5
+log Enemy Lickitung used Stomp!
+log Enemy Lickitung did 98 points of damage to Torchic.
+log Torchic fainted!
+log You lost 50000¥!
+> fightbest
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=108 level=69 hp=690 levels=2-100
+state player badges=24 Money=50000 Wins=0 Losses=1 Fights=2 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/287496 4:32/L88/681472 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Brawly
+log Brawly wants to fight!
+log Brawly sent out Makuhita!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 335 Zangoose, L.45, XP:91125, XP to next level:6211" -> OK
+dialog confirmation "Choose Zangoose?" -> Yes
+log Zangoose, I choose you!
+> item 6
+log It won't have any effect.
+> fight 1
+rand 10 = 4
+rand 20 = 12
+log Zangoose used Scratch!
+log Zangoose did 35 points of damage to enemy Makuhita.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 2
+log Enemy Makuhita used Tackle!
+log Enemy Makuhita did 62 points of damage to Zangoose.
+rand 10 = 4
+rand 20 = 1
+log Zangoose used Scratch!
+log Zangoose did 24 points of damage to enemy Makuhita.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 18
+log Enemy Makuhita used Low Kick!
+log It's super effective!
+log Enemy Makuhita did 286 points of damage to Zangoose.
+rand 10 = 1
+rand 20 = 1
+log Zangoose used Scratch!
+log Zangoose did 24 points of damage to enemy Makuhita.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 18
+log Enemy Makuhita used Sand-Attack!
+log Enemy Makuhita did 113 points of damage to Zangoose.
+log Zangoose fainted!
+log You lost 25000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=296 level=100 hp=917 levels=2-100
+state player badges=24 Money=25000 Wins=0 Losses=2 Fights=4 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/287496 4:32/L88/681472 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 228
+rand 30 = 9
+rand 30 = 2
+log Wild Houndoom appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 237 Hitmontop, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Hitmontop?" -> Yes
+log Hitmontop, I choose you!
+> fight 3
+rand 10 = 4
+rand 20 = 0
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 52 points of damage to enemy Houndoom.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 18
+log Enemy Houndoom used Flamethrower!
+log Critical hit!
+log Enemy Houndoom did 179 points of damage to Hitmontop.
+rand 10 = 8
+rand 20 = 1
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 53 points of damage to enemy Houndoom.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 16
+log Enemy Houndoom used Flamethrower!
+log Enemy Houndoom did 87 points of damage to Hitmontop.
+rand 10 = 6
+rand 20 = 6
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 55 points of damage to enemy Houndoom.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 7
+log Enemy Houndoom used Faint Attack!
+log It's not very effective...
+log Enemy Houndoom did 47 points of damage to Hitmontop.
+rand 10 = 5
+rand 20 = 7
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 56 points of damage to enemy Houndoom.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 15
+log Enemy Houndoom used Flamethrower!
+log Enemy Houndoom did 86 points of damage to Hitmontop.
+rand 10 = 4
+rand 20 = 16
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 60 points of damage to enemy Houndoom.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 4
+log Enemy Houndoom used Faint Attack!
+log It's not very effective...
+log Enemy Houndoom did 45 points of damage to Hitmontop.
+rand 10 = 7
+rand 20 = 17
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 61 points of damage to enemy Houndoom.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 16
+log Enemy Houndoom used Fire Blast!
+log Enemy Houndoom did 122 points of damage to Hitmontop.
+rand 10 = 1
+rand 20 = 13
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 59 points of damage to enemy Houndoom.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 1
+log Enemy Houndoom used Flamethrower!
+log Enemy Houndoom did 72 points of damage to Hitmontop.
+rand 10 = 3
+rand 20 = 11
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 58 points of damage to enemy Houndoom.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 14
+log Enemy Houndoom used Fire Blast!
+log Critical hit!
+log Enemy Houndoom did 241 points of damage to Hitmontop.
+rand 10 = 8
+rand 20 = 5
+log Hitmontop used Powder Snow!
+log It's not very effective...
+log Hitmontop did 55 points of damage to enemy Houndoom.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 10
+log Enemy Houndoom used Faint Attack!
+log It's not very effective...
+log Enemy Houndoom did 48 points of damage to Hitmontop.
+rand 10 = 9
+rand 20 = 9
+log Hitmontop used Powder Snow!
+log Critical hit!
+log It's not very effective...
+log Hitmontop did 114 points of damage to enemy Houndoom.
+rand 4 = 1
+rand 10 = 5
+rand 20 = 19
+log Enemy Houndoom used Fire Blast!
+log Enemy Houndoom did 125 points of damage to Hitmontop.
+log Hitmontop fainted!
+log You lost 12500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=229 level=63 hp=7 levels=2-100
+state player badges=24 Money=12500 Wins=0 Losses=3 Fights=6 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/287496 4:32/L88/681472 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a Trainer > Trainers > Advanced > Jesse
+log Jesse wants to fight!
+log Jesse sent out Arbok!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 032 Nidoran[M], L.88, XP:681472, XP to next level:23497" -> OK
+dialog confirmation "Choose Nidoran[M]?" -> Yes
+log Nidoran[M], I choose you!
+> fight 4
+rand 10 = 4
+rand 20 = 8
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 94 points of damage to enemy Arbok.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 18
+log Enemy Arbok used Poison Sting!
+log It's not very effective...
+log Enemy Arbok did 45 points of damage to Nidoran[M].
+rand 10 = 3
+rand 20 = 4
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 90 points of damage to enemy Arbok.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 12
+log Enemy Arbok used Bite!
+log Enemy Arbok did 88 points of damage to Nidoran[M].
+rand 10 = 5
+rand 20 = 16
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 102 points of damage to enemy Arbok.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 4
+log Enemy Arbok used Acid!
+log It's not very effective...
+log Enemy Arbok did 42 points of damage to Nidoran[M].
+rand 10 = 7
+rand 20 = 0
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 86 points of damage to enemy Arbok.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 10
+log Enemy Arbok used Hyper Beam!
+log Enemy Arbok did 135 points of damage to Nidoran[M].
+rand 10 = 2
+rand 20 = 2
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 88 points of damage to enemy Arbok.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 15
+log Enemy Arbok used Poison Sting!
+log It's not very effective...
+log Enemy Arbok did 43 points of damage to Nidoran[M].
+rand 10 = 7
+rand 20 = 10
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 96 points of damage to enemy Arbok.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 1
+log Enemy Arbok used Hyper Beam!
+log Enemy Arbok did 126 points of damage to Nidoran[M].
+rand 10 = 4
+rand 20 = 17
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 103 points of damage to enemy Arbok.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 14
+log Enemy Arbok used Acid!
+log Critical hit!
+log It's not very effective...
+log Enemy Arbok did 94 points of damage to Nidoran[M].
+rand 10 = 6
+rand 20 = 11
+log Nidoran[M] used Fury Attack!
+log Nidoran[M] did 97 points of damage to enemy Arbok.
+log Enemy Arbok fainted!
+log Nidoran[M] gained 16651 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=4 hp=307 enemy=24 level=75 hp=0 levels=2-100
+state player badges=24 Money=18500 Wins=1 Losses=3 Fights=7 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/287496 4:32/L88/698123 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Sabrina
+log Sabrina wants to fight!
+log Sabrina sent out Venomoth!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 076 Golem, L.9, XP:729, XP to next level:271" -> OK
+dialog confirmation "Choose Golem?" -> Yes
+log Golem, I choose you!
+> fight 2
+rand 10 = 3
+rand 20 = 0
+log Golem used Rock Throw!
+log It's super effective!
+log Golem did 3 points of damage to enemy Venomoth.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 15
+log Enemy Venomoth used Tackle!
+log It's not very effective...
+log Enemy Venomoth did 12 points of damage to Golem.
+rand 10 = 9
+rand 20 = 18
+log Golem used Rock Throw!
+log Critical hit!
+log It's super effective!
+log Golem did 78 points of damage to enemy Venomoth.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 8
+log Enemy Venomoth used Confusion!
+log Enemy Venomoth did 24 points of damage to Golem.
+rand 10 = 0
+rand 20 = 9
+log Golem used Rock Throw!
+log It's super effective!
+log Golem did 21 points of damage to enemy Venomoth.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 3
+log Enemy Venomoth used Psybeam!
+log Critical hit!
+log Enemy Venomoth did 70 points of damage to Golem.
+log Golem fainted!
+log You lost 9250¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=6 hp=0 enemy=49 level=28 hp=178 levels=2-100
+state player badges=24 Money=9250 Wins=1 Losses=4 Fights=9 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/287496 4:32/L88/698123 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Winona
+log Winona wants to fight!
+log Winona sent out Altaria!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 237 Hitmontop, L.100, XP:1000000, XP to next level:0" -> OK
+dialog confirmation "Choose Hitmontop?" -> Yes
+log Hitmontop, I choose you!
+> item 6
+log It won't have any effect.
+> fight 2
+rand 10 = 7
+rand 20 = 19
+log Hitmontop used Quick Attack!
+log Hitmontop did 124 points of damage to enemy Altaria.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 14
+log Enemy Altaria used Fly!
+log It's super effective!
+log Enemy Altaria did 328 points of damage to Hitmontop.
+rand 10 = 8
+rand 20 = 1
+log Hitmontop used Quick Attack!
+log Hitmontop did 106 points of damage to enemy Altaria.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 9
+log Enemy Altaria used Dragonbreath!
+log Enemy Altaria did 109 points of damage to Hitmontop.
+rand 10 = 9
+rand 20 = 3
+log Hitmontop used Quick Attack!
+log Critical hit!
+log Hitmontop did 216 points of damage to enemy Altaria.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 6
+log Enemy Altaria used Sky Attack!
+log It's super effective!
+log Enemy Altaria did 332 points of damage to Hitmontop.
+rand 10 = 9
+rand 20 = 1
+log Hitmontop used Quick Attack!
+log Critical hit!
+log Hitmontop did 212 points of damage to enemy Altaria.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 7
+log Enemy Altaria used Fly!
+log It's super effective!
+log Enemy Altaria did 314 points of damage to Hitmontop.
+log Hitmontop fainted!
+log You lost 4625¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=334 level=100 hp=342 levels=2-100
+state player badges=24 Money=4625 Wins=1 Losses=5 Fights=11 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/287496 4:32/L88/698123 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 231
+rand 30 = 14
+rand 30 = 22
+log Wild Donphan appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 032 Nidoran[M], L.88, XP:698123, XP to next level:6846" -> OK
+dialog confirmation "Choose Nidoran[M]?" -> Yes
+log Nidoran[M], I choose you!
+> fight 2
+rand 10 = 4
+rand 20 = 18
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 113 points of damage to enemy Donphan.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 18
+log Enemy Donphan used Tackle!
+log Enemy Donphan did 66 points of damage to Nidoran[M].
+rand 10 = 9
+rand 20 = 15
+log Nidoran[M] used Horn Attack!
+log Critical hit!
+log Nidoran[M] did 221 points of damage to enemy Donphan.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 7
+log Enemy Donphan used Double-Edge!
+log Enemy Donphan did 92 points of damage to Nidoran[M].
+rand 10 = 9
+rand 20 = 2
+log Nidoran[M] used Horn Attack!
+log Critical hit!
+log Nidoran[M] did 195 points of damage to enemy Donphan.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 6
+log Enemy Donphan used Earthquake!
+log It's super effective!
+log Enemy Donphan did 307 points of damage to Nidoran[M].
+rand 10 = 2
+rand 20 = 9
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 104 points of damage to enemy Donphan.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 10
+log Enemy Donphan used Double-Edge!
+log Enemy Donphan did 95 points of damage to Nidoran[M].
+rand 10 = 7
+rand 20 = 13
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 108 points of damage to enemy Donphan.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 12
+log Enemy Donphan used Double-Edge!
+log Enemy Donphan did 97 points of damage to Nidoran[M].
+rand 10 = 3
+rand 20 = 4
+log Nidoran[M] used Horn Attack!
+log Nidoran[M] did 99 points of damage to enemy Donphan.
+log Enemy Donphan fainted!
+log Nidoran[M] gained 20419 experience points!
+log Nidoran[M] grew to level 89!
+rand 3 = 1
+log You got 3000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=4 hp=223 enemy=232 level=83 hp=0 levels=2-100
+state player badges=24 Money=7625 Wins=2 Losses=5 Fights=12 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/287496 4:32/L89/718542 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a Trainer > Trainers > Novice > Sapphire
+log Sapphire wants to fight!
+log Sapphire sent out Marshtomp!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 109 Koffing, L.66, XP:287496, XP to next level:13267" -> OK
+dialog confirmation "Choose Koffing?" -> Yes
+log Koffing, I choose you!
+> item 6
+log It won't have any effect.
+> fight 1
+rand 10 = 6
+rand 20 = 3
+log Koffing used Tackle!
+log Koffing did 39 points of damage to enemy Marshtomp.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 15
+log Enemy Marshtomp used Mud Slap!
+log It's super effective!
+log Enemy Marshtomp did 70 points of damage to Koffing.
+rand 10 = 0
+rand 20 = 0
+log Koffing used Tackle!
+log Koffing did 36 points of damage to enemy Marshtomp.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 14
+log Enemy Marshtomp used Whirlpool!
+log Enemy Marshtomp did 44 points of damage to Koffing.
+rand 10 = 3
+rand 20 = 17
+log Koffing used Tackle!
+log Koffing did 53 points of damage to enemy Marshtomp.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 1
+log Enemy Marshtomp used Mud Slap!
+log Critical hit!
+log It's super effective!
+log Enemy Marshtomp did 84 points of damage to Koffing.
+rand 10 = 8
+rand 20 = 19
+log Koffing used Tackle!
+log Koffing did 55 points of damage to enemy Marshtomp.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 0
+log Enemy Marshtomp used Take Down!
+log Enemy Marshtomp did 21 points of damage to Koffing.
+rand 10 = 5
+rand 20 = 6
+log Koffing used Tackle!
+log Koffing did 42 points of damage to enemy Marshtomp.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 8
+log Enemy Marshtomp used Mud Slap!
+log Critical hit!
+log It's super effective!
+log Enemy Marshtomp did 112 points of damage to Koffing.
+rand 10 = 7
+rand 20 = 15
+log Koffing used Tackle!
+log Koffing did 51 points of damage to enemy Marshtomp.
+log Enemy Marshtomp fainted!
+log Koffing gained 1801 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=3 hp=329 enemy=259 level=25 hp=0 levels=2-100
+state player badges=24 Money=10625 Wins=3 Losses=5 Fights=13 Catches=0 PokeBalls=48 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/289297 4:32/L89/718542 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 292
+rand 30 = 22
+rand 30 = 22
+log Wild Whismur appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 109 Koffing, L.66, XP:289297, XP to next level:11466" -> OK
+dialog confirmation "Choose Koffing?" -> Yes
+log Koffing, I choose you!
+> item 5
+log It won't have any effect.
+> throw 1
+log You threw a POKéBall.
+rand 50 = 2
+log Sorry, Whismur wasn't caught.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 8
+log Enemy Whismur used Pound!
+log Enemy Whismur did 56 points of damage to Koffing.
+log You threw a POKéBall.
+rand 50 = 17
+log Sorry, Whismur wasn't caught.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 0
+log Enemy Whismur used Stomp!
+log Critical hit!
+log Enemy Whismur did 229 points of damage to Koffing.
+log You threw a POKéBall.
+rand 50 = 6
+log Sorry, Whismur wasn't caught.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 10
+log Enemy Whismur used Stomp!
+log Enemy Whismur did 124 points of damage to Koffing.
+log You threw a POKéBall.
+rand 50 = 44
+log Sorry, Whismur wasn't caught.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 5
+log Enemy Whismur used Pound!
+log Enemy Whismur did 53 points of damage to Koffing.
+log You threw a POKéBall.
+rand 50 = 30
+log Sorry, Whismur wasn't caught.
+rand 4 = 2
+rand 10 = 0
+rand 20 = 3
+log Enemy Whismur used Take Down!
+log Enemy Whismur did 96 points of damage to Koffing.
+log You threw a POKéBall.
+rand 50 = 18
+log Sorry, Whismur wasn't caught.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 14
+log Enemy Whismur used Pound!
+log Critical hit!
+log Enemy Whismur did 124 points of damage to Koffing.
+log Koffing fainted!
+log You lost 5313¥!
+> fight 4
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=293 level=83 hp=830 levels=2-100
+state player badges=24 Money=5312 Wins=3 Losses=6 Fights=15 Catches=0 PokeBalls=42 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/289297 4:32/L89/718542 5:255/L15/3375 6:76/L9/729
+> menu Actions > Fight a Trainer > Trainers > Beginner > Red
+log Red wants to fight!
+log Red sent out Charmander!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 076 Golem, L.9, XP:729, XP to next level:271" -> OK
+dialog confirmation "Choose Golem?" -> Yes
+log Golem, I choose you!
+> fight 4
+rand 10 = 8
+rand 20 = 0
+log Golem used Earthquake!
+log It's super effective!
+log Golem did 14 points of damage to enemy Charmander.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 6
+log Enemy Charmander used Cut!
+log It's not very effective...
+log Enemy Charmander did 1 points of damage to Golem.
+rand 10 = 8
+rand 20 = 4
+log Golem used Earthquake!
+log It's super effective!
+log Golem did 22 points of damage to enemy Charmander.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 11
+log Enemy Charmander used Scratch!
+log It's not very effective...
+log Enemy Charmander did 2 points of damage to Golem.
+rand 10 = 3
+rand 20 = 6
+log Golem used Earthquake!
+log It's super effective!
+log Golem did 26 points of damage to enemy Charmander.
+log Enemy Charmander fainted!
+log Golem gained 61 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=87 enemy=4 level=5 hp=0 levels=2-100
+state player badges=24 Money=8312 Wins=4 Losses=6 Fights=16 Catches=0 PokeBalls=42 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 32,76,109,237,255,335
+state party 1:237/L100/1000000 2:335/L45/91125 3:109/L66/289297 4:32/L89/718542 5:255/L15/3375 6:76/L9/790
+> quit
+exit 0
+save line 9: "100000" -> "8312"
+save line 10: "0" -> "4"
+save line 11: "0" -> "6"
+save line 12: "0" -> "16"
+save line 14: "50" -> "42"
+save line 414: "287496" -> "289297"
+save line 416: "88" -> "89"
+save line 417: "681472" -> "718542"
+save line 423: "729" -> "790"

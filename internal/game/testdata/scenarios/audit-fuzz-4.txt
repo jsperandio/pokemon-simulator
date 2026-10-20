@@ -1,0 +1,471 @@
+# Audit: random battles (generator seed 20261020, scenario 4) at 0 badges.
+badges 0
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 221 48
+party 258 26
+party 217 53
+party 82 23
+party 54 13
+party 267 81
+> start
+> seed 270480180
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 242
+rand 386 = 287
+rand 386 = 142
+rand 386 = 296
+rand 386 = 320
+rand 386 = 5
+rand 386 = 197
+rand 30 = 25
+rand 30 = 10
+rand 30 = 25
+rand 20 = 9
+rand 20 = 10
+rand 10 = 8
+rand 10 = 7
+rand 19 = 15
+rand 9 = 7
+log Wild Murkrow appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 221 Piloswine, L.48, XP:110592, XP to next level:7057" -> OK
+dialog confirmation "Choose Piloswine?" -> Yes
+log Piloswine, I choose you!
+> fight 2
+rand 10 = 3
+rand 20 = 12
+log Piloswine used Powder Snow!
+log It's super effective!
+log Piloswine did 114 points of damage to enemy Murkrow.
+log Enemy Murkrow fainted!
+log Piloswine gained 217 experience points!
+rand 3 = 2
+log You got 1000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=480 enemy=198 level=9 hp=0 levels=2-100
+state player badges=0 Money=101000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/110809 2:258/L26/17576 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/531441
+> menu Actions > Fight a Trainer > Trainers > Intermediate > Prof.Elm
+log Prof. Elm wants to fight!
+log Prof. Elm sent out Pichu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 054 Psyduck, L.13, XP:2197, XP to next level:547" -> OK
+dialog confirmation "Choose Psyduck?" -> Yes
+log Psyduck, I choose you!
+> fight 1
+rand 10 = 9
+rand 20 = 17
+log Psyduck used Scratch!
+log Critical hit!
+log Psyduck did 33 points of damage to enemy Pichu.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 10
+log Enemy Pichu used Tackle!
+log Enemy Pichu did 35 points of damage to Psyduck.
+rand 10 = 8
+rand 20 = 16
+log Psyduck used Scratch!
+log Psyduck did 15 points of damage to enemy Pichu.
+rand 4 = 2
+rand 10 = 0
+rand 20 = 0
+log Enemy Pichu used Tackle!
+log Enemy Pichu did 25 points of damage to Psyduck.
+rand 10 = 7
+rand 20 = 3
+log Psyduck used Scratch!
+log Psyduck did 2 points of damage to enemy Pichu.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 13
+log Enemy Pichu used Thunder Wave!
+log It's super effective!
+log Enemy Pichu did 101 points of damage to Psyduck.
+log Psyduck fainted!
+log You lost 50500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=172 level=50 hp=450 levels=2-100
+state player badges=0 Money=50500 Wins=1 Losses=1 Fights=3 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/110809 2:258/L26/17576 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/531441
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 155
+rand 386 = 333
+rand 386 = 25
+rand 386 = 296
+rand 386 = 311
+rand 30 = 17
+rand 30 = 29
+rand 30 = 24
+rand 20 = 15
+rand 20 = 7
+rand 10 = 0
+rand 10 = 7
+rand 19 = 2
+rand 9 = 1
+log Wild Minun appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 267 Beautifly, L.81, XP:531441, XP to next level:19927" -> OK
+dialog confirmation "Choose Beautifly?" -> Yes
+log Beautifly, I choose you!
+> fight 3
+rand 10 = 6
+rand 20 = 11
+log Beautifly used Stun Spore!
+log Beautifly did 69 points of damage to enemy Minun.
+log Enemy Minun fainted!
+log Beautifly gained 19 experience points!
+rand 3 = 1
+log You got 500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=810 enemy=312 level=3 hp=0 levels=2-100
+state player badges=0 Money=51000 Wins=2 Losses=1 Fights=4 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/110809 2:258/L26/17576 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/531460
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 296
+rand 386 = 1
+rand 386 = 110
+rand 30 = 9
+rand 30 = 8
+rand 30 = 20
+rand 20 = 14
+rand 20 = 9
+rand 10 = 6
+rand 10 = 1
+rand 19 = 10
+rand 9 = 2
+log Wild Rhyhorn appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 221 Piloswine, L.48, XP:110809, XP to next level:6840" -> OK
+dialog confirmation "Choose Piloswine?" -> Yes
+log Piloswine, I choose you!
+> fight 1
+rand 10 = 2
+rand 20 = 1
+log Piloswine used Tackle!
+log It's not very effective...
+log Piloswine did 12 points of damage to enemy Rhyhorn.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 8
+log Enemy Rhyhorn used Horn Attack!
+log Enemy Rhyhorn did 2 points of damage to Piloswine.
+rand 10 = 1
+rand 20 = 15
+log Piloswine used Tackle!
+log It's not very effective...
+log Piloswine did 19 points of damage to enemy Rhyhorn.
+rand 4 = 2
+rand 10 = 0
+rand 20 = 13
+log Enemy Rhyhorn used Fury Attack!
+log Enemy Rhyhorn did 7 points of damage to Piloswine.
+rand 10 = 7
+rand 20 = 0
+log Piloswine used Tackle!
+log It's not very effective...
+log Piloswine did 11 points of damage to enemy Rhyhorn.
+log Enemy Rhyhorn fainted!
+log Piloswine gained 37 experience points!
+rand 3 = 1
+log You got 500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=471 enemy=111 level=4 hp=0 levels=2-100
+state player badges=0 Money=51500 Wins=3 Losses=1 Fights=5 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/110846 2:258/L26/17576 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/531460
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 342
+rand 30 = 13
+rand 30 = 9
+rand 30 = 11
+rand 20 = 11
+rand 20 = 18
+rand 10 = 4
+rand 10 = 1
+rand 19 = 8
+rand 9 = 4
+log Wild Baltoy appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 258 Mudkip, L.26, XP:17576, XP to next level:2107" -> OK
+dialog confirmation "Choose Mudkip?" -> Yes
+log Mudkip, I choose you!
+> fight 1
+rand 10 = 0
+rand 20 = 5
+log Mudkip used Tackle!
+log Mudkip did 13 points of damage to enemy Baltoy.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 10
+log Enemy Baltoy used Confusion!
+log Enemy Baltoy did 5 points of damage to Mudkip.
+rand 10 = 6
+rand 20 = 11
+log Mudkip used Tackle!
+log Mudkip did 19 points of damage to enemy Baltoy.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 15
+log Enemy Baltoy used Confusion!
+log Critical hit!
+log Enemy Baltoy did 21 points of damage to Mudkip.
+rand 10 = 2
+rand 20 = 2
+log Mudkip used Tackle!
+log Mudkip did 10 points of damage to enemy Baltoy.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 2
+log Enemy Baltoy used Rock Throw!
+log Enemy Baltoy did 1 points of damage to Mudkip.
+rand 10 = 6
+rand 20 = 10
+log Mudkip used Tackle!
+log Mudkip did 18 points of damage to enemy Baltoy.
+log Enemy Baltoy fainted!
+log Mudkip gained 91 experience points!
+rand 3 = 1
+log You got 500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=2 hp=233 enemy=343 level=6 hp=0 levels=2-100
+state player badges=0 Money=52000 Wins=4 Losses=1 Fights=6 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/110846 2:258/L26/17667 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/531460
+> menu Actions > Fight a Trainer > Trainers > Intermediate > Prof.Oak
+log Prof. Oak wants to fight!
+log Prof. Oak sent out Kingler!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 267 Beautifly, L.81, XP:531460, XP to next level:19908" -> OK
+dialog confirmation "Choose Beautifly?" -> Yes
+log Beautifly, I choose you!
+> fightbest
+rand 10 = 6
+rand 20 = 2
+log Beautifly used Mega Drain!
+log It's super effective!
+log Beautifly did 218 points of damage to enemy Kingler.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 2
+log Enemy Kingler used Hydro Pump!
+log Enemy Kingler did 87 points of damage to Beautifly.
+rand 10 = 7
+rand 20 = 10
+log Beautifly used Mega Drain!
+log It's super effective!
+log Beautifly did 234 points of damage to enemy Kingler.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 12
+log Enemy Kingler used Stomp!
+log Enemy Kingler did 77 points of damage to Beautifly.
+rand 10 = 1
+rand 20 = 4
+log Beautifly used Mega Drain!
+log It's super effective!
+log Beautifly did 222 points of damage to enemy Kingler.
+log Enemy Kingler fainted!
+log Beautifly gained 7351 experience points!
+rand 3 = 0
+log You got 250¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=646 enemy=99 level=50 hp=0 levels=2-100
+state player badges=0 Money=52250 Wins=5 Losses=1 Fights=7 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/110846 2:258/L26/17667 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/538811
+> menu Actions > Fight a Trainer > Trainers > Novice > Ruby
+log Ruby wants to fight!
+log Ruby sent out Combusken!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 221 Piloswine, L.48, XP:110846, XP to next level:6803" -> OK
+dialog confirmation "Choose Piloswine?" -> Yes
+log Piloswine, I choose you!
+> fight 3
+rand 10 = 6
+rand 20 = 19
+log Piloswine used Take Down!
+log Piloswine did 69 points of damage to enemy Combusken.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 7
+log Enemy Combusken used Fire Spin!
+log It's super effective!
+log Enemy Combusken did 64 points of damage to Piloswine.
+rand 10 = 9
+rand 20 = 10
+log Piloswine used Take Down!
+log Critical hit!
+log Piloswine did 120 points of damage to enemy Combusken.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 14
+log Enemy Combusken used Fire Spin!
+log Critical hit!
+log It's super effective!
+log Enemy Combusken did 156 points of damage to Piloswine.
+rand 10 = 8
+rand 20 = 5
+log Piloswine used Take Down!
+log Piloswine did 55 points of damage to enemy Combusken.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 0
+log Enemy Combusken used Scratch!
+log Enemy Combusken did 8 points of damage to Piloswine.
+rand 10 = 0
+rand 20 = 2
+log Piloswine used Take Down!
+log Piloswine did 52 points of damage to enemy Combusken.
+log Enemy Combusken fainted!
+log Piloswine gained 1801 experience points!
+rand 3 = 2
+log You got 1000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=252 enemy=256 level=25 hp=0 levels=2-100
+state player badges=0 Money=53250 Wins=6 Losses=1 Fights=8 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/112647 2:258/L26/17667 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/538811
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 260
+rand 30 = 0
+rand 30 = 14
+rand 30 = 22
+rand 20 = 0
+rand 20 = 0
+rand 10 = 6
+rand 10 = 2
+rand 19 = 12
+rand 9 = 8
+log Wild Poochyena appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 221 Piloswine, L.48, XP:112647, XP to next level:5002" -> OK
+dialog confirmation "Choose Piloswine?" -> Yes
+log Piloswine, I choose you!
+> fight 4
+rand 10 = 2
+rand 20 = 1
+log Piloswine used Blizzard!
+log Piloswine did 84 points of damage to enemy Poochyena.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 12
+log Enemy Poochyena used Take Down!
+log Enemy Poochyena did 14 points of damage to Piloswine.
+rand 10 = 1
+rand 20 = 2
+log Piloswine used Blizzard!
+log Piloswine did 85 points of damage to enemy Poochyena.
+log Enemy Poochyena fainted!
+log Piloswine gained 271 experience points!
+rand 3 = 0
+log You got 250¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=1 hp=466 enemy=261 level=10 hp=0 levels=2-100
+state player badges=0 Money=53500 Wins=7 Losses=1 Fights=9 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/112918 2:258/L26/17667 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/538811
+> menu Actions > Fight a Trainer > Trainers > Beginner > Red
+log Red wants to fight!
+log Red sent out Charmander!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 267 Beautifly, L.81, XP:538811, XP to next level:12557" -> OK
+dialog confirmation "Choose Beautifly?" -> Yes
+log Beautifly, I choose you!
+> fightbest
+rand 10 = 7
+rand 20 = 10
+log Beautifly used Whirlwind!
+log Beautifly did 105 points of damage to enemy Charmander.
+log Enemy Charmander fainted!
+log Beautifly gained 61 experience points!
+rand 3 = 1
+log You got 500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=810 enemy=4 level=5 hp=0 levels=2-100
+state player badges=0 Money=54000 Wins=8 Losses=1 Fights=10 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,258,267
+state party 1:221/L48/112918 2:258/L26/17667 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/538872
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 21
+rand 386 = 318
+rand 386 = 233
+rand 30 = 26
+rand 30 = 16
+rand 30 = 26
+rand 20 = 5
+rand 20 = 10
+rand 10 = 1
+rand 10 = 5
+rand 19 = 10
+rand 9 = 1
+log Wild Stantler appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 258 Mudkip, L.26, XP:17667, XP to next level:2016" -> OK
+dialog confirmation "Choose Mudkip?" -> Yes
+log Mudkip, I choose you!
+> throw 2
+log You threw a Great Ball.
+rand 100 = 52
+log You caught Stantler!
+log Stantler has been added to the POKéDEX!
+> fight 1
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=1 own=2 hp=260 enemy=234 level=3 hp=30 levels=2-100
+state player badges=0 Money=54000 Wins=8 Losses=1 Fights=11 Catches=1 PokeBalls=50 GreatBalls=19 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 54,82,217,221,234,258,267
+state party 1:221/L48/112918 2:258/L26/17667 3:217/L53/148877 4:82/L23/12167 5:54/L13/2197 6:267/L81/538872 7:234/L3/27
+> quit
+exit 0
+save line 9: "100000" -> "54000"
+save line 10: "0" -> "8"
+save line 11: "0" -> "1"
+save line 12: "0" -> "11"
+save line 13: "0" -> "1"
+save line 15: "20" -> "19"
+save line 253: "FALSE" -> "TRUE"
+save line 408: "110592" -> "112918"
+save line 411: "17576" -> "17667"
+save line 423: "531441" -> "538872"
+save line 424: "0" -> "234"
+save line 425: "0" -> "3"
+save line 426: "0" -> "27"

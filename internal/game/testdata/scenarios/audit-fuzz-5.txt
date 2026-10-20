@@ -1,0 +1,907 @@
+# Audit: random battles (generator seed 20261020, scenario 5) at 8 badges.
+badges 8
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 300 84
+party 155 55
+party 314 59
+party 127 78
+party 268 20
+party 191 43
+> start
+> seed 1053217471
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 115
+rand 30 = 16
+rand 30 = 16
+rand 30 = 7
+rand 20 = 11
+rand 20 = 3
+rand 10 = 4
+log Wild Horsea appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 300 Skitty, L.84, XP:592704, XP to next level:21421" -> OK
+dialog confirmation "Choose Skitty?" -> Yes
+log Skitty, I choose you!
+> throw 2
+log You threw a Great Ball.
+rand 100 = 18
+log Sorry, Horsea wasn't caught.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 17
+log Enemy Horsea used Tackle!
+log Enemy Horsea did 30 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 86
+log Sorry, Horsea wasn't caught.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 4
+log Enemy Horsea used Body Slam!
+log Enemy Horsea did 48 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 75
+log Sorry, Horsea wasn't caught.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 7
+log Enemy Horsea used Body Slam!
+log Enemy Horsea did 51 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 58
+log Sorry, Horsea wasn't caught.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 3
+log Enemy Horsea used Tackle!
+log Enemy Horsea did 16 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 56
+log Sorry, Horsea wasn't caught.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 12
+log Enemy Horsea used Tackle!
+log Enemy Horsea did 25 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 78
+log Sorry, Horsea wasn't caught.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 8
+log Enemy Horsea used Water Gun!
+log Enemy Horsea did 42 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 20
+log Sorry, Horsea wasn't caught.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 8
+log Enemy Horsea used Body Slam!
+log Enemy Horsea did 52 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 42
+log Sorry, Horsea wasn't caught.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 0
+log Enemy Horsea used Bubble!
+log Enemy Horsea did 15 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 13
+log Sorry, Horsea wasn't caught.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 6
+log Enemy Horsea used Tackle!
+log Enemy Horsea did 19 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 1
+log Sorry, Horsea wasn't caught.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 16
+log Enemy Horsea used Tackle!
+log Enemy Horsea did 29 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 32
+log Sorry, Horsea wasn't caught.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 3
+log Enemy Horsea used Water Gun!
+log Enemy Horsea did 37 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 51
+log Sorry, Horsea wasn't caught.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 16
+log Enemy Horsea used Body Slam!
+log Critical hit!
+log Enemy Horsea did 120 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 72
+log Sorry, Horsea wasn't caught.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 9
+log Enemy Horsea used Bubble!
+log Enemy Horsea did 24 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 85
+log Sorry, Horsea wasn't caught.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 17
+log Enemy Horsea used Bubble!
+log Enemy Horsea did 32 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 57
+log Sorry, Horsea wasn't caught.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 9
+log Enemy Horsea used Body Slam!
+log Enemy Horsea did 53 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 50
+log Sorry, Horsea wasn't caught.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 5
+log Enemy Horsea used Body Slam!
+log Critical hit!
+log Enemy Horsea did 98 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 48
+log Sorry, Horsea wasn't caught.
+rand 4 = 1
+rand 10 = 5
+rand 20 = 4
+log Enemy Horsea used Tackle!
+log Enemy Horsea did 17 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 61
+log Sorry, Horsea wasn't caught.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 12
+log Enemy Horsea used Bubble!
+log Enemy Horsea did 27 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 36
+log Sorry, Horsea wasn't caught.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 19
+log Enemy Horsea used Bubble!
+log Enemy Horsea did 34 points of damage to Skitty.
+log You threw a Great Ball.
+rand 100 = 16
+log Sorry, Horsea wasn't caught.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 8
+log Enemy Horsea used Bubble!
+log Enemy Horsea did 23 points of damage to Skitty.
+> fight 2
+rand 10 = 1
+rand 20 = 5
+log Skitty used Take Down!
+log Skitty did 100 points of damage to enemy Horsea.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 16
+log Enemy Horsea used Body Slam!
+log Enemy Horsea did 60 points of damage to Skitty.
+log Skitty fainted!
+log You lost 50000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=116 level=34 hp=240 levels=2-100
+state player badges=8 Money=50000 Wins=0 Losses=1 Fights=2 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L55/166375 3:314/L59/205379 4:127/L78/474552 5:268/L20/8000 6:191/L43/79507
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Janine
+log Janine wants to fight!
+log Janine sent out Muk!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 155 Cyndaquil, L.55, XP:166375, XP to next level:9241" -> OK
+dialog confirmation "Choose Cyndaquil?" -> Yes
+log Cyndaquil, I choose you!
+> item 6
+log It won't have any effect.
+> fightbest
+rand 10 = 8
+rand 20 = 19
+log Cyndaquil used Flamethrower!
+log Cyndaquil did 80 points of damage to enemy Muk.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 15
+log Enemy Muk used Pound!
+log Enemy Muk did 27 points of damage to Cyndaquil.
+rand 10 = 6
+rand 20 = 14
+log Cyndaquil used Flamethrower!
+log Cyndaquil did 75 points of damage to enemy Muk.
+rand 4 = 2
+rand 10 = 0
+rand 20 = 1
+log Enemy Muk used Body Slam!
+log Enemy Muk did 42 points of damage to Cyndaquil.
+rand 10 = 9
+rand 20 = 0
+log Cyndaquil used Flamethrower!
+log Critical hit!
+log Cyndaquil did 123 points of damage to enemy Muk.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 6
+log Enemy Muk used Acid!
+log Enemy Muk did 34 points of damage to Cyndaquil.
+rand 10 = 3
+rand 20 = 16
+log Cyndaquil used Flamethrower!
+log Cyndaquil did 77 points of damage to enemy Muk.
+log Enemy Muk fainted!
+log Cyndaquil gained 2977 experience points!
+rand 3 = 0
+log You got 1000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=2 hp=447 enemy=89 level=32 hp=0 levels=2-100
+state player badges=8 Money=51000 Wins=1 Losses=1 Fights=3 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L55/169352 3:314/L59/205379 4:127/L78/474552 5:268/L20/8000 6:191/L43/79507
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 383
+rand 386 = 383
+rand 386 = 158
+rand 30 = 23
+rand 30 = 7
+rand 30 = 5
+rand 20 = 9
+rand 20 = 19
+rand 10 = 9
+log Wild Croconaw appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 127 Pinsir, L.78, XP:474552, XP to next level:18487" -> OK
+dialog confirmation "Choose Pinsir?" -> Yes
+log Pinsir, I choose you!
+> throw 3
+log You threw an Ultra Ball.
+rand 250 = 137
+log Sorry, Croconaw wasn't caught.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 16
+log Enemy Croconaw used Water Gun!
+log Enemy Croconaw did 56 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 157
+log Sorry, Croconaw wasn't caught.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 12
+log Enemy Croconaw used Bubblebeam!
+log Enemy Croconaw did 37 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 0
+log Sorry, Croconaw wasn't caught.
+rand 4 = 1
+rand 10 = 5
+rand 20 = 7
+log Enemy Croconaw used Skull Bash!
+log Enemy Croconaw did 63 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 78
+log Sorry, Croconaw wasn't caught.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 16
+log Enemy Croconaw used Skull Bash!
+log Enemy Croconaw did 72 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 14
+log Sorry, Croconaw wasn't caught.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 0
+log Enemy Croconaw used Tackle!
+log Enemy Croconaw did 17 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 244
+log Sorry, Croconaw wasn't caught.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 16
+log Enemy Croconaw used Water Gun!
+log Enemy Croconaw did 56 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 66
+log Sorry, Croconaw wasn't caught.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 8
+log Enemy Croconaw used Tackle!
+log Enemy Croconaw did 25 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 239
+log Sorry, Croconaw wasn't caught.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 6
+log Enemy Croconaw used Skull Bash!
+log Critical hit!
+log Enemy Croconaw did 124 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 59
+log Sorry, Croconaw wasn't caught.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 12
+log Enemy Croconaw used Bubblebeam!
+log Enemy Croconaw did 37 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 138
+log Sorry, Croconaw wasn't caught.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 2
+log Enemy Croconaw used Water Gun!
+log Critical hit!
+log Enemy Croconaw did 85 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 170
+log Sorry, Croconaw wasn't caught.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 15
+log Enemy Croconaw used Bubblebeam!
+log Enemy Croconaw did 40 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 59
+log Sorry, Croconaw wasn't caught.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 8
+log Enemy Croconaw used Skull Bash!
+log Enemy Croconaw did 64 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 61
+log Sorry, Croconaw wasn't caught.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 8
+log Enemy Croconaw used Water Gun!
+log Enemy Croconaw did 48 points of damage to Pinsir.
+log You threw an Ultra Ball.
+rand 250 = 168
+log Sorry, Croconaw wasn't caught.
+rand 4 = 1
+rand 10 = 5
+rand 20 = 6
+log Enemy Croconaw used Skull Bash!
+log Enemy Croconaw did 62 points of damage to Pinsir.
+log Pinsir fainted!
+log You lost 25500¥!
+> fight 3
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=4 hp=0 enemy=159 level=39 hp=390 levels=2-100
+state player badges=8 Money=25500 Wins=1 Losses=2 Fights=5 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L55/169352 3:314/L59/205379 4:127/L78/474552 5:268/L20/8000 6:191/L43/79507
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 74
+rand 30 = 13
+rand 30 = 16
+rand 30 = 4
+rand 20 = 9
+rand 20 = 9
+rand 10 = 3
+log Wild Graveler appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 268 Cascoon, L.20, XP:8000, XP to next level:1261" -> OK
+dialog confirmation "Choose Cascoon?" -> Yes
+log Cascoon, I choose you!
+> fight 3
+rand 10 = 2
+rand 20 = 17
+log Cascoon used Poison Sting!
+log It's not very effective...
+log Cascoon did 7 points of damage to enemy Graveler.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 0
+log Enemy Graveler used Tackle!
+log Critical hit!
+log Enemy Graveler did 26 points of damage to Cascoon.
+rand 10 = 9
+rand 20 = 19
+log Cascoon used Poison Sting!
+log Critical hit!
+log It's not very effective...
+log Cascoon did 15 points of damage to enemy Graveler.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 0
+log Enemy Graveler used Rock Throw!
+log It's super effective!
+log Enemy Graveler did 65 points of damage to Cascoon.
+rand 10 = 9
+rand 20 = 11
+log Cascoon used Poison Sting!
+log Critical hit!
+log It's not very effective...
+log Cascoon did 11 points of damage to enemy Graveler.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 8
+log Enemy Graveler used Rock Throw!
+log It's super effective!
+log Enemy Graveler did 81 points of damage to Cascoon.
+rand 10 = 6
+rand 20 = 3
+log Cascoon used Poison Sting!
+log It's not very effective...
+log Cascoon did 3 points of damage to enemy Graveler.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 16
+log Enemy Graveler used Dig!
+log It's not very effective...
+log Enemy Graveler did 29 points of damage to Cascoon.
+log Cascoon fainted!
+log You lost 12750¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=75 level=33 hp=294 levels=2-100
+state player badges=8 Money=12750 Wins=1 Losses=3 Fights=7 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L55/169352 3:314/L59/205379 4:127/L78/474552 5:268/L20/8000 6:191/L43/79507
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 33
+rand 30 = 19
+rand 30 = 23
+rand 30 = 23
+rand 20 = 2
+rand 20 = 14
+rand 10 = 8
+log Wild Nidoking appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 127 Pinsir, L.78, XP:474552, XP to next level:18487" -> OK
+dialog confirmation "Choose Pinsir?" -> Yes
+log Pinsir, I choose you!
+> fight 2
+rand 10 = 8
+rand 20 = 4
+log Pinsir used Bind!
+log Pinsir did 64 points of damage to enemy Nidoking.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 18
+log Enemy Nidoking used Acid!
+log Enemy Nidoking did 53 points of damage to Pinsir.
+rand 10 = 4
+rand 20 = 11
+log Pinsir used Bind!
+log Pinsir did 71 points of damage to enemy Nidoking.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 16
+log Enemy Nidoking used Acid!
+log Enemy Nidoking did 51 points of damage to Pinsir.
+rand 10 = 5
+rand 20 = 8
+log Pinsir used Bind!
+log Pinsir did 68 points of damage to enemy Nidoking.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 13
+log Enemy Nidoking used Tackle!
+log Enemy Nidoking did 29 points of damage to Pinsir.
+rand 10 = 0
+rand 20 = 1
+log Pinsir used Bind!
+log Pinsir did 61 points of damage to enemy Nidoking.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 3
+log Enemy Nidoking used Acid!
+log Critical hit!
+log Enemy Nidoking did 77 points of damage to Pinsir.
+rand 10 = 2
+rand 20 = 9
+log Pinsir used Bind!
+log Pinsir did 69 points of damage to enemy Nidoking.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 12
+log Enemy Nidoking used Tackle!
+log Enemy Nidoking did 28 points of damage to Pinsir.
+rand 10 = 4
+rand 20 = 8
+log Pinsir used Bind!
+log Pinsir did 68 points of damage to enemy Nidoking.
+log Enemy Nidoking fainted!
+log Pinsir gained 4219 experience points!
+rand 3 = 2
+log You got 4000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=4 hp=542 enemy=34 level=38 hp=0 levels=2-100
+state player badges=8 Money=16750 Wins=2 Losses=3 Fights=8 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L55/169352 3:314/L59/205379 4:127/L78/478771 5:268/L20/8000 6:191/L43/79507
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 324
+rand 30 = 5
+rand 30 = 24
+rand 30 = 7
+rand 20 = 6
+rand 20 = 9
+rand 10 = 6
+log Wild Spoink appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 268 Cascoon, L.20, XP:8000, XP to next level:1261" -> OK
+dialog confirmation "Choose Cascoon?" -> Yes
+log Cascoon, I choose you!
+> fight 2
+rand 10 = 0
+rand 20 = 18
+log Cascoon used String Shot!
+log It's super effective!
+log Cascoon did 40 points of damage to enemy Spoink.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 5
+log Enemy Spoink used Flail!
+log Enemy Spoink did 27 points of damage to Cascoon.
+rand 10 = 8
+rand 20 = 8
+log Cascoon used String Shot!
+log It's super effective!
+log Cascoon did 20 points of damage to enemy Spoink.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 17
+log Enemy Spoink used Psywave!
+log Enemy Spoink did 55 points of damage to Cascoon.
+rand 10 = 3
+rand 20 = 6
+log Cascoon used String Shot!
+log It's super effective!
+log Cascoon did 16 points of damage to enemy Spoink.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 8
+log Enemy Spoink used Flail!
+log Enemy Spoink did 30 points of damage to Cascoon.
+rand 10 = 0
+rand 20 = 15
+log Cascoon used String Shot!
+log It's super effective!
+log Cascoon did 34 points of damage to enemy Spoink.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 15
+log Enemy Spoink used Psybeam!
+log Enemy Spoink did 59 points of damage to Cascoon.
+rand 10 = 9
+rand 20 = 12
+log Cascoon used String Shot!
+log Critical hit!
+log It's super effective!
+log Cascoon did 56 points of damage to enemy Spoink.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 8
+log Enemy Spoink used Flail!
+log Enemy Spoink did 30 points of damage to Cascoon.
+log Cascoon fainted!
+log You lost 8375¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=325 level=36 hp=194 levels=2-100
+state player badges=8 Money=8375 Wins=2 Losses=4 Fights=10 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L55/169352 3:314/L59/205379 4:127/L78/478771 5:268/L20/8000 6:191/L43/79507
+> menu Actions > Fight a Trainer > Trainers > Novice > Emerald
+log Emerald wants to fight!
+log Emerald sent out Grovyle!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 191 Sunkern, L.43, XP:79507, XP to next level:5677" -> OK
+dialog confirmation "Choose Sunkern?" -> Yes
+log Sunkern, I choose you!
+> fight 4
+rand 10 = 2
+rand 20 = 19
+log Sunkern used Body Slam!
+log Sunkern did 77 points of damage to enemy Grovyle.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 13
+log Enemy Grovyle used Razor Leaf!
+log It's not very effective...
+log Enemy Grovyle did 19 points of damage to Sunkern.
+rand 10 = 0
+rand 20 = 17
+log Sunkern used Body Slam!
+log Sunkern did 75 points of damage to enemy Grovyle.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 11
+log Enemy Grovyle used Razor Leaf!
+log It's not very effective...
+log Enemy Grovyle did 18 points of damage to Sunkern.
+rand 10 = 1
+rand 20 = 18
+log Sunkern used Body Slam!
+log Sunkern did 76 points of damage to enemy Grovyle.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 11
+log Enemy Grovyle used Cut!
+log Enemy Grovyle did 31 points of damage to Sunkern.
+rand 10 = 2
+rand 20 = 9
+log Sunkern used Body Slam!
+log Sunkern did 67 points of damage to enemy Grovyle.
+log Enemy Grovyle fainted!
+log Sunkern gained 1801 experience points!
+rand 3 = 1
+log You got 2000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=362 enemy=253 level=25 hp=0 levels=2-100
+state player badges=8 Money=10375 Wins=3 Losses=4 Fights=11 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L55/169352 3:314/L59/205379 4:127/L78/478771 5:268/L20/8000 6:191/L43/81308
+> menu Actions > Fight a Trainer > Trainers > Intermediate > Prof.Elm
+log Prof. Elm wants to fight!
+log Prof. Elm sent out Pichu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 155 Cyndaquil, L.55, XP:169352, XP to next level:6264" -> OK
+dialog confirmation "Choose Cyndaquil?" -> Yes
+log Cyndaquil, I choose you!
+> item 6
+log It won't have any effect.
+> fight 3
+rand 10 = 5
+rand 20 = 12
+log Cyndaquil used Ember!
+log Cyndaquil did 62 points of damage to enemy Pichu.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 5
+log Enemy Pichu used Thundershock!
+log Enemy Pichu did 40 points of damage to Cyndaquil.
+rand 10 = 8
+rand 20 = 8
+log Cyndaquil used Ember!
+log Cyndaquil did 58 points of damage to enemy Pichu.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 8
+log Enemy Pichu used Quick Attack!
+log Enemy Pichu did 55 points of damage to Cyndaquil.
+rand 10 = 6
+rand 20 = 8
+log Cyndaquil used Ember!
+log Cyndaquil did 58 points of damage to enemy Pichu.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 15
+log Enemy Pichu used Thundershock!
+log Enemy Pichu did 50 points of damage to Cyndaquil.
+rand 10 = 2
+rand 20 = 1
+log Cyndaquil used Ember!
+log Cyndaquil did 51 points of damage to enemy Pichu.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 3
+log Enemy Pichu used Tackle!
+log Enemy Pichu did 28 points of damage to Cyndaquil.
+rand 10 = 1
+rand 20 = 11
+log Cyndaquil used Ember!
+log Cyndaquil did 61 points of damage to enemy Pichu.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 10
+log Enemy Pichu used Thundershock!
+log Enemy Pichu did 45 points of damage to Cyndaquil.
+rand 10 = 3
+rand 20 = 18
+log Cyndaquil used Ember!
+log Cyndaquil did 68 points of damage to enemy Pichu.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 12
+log Enemy Pichu used Tackle!
+log Enemy Pichu did 37 points of damage to Cyndaquil.
+rand 10 = 2
+rand 20 = 9
+log Cyndaquil used Ember!
+log Cyndaquil did 59 points of damage to enemy Pichu.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 1
+log Enemy Pichu used Thunder Wave!
+log Enemy Pichu did 38 points of damage to Cyndaquil.
+rand 10 = 2
+rand 20 = 7
+log Cyndaquil used Ember!
+log Cyndaquil did 57 points of damage to enemy Pichu.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 5
+log Enemy Pichu used Tackle!
+log Enemy Pichu did 30 points of damage to Cyndaquil.
+rand 10 = 3
+rand 20 = 6
+log Cyndaquil used Ember!
+log Cyndaquil did 56 points of damage to enemy Pichu.
+log Enemy Pichu fainted!
+log Cyndaquil gained 7351 experience points!
+log Cyndaquil grew to level 56!
+rand 3 = 2
+log You got 4000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=2 hp=227 enemy=172 level=50 hp=0 levels=2-100
+state player badges=8 Money=14375 Wins=4 Losses=4 Fights=12 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L56/176703 3:314/L59/205379 4:127/L78/478771 5:268/L20/8000 6:191/L43/81308
+> menu Actions > Fight a Trainer > Trainers > Intermediate > Prof.Birch
+log Prof. Birch wants to fight!
+log Prof. Birch sent out Milotic!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 155 Cyndaquil, L.56, XP:176703, XP to next level:8490" -> OK
+dialog confirmation "Choose Cyndaquil?" -> Yes
+log Cyndaquil, I choose you!
+> item 6
+log It won't have any effect.
+> fight 3
+rand 10 = 9
+rand 20 = 1
+log Cyndaquil used Ember!
+log Critical hit!
+log It's not very effective...
+log Cyndaquil did 52 points of damage to enemy Milotic.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 3
+log Enemy Milotic used Hydro Pump!
+log It's super effective!
+log Enemy Milotic did 176 points of damage to Cyndaquil.
+rand 10 = 8
+rand 20 = 8
+log Cyndaquil used Ember!
+log It's not very effective...
+log Cyndaquil did 29 points of damage to enemy Milotic.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 19
+log Enemy Milotic used Hydro Pump!
+log It's super effective!
+log Enemy Milotic did 208 points of damage to Cyndaquil.
+rand 10 = 8
+rand 20 = 8
+log Cyndaquil used Ember!
+log It's not very effective...
+log Cyndaquil did 29 points of damage to enemy Milotic.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 13
+log Enemy Milotic used Hydro Pump!
+log It's super effective!
+log Enemy Milotic did 196 points of damage to Cyndaquil.
+log Cyndaquil fainted!
+log You lost 7188¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=350 level=50 hp=390 levels=2-100
+state player badges=8 Money=7187 Wins=4 Losses=5 Fights=14 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L56/176703 3:314/L59/205379 4:127/L78/478771 5:268/L20/8000 6:191/L43/81308
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Brock
+log Brock wants to fight!
+log Brock sent out Geodude!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 127 Pinsir, L.78, XP:478771, XP to next level:14268" -> OK
+dialog confirmation "Choose Pinsir?" -> Yes
+log Pinsir, I choose you!
+> item 6
+log It won't have any effect.
+> fight 2
+rand 10 = 5
+rand 20 = 9
+log Pinsir used Bind!
+log It's not very effective...
+log Pinsir did 34 points of damage to enemy Geodude.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 14
+log Enemy Geodude used Seismic Toss!
+log It's not very effective...
+log Enemy Geodude did 8 points of damage to Pinsir.
+rand 10 = 2
+rand 20 = 17
+log Pinsir used Bind!
+log It's not very effective...
+log Pinsir did 38 points of damage to enemy Geodude.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 6
+log Enemy Geodude used Rock Throw!
+log It's super effective!
+log Enemy Geodude did 23 points of damage to Pinsir.
+rand 10 = 1
+rand 20 = 0
+log Pinsir used Bind!
+log It's not very effective...
+log Pinsir did 30 points of damage to enemy Geodude.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 18
+log Enemy Geodude used Metronome!
+log Critical hit!
+log Enemy Geodude did 46 points of damage to Pinsir.
+rand 10 = 2
+rand 20 = 0
+log Pinsir used Bind!
+log It's not very effective...
+log Pinsir did 30 points of damage to enemy Geodude.
+log Enemy Geodude fainted!
+log Pinsir gained 397 experience points!
+rand 3 = 2
+log You got 4000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=4 hp=703 enemy=74 level=12 hp=0 levels=2-100
+state player badges=8 Money=11187 Wins=5 Losses=5 Fights=15 Catches=0 PokeBalls=50 GreatBalls=0 UltraBalls=6 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 127,155,191,268,300,314
+state party 1:300/L84/592704 2:155/L56/176703 3:314/L59/205379 4:127/L78/479168 5:268/L20/8000 6:191/L43/81308
+> quit
+exit 0
+save line 9: "100000" -> "11187"
+save line 10: "0" -> "5"
+save line 11: "0" -> "5"
+save line 12: "0" -> "15"
+save line 15: "20" -> "0"
+save line 16: "20" -> "6"
+save line 410: "55" -> "56"
+save line 411: "166375" -> "176703"
+save line 417: "474552" -> "479168"
+save line 423: "79507" -> "81308"

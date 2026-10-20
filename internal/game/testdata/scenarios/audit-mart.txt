@@ -1,0 +1,97 @@
+# Audit: the Mart sells every item; its total box as the original shows it.
+Money 30000
+party 25 10
+> start
+> menu Actions > Buy Items
+> radio Form9.RadioGroup1 1
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> type Form9.SpinEdit1 2
+> text Form9.Edit1
+text Form9.Edit1 "2000¥"
+> click Form9.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=28000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> radio Form9.RadioGroup1 2
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> type Form9.SpinEdit1 2
+> text Form9.Edit1
+text Form9.Edit1 "6000¥"
+> click Form9.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=22000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=2 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> radio Form9.RadioGroup1 3
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> type Form9.SpinEdit1 1
+> text Form9.Edit1
+text Form9.Edit1 "6000¥"
+> click Form9.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=16000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=2 UltraBalls=1 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> radio Form9.RadioGroup1 4
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> type Form9.SpinEdit1 3
+> text Form9.Edit1
+text Form9.Edit1 "6000¥"
+> click Form9.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=10000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=2 UltraBalls=1 MasterBalls=0 Potions=3 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> radio Form9.RadioGroup1 5
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> type Form9.SpinEdit1 1
+> text Form9.Edit1
+text Form9.Edit1 "5000¥"
+> click Form9.Button1
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=5000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=2 UltraBalls=1 MasterBalls=0 Potions=3 SuperPotions=1 flags=
+state dex 25
+state party 1:25/L10/1000
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> radio Form9.RadioGroup1 3
+> type Form9.SpinEdit1 9
+> text Form9.Edit1
+text Form9.Edit1 "54000¥"
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=5000 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=5 GreatBalls=2 UltraBalls=1 MasterBalls=0 Potions=3 SuperPotions=1 flags=
+state dex 25
+state party 1:25/L10/1000
+> quit
+exit 0
+save line 9: "30000" -> "5000"
+save line 14: "3" -> "5"
+save line 15: "0" -> "2"
+save line 16: "0" -> "1"
+save line 18: "0" -> "3"
+save line 19: "0" -> "1"

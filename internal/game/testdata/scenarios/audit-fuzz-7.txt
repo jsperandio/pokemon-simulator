@@ -1,0 +1,578 @@
+# Audit: random battles (generator seed 20261020, scenario 7) at 20 badges.
+badges 20
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 66 54
+party 347 23
+party 233 12
+party 15 50
+party 373 34
+party 315 56
+> start
+> seed 1453429618
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 67
+rand 30 = 9
+rand 30 = 24
+log Wild Machamp appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 347 Anorith, L.23, XP:12167, XP to next level:1657" -> OK
+dialog confirmation "Choose Anorith?" -> Yes
+log Anorith, I choose you!
+> item 5
+log It won't have any effect.
+> throw 2
+log You threw a Great Ball.
+rand 100 = 57
+log Sorry, Machamp wasn't caught.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 3
+log Enemy Machamp used Karate Chop!
+log Enemy Machamp did 90 points of damage to Anorith.
+log You threw a Great Ball.
+rand 100 = 38
+log Sorry, Machamp wasn't caught.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 8
+log Enemy Machamp used Karate Chop!
+log Enemy Machamp did 95 points of damage to Anorith.
+log You threw a Great Ball.
+rand 100 = 99
+log Sorry, Machamp wasn't caught.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 14
+log Enemy Machamp used Low Kick!
+log Enemy Machamp did 118 points of damage to Anorith.
+log Anorith fainted!
+log You lost 50000¥!
+> fightbest
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=68 level=85 hp=850 levels=2-100
+state player badges=20 Money=50000 Wins=0 Losses=1 Fights=2 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12167 3:233/L12/1728 4:15/L50/125000 5:373/L34/39304 6:315/L56/175616
+> menu Actions > Fight a Trainer > Trainers > Expert > Giovanni
+log Giovanni wants to fight!
+log Giovanni sent out Mewtwo!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 233 Porygon2, L.12, XP:1728, XP to next level:469" -> OK
+dialog confirmation "Choose Porygon2?" -> Yes
+log Porygon2, I choose you!
+> fightbest
+rand 10 = 7
+rand 20 = 18
+log Porygon2 used Tri Attack!
+log Porygon2 did 25 points of damage to enemy Mewtwo.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 2
+log Enemy Mewtwo used Swift!
+log Enemy Mewtwo did 87 points of damage to Porygon2.
+rand 10 = 2
+rand 20 = 2
+log Porygon2 used Tri Attack!
+log Porygon2 did 9 points of damage to enemy Mewtwo.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 8
+log Enemy Mewtwo used Psychic!
+log Enemy Mewtwo did 198 points of damage to Porygon2.
+log Porygon2 fainted!
+log You lost 25000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=150 level=100 hp=966 levels=2-100
+state player badges=20 Money=25000 Wins=0 Losses=2 Fights=4 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12167 3:233/L12/1728 4:15/L50/125000 5:373/L34/39304 6:315/L56/175616
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 348
+rand 30 = 24
+rand 30 = 11
+log Wild Feebas appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 233 Porygon2, L.12, XP:1728, XP to next level:469" -> OK
+dialog confirmation "Choose Porygon2?" -> Yes
+log Porygon2, I choose you!
+> fight 1
+rand 10 = 0
+rand 20 = 18
+log Porygon2 used Tackle!
+log Porygon2 did 16 points of damage to enemy Feebas.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 15
+log Enemy Feebas used Tackle!
+log Enemy Feebas did 55 points of damage to Porygon2.
+rand 10 = 1
+rand 20 = 14
+log Porygon2 used Tackle!
+log Porygon2 did 12 points of damage to enemy Feebas.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 4
+log Enemy Feebas used Bubblebeam!
+log Enemy Feebas did 58 points of damage to Porygon2.
+rand 10 = 6
+rand 20 = 4
+log Porygon2 used Tackle!
+log Porygon2 did 2 points of damage to enemy Feebas.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 15
+log Enemy Feebas used Tackle!
+log Enemy Feebas did 55 points of damage to Porygon2.
+log Porygon2 fainted!
+log You lost 12500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=349 level=72 hp=690 levels=2-100
+state player badges=20 Money=12500 Wins=0 Losses=3 Fights=6 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12167 3:233/L12/1728 4:15/L50/125000 5:373/L34/39304 6:315/L56/175616
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 40
+rand 30 = 27
+rand 30 = 22
+log Wild Zubat appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 066 Machop, L.54, XP:157464, XP to next level:8911" -> OK
+dialog confirmation "Choose Machop?" -> Yes
+log Machop, I choose you!
+> fight 3
+rand 10 = 1
+rand 20 = 8
+log Machop used Tackle!
+log Machop did 35 points of damage to enemy Zubat.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 18
+log Enemy Zubat used Leech Life!
+log It's not very effective...
+log Enemy Zubat did 37 points of damage to Machop.
+rand 10 = 9
+rand 20 = 4
+log Machop used Tackle!
+log Critical hit!
+log Machop did 63 points of damage to enemy Zubat.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 7
+log Enemy Zubat used Quick Attack!
+log Enemy Zubat did 92 points of damage to Machop.
+rand 10 = 3
+rand 20 = 3
+log Machop used Tackle!
+log Machop did 30 points of damage to enemy Zubat.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 10
+log Enemy Zubat used Wing Attack!
+log It's super effective!
+log Enemy Zubat did 232 points of damage to Machop.
+rand 10 = 9
+rand 20 = 9
+log Machop used Tackle!
+log Critical hit!
+log Machop did 73 points of damage to enemy Zubat.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 3
+log Enemy Zubat used Wing Attack!
+log It's super effective!
+log Enemy Zubat did 218 points of damage to Machop.
+log Machop fainted!
+log You lost 6250¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=41 level=83 hp=629 levels=2-100
+state player badges=20 Money=6250 Wins=0 Losses=4 Fights=8 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12167 3:233/L12/1728 4:15/L50/125000 5:373/L34/39304 6:315/L56/175616
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Erika
+log Erika wants to fight!
+log Erika sent out Vileplume!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 373 Salamence, L.34, XP:39304, XP to next level:3571" -> OK
+dialog confirmation "Choose Salamence?" -> Yes
+log Salamence, I choose you!
+> fightbest
+rand 10 = 9
+rand 20 = 6
+log Salamence used Fly!
+log Critical hit!
+log It's super effective!
+log Salamence did 201 points of damage to enemy Vileplume.
+rand 4 = 0
+rand 10 = 8
+rand 20 = 6
+log Enemy Vileplume used Solarbeam!
+log It's not very effective...
+log Enemy Vileplume did 10 points of damage to Salamence.
+rand 10 = 1
+rand 20 = 17
+log Salamence used Fly!
+log It's super effective!
+log Salamence did 122 points of damage to enemy Vileplume.
+log Enemy Vileplume fainted!
+log Salamence gained 1801 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=5 hp=330 enemy=45 level=25 hp=0 levels=2-100
+state player badges=20 Money=12250 Wins=1 Losses=4 Fights=9 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12167 3:233/L12/1728 4:15/L50/125000 5:373/L34/41105 6:315/L56/175616
+> menu Actions > Fight a Trainer > Trainers > Beginner > Crystal
+log Crystal wants to fight!
+log Crystal sent out Totodile!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 347 Anorith, L.23, XP:12167, XP to next level:1657" -> OK
+dialog confirmation "Choose Anorith?" -> Yes
+log Anorith, I choose you!
+> fight 3
+rand 10 = 6
+rand 20 = 6
+log Anorith used Metal Claw!
+log It's not very effective...
+log Anorith did 16 points of damage to enemy Totodile.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 1
+log Enemy Totodile used Bubblebeam!
+log It's super effective!
+log Enemy Totodile did 1 points of damage to Anorith.
+rand 10 = 6
+rand 20 = 16
+log Anorith used Metal Claw!
+log It's not very effective...
+log Anorith did 21 points of damage to enemy Totodile.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 15
+log Enemy Totodile used Bubble!
+log It's super effective!
+log Enemy Totodile did 25 points of damage to Anorith.
+rand 10 = 1
+rand 20 = 14
+log Anorith used Metal Claw!
+log It's not very effective...
+log Anorith did 20 points of damage to enemy Totodile.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 11
+log Enemy Totodile used Bubblebeam!
+log It's super effective!
+log Enemy Totodile did 20 points of damage to Anorith.
+rand 10 = 5
+rand 20 = 16
+log Anorith used Metal Claw!
+log It's not very effective...
+log Anorith did 21 points of damage to enemy Totodile.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 11
+log Enemy Totodile used Bubblebeam!
+log It's super effective!
+log Enemy Totodile did 20 points of damage to Anorith.
+rand 10 = 6
+rand 20 = 6
+log Anorith used Metal Claw!
+log It's not very effective...
+log Anorith did 16 points of damage to enemy Totodile.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 2
+log Enemy Totodile used Tackle!
+log It's not very effective...
+log Enemy Totodile did 1 points of damage to Anorith.
+rand 10 = 0
+rand 20 = 8
+log Anorith used Metal Claw!
+log It's not very effective...
+log Anorith did 17 points of damage to enemy Totodile.
+log Enemy Totodile fainted!
+log Anorith gained 271 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=2 hp=163 enemy=158 level=10 hp=0 levels=2-100
+state player badges=20 Money=13750 Wins=2 Losses=4 Fights=10 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12438 3:233/L12/1728 4:15/L50/125000 5:373/L34/41105 6:315/L56/175616
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 181
+rand 30 = 25
+rand 30 = 21
+log Wild Bellossom appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 347 Anorith, L.23, XP:12438, XP to next level:1386" -> OK
+dialog confirmation "Choose Anorith?" -> Yes
+log Anorith, I choose you!
+> fight 4
+rand 10 = 3
+rand 20 = 7
+log Anorith used String Shot!
+log It's super effective!
+log Anorith did 21 points of damage to enemy Bellossom.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 11
+log Enemy Bellossom used Leech Seed!
+log Enemy Bellossom did 91 points of damage to Anorith.
+rand 10 = 6
+rand 20 = 2
+log Anorith used String Shot!
+log It's super effective!
+log Anorith did 11 points of damage to enemy Bellossom.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 4
+log Enemy Bellossom used Poison Powder!
+log Critical hit!
+log It's not very effective...
+log Enemy Bellossom did 59 points of damage to Anorith.
+rand 10 = 0
+rand 20 = 9
+log Anorith used String Shot!
+log It's super effective!
+log Anorith did 25 points of damage to enemy Bellossom.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 3
+log Enemy Bellossom used Acid!
+log It's not very effective...
+log Enemy Bellossom did 45 points of damage to Anorith.
+rand 10 = 6
+rand 20 = 15
+log Anorith used String Shot!
+log It's super effective!
+log Anorith did 37 points of damage to enemy Bellossom.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 18
+log Enemy Bellossom used Razor Leaf!
+log Enemy Bellossom did 122 points of damage to Anorith.
+log Anorith fainted!
+log You lost 6875¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=2 hp=0 enemy=182 level=82 hp=726 levels=2-100
+state player badges=20 Money=6875 Wins=2 Losses=5 Fights=12 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12438 3:233/L12/1728 4:15/L50/125000 5:373/L34/41105 6:315/L56/175616
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Norman
+log Norman wants to fight!
+log Norman sent out Slaking!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 066 Machop, L.54, XP:157464, XP to next level:8911" -> OK
+dialog confirmation "Choose Machop?" -> Yes
+log Machop, I choose you!
+> fight 1
+rand 10 = 8
+rand 20 = 8
+log Machop used Karate Chop!
+log It's super effective!
+log Machop did 120 points of damage to enemy Slaking.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 4
+log Enemy Slaking used Counter!
+log Enemy Slaking did 104 points of damage to Machop.
+rand 10 = 4
+rand 20 = 10
+log Machop used Karate Chop!
+log It's super effective!
+log Machop did 124 points of damage to enemy Slaking.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 14
+log Enemy Slaking used Fury Swipes!
+log Enemy Slaking did 124 points of damage to Machop.
+rand 10 = 7
+rand 20 = 10
+log Machop used Karate Chop!
+log It's super effective!
+log Machop did 124 points of damage to enemy Slaking.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 11
+log Enemy Slaking used Fury Swipes!
+log Enemy Slaking did 121 points of damage to Machop.
+rand 10 = 1
+rand 20 = 14
+log Machop used Karate Chop!
+log It's super effective!
+log Machop did 132 points of damage to enemy Slaking.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 4
+log Enemy Slaking used Body Slam!
+log Enemy Slaking did 154 points of damage to Machop.
+rand 10 = 3
+rand 20 = 19
+log Machop used Karate Chop!
+log It's super effective!
+log Machop did 142 points of damage to enemy Slaking.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 0
+log Enemy Slaking used Slash!
+log Enemy Slaking did 120 points of damage to Machop.
+log Machop fainted!
+log You lost 3438¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=289 level=100 hp=358 levels=2-100
+state player badges=20 Money=3437 Wins=2 Losses=6 Fights=14 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12438 3:233/L12/1728 4:15/L50/125000 5:373/L34/41105 6:315/L56/175616
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 115
+rand 30 = 17
+rand 30 = 3
+log Wild Horsea appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 233 Porygon2, L.12, XP:1728, XP to next level:469" -> OK
+dialog confirmation "Choose Porygon2?" -> Yes
+log Porygon2, I choose you!
+> item 5
+log It won't have any effect.
+> throw 3
+log You threw an Ultra Ball.
+rand 250 = 161
+log Sorry, Horsea wasn't caught.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 11
+log Enemy Horsea used Bubble!
+log Enemy Horsea did 49 points of damage to Porygon2.
+log You threw an Ultra Ball.
+rand 250 = 123
+log Sorry, Horsea wasn't caught.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 5
+log Enemy Horsea used Tackle!
+log Enemy Horsea did 39 points of damage to Porygon2.
+log You threw an Ultra Ball.
+rand 250 = 14
+log Sorry, Horsea wasn't caught.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 15
+log Enemy Horsea used Body Slam!
+log Enemy Horsea did 107 points of damage to Porygon2.
+log Porygon2 fainted!
+log You lost 1719¥!
+> fight 1
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=116 level=64 hp=640 levels=2-100
+state player badges=20 Money=1718 Wins=2 Losses=7 Fights=16 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=17 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12438 3:233/L12/1728 4:15/L50/125000 5:373/L34/41105 6:315/L56/175616
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 7
+rand 30 = 28
+rand 30 = 26
+log Wild Wartortle appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 373 Salamence, L.34, XP:41105, XP to next level:1770" -> OK
+dialog confirmation "Choose Salamence?" -> Yes
+log Salamence, I choose you!
+> throw 3
+log You threw an Ultra Ball.
+rand 250 = 93
+log Sorry, Wartortle wasn't caught.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 19
+log Enemy Wartortle used Water Gun!
+log It's not very effective...
+log Enemy Wartortle did 61 points of damage to Salamence.
+log You threw an Ultra Ball.
+rand 250 = 71
+log Sorry, Wartortle wasn't caught.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 11
+log Enemy Wartortle used Skull Bash!
+log Enemy Wartortle did 148 points of damage to Salamence.
+log You threw an Ultra Ball.
+rand 250 = 219
+log Sorry, Wartortle wasn't caught.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 16
+log Enemy Wartortle used Bubblebeam!
+log It's not very effective...
+log Enemy Wartortle did 42 points of damage to Salamence.
+log You threw an Ultra Ball.
+rand 250 = 88
+log Sorry, Wartortle wasn't caught.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 12
+log Enemy Wartortle used Water Gun!
+log It's not very effective...
+log Enemy Wartortle did 57 points of damage to Salamence.
+log You threw an Ultra Ball.
+rand 250 = 246
+log Sorry, Wartortle wasn't caught.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 13
+log Enemy Wartortle used Water Gun!
+log It's not very effective...
+log Enemy Wartortle did 58 points of damage to Salamence.
+log Salamence fainted!
+log You lost 859¥!
+> fightbest
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=8 level=87 hp=870 levels=2-100
+state player badges=20 Money=859 Wins=2 Losses=8 Fights=18 Catches=0 PokeBalls=50 GreatBalls=17 UltraBalls=12 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 15,66,233,315,347,373
+state party 1:66/L54/157464 2:347/L23/12438 3:233/L12/1728 4:15/L50/125000 5:373/L34/41105 6:315/L56/175616
+> quit
+exit 0
+save line 9: "100000" -> "859"
+save line 10: "0" -> "2"
+save line 11: "0" -> "8"
+save line 12: "0" -> "18"
+save line 15: "20" -> "17"
+save line 16: "20" -> "12"
+save line 411: "12167" -> "12438"
+save line 420: "39304" -> "41105"

@@ -1,0 +1,561 @@
+# Audit: random battles (generator seed 20261020, scenario 6) at 24 badges.
+badges 24
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 306 46
+party 161 99
+party 98 27
+party 226 44
+party 69 13
+party 272 50
+> start
+> seed 1948038658
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Brock
+log Brock wants to fight!
+log Brock sent out Geodude!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 272 Ludicolo, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Ludicolo?" -> Yes
+log Ludicolo, I choose you!
+> item 6
+log It won't have any effect.
+> fightbest
+rand 10 = 8
+rand 20 = 6
+log Ludicolo used Solarbeam!
+log It's super effective!
+log Ludicolo did 364 points of damage to enemy Geodude.
+log Enemy Geodude fainted!
+log Ludicolo gained 397 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=500 enemy=74 level=12 hp=0 levels=2-100
+state player badges=24 Money=106000 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19683 4:226/L44/85184 5:69/L13/2197 6:272/L50/125397
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Flannery
+log Flannery wants to fight!
+log Flannery sent out Torkoal!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 069 Bellsprout, L.13, XP:2197, XP to next level:547" -> OK
+dialog confirmation "Choose Bellsprout?" -> Yes
+log Bellsprout, I choose you!
+> fight 2
+rand 10 = 8
+rand 20 = 7
+log Bellsprout used Wrap!
+log Bellsprout did 7 points of damage to enemy Torkoal.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 17
+log Enemy Torkoal used Fire Spin!
+log It's super effective!
+log Enemy Torkoal did 294 points of damage to Bellsprout.
+log Bellsprout fainted!
+log You lost 53000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=324 level=100 hp=993 levels=2-100
+state player badges=24 Money=53000 Wins=1 Losses=1 Fights=3 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19683 4:226/L44/85184 5:69/L13/2197 6:272/L50/125397
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Morty
+log Morty wants to fight!
+log Morty sent out Gengar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 306 Aggron, L.46, XP:97336, XP to next level:6487" -> OK
+dialog confirmation "Choose Aggron?" -> Yes
+log Aggron, I choose you!
+> fight 1
+rand 10 = 3
+rand 20 = 17
+log Aggron used Thrash!
+log It doesn't affect Gengar!
+log Aggron did 0 points of damage to enemy Gengar.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 11
+log Enemy Gengar used Night Shade!
+log Enemy Gengar did 62 points of damage to Aggron.
+rand 10 = 2
+rand 20 = 2
+log Aggron used Thrash!
+log It doesn't affect Gengar!
+log Aggron did 0 points of damage to enemy Gengar.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 2
+log Enemy Gengar used Lick!
+log Enemy Gengar did 56 points of damage to Aggron.
+rand 10 = 7
+rand 20 = 16
+log Aggron used Thrash!
+log It doesn't affect Gengar!
+log Aggron did 0 points of damage to enemy Gengar.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 0
+log Enemy Gengar used Psychic!
+log Enemy Gengar did 112 points of damage to Aggron.
+rand 10 = 4
+rand 20 = 19
+log Aggron used Thrash!
+log It doesn't affect Gengar!
+log Aggron did 0 points of damage to enemy Gengar.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 7
+log Enemy Gengar used Psychic!
+log Enemy Gengar did 119 points of damage to Aggron.
+rand 10 = 3
+rand 20 = 17
+log Aggron used Thrash!
+log It doesn't affect Gengar!
+log Aggron did 0 points of damage to enemy Gengar.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 19
+log Enemy Gengar used Poison Gas!
+log It doesn't affect Aggron!
+log Enemy Gengar did 0 points of damage to Aggron.
+rand 10 = 3
+rand 20 = 3
+log Aggron used Thrash!
+log It doesn't affect Gengar!
+log Aggron did 0 points of damage to enemy Gengar.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 3
+log Enemy Gengar used Psychic!
+log Enemy Gengar did 115 points of damage to Aggron.
+log Aggron fainted!
+log You lost 26500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=0 enemy=94 level=61 hp=610 levels=2-100
+state player badges=24 Money=26500 Wins=1 Losses=2 Fights=5 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19683 4:226/L44/85184 5:69/L13/2197 6:272/L50/125397
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 206
+rand 30 = 29
+rand 30 = 2
+log Wild Gligar appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 069 Bellsprout, L.13, XP:2197, XP to next level:547" -> OK
+dialog confirmation "Choose Bellsprout?" -> Yes
+log Bellsprout, I choose you!
+> throw 3
+log You threw an Ultra Ball.
+rand 250 = 1
+log Sorry, Gligar wasn't caught.
+rand 4 = 0
+rand 10 = 1
+rand 20 = 18
+log Enemy Gligar used Poison Sting!
+log Enemy Gligar did 77 points of damage to Bellsprout.
+log You threw an Ultra Ball.
+rand 250 = 93
+log Sorry, Gligar wasn't caught.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 9
+log Enemy Gligar used Poison Sting!
+log Enemy Gligar did 68 points of damage to Bellsprout.
+log Bellsprout fainted!
+log You lost 13250¥!
+> fight 1
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=207 level=63 hp=630 levels=2-100
+state player badges=24 Money=13250 Wins=1 Losses=3 Fights=7 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19683 4:226/L44/85184 5:69/L13/2197 6:272/L50/125397
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Blaine
+log Blaine wants to fight!
+log Blaine sent out Magmar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 272 Ludicolo, L.50, XP:125397, XP to next level:7254" -> OK
+dialog confirmation "Choose Ludicolo?" -> Yes
+log Ludicolo, I choose you!
+> item 6
+log It won't have any effect.
+> fight 4
+rand 10 = 3
+rand 20 = 1
+log Ludicolo used Hydro Pump!
+log It's super effective!
+log Ludicolo did 172 points of damage to enemy Magmar.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 19
+log Enemy Magmar used Fire Blast!
+log Enemy Magmar did 73 points of damage to Ludicolo.
+rand 10 = 1
+rand 20 = 10
+log Ludicolo used Hydro Pump!
+log It's super effective!
+log Ludicolo did 190 points of damage to enemy Magmar.
+log Enemy Magmar fainted!
+log Ludicolo gained 3571 experience points!
+rand 3 = 1
+log You got 3000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=427 enemy=126 level=35 hp=0 levels=2-100
+state player badges=24 Money=16250 Wins=2 Losses=3 Fights=8 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19683 4:226/L44/85184 5:69/L13/2197 6:272/L50/128968
+> menu Actions > Fight a Trainer > Me
+log Link wants to fight!
+log Link sent out Mew!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 098 Krabby, L.27, XP:19683, XP to next level:2269" -> OK
+dialog confirmation "Choose Krabby?" -> Yes
+log Krabby, I choose you!
+> fight 4
+rand 10 = 4
+rand 20 = 19
+log Krabby used Water Gun!
+log Krabby did 44 points of damage to enemy Mew.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 10
+log Enemy Mew used Mega Punch!
+log Enemy Mew did 145 points of damage to Krabby.
+rand 10 = 1
+rand 20 = 18
+log Krabby used Water Gun!
+log Krabby did 43 points of damage to enemy Mew.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 7
+log Enemy Mew used Mega Punch!
+log Enemy Mew did 142 points of damage to Krabby.
+log Krabby fainted!
+log You lost 8125¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=151 level=100 hp=913 levels=2-100
+state player badges=24 Money=8125 Wins=2 Losses=4 Fights=10 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19683 4:226/L44/85184 5:69/L13/2197 6:272/L50/128968
+> menu Actions > Fight a Trainer > Trainers > Beginner > Silver
+log Silver wants to fight!
+log Silver sent out Cyndaquil!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 098 Krabby, L.27, XP:19683, XP to next level:2269" -> OK
+dialog confirmation "Choose Krabby?" -> Yes
+log Krabby, I choose you!
+> fight 3
+rand 10 = 8
+rand 20 = 2
+log Krabby used Stomp!
+log Krabby did 32 points of damage to enemy Cyndaquil.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 10
+log Enemy Cyndaquil used Scratch!
+log Enemy Cyndaquil did 7 points of damage to Krabby.
+rand 10 = 1
+rand 20 = 8
+log Krabby used Stomp!
+log Krabby did 38 points of damage to enemy Cyndaquil.
+rand 4 = 2
+rand 10 = 9
+rand 20 = 11
+log Enemy Cyndaquil used Ember!
+log Critical hit!
+log It's not very effective...
+log Enemy Cyndaquil did 12 points of damage to Krabby.
+rand 10 = 3
+rand 20 = 19
+log Krabby used Stomp!
+log Krabby did 49 points of damage to enemy Cyndaquil.
+log Enemy Cyndaquil fainted!
+log Krabby gained 271 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=3 hp=251 enemy=155 level=10 hp=0 levels=2-100
+state player badges=24 Money=9625 Wins=3 Losses=4 Fights=11 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19954 4:226/L44/85184 5:69/L13/2197 6:272/L50/128968
+> menu Actions > Fight a Trainer > Johto Gym Leaders > Pryce
+log Pryce wants to fight!
+log Pryce sent out Dewgong!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 272 Ludicolo, L.50, XP:128968, XP to next level:3683" -> OK
+dialog confirmation "Choose Ludicolo?" -> Yes
+log Ludicolo, I choose you!
+> fight 4
+rand 10 = 1
+rand 20 = 5
+log Ludicolo used Hydro Pump!
+log It's not very effective...
+log Ludicolo did 45 points of damage to enemy Dewgong.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 7
+log Enemy Dewgong used Hydro Pump!
+log It's not very effective...
+log Enemy Dewgong did 34 points of damage to Ludicolo.
+rand 10 = 2
+rand 20 = 9
+log Ludicolo used Hydro Pump!
+log It's not very effective...
+log Ludicolo did 47 points of damage to enemy Dewgong.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 17
+log Enemy Dewgong used Headbutt!
+log Enemy Dewgong did 97 points of damage to Ludicolo.
+rand 10 = 9
+rand 20 = 5
+log Ludicolo used Hydro Pump!
+log Critical hit!
+log It's not very effective...
+log Ludicolo did 90 points of damage to enemy Dewgong.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 18
+log Enemy Dewgong used Headbutt!
+log Enemy Dewgong did 98 points of damage to Ludicolo.
+rand 10 = 5
+rand 20 = 17
+log Ludicolo used Hydro Pump!
+log It's not very effective...
+log Ludicolo did 51 points of damage to enemy Dewgong.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 3
+log Enemy Dewgong used Hydro Pump!
+log It's not very effective...
+log Enemy Dewgong did 33 points of damage to Ludicolo.
+rand 10 = 1
+rand 20 = 13
+log Ludicolo used Hydro Pump!
+log It's not very effective...
+log Ludicolo did 49 points of damage to enemy Dewgong.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 18
+log Enemy Dewgong used Hydro Pump!
+log It's not very effective...
+log Enemy Dewgong did 37 points of damage to Ludicolo.
+rand 10 = 1
+rand 20 = 2
+log Ludicolo used Hydro Pump!
+log It's not very effective...
+log Ludicolo did 43 points of damage to enemy Dewgong.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 13
+log Enemy Dewgong used Aurora Beam!
+log Enemy Dewgong did 119 points of damage to Ludicolo.
+rand 10 = 0
+rand 20 = 10
+log Ludicolo used Hydro Pump!
+log It's not very effective...
+log Ludicolo did 47 points of damage to enemy Dewgong.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 5
+log Enemy Dewgong used Aurora Beam!
+log Enemy Dewgong did 111 points of damage to Ludicolo.
+log Ludicolo fainted!
+log You lost 4813¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=6 hp=0 enemy=87 level=75 hp=378 levels=2-100
+state player badges=24 Money=4812 Wins=3 Losses=5 Fights=13 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19954 4:226/L44/85184 5:69/L13/2197 6:272/L50/128968
+> menu Actions > Fight a Trainer > Hoenn Gym Leaders (L.100) > Roxanne
+log Roxanne wants to fight!
+log Roxanne sent out Nosepass!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 098 Krabby, L.27, XP:19954, XP to next level:1998" -> OK
+dialog confirmation "Choose Krabby?" -> Yes
+log Krabby, I choose you!
+> fight 2
+rand 10 = 2
+rand 20 = 6
+log Krabby used Vice Grip!
+log It's not very effective...
+log Krabby did 18 points of damage to enemy Nosepass.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 8
+log Enemy Nosepass used Rock Throw!
+log Enemy Nosepass did 128 points of damage to Krabby.
+rand 10 = 3
+rand 20 = 1
+log Krabby used Vice Grip!
+log It's not very effective...
+log Krabby did 15 points of damage to enemy Nosepass.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 14
+log Enemy Nosepass used Tackle!
+log Enemy Nosepass did 74 points of damage to Krabby.
+rand 10 = 2
+rand 20 = 5
+log Krabby used Vice Grip!
+log It's not very effective...
+log Krabby did 17 points of damage to enemy Nosepass.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 11
+log Enemy Nosepass used Rock Throw!
+log Enemy Nosepass did 131 points of damage to Krabby.
+log Krabby fainted!
+log You lost 2406¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=299 level=100 hp=950 levels=2-100
+state player badges=24 Money=2406 Wins=3 Losses=6 Fights=15 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19954 4:226/L44/85184 5:69/L13/2197 6:272/L50/128968
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Misty
+log Misty wants to fight!
+log Misty sent out Staryu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 069 Bellsprout, L.13, XP:2197, XP to next level:547" -> OK
+dialog confirmation "Choose Bellsprout?" -> Yes
+log Bellsprout, I choose you!
+> item 6
+log It won't have any effect.
+> fight 3
+rand 10 = 7
+rand 20 = 11
+log Bellsprout used Poison Powder!
+log Bellsprout did 11 points of damage to enemy Staryu.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 10
+log Enemy Staryu used Bubble!
+log It's not very effective...
+log Enemy Staryu did 6 points of damage to Bellsprout.
+rand 10 = 4
+rand 20 = 3
+log Bellsprout used Poison Powder!
+log Bellsprout did 3 points of damage to enemy Staryu.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 17
+log Enemy Staryu used Tackle!
+log Critical hit!
+log Enemy Staryu did 39 points of damage to Bellsprout.
+rand 10 = 4
+rand 20 = 10
+log Bellsprout used Poison Powder!
+log Bellsprout did 10 points of damage to enemy Staryu.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 6
+log Enemy Staryu used Water Gun!
+log It's not very effective...
+log Enemy Staryu did 9 points of damage to Bellsprout.
+rand 10 = 3
+rand 20 = 10
+log Bellsprout used Poison Powder!
+log Bellsprout did 10 points of damage to enemy Staryu.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 0
+log Enemy Staryu used Water Gun!
+log It's not very effective...
+log Enemy Staryu did 6 points of damage to Bellsprout.
+rand 10 = 8
+rand 20 = 18
+log Bellsprout used Poison Powder!
+log Bellsprout did 18 points of damage to enemy Staryu.
+rand 4 = 2
+rand 10 = 7
+rand 20 = 17
+log Enemy Staryu used Swift!
+log Enemy Staryu did 24 points of damage to Bellsprout.
+rand 10 = 5
+rand 20 = 1
+log Bellsprout used Poison Powder!
+log Bellsprout did 1 points of damage to enemy Staryu.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 1
+log Enemy Staryu used Tackle!
+log Enemy Staryu did 3 points of damage to Bellsprout.
+rand 10 = 7
+rand 20 = 7
+log Bellsprout used Poison Powder!
+log Bellsprout did 7 points of damage to enemy Staryu.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 14
+log Enemy Staryu used Swift!
+log Enemy Staryu did 21 points of damage to Bellsprout.
+rand 10 = 3
+rand 20 = 13
+log Bellsprout used Poison Powder!
+log Bellsprout did 13 points of damage to enemy Staryu.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 3
+log Enemy Staryu used Swift!
+log Enemy Staryu did 10 points of damage to Bellsprout.
+rand 10 = 2
+rand 20 = 17
+log Bellsprout used Poison Powder!
+log Bellsprout did 17 points of damage to enemy Staryu.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 11
+log Enemy Staryu used Bubble!
+log Critical hit!
+log It's not very effective...
+log Enemy Staryu did 14 points of damage to Bellsprout.
+log Bellsprout fainted!
+log You lost 1203¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=120 level=18 hp=90 levels=2-100
+state player badges=24 Money=1203 Wins=3 Losses=7 Fights=17 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=18 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 69,98,161,226,272,306
+state party 1:306/L46/97336 2:161/L99/970299 3:98/L27/19954 4:226/L44/85184 5:69/L13/2197 6:272/L50/128968
+> quit
+exit 0
+save line 9: "100000" -> "1203"
+save line 10: "0" -> "3"
+save line 11: "0" -> "7"
+save line 12: "0" -> "17"
+save line 16: "20" -> "18"
+save line 414: "19683" -> "19954"
+save line 423: "125000" -> "128968"

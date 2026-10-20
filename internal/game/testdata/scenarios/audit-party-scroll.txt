@@ -1,0 +1,50 @@
+# Audit: a party of 14. The last member is past the party list's visible
+# columns: the player scrolls to it and chooses it for a wild battle.
+party 1 5
+party 4 6
+party 7 7
+party 10 8
+party 13 9
+party 16 10
+party 19 11
+party 25 12
+party 27 13
+party 29 14
+party 32 15
+party 35 16
+party 37 17
+party 39 18
+> start
+> seed 5
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 60
+rand 386 = 69
+rand 386 = 219
+rand 30 = 16
+rand 30 = 7
+rand 20 = 18
+rand 30 = 16
+rand 20 = 4
+rand 20 = 12
+rand 10 = 7
+rand 10 = 0
+rand 19 = 8
+rand 9 = 8
+log Wild Swinub appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 14
+dialog information "# 039 Jigglypuff, L.18, XP:5832, XP to next level:1027" -> OK
+dialog confirmation "Choose Jigglypuff?" -> Yes
+log Jigglypuff, I choose you!
+> run
+log Got away safely!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=14 hp=180 enemy=220 level=10 hp=100 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,4,7,10,13,16,19,25,27,29,32,35,37,39
+state party 1:1/L5/125 2:4/L6/216 3:7/L7/343 4:10/L8/512 5:13/L9/729 6:16/L10/1000 7:19/L11/1331 8:25/L12/1728 9:27/L13/2197 10:29/L14/2744 11:32/L15/3375 12:35/L16/4096 13:37/L17/4913 14:39/L18/5832
+> quit
+exit 0
+save line 12: "0" -> "1"

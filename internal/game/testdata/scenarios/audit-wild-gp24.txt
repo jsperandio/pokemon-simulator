@@ -1,0 +1,514 @@
+# Audit: wild encounters at 24 badges, each first draw seeded to a boundary species.
+badges 24
+flags 1 1 1 0 0
+dex 150
+party 248 50
+> start
+> seed 255
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 0
+rand 30 = 17
+log Wild Bulbasaur appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 32
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 1
+rand 30 = 17
+log Wild Ivysaur appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 163
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 44
+rand 30 = 8
+log Wild Vileplume appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 15
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 181
+rand 30 = 14
+log Wild Bellossom appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 279
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 291
+rand 30 = 15
+log Wild Shedinja appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 423
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 105
+rand 30 = 29
+log Wild Hitmonlee appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 200
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 106
+rand 30 = 28
+log Wild Hitmonchan appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 147
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 236
+rand 30 = 29
+log Wild Hitmontop appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 203
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 142
+rand 30 = 13
+log Wild Snorlax appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 20
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 242
+rand 30 = 18
+log Wild Raikou appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 52
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 243
+rand 30 = 5
+log Wild Entei appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 307
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 244
+rand 30 = 22
+log Wild Suicune appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 458
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 143
+rand 30 = 0
+log Wild Articuno appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 235
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 144
+rand 30 = 0
+log Wild Zapdos appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 12
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 145
+rand 30 = 29
+log Wild Moltres appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 148
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 248
+rand 30 = 24
+log Wild Lugia appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 403
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 249
+rand 30 = 11
+log Wild Ho-oh appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 350
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 379
+rand 30 = 12
+log Wild Latias appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 127
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 380
+rand 30 = 11
+log Wild Latios appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 159
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 381
+rand 30 = 28
+log Wild Kyogre appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 414
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 382
+rand 30 = 15
+log Wild Groudon appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 191
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 383
+rand 30 = 14
+log Wild Rayquaza appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 11
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 133
+rand 386 = 60
+rand 30 = 18
+log Wild Poliwhirl appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 43
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 134
+rand 386 = 272
+rand 30 = 16
+log Wild Seedot appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 298
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 135
+rand 386 = 105
+rand 30 = 19
+log Wild Hitmonlee appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 331
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 149
+rand 386 = 251
+rand 30 = 27
+log Wild Treecko appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 108
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 150
+rand 386 = 245
+rand 30 = 22
+log Wild Larvitar appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 48
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 195
+rand 386 = 330
+rand 30 = 7
+log Wild Cacnea appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 303
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 196
+rand 386 = 162
+rand 30 = 10
+log Wild Hoothoot appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 180
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 250
+rand 386 = 143
+rand 30 = 10
+log Wild Articuno appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 446
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 384
+rand 386 = 24
+rand 30 = 5
+log Wild Pikachu appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 223
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 385
+rand 386 = 18
+rand 30 = 0
+log Wild Rattata appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 234
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 132
+rand 30 = 5
+log Wild Eevee appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 245
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 265
+rand 30 = 9
+log Wild Silcoon appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> seed 24
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 290
+rand 30 = 28
+log Wild Ninjask appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=1 hp=500 enemy=291 level=99 hp=990 levels=2-100
+state player badges=24 Money=0 Wins=0 Losses=0 Fights=35 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=BeatLance,BeatAsh,BeatLink
+state dex 150,248
+state party 1:248/L50/125000
+> quit
+exit 0
+save line 12: "0" -> "35"

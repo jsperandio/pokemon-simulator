@@ -1,0 +1,809 @@
+# Audit: random battles (generator seed 20261020, scenario 2) at 16 badges.
+badges 16
+flags 1 1 1 0 0
+Money 100000
+Potions 20
+SuperPotions 20
+PokeBalls 50
+GreatBalls 20
+UltraBalls 20
+party 327 69
+party 207 83
+party 67 91
+party 81 56
+party 203 31
+party 385 88
+> start
+> seed 776261498
+> menu Actions > Fight a Trainer > Kanto Gym Leaders > Blaine
+log Blaine wants to fight!
+log Blaine sent out Magmar!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 067 Machoke, L.91, XP:753571, XP to next level:25117" -> OK
+dialog confirmation "Choose Machoke?" -> Yes
+log Machoke, I choose you!
+> fight 4
+rand 10 = 6
+rand 20 = 3
+log Machoke used Seismic Toss!
+log Machoke did 84 points of damage to enemy Magmar.
+rand 4 = 1
+rand 10 = 4
+rand 20 = 13
+log Enemy Magmar used Fire Punch!
+log Enemy Magmar did 39 points of damage to Machoke.
+rand 10 = 0
+rand 20 = 0
+log Machoke used Seismic Toss!
+log Machoke did 81 points of damage to enemy Magmar.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 16
+log Enemy Magmar used Fire Blast!
+log Enemy Magmar did 70 points of damage to Machoke.
+rand 10 = 1
+rand 20 = 10
+log Machoke used Seismic Toss!
+log Machoke did 91 points of damage to enemy Magmar.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 6
+log Enemy Magmar used Fire Punch!
+log Enemy Magmar did 32 points of damage to Machoke.
+rand 10 = 1
+rand 20 = 2
+log Machoke used Seismic Toss!
+log Machoke did 83 points of damage to enemy Magmar.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 2
+log Enemy Magmar used Smog!
+log Enemy Magmar did 28 points of damage to Machoke.
+rand 10 = 4
+rand 20 = 16
+log Machoke used Seismic Toss!
+log Machoke did 97 points of damage to enemy Magmar.
+log Enemy Magmar fainted!
+log Machoke gained 3571 experience points!
+rand 3 = 0
+log You got 1500¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=3 hp=741 enemy=126 level=35 hp=0 levels=2-100
+state player badges=16 Money=101500 Wins=1 Losses=0 Fights=1 Catches=0 PokeBalls=50 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/571787 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/681472
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 239
+rand 30 = 4
+rand 30 = 1
+log Wild Magby appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 081 Magnemite, L.56, XP:175616, XP to next level:9577" -> OK
+dialog confirmation "Choose Magnemite?" -> Yes
+log Magnemite, I choose you!
+> item 5
+log It won't have any effect.
+> throw 1
+log You threw a POKéBall.
+rand 50 = 21
+log Sorry, Magby wasn't caught.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 19
+log Enemy Magby used Tackle!
+log It's not very effective...
+log Enemy Magby did 26 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 47
+log Sorry, Magby wasn't caught.
+rand 4 = 2
+rand 10 = 8
+rand 20 = 10
+log Enemy Magby used Smog!
+log It doesn't affect Magnemite!
+log Enemy Magby did 0 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 43
+log Sorry, Magby wasn't caught.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 5
+log Enemy Magby used Tackle!
+log Critical hit!
+log It's not very effective...
+log Enemy Magby did 38 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 38
+log Sorry, Magby wasn't caught.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 5
+log Enemy Magby used Flamethrower!
+log It's super effective!
+log Enemy Magby did 151 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 6
+log Sorry, Magby wasn't caught.
+rand 4 = 3
+rand 10 = 2
+rand 20 = 13
+log Enemy Magby used Ember!
+log It's super effective!
+log Enemy Magby did 142 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 25
+log Sorry, Magby wasn't caught.
+rand 4 = 3
+rand 10 = 8
+rand 20 = 8
+log Enemy Magby used Ember!
+log It's super effective!
+log Enemy Magby did 132 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 2
+log Sorry, Magby wasn't caught.
+rand 4 = 1
+rand 10 = 2
+rand 20 = 8
+log Enemy Magby used Tackle!
+log It's not very effective...
+log Enemy Magby did 20 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 42
+log Sorry, Magby wasn't caught.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 10
+log Enemy Magby used Smog!
+log It doesn't affect Magnemite!
+log Enemy Magby did 0 points of damage to Magnemite.
+log You threw a POKéBall.
+rand 50 = 33
+log Sorry, Magby wasn't caught.
+rand 4 = 0
+rand 10 = 3
+rand 20 = 14
+log Enemy Magby used Flamethrower!
+log It's super effective!
+log Enemy Magby did 169 points of damage to Magnemite.
+log Magnemite fainted!
+log You lost 50750¥!
+> fightbest
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=4 hp=0 enemy=240 level=62 hp=620 levels=2-100
+state player badges=16 Money=50750 Wins=1 Losses=1 Fights=3 Catches=0 PokeBalls=41 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/571787 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/681472
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 296
+rand 30 = 26
+rand 30 = 22
+log Wild Hariyama appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 2
+dialog information "# 207 Gligar, L.83, XP:571787, XP to next level:20917" -> OK
+dialog confirmation "Choose Gligar?" -> Yes
+log Gligar, I choose you!
+> fightbest
+rand 10 = 0
+rand 20 = 17
+log Gligar used Slash!
+log Gligar did 114 points of damage to enemy Hariyama.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 15
+log Enemy Hariyama used Sand-Attack!
+log It doesn't affect Gligar!
+log Enemy Hariyama did 0 points of damage to Gligar.
+rand 10 = 7
+rand 20 = 3
+log Gligar used Slash!
+log Gligar did 100 points of damage to enemy Hariyama.
+rand 4 = 3
+rand 10 = 9
+rand 20 = 9
+log Enemy Hariyama used Mega Punch!
+log Critical hit!
+log Enemy Hariyama did 238 points of damage to Gligar.
+rand 10 = 3
+rand 20 = 0
+log Gligar used Slash!
+log Gligar did 97 points of damage to enemy Hariyama.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 11
+log Enemy Hariyama used Sand-Attack!
+log It doesn't affect Gligar!
+log Enemy Hariyama did 0 points of damage to Gligar.
+rand 10 = 4
+rand 20 = 13
+log Gligar used Slash!
+log Gligar did 110 points of damage to enemy Hariyama.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 0
+log Enemy Hariyama used Sand-Attack!
+log It doesn't affect Gligar!
+log Enemy Hariyama did 0 points of damage to Gligar.
+rand 10 = 3
+rand 20 = 7
+log Gligar used Slash!
+log Gligar did 104 points of damage to enemy Hariyama.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 6
+log Enemy Hariyama used Seismic Toss!
+log It's not very effective...
+log Enemy Hariyama did 39 points of damage to Gligar.
+rand 10 = 8
+rand 20 = 9
+log Gligar used Slash!
+log Gligar did 106 points of damage to enemy Hariyama.
+rand 4 = 1
+rand 10 = 7
+rand 20 = 19
+log Enemy Hariyama used Sand-Attack!
+log It doesn't affect Gligar!
+log Enemy Hariyama did 0 points of damage to Gligar.
+rand 10 = 0
+rand 20 = 15
+log Gligar used Slash!
+log Gligar did 112 points of damage to enemy Hariyama.
+rand 4 = 3
+rand 10 = 1
+rand 20 = 19
+log Enemy Hariyama used Mega Punch!
+log Enemy Hariyama did 129 points of damage to Gligar.
+rand 10 = 0
+rand 20 = 13
+log Gligar used Slash!
+log Gligar did 110 points of damage to enemy Hariyama.
+log Enemy Hariyama fainted!
+log Gligar gained 20419 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=2 hp=424 enemy=297 level=83 hp=0 levels=2-100
+state player badges=16 Money=56750 Wins=2 Losses=1 Fights=4 Catches=0 PokeBalls=41 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/681472
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 385
+rand 386 = 1
+rand 30 = 15
+rand 30 = 6
+log Wild Ivysaur appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 203 Girafarig, L.31, XP:29791, XP to next level:2977" -> OK
+dialog confirmation "Choose Girafarig?" -> Yes
+log Girafarig, I choose you!
+> throw 1
+log You threw a POKéBall.
+rand 50 = 17
+log Sorry, Ivysaur wasn't caught.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 0
+log Enemy Ivysaur used Cut!
+log Critical hit!
+log Enemy Ivysaur did 140 points of damage to Girafarig.
+log You threw a POKéBall.
+rand 50 = 16
+log Sorry, Ivysaur wasn't caught.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 3
+log Enemy Ivysaur used Body Slam!
+log Enemy Ivysaur did 100 points of damage to Girafarig.
+log You threw a POKéBall.
+rand 50 = 26
+log Sorry, Ivysaur wasn't caught.
+rand 4 = 0
+rand 10 = 4
+rand 20 = 11
+log Enemy Ivysaur used Tackle!
+log Enemy Ivysaur did 47 points of damage to Girafarig.
+log You threw a POKéBall.
+rand 50 = 31
+log Sorry, Ivysaur wasn't caught.
+rand 4 = 3
+rand 10 = 6
+rand 20 = 8
+log Enemy Ivysaur used Razor Leaf!
+log Enemy Ivysaur did 91 points of damage to Girafarig.
+log Girafarig fainted!
+log You lost 28375¥!
+> fight 1
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=2 level=67 hp=670 levels=2-100
+state player badges=16 Money=28375 Wins=2 Losses=2 Fights=6 Catches=0 PokeBalls=37 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/681472
+> menu Actions > Fight a Trainer > Trainers > Intermediate > Prof.Elm
+log Prof. Elm wants to fight!
+log Prof. Elm sent out Pichu!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 385 Jirachi, L.88, XP:681472, XP to next level:23497" -> OK
+dialog confirmation "Choose Jirachi?" -> Yes
+log Jirachi, I choose you!
+> fight 4
+rand 10 = 4
+rand 20 = 1
+log Jirachi used Hyper Beam!
+log Jirachi did 149 points of damage to enemy Pichu.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 11
+log Enemy Pichu used Tackle!
+log It's not very effective...
+log Enemy Pichu did 18 points of damage to Jirachi.
+rand 10 = 5
+rand 20 = 2
+log Jirachi used Hyper Beam!
+log Jirachi did 150 points of damage to enemy Pichu.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 18
+log Enemy Pichu used Tackle!
+log It's not very effective...
+log Enemy Pichu did 21 points of damage to Jirachi.
+rand 10 = 9
+rand 20 = 4
+log Jirachi used Hyper Beam!
+log Critical hit!
+log Jirachi did 304 points of damage to enemy Pichu.
+log Enemy Pichu fainted!
+log Jirachi gained 7351 experience points!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=841 enemy=172 level=50 hp=0 levels=2-100
+state player badges=16 Money=34375 Wins=3 Losses=2 Fights=7 Catches=0 PokeBalls=37 GreatBalls=20 UltraBalls=20 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/688823
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 263
+rand 30 = 1
+rand 30 = 27
+log Wild Linoone appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 5
+dialog information "# 203 Girafarig, L.31, XP:29791, XP to next level:2977" -> OK
+dialog confirmation "Choose Girafarig?" -> Yes
+log Girafarig, I choose you!
+> item 5
+log It won't have any effect.
+> throw 3
+log You threw an Ultra Ball.
+rand 250 = 17
+log Sorry, Linoone wasn't caught.
+rand 4 = 2
+rand 10 = 4
+rand 20 = 19
+log Enemy Linoone used Sand-Attack!
+log Enemy Linoone did 101 points of damage to Girafarig.
+log You threw an Ultra Ball.
+rand 250 = 176
+log Sorry, Linoone wasn't caught.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 8
+log Enemy Linoone used Slam!
+log Enemy Linoone did 86 points of damage to Girafarig.
+log You threw an Ultra Ball.
+rand 250 = 43
+log Sorry, Linoone wasn't caught.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 3
+log Enemy Linoone used Slam!
+log Enemy Linoone did 81 points of damage to Girafarig.
+log You threw an Ultra Ball.
+rand 250 = 69
+log Sorry, Linoone wasn't caught.
+rand 4 = 3
+rand 10 = 0
+rand 20 = 12
+log Enemy Linoone used Slam!
+log Enemy Linoone did 90 points of damage to Girafarig.
+log Girafarig fainted!
+log You lost 17188¥!
+> fight 3
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=5 hp=0 enemy=264 level=88 hp=880 levels=2-100
+state player badges=16 Money=17187 Wins=3 Losses=3 Fights=9 Catches=0 PokeBalls=37 GreatBalls=20 UltraBalls=16 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/688823
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 380
+rand 386 = 93
+rand 30 = 24
+rand 30 = 26
+log Wild Gengar appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 3
+dialog information "# 067 Machoke, L.91, XP:757142, XP to next level:21546" -> OK
+dialog confirmation "Choose Machoke?" -> Yes
+log Machoke, I choose you!
+> throw 2
+log You threw a Great Ball.
+rand 100 = 66
+log Sorry, Gengar wasn't caught.
+rand 4 = 2
+rand 10 = 1
+rand 20 = 19
+log Enemy Gengar used Poison Gas!
+log Enemy Gengar did 104 points of damage to Machoke.
+log You threw a Great Ball.
+rand 100 = 77
+log Sorry, Gengar wasn't caught.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 13
+log Enemy Gengar used Poison Gas!
+log Enemy Gengar did 98 points of damage to Machoke.
+log You threw a Great Ball.
+rand 100 = 61
+log Sorry, Gengar wasn't caught.
+rand 4 = 0
+rand 10 = 2
+rand 20 = 13
+log Enemy Gengar used Lick!
+log Enemy Gengar did 94 points of damage to Machoke.
+log You threw a Great Ball.
+rand 100 = 70
+log Sorry, Gengar wasn't caught.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 11
+log Enemy Gengar used Lick!
+log Enemy Gengar did 92 points of damage to Machoke.
+log You threw a Great Ball.
+rand 100 = 96
+log Sorry, Gengar wasn't caught.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 14
+log Enemy Gengar used Psychic!
+log It's super effective!
+log Enemy Gengar did 356 points of damage to Machoke.
+log You threw a Great Ball.
+rand 100 = 85
+log Sorry, Gengar wasn't caught.
+rand 4 = 2
+rand 10 = 3
+rand 20 = 13
+log Enemy Gengar used Poison Gas!
+log Enemy Gengar did 98 points of damage to Machoke.
+log You threw a Great Ball.
+rand 100 = 80
+log Sorry, Gengar wasn't caught.
+rand 4 = 1
+rand 10 = 8
+rand 20 = 1
+log Enemy Gengar used Night Shade!
+log Enemy Gengar did 78 points of damage to Machoke.
+log Machoke fainted!
+log You lost 8594¥!
+> fightbest
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=3 hp=0 enemy=94 level=87 hp=870 levels=2-100
+state player badges=16 Money=8593 Wins=3 Losses=4 Fights=11 Catches=0 PokeBalls=37 GreatBalls=13 UltraBalls=16 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/688823
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 379
+rand 386 = 374
+rand 30 = 13
+rand 30 = 20
+log Wild Metang appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 385 Jirachi, L.88, XP:688823, XP to next level:16146" -> OK
+dialog confirmation "Choose Jirachi?" -> Yes
+log Jirachi, I choose you!
+> throw 1
+log You threw a POKéBall.
+rand 50 = 5
+log Sorry, Metang wasn't caught.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 9
+log Enemy Metang used Tackle!
+log It's not very effective...
+log Enemy Metang did 27 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 34
+log Sorry, Metang wasn't caught.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 4
+log Enemy Metang used Psychic!
+log It's not very effective...
+log Enemy Metang did 78 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 5
+log Sorry, Metang wasn't caught.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 6
+log Enemy Metang used Tackle!
+log It's not very effective...
+log Enemy Metang did 26 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 14
+log Sorry, Metang wasn't caught.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 19
+log Enemy Metang used Tackle!
+log It's not very effective...
+log Enemy Metang did 32 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 0
+log Sorry, Metang wasn't caught.
+rand 4 = 3
+rand 10 = 4
+rand 20 = 18
+log Enemy Metang used Metal Claw!
+log Enemy Metang did 137 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 1
+log Sorry, Metang wasn't caught.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 8
+log Enemy Metang used Take Down!
+log It's not very effective...
+log Enemy Metang did 49 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 21
+log Sorry, Metang wasn't caught.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 2
+log Enemy Metang used Metal Claw!
+log Enemy Metang did 121 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 8
+log Sorry, Metang wasn't caught.
+rand 4 = 3
+rand 10 = 7
+rand 20 = 19
+log Enemy Metang used Metal Claw!
+log Enemy Metang did 138 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 19
+log Sorry, Metang wasn't caught.
+rand 4 = 1
+rand 10 = 3
+rand 20 = 3
+log Enemy Metang used Tackle!
+log It's not very effective...
+log Enemy Metang did 24 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 17
+log Sorry, Metang wasn't caught.
+rand 4 = 0
+rand 10 = 9
+rand 20 = 19
+log Enemy Metang used Take Down!
+log Critical hit!
+log It's not very effective...
+log Enemy Metang did 110 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 37
+log Sorry, Metang wasn't caught.
+rand 4 = 0
+rand 10 = 6
+rand 20 = 1
+log Enemy Metang used Take Down!
+log It's not very effective...
+log Enemy Metang did 46 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 37
+log Sorry, Metang wasn't caught.
+rand 4 = 2
+rand 10 = 6
+rand 20 = 12
+log Enemy Metang used Psychic!
+log It's not very effective...
+log Enemy Metang did 82 points of damage to Jirachi.
+log You threw a POKéBall.
+rand 50 = 16
+log Sorry, Metang wasn't caught.
+rand 4 = 0
+rand 10 = 5
+rand 20 = 16
+log Enemy Metang used Take Down!
+log It's not very effective...
+log Enemy Metang did 53 points of damage to Jirachi.
+log Jirachi fainted!
+log You lost 4297¥!
+> fight 4
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=6 hp=0 enemy=375 level=81 hp=810 levels=2-100
+state player badges=16 Money=4296 Wins=3 Losses=5 Fights=13 Catches=0 PokeBalls=24 GreatBalls=13 UltraBalls=16 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L88/688823
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 202
+rand 30 = 20
+rand 30 = 24
+log Wild Girafarig appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 6
+dialog information "# 385 Jirachi, L.88, XP:688823, XP to next level:16146" -> OK
+dialog confirmation "Choose Jirachi?" -> Yes
+log Jirachi, I choose you!
+> fight 4
+rand 10 = 7
+rand 20 = 11
+log Jirachi used Hyper Beam!
+log Jirachi did 159 points of damage to enemy Girafarig.
+rand 4 = 3
+rand 10 = 3
+rand 20 = 10
+log Enemy Girafarig used Psychic!
+log It's not very effective...
+log Enemy Girafarig did 85 points of damage to Jirachi.
+rand 10 = 1
+rand 20 = 15
+log Jirachi used Hyper Beam!
+log Jirachi did 163 points of damage to enemy Girafarig.
+rand 4 = 0
+rand 10 = 0
+rand 20 = 12
+log Enemy Girafarig used Tackle!
+log It's not very effective...
+log Enemy Girafarig did 30 points of damage to Jirachi.
+rand 10 = 5
+rand 20 = 0
+log Jirachi used Hyper Beam!
+log Jirachi did 148 points of damage to enemy Girafarig.
+rand 4 = 1
+rand 10 = 0
+rand 20 = 12
+log Enemy Girafarig used Confusion!
+log It's not very effective...
+log Enemy Girafarig did 41 points of damage to Jirachi.
+rand 10 = 4
+rand 20 = 14
+log Jirachi used Hyper Beam!
+log Jirachi did 162 points of damage to enemy Girafarig.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 17
+log Enemy Girafarig used Confusion!
+log It's not very effective...
+log Enemy Girafarig did 43 points of damage to Jirachi.
+rand 10 = 9
+rand 20 = 18
+log Jirachi used Hyper Beam!
+log Critical hit!
+log Jirachi did 332 points of damage to enemy Girafarig.
+log Enemy Girafarig fainted!
+log Jirachi gained 21421 experience points!
+log Jirachi grew to level 89!
+rand 3 = 2
+log You got 6000¥!
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=2 own=6 hp=681 enemy=203 level=85 hp=0 levels=2-100
+state player badges=16 Money=10296 Wins=4 Losses=5 Fights=14 Catches=0 PokeBalls=24 GreatBalls=13 UltraBalls=16 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L89/710244
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 352
+rand 30 = 6
+rand 30 = 4
+log Wild Shuppet appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 4
+dialog information "# 081 Magnemite, L.56, XP:175616, XP to next level:9577" -> OK
+dialog confirmation "Choose Magnemite?" -> Yes
+log Magnemite, I choose you!
+> item 5
+log It won't have any effect.
+> throw 3
+log You threw an Ultra Ball.
+rand 250 = 114
+log Sorry, Shuppet wasn't caught.
+rand 4 = 3
+rand 10 = 5
+rand 20 = 11
+log Enemy Shuppet used Psybeam!
+log Enemy Shuppet did 98 points of damage to Magnemite.
+log You threw an Ultra Ball.
+rand 250 = 90
+log Sorry, Shuppet wasn't caught.
+rand 4 = 2
+rand 10 = 5
+rand 20 = 13
+log Enemy Shuppet used Psywave!
+log Enemy Shuppet did 90 points of damage to Magnemite.
+log You threw an Ultra Ball.
+rand 250 = 211
+log Sorry, Shuppet wasn't caught.
+rand 4 = 0
+rand 10 = 7
+rand 20 = 9
+log Enemy Shuppet used Night Shade!
+log Enemy Shuppet did 64 points of damage to Magnemite.
+log You threw an Ultra Ball.
+rand 250 = 97
+log Sorry, Shuppet wasn't caught.
+rand 4 = 1
+rand 10 = 6
+rand 20 = 9
+log Enemy Shuppet used Lick!
+log Enemy Shuppet did 67 points of damage to Magnemite.
+log You threw an Ultra Ball.
+rand 250 = 73
+log Sorry, Shuppet wasn't caught.
+rand 4 = 1
+rand 10 = 9
+rand 20 = 8
+log Enemy Shuppet used Lick!
+log Critical hit!
+log Enemy Shuppet did 132 points of damage to Magnemite.
+log You threw an Ultra Ball.
+rand 250 = 88
+log Sorry, Shuppet wasn't caught.
+rand 4 = 1
+rand 10 = 1
+rand 20 = 8
+log Enemy Shuppet used Lick!
+log Enemy Shuppet did 66 points of damage to Magnemite.
+log You threw an Ultra Ball.
+rand 250 = 4
+log Sorry, Shuppet wasn't caught.
+rand 4 = 2
+rand 10 = 2
+rand 20 = 10
+log Enemy Shuppet used Psywave!
+log Enemy Shuppet did 87 points of damage to Magnemite.
+log Magnemite fainted!
+log You lost 5148¥!
+> fight 4
+> end
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=4 hp=0 enemy=353 level=65 hp=650 levels=2-100
+state player badges=16 Money=5148 Wins=4 Losses=6 Fights=16 Catches=0 PokeBalls=24 GreatBalls=13 UltraBalls=9 MasterBalls=0 Potions=20 SuperPotions=20 flags=BeatLance,BeatAsh,BeatLink
+state dex 67,81,203,207,327,385
+state party 1:327/L69/328509 2:207/L83/592206 3:67/L91/757142 4:81/L56/175616 5:203/L31/29791 6:385/L89/710244
+> quit
+exit 0
+save line 9: "100000" -> "5148"
+save line 10: "0" -> "4"
+save line 11: "0" -> "6"
+save line 12: "0" -> "16"
+save line 14: "50" -> "24"
+save line 15: "20" -> "13"
+save line 16: "20" -> "9"
+save line 411: "571787" -> "592206"
+save line 414: "753571" -> "757142"
+save line 422: "88" -> "89"
+save line 423: "681472" -> "710244"

@@ -1,0 +1,54 @@
+# Audit: Release Mode on and off, releasing a middle member, a No, then the last member.
+party 1 5
+party 4 5
+party 7 5
+party 25 5
+> start
+> menu Actions > Release a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to release it. Once you have doubleclicked on a POKéMON, Release Mode will be disabled." -> OK
+> menu Actions > Release a POKéMON
+dialog information "Release Mode deactivated. Statistics window will now function normally." -> OK
+> menu Actions > Release a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to release it. Once you have doubleclicked on a POKéMON, Release Mode will be disabled." -> OK
+> answer yes
+> choose 2
+dialog information "# 004 Charmander, L.5, XP:125, XP to next level:91" -> OK
+dialog confirmation "Once released, Charmander will not come back. Release Charmander?" -> Yes
+dialog information "Charmander was released. Bye, Charmander!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,4,7,25
+state party 1:1/L5/125 2:7/L5/125 3:25/L5/125
+> menu Actions > Release a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to release it. Once you have doubleclicked on a POKéMON, Release Mode will be disabled." -> OK
+> answer no
+> choose 1
+dialog information "# 001 Bulbasaur, L.5, XP:125, XP to next level:91" -> OK
+dialog confirmation "Once released, Bulbasaur will not come back. Release Bulbasaur?" -> No
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,4,7,25
+state party 1:1/L5/125 2:7/L5/125 3:25/L5/125
+> menu Actions > Release a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to release it. Once you have doubleclicked on a POKéMON, Release Mode will be disabled." -> OK
+> answer yes
+> choose 3
+dialog information "# 025 Pikachu, L.5, XP:125, XP to next level:91" -> OK
+dialog confirmation "Once released, Pikachu will not come back. Release Pikachu?" -> Yes
+dialog information "Pikachu was released. Bye, Pikachu!" -> OK
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1,4,7,25
+state party 1:1/L5/125 2:7/L5/125
+> quit
+exit 0
+save line 409: "4" -> "7"
+save line 412: "7" -> "0"
+save line 413: "5" -> "0"
+save line 414: "125" -> "0"
+save line 415: "25" -> "0"
+save line 416: "5" -> "0"
+save line 417: "125" -> "0"
