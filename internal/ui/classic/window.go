@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
@@ -758,7 +759,7 @@ func (w *window) focusDisabled() bool {
 // accelerator clicks the button whose accelerator chr is, or focuses the
 // control of the label whose it is; it reports whether there is one.
 func (w *window) accelerator(chr rune) bool {
-	lr := []rune(strings.ToLower(string(chr)))[0]
+	lr := unicode.ToLower(chr)
 	for _, btn := range w.buttons() {
 		if accel(btn.caption) == lr {
 			w.setFocus(btn, false)

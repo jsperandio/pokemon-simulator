@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
@@ -1132,9 +1133,9 @@ func (cb *comboBox) char(chr rune) {
 			continue
 		}
 
-		cb.tb.set(prefix + string([]rune(item)[len([]rune(prefix)):]))
+		cb.tb.set(prefix + string([]rune(item)[utf8.RuneCountInString(prefix):]))
 
-		cb.tb.anchor, cb.tb.caret = len([]rune(prefix)), len(cb.tb.text)
+		cb.tb.anchor, cb.tb.caret = utf8.RuneCountInString(prefix), len(cb.tb.text)
 		if i != cb.index {
 			cb.index = i
 			if cb.onSelect != nil {

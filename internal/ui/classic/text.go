@@ -7,6 +7,8 @@ import (
 	"image/color"
 	"image/draw"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
@@ -155,7 +157,9 @@ func accel(txt string) rune {
 		}
 
 		if txt[i+1] != '&' {
-			return []rune(strings.ToLower(txt[i+1:]))[0]
+			chr, _ := utf8.DecodeRuneInString(txt[i+1:])
+
+			return unicode.ToLower(chr)
 		}
 
 		i++
@@ -185,7 +189,7 @@ func drawCaption(cv canvas, fnt face, x, y int, txt string, clr color.RGBA) {
 			continue
 		}
 
-		n := len(string([]rune(txt)[0]))
+		_, n := utf8.DecodeRuneInString(txt)
 		x0 := x
 		x = fnt.draw(cv, x, y, txt[:n], clr)
 		cv.hline(x0, x, y+fnt.ascent()+1, clr)
