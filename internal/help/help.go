@@ -296,7 +296,7 @@ func startsItem(line string, ordered bool) bool {
 }
 
 func isOrdered(marker string) bool {
-	return marker != "" && marker[0] >= '0' && marker[0] <= '9'
+	return marker != "" && isDigit(marker[0])
 }
 
 // isTable reports whether a table starts at line i: a row of cells, then
