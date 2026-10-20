@@ -84,11 +84,94 @@ func Test_Load(t *testing.T) {
 		assert.ErrorContains(t, err, "line 700")
 	})
 
+	t.Run("when an effectiveness line holds a word, should fail naming line 1", func(t *testing.T) {
+		t.Parallel()
+
+		bad := append([]string(nil), lines...)
+		bad[0] = "half" // Normal against Normal
+
+		_, err := Load([]byte(strings.Join(bad, "\r\n")))
+		assert.ErrorContains(t, err, "line 1: want a number")
+	})
+
+	t.Run("when a reference points at nothing, should fail naming its entry", func(t *testing.T) {
+		t.Parallel()
+
+		bad := append([]string(nil), lines...)
+		bad[699] = "18" // first type of Bulbasaur, past Steel
+
+		_, err := Load([]byte(strings.Join(bad, "\r\n")))
+		assert.ErrorContains(t, err, "Bulbasaur has invalid types")
+	})
+
 	t.Run("when the line endings are LF, should still load", func(t *testing.T) {
 		t.Parallel()
 
 		_, err := Load([]byte(strings.ReplaceAll(string(raw), "\r\n", "\n")))
 		assert.NoError(t, err)
+	})
+}
+
+// validate rejects a POKéGAME.dat whose references point at nothing, so that
+// a modified file fails when it loads rather than in a battle.
+func Test_Data_validate(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a species' first type is none or past Steel, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		gdt := loadEmbedded(t)
+
+		gdt.Species[0].Types[0] = NoType
+		assert.ErrorContains(t, gdt.validate(), "Bulbasaur has invalid types")
+
+		gdt.Species[0].Types[0] = Steel + 1
+		assert.ErrorContains(t, gdt.validate(), "Bulbasaur has invalid types")
+	})
+
+	t.Run("when a species' second type is past Steel, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		gdt := loadEmbedded(t)
+		gdt.Species[0].Types[1] = Steel + 1
+
+		assert.ErrorContains(t, gdt.validate(), "Bulbasaur has invalid types")
+	})
+
+	t.Run("when a species evolves into one that doesn't exist, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		gdt := loadEmbedded(t)
+
+		gdt.Species[0].EvolveTo = -1
+		assert.ErrorContains(t, gdt.validate(), "Bulbasaur evolves into unknown species -1")
+
+		gdt.Species[0].EvolveTo = NumSpecies + 1
+		assert.ErrorContains(t, gdt.validate(), "Bulbasaur evolves into unknown species 387")
+	})
+
+	t.Run("when a species knows a move that doesn't exist, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		gdt := loadEmbedded(t)
+
+		gdt.Species[0].Moves[0] = 0
+		assert.ErrorContains(t, gdt.validate(), "Bulbasaur knows unknown move 0")
+
+		gdt.Species[0].Moves[0] = NumMoves + 1
+		assert.ErrorContains(t, gdt.validate(), "Bulbasaur knows unknown move 120")
+	})
+
+	t.Run("when a move's type is none or past Steel, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		gdt := loadEmbedded(t)
+
+		gdt.Moves[0].Type = NoType
+		assert.ErrorContains(t, gdt.validate(), "move Tackle has invalid type 0")
+
+		gdt.Moves[0].Type = Steel + 1
+		assert.ErrorContains(t, gdt.validate(), "move Tackle has invalid type 18")
 	})
 }
 
@@ -275,5 +358,12 @@ func Test_Data_MoveByID(t *testing.T) {
 				assert.NotNil(t, gdt.MoveByID(mid), "%s knows unknown move %d", spc.Name, mid)
 			}
 		}
+	})
+
+	t.Run("when the ID is out of range, should give nil", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Nil(t, gdt.MoveByID(0))
+		assert.Nil(t, gdt.MoveByID(120))
 	})
 }

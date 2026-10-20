@@ -172,6 +172,35 @@ func Test_Read(t *testing.T) {
 	})
 }
 
+func Test_File_Party(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a slot has species 0, should end the party before it", func(t *testing.T) {
+		t.Parallel()
+
+		var sav File
+		sav.Owned[0].Species = 4
+		sav.Owned[1].Species = 7
+		sav.Owned[3].Species = 1 // past the empty slot
+
+		party := sav.Party()
+		require.Len(t, party, 2)
+		assert.Equal(t, int32(4), party[0].Species)
+		assert.Equal(t, int32(7), party[1].Species)
+	})
+
+	t.Run("when every slot holds a POKéMON, should give them all", func(t *testing.T) {
+		t.Parallel()
+
+		var sav File
+		for i := range sav.Owned {
+			sav.Owned[i].Species = 1
+		}
+
+		assert.Len(t, sav.Party(), Slots)
+	})
+}
+
 func Test_File_Bytes(t *testing.T) {
 	t.Parallel()
 

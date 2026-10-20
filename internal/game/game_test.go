@@ -155,6 +155,44 @@ func Test_Game_PokedexCount(t *testing.T) {
 	})
 }
 
+// The PokéMart describes the item chosen in two lines, and nothing until one
+// is chosen, as TForm9's FormShow and RadioGroup1Click do
+// (notes/side-screens.md).
+func Test_Game_PokemartDescription(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the Mart opens, should describe nothing", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.OpenPokemart()
+
+		line1, line2 := gam.PokemartDescription()
+		assert.Empty(t, line1)
+		assert.Empty(t, line2)
+	})
+
+	t.Run("when an item is chosen, should describe it in the original's two lines", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.OpenPokemart()
+
+		for idx, want := range [][2]string{
+			{"A standard POKéBALL.", "Used for catching POKéMON."},
+			{"This Ball has good chances", "of capturing a POKéMON."},
+			{"Has a very high chance of", "capturing a POKéMON."},
+			{"Restores 50HP in battle.", ""},
+			{"Restores 100HP in battle.", ""},
+		} {
+			gam.SelectPokemartItem(idx)
+
+			line1, line2 := gam.PokemartDescription()
+			assert.Equal(t, want, [2]string{line1, line2}, "item %d", idx)
+		}
+	})
+}
+
 func Test_Damage(t *testing.T) {
 	t.Parallel()
 
