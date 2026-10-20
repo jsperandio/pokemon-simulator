@@ -162,15 +162,22 @@ func (ud *uiDriver) front(wdw *window, pnt image.Point) {
 		return
 	}
 
+	ud.activate(wdw)
+	require.Same(ud.t, wdw, desk.windowAt(pnt), "%s stays behind another window", wdw.name)
+}
+
+// activate makes wdw the active window by clicking a part of it that the
+// others leave uncovered, where a click does nothing else.
+func (ud *uiDriver) activate(wdw *window) {
+	desk := ud.ta.desk
+
 	for _, cur := range harmlessPoints(wdw) {
 		if desk.windowAt(cur) == wdw {
 			ud.ta.click(cur)
 
-			break
+			return
 		}
 	}
-
-	require.Same(ud.t, wdw, desk.windowAt(pnt), "%s stays behind another window", wdw.name)
 }
 
 // harmlessPoints are the points of wdw where a click only brings it to the
@@ -459,6 +466,23 @@ func (ud *uiDriver) Text(path string) (string, error) {
 	return "", fmt.Errorf("no text for %s", path)
 }
 
+func (ud *uiDriver) AltF4(form string) error {
+	wdw := ud.form(form)
+	if wdw == nil {
+		return fmt.Errorf("unknown form %s", form)
+	}
+
+	if ud.ta.desk.active != wdw {
+		ud.activate(wdw)
+	}
+
+	require.Same(ud.t, wdw, ud.ta.desk.active, "%s isn't the active window", form)
+	ud.ta.altF4()
+	ud.settle()
+
+	return nil
+}
+
 // fileDialog fills in the file dialog that shows with name.
 func (ud *uiDriver) fileDialog(caption, name string) error {
 	ta := ud.ta
@@ -473,7 +497,7 @@ func (ud *uiDriver) fileDialog(caption, name string) error {
 	return nil
 }
 
-func (ud *uiDriver) New(file, name string) error {
+func (ud *uiDriver) New(file, name string, ok bool) error {
 	ta := ud.ta
 	ud.press(ta.start.wdw, ta.start.wdw.find("NewButton"))
 	ud.settle()
@@ -487,6 +511,14 @@ func (ud *uiDriver) New(file, name string) error {
 	}
 
 	ud.seen(ta.name.wdw)
+
+	if !ok {
+		ud.ta.altF4()
+		ud.settle()
+
+		return nil
+	}
+
 	ta.typeText(name) // over "Ash", all selected
 	ta.key(ebiten.KeyEnter)
 	ud.settle()

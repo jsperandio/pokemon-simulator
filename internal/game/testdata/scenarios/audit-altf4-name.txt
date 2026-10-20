@@ -1,0 +1,24 @@
+# Audit: Alt+F4 on the name dialog closes it without OKBtnClick: the game
+# goes on with no name, not "Ash", and the game window keeps its caption.
+startscreen
+> start
+> newaltf4
+namedialog -> Alt+F4
+> text Form4
+text Form4 "POKéMON Simulator V4.5"
+> starter 1
+log Bulbasaur has been added to the POKéDEX!
+> text Form4
+text Form4 "POKéMON Simulator V4.5"
+> state
+state battle wild=0 trainer=0 tournament=0 type=0 own=0 hp=0 enemy=0 level=0 hp=0 levels=2-100
+state player badges=0 Money=0 Wins=0 Losses=0 Fights=0 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 1
+state party 1:1/L5/125
+> quit
+exit 0
+save line 14: "0" -> "3"
+save line 20: "FALSE" -> "TRUE"
+save line 406: "0" -> "1"
+save line 407: "0" -> "5"
+save line 408: "0" -> "125"

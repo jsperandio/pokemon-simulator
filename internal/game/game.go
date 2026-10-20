@@ -306,6 +306,19 @@ func (g *Game) showInfo() {
 	g.show(InfoForm)
 }
 
+// CloseInfo is Alt+F4 on Battle Info (TForm7.Close): the window hides
+// until the next battle shows it.
+func (g *Game) CloseInfo() {
+	g.Info.Visible = false
+}
+
+// CloseStats is Alt+F4 on Statistics (TForm5.Close): the window hides, and
+// only loading a game or choosing a starter shows it again. In a game that
+// goes on, the player can't choose a POKéMON any more.
+func (g *Game) CloseStats() {
+	g.Stats.Visible = false
+}
+
 // partyHas reports whether species s is in the party.
 func (g *Game) partyHas(s int) bool {
 	return slices.ContainsFunc(g.Party(), func(m save.Slot) bool {

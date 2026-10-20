@@ -123,6 +123,25 @@ func (ta *testApp) key(key ebiten.Key) {
 	})
 }
 
+// altF4 presses Alt+F4.
+func (ta *testApp) altF4() {
+	ta.frame(input{
+		keys: []ebiten.Key{ebiten.KeyAltLeft},
+		mods: mods{
+			alt: true,
+		},
+	})
+	ta.frame(input{
+		keys: []ebiten.Key{ebiten.KeyF4},
+		mods: mods{
+			alt: true,
+		},
+	})
+	ta.frame(input{
+		keysUp: []ebiten.Key{ebiten.KeyF4, ebiten.KeyAltLeft},
+	})
+}
+
 // typeText types characters.
 func (ta *testApp) typeText(txt string) {
 	ta.frame(input{
@@ -499,6 +518,52 @@ func writeSong(t *testing.T, dir string) {
 
 	err := os.WriteFile(filepath.Join(dir, "song.ogg"), []byte("OggS"), 0o600)
 	require.NoError(t, err)
+}
+
+// The system's request to close the program's window closes the game, as
+// the game window's close does, unless it comes with the Alt+F4 that the
+// desktop gives its active window: Windows sends one with the other.
+func Test_Application_closeRequested(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the request comes with Alt+F4, should close only the active window and keep the game", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.menu("Action1", "Buy1")
+		ta.wait(1)
+
+		require.Same(t, ta.pokemart.wdw, ta.desk.active, "the active window")
+
+		in := input{
+			keys: []ebiten.Key{ebiten.KeyF4},
+			mods: mods{
+				alt: true,
+			},
+		}
+		ta.closeRequested(&in)
+		ta.frame(in)
+
+		assert.False(t, ta.quit, "the game quit")
+		assert.False(t, ta.pokemart.wdw.visible, "the Mart shows")
+		assert.True(t, ta.main.wdw.visible, "the game window hid")
+	})
+
+	t.Run("when the request comes without Alt+F4, should save the game and quit", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.menu("Action1", "Buy1")
+		ta.wait(1)
+
+		ta.closeRequested(&input{})
+		ta.wait(1)
+
+		assert.True(t, ta.quit, "the game runs")
+		assert.FileExists(t, filepath.Join(ta.dir, "ash.pgs"))
+	})
 }
 
 // Test_MusicMenu opens music from the Music menu, stops it, and turns

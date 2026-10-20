@@ -150,8 +150,28 @@ func (d *Direct) Text(path string) (string, error) {
 	return "", fmt.Errorf("no text for %s", path)
 }
 
-func (d *Direct) New(file, name string) error {
-	d.game.NewGame(file, name)
+func (d *Direct) AltF4(form string) error {
+	gam := d.game
+	closeForm := map[string]func(){
+		"Form5": gam.CloseStats,
+		"Form7": gam.CloseInfo,
+		"Form8": gam.ClosePokedex,
+		"Form9": gam.LeavePokemart,
+		"FormA": gam.CloseTypes,
+		"FormB": gam.CloseGameCorner,
+	}[form]
+
+	if closeForm == nil {
+		return fmt.Errorf("no Alt+F4 for %s", form)
+	}
+
+	closeForm()
+
+	return nil
+}
+
+func (d *Direct) New(file, name string, ok bool) error {
+	d.game.NewGame(file, name, ok)
 
 	return nil
 }

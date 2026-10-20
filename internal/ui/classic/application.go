@@ -397,11 +397,11 @@ func (app *Application) Update() error {
 
 	app.pace.wait()
 
-	if ebiten.IsWindowBeingClosed() && app.desk.topModal() == nil {
-		app.closeProgram()
+	in, now := app.input(), time.Now()
+	if ebiten.IsWindowBeingClosed() {
+		app.closeRequested(&in)
 	}
 
-	in, now := app.input(), time.Now()
 	app.step(in, now)
 	// On the web, leaving the page doesn't save the game, as quitting does.
 	platform.WarnOnLeave(app.main.wdw.visible && !app.quit)
@@ -563,6 +563,21 @@ func (app *Application) openFile(opts fileOptions) (string, bool) {
 	app.desk.remove(fd.wdw)
 
 	return fd.result, rst == mrOk
+}
+
+// closeRequested is the system's request to close the program's window,
+// in the frame of input in: its close button, or Alt+F4 where the system
+// turns the key into a close as well, as Windows does. The program closes
+// as the game window does, unless a modal window shows, or the request
+// comes with the Alt+F4 that the desktop gives its active window: each of
+// the original's windows was the system's, so Alt+F4 closed only the one
+// that had the focus.
+func (app *Application) closeRequested(in *input) {
+	if app.desk.topModal() != nil || app.desk.takesAltF4(in) {
+		return
+	}
+
+	app.closeProgram()
 }
 
 // closeProgram ends the program as closing the main form does.

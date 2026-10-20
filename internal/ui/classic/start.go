@@ -174,8 +174,8 @@ func (sf *startForm) newButtonClick() {
 
 		app.desk.hide(sf.wdw)
 
-		name := app.name.ask()
-		app.game.NewGame(file, name)
+		name, ok := app.name.ask()
+		app.game.NewGame(file, name, ok)
 		app.sync()
 		app.placeWindows(236)
 	})
@@ -214,10 +214,11 @@ func newNameDialog(app *Application) *nameDialog {
 	return nd
 }
 
-// ask shows the dialog and returns the name typed (OKBtnClick); it runs on
-// the handler's goroutine.
-func (nd *nameDialog) ask() string {
-	nd.app.modal(nd.wdw)
+// ask shows the dialog and returns the name typed, and whether it closed
+// with OK (OKBtnClick) rather than Alt+F4; it runs on the handler's
+// goroutine.
+func (nd *nameDialog) ask() (name string, ok bool) {
+	rst := nd.app.modal(nd.wdw)
 
-	return nd.edit.text()
+	return nd.edit.text(), rst == mrOk
 }

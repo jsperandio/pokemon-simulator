@@ -75,9 +75,12 @@ type Driver interface {
 	// Text returns the game window's caption ("Form4") or the Mart's
 	// total ("Form9.Edit1").
 	Text(path string) (string, error)
-	// New starts a new game from the start screen, saved in file, for
-	// the name typed.
-	New(file, name string) error
+	// AltF4 presses Alt+F4 on a form: "Form5".
+	AltF4(form string) error
+	// New starts a new game from the start screen, saved in file: it
+	// types name in the name dialog and presses OK, or, when ok is false,
+	// closes the dialog with Alt+F4.
+	New(file, name string, ok bool) error
 	// Load loads the game save, in file, from the start screen.
 	Load(file string, save []byte) error
 	// Starter chooses starter k (0-based).
@@ -527,6 +530,8 @@ var actions = map[string]func(p *Player, arg string) error{
 	"state":     (*Player).state,
 	"menus":     (*Player).dumpMenus,
 	"new":       (*Player).newGame,
+	"newaltf4":  (*Player).newGameAltF4,
+	"altf4":     (*Player).altF4,
 	"load":      (*Player).load,
 	"starter":   (*Player).starter,
 	"export":    (*Player).export,
@@ -732,7 +737,19 @@ func (p *Player) newGame(name string) error {
 
 	p.emit("namedialog -> %q", name)
 
-	return p.drv.New(p.savePath(".pgs"), name)
+	return p.drv.New(p.savePath(".pgs"), name, true)
+}
+
+// newGameAltF4 starts a new game from the start screen, and closes the
+// name dialog with Alt+F4.
+func (p *Player) newGameAltF4(string) error {
+	if !p.Game.Start.Visible {
+		return errors.New("not at the start screen")
+	}
+
+	p.emit("namedialog -> Alt+F4")
+
+	return p.drv.New(p.savePath(".pgs"), "", false)
 }
 
 // load loads the scenario's save from the start screen.
@@ -878,6 +895,48 @@ func (p *Player) menus(items []*game.MenuItem, depth int) {
 		p.emit("menu %s%s [enabled=%t visible=%t]", strings.Repeat("  ", depth), accelerators.Replace(m.Caption), m.Enabled, m.Visible)
 		p.menus(m.Items, depth+1)
 	}
+}
+
+// altF4 presses Alt+F4 on a form, as long as it shows, and records whether
+// it still does.
+func (p *Player) altF4(form string) error {
+	shown, ok := formShown(p.Game, form)
+	if !ok {
+		return fmt.Errorf("no Alt+F4 for %s", form)
+	}
+
+	if !shown {
+		return fmt.Errorf("%s is hidden", form)
+	}
+
+	if err := p.drv.AltF4(form); err != nil {
+		return err
+	}
+
+	shown, _ = formShown(p.Game, form)
+	p.emit("altf4 %s: visible=%t", form, shown)
+
+	return nil
+}
+
+// formShown reports whether a form that the altf4 action closes shows.
+func formShown(g *game.Game, form string) (shown, ok bool) {
+	switch form {
+	case "Form5":
+		return g.Stats.Visible, true
+	case "Form7":
+		return g.Info.Visible, true
+	case "Form8":
+		return g.Pokedex.Visible, true
+	case "Form9":
+		return g.Pokemart.Visible, true
+	case "FormA":
+		return g.Types.Visible, true
+	case "FormB":
+		return g.GameCorner.Visible, true
+	}
+
+	return false, false
 }
 
 // click presses a button, as long as the player could.

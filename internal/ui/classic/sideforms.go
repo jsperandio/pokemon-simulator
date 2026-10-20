@@ -75,6 +75,9 @@ func newStatsForm(app *Application) *statsForm {
 			app.desk.activate(app.main.wdw)
 		}
 	}
+	wdw.onClose = func() { // Alt+F4
+		app.game.CloseStats()
+	}
 	app.desk.add(wdw)
 
 	return sf
@@ -171,6 +174,9 @@ func newInfoForm(app *Application) *infoForm {
 		wdw: newWindow(app.desk, &layout.Form7),
 	}
 	inf.memo = get[*memo](inf.wdw, "Memo1")
+	inf.wdw.onClose = func() { // Alt+F4
+		app.game.CloseInfo()
+	}
 	app.desk.add(inf.wdw)
 
 	return inf
@@ -204,6 +210,9 @@ func newPokedexForm(app *Application) *pokedexForm {
 		app.game.SelectPokedex(i)
 	}
 	get[*button](pf.wdw, "Button1").onClick = func() {
+		app.game.ClosePokedex()
+	}
+	pf.wdw.onClose = func() { // Alt+F4
 		app.game.ClosePokedex()
 	}
 	app.desk.add(pf.wdw)
@@ -292,6 +301,9 @@ func newPokemartForm(app *Application) *pokemartForm {
 	get[*button](pmf.wdw, "Button2").onClick = func() {
 		gam.LeavePokemart()
 	}
+	pmf.wdw.onClose = func() { // Alt+F4
+		gam.LeavePokemart()
+	}
 
 	pmf.wdw.onShow = func() {
 		pmf.spin.tb.set(strconv.Itoa(gam.Pokemart.Quantity)) // FormShow, before the focus comes in
@@ -353,6 +365,9 @@ func newTypesForm(app *Application) *typesForm {
 		gam.SelectTypes(gam.Types.Species, i)
 	}
 	get[*button](tf.wdw, "Button1").onClick = func() {
+		gam.CloseTypes()
+	}
+	tf.wdw.onClose = func() { // Alt+F4
 		gam.CloseTypes()
 	}
 	app.desk.add(tf.wdw)
@@ -419,6 +434,9 @@ func newGameCornerForm(app *Application) *gameCornerForm {
 		app.call(gam.Draw)
 	}
 	get[*button](gcf.wdw, "Button2").onClick = func() {
+		gam.CloseGameCorner()
+	}
+	gcf.wdw.onClose = func() { // Alt+F4
 		gam.CloseGameCorner()
 	}
 

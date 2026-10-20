@@ -10,15 +10,20 @@ import "github.com/jsperandio/pokemon-simulator/internal/save"
 var Starters = [3]int{1, 4, 7} // Bulbasaur, Charmander, Squirtle
 
 // NewGame is the start screen's "Start a new game!", once the player has
-// chosen the save file and typed a name: an empty name is "Ash". The
-// player picks a starter next.
-func (g *Game) NewGame(file, name string) {
+// chosen the save file and closed the name dialog. With OK (ok), the name
+// typed is the player's, "Ash" if empty. Closed with Alt+F4, the dialog
+// sets nothing: the player has no name, and the game window keeps its
+// caption. The player picks a starter next.
+func (g *Game) NewGame(file, name string, ok bool) {
 	g.SaveFile = file
 	g.MinLevel, g.MaxLevel = 2, 100
 	g.PokeBalls = 3
 	g.GreatBalls, g.UltraBalls, g.MasterBalls, g.Potions, g.SuperPotions = 0, 0, 0, 0, 0
 	g.Start.Visible = false
-	g.setPlayer(name)
+
+	if ok {
+		g.setPlayer(name)
+	}
 
 	g.Main.Visible = true
 	g.show(MainForm)

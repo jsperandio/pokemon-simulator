@@ -242,7 +242,8 @@ func clickRadio(ta *testApp, rg *radioGroup, idx int) {
 	ta.click(widgetOrigin(rg).Add(rect.Min).Add(image.Pt(6, rect.Dy()/2)))
 }
 
-// The start screen's minimize button minimizes the program's window.
+// The start screen's minimize button minimizes the program's window, and
+// Alt+F4 closes its About box, which has no system menu, as OK does.
 func Test_startForm(t *testing.T) {
 	t.Parallel()
 
@@ -263,6 +264,25 @@ func Test_startForm(t *testing.T) {
 
 		assert.Equal(t, 1, n, "the minimizes of the program's window")
 		assert.True(t, wdw.visible, "the start screen hid")
+	})
+
+	t.Run("when Alt+F4 is pressed on the About box, should close it and keep the start screen shown", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.wait(80)
+		ta.clickOn(ta.start.wdw, "AboutButton")
+		ta.wait(1)
+
+		require.Same(t, ta.about, ta.desk.topModal(), "no About box")
+		require.False(t, ta.about.sysMenu, "the About box has a system menu")
+
+		ta.altF4()
+		ta.wait(1)
+
+		assert.Nil(t, ta.desk.topModal(), "the About box stays open")
+		assert.False(t, ta.about.visible, "the About box shows")
+		assert.True(t, ta.start.wdw.visible, "the start screen hid")
 	})
 }
 

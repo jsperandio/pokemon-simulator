@@ -164,7 +164,7 @@ func Test_Game_SelectPokedex(t *testing.T) {
 		t.Parallel()
 
 		gam, _ := newGame(t)
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(0) // Bulbasaur
 
 		assert.Equal(t, 0, gam.Pokedex.Index)
@@ -575,7 +575,7 @@ func Test_MainWindow(t *testing.T) {
 		t.Parallel()
 
 		gam, _ := newGame(t)
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(1) // Charmander, L.5
 
 		win := &gam.Main
@@ -620,7 +620,7 @@ func Test_MainWindow(t *testing.T) {
 		t.Parallel()
 
 		gam, _ := newGame(t)
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(1) // Charmander, L.5
 
 		win := &gam.Main
@@ -645,7 +645,7 @@ func Test_MainWindow(t *testing.T) {
 		t.Parallel()
 
 		gam, _ := newGame(t)
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(1) // Charmander is registered
 
 		gam.StartWildBattle(4, 5)
@@ -694,7 +694,7 @@ func Test_Game_OnShow(t *testing.T) {
 		gam.OnShow = func(w Window) {
 			shown = append(shown, w)
 		}
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 
 		assert.Equal(t, []Window{MainForm}, shown)
 	})
@@ -703,7 +703,7 @@ func Test_Game_OnShow(t *testing.T) {
 		t.Parallel()
 
 		gam, _ := newGame(t)
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 
 		var shown []Window
 		gam.OnShow = func(w Window) {
@@ -718,7 +718,7 @@ func Test_Game_OnShow(t *testing.T) {
 		t.Parallel()
 
 		gam, _ := newGame(t)
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(0)
 
 		var shown []Window
@@ -734,7 +734,7 @@ func Test_Game_OnShow(t *testing.T) {
 		t.Parallel()
 
 		gam, _ := newGame(t)
-		gam.NewGame("ash.pgs", "Ash")
+		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(0)
 		gam.StartWildBattle(25, 7)
 

@@ -68,7 +68,7 @@ type window struct {
 	modal      bool
 	prevActive *window          // the window active before ShowModal
 	onModal    func(result int) // when a modal window closes
-	onClose    func()           // the close button; nil hides the window
+	onClose    func()           // the close button or Alt+F4; nil hides the window
 	onClick    func()           // a click on the form itself (OnClick)
 	onKey      func(key ebiten.Key, mds mods) bool
 

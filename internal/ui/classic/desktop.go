@@ -799,7 +799,9 @@ func (d *desktop) keyDown(key ebiten.Key, mds mods) {
 
 	switch {
 	case mds.alt && key == ebiten.KeyF4:
-		if wdw.sysMenu && wdw.style != bsNone {
+		// DefWindowProc turns Alt+F4 into SC_CLOSE whatever the border
+		// icons: a window with no system menu closes too.
+		if wdw.style != bsNone {
 			wdw.close()
 		}
 
@@ -812,6 +814,16 @@ func (d *desktop) keyDown(key ebiten.Key, mds mods) {
 	}
 
 	wdw.key(key, mds)
+}
+
+// takesAltF4 reports whether the keys of input in have Alt+F4 for keyDown
+// to close the active window with.
+func (d *desktop) takesAltF4(in *input) bool {
+	pressed := in.mods.alt && slices.Contains(in.keys, ebiten.KeyF4)
+	wdw := d.active
+	closable := wdw != nil && wdw.style != bsNone
+
+	return pressed && d.menu == nil && closable
 }
 
 // menuKey gives a key to the active window's menu bar, and reports whether

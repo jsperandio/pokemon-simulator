@@ -1,0 +1,79 @@
+# Audit: Alt+F4 closes every window, also those with no system menu
+# (BorderIcons = []): DefWindowProc turns it into SC_CLOSE, and the form
+# hides. The menus show the Mart, the Game Corner, Type Comparisons and the
+# POKéDEX again, the next battle shows Battle Info, and nothing shows
+# Statistics again.
+Money 5000
+party 25 10
+> start
+> menu Actions > Buy Items
+> altf4 Form9
+altf4 Form9: visible=false
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 ""
+> altf4 Form9
+altf4 Form9: visible=false
+> menu Actions > Game Corner
+> altf4 FormB
+altf4 FormB: visible=false
+> menu Actions > Type Comparisons
+> altf4 FormA
+altf4 FormA: visible=false
+> menu Actions > View POKéDEX
+> altf4 Form8
+altf4 Form8: visible=false
+> seed 1
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 12
+rand 30 = 25
+rand 30 = 6
+rand 20 = 5
+rand 30 = 20
+rand 20 = 6
+rand 20 = 3
+rand 10 = 3
+rand 10 = 4
+rand 19 = 1
+rand 9 = 4
+log Wild Weedle appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> altf4 Form7
+altf4 Form7: visible=false
+> answer yes
+> choose 1
+dialog information "# 025 Pikachu, L.10, XP:1000, XP to next level:331" -> OK
+dialog confirmation "Choose Pikachu?" -> Yes
+log Pikachu, I choose you!
+> run
+log Got away safely!
+> end
+> seed 2
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 24
+rand 386 = 266
+rand 386 = 210
+rand 30 = 10
+rand 30 = 2
+rand 20 = 19
+rand 30 = 0
+rand 20 = 11
+rand 20 = 9
+rand 10 = 7
+rand 10 = 8
+rand 19 = 12
+rand 9 = 5
+log Wild Qwilfish appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> altf4 Form7
+altf4 Form7: visible=false
+> altf4 Form5
+altf4 Form5: visible=false
+> state
+state battle wild=1 trainer=0 tournament=0 type=2 own=1 hp=100 enemy=211 level=7 hp=70 levels=2-100
+state player badges=0 Money=5000 Wins=0 Losses=0 Fights=1 Catches=0 PokeBalls=3 GreatBalls=0 UltraBalls=0 MasterBalls=0 Potions=0 SuperPotions=0 flags=
+state dex 25
+state party 1:25/L10/1000
+> quit
+exit 0
+save line 12: "0" -> "1"
