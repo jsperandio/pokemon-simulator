@@ -10,7 +10,6 @@ import (
 	"image/draw"
 	"image/png"
 	"strconv"
-	"strings"
 
 	"golang.org/x/image/font/opentype"
 
@@ -67,16 +66,7 @@ func loadResources() (*resources, error) {
 	}
 
 	// GetAveCharSize: the width of A–Z and a–z, over 52.
-	var az strings.Builder
-	for chr := 'A'; chr <= 'Z'; chr++ {
-		az.WriteRune(chr)
-	}
-
-	for chr := 'a'; chr <= 'z'; chr++ {
-		az.WriteRune(chr)
-	}
-
-	res.charWidth = res.sans.width(az.String()) / 52
+	res.charWidth = res.sans.width("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz") / 52
 
 	for _, lst := range []struct {
 		names []string
