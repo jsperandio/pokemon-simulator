@@ -133,8 +133,7 @@ func (cv canvas) fill(rect image.Rectangle, clr color.RGBA) {
 func (cv canvas) pix(x, y int, clr color.RGBA) {
 	pnt := image.Pt(x, y).Add(cv.org)
 	if pnt.In(cv.clip) {
-		i := cv.img.PixOffset(pnt.X, pnt.Y)
-		cv.img.Pix[i], cv.img.Pix[i+1], cv.img.Pix[i+2], cv.img.Pix[i+3] = clr.R, clr.G, clr.B, clr.A
+		cv.img.SetRGBA(pnt.X, pnt.Y, clr)
 	}
 }
 
