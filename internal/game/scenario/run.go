@@ -8,32 +8,30 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 )
 
-// Run plays every scenario in dir, each as a subtest, through the driver
-// newDriver makes for it, and checks that the port's trace is the
+// Run plays every scenario in dir, each as a parallel subtest, through the
+// driver newDriver makes for it, and checks that the port's trace is the
 // original's. If saves isn't "", the save each scenario quits with is
 // written there, for the original to load (portsave).
 func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testing.T) Driver, saves string) {
 	t.Helper()
 
 	paths, err := filepath.Glob(filepath.Join(dir, "*.txt"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(paths) == 0 {
-		t.Fatal("no scenarios")
-	}
+	require.NoError(t, err)
+	require.NotEmpty(t, paths, "no scenarios in %s", dir)
 
 	for _, path := range paths {
 		name := strings.TrimSuffix(filepath.Base(path), ".txt")
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			src, err := os.ReadFile(path) //nolint:gosec // a scenario the glob found
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 
 			ply := &Player{
 				Name: name,
@@ -46,11 +44,7 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 			}
 
 			want, err := ply.Play(string(src))
-			if err != nil {
-				t.Errorf("%v\n%s", err, tail(ply.out, 8))
-
-				return
-			}
+			require.NoError(t, err, "the port's trace before it:\n%s", tail(ply.out, 8))
 
 			compare(t, want, ply.out)
 		})
@@ -58,27 +52,35 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 }
 
 // compare reports the first line where the port's trace differs from the
-// original's.
+// original's, with the port's lines before it.
 func compare(t *testing.T, want, got []string) {
 	t.Helper()
 
+	idx := firstDifference(want, got)
+
+	assert.Equal(t, lineAt(want, idx), lineAt(got, idx), "line %d differs; the port's trace before it:\n%s",
+		idx+1, tail(got[:min(idx, len(got))], 8))
+}
+
+// firstDifference returns the index of the first line where the traces
+// differ, or the longer one's length when they don't.
+func firstDifference(want, got []string) int {
 	for i := range max(len(want), len(got)) {
-		wantLine, gotLine := "(end)", "(end)"
-		if i < len(want) {
-			wantLine = want[i]
-		}
-
-		if i < len(got) {
-			gotLine = got[i]
-		}
-
-		if wantLine != gotLine {
-			t.Errorf("line %d differs:\noriginal: %s\nport:     %s\nthe port's trace before it:\n%s",
-				i+1, wantLine, gotLine, tail(got[:min(i, len(got))], 8))
-
-			return
+		if lineAt(want, i) != lineAt(got, i) {
+			return i
 		}
 	}
+
+	return max(len(want), len(got))
+}
+
+// lineAt returns line i of a trace, or "(end)" past its end.
+func lineAt(lines []string, i int) string {
+	if i < len(lines) {
+		return lines[i]
+	}
+
+	return "(end)"
 }
 
 func tail(lines []string, n int) string {
