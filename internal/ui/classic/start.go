@@ -6,8 +6,8 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
-// The program's start (notes/loader.md, notes/lifecycle.md): the loading
-// screen, the start screen and the name dialog.
+// The program's start: the loading screen, the start screen and
+// the name dialog.
 
 // loadSteps are the loader's steps (TForm3.R), with the items each reads.
 var loadSteps = []struct {

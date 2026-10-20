@@ -1,8 +1,8 @@
-# Reference screenshots for Stage 4 (captures/screens/): the main window
-# idle and through a battle against Red's L.5 Charmander (seed 30), the
-# item buttons, Battle Info, the dialog kinds, the Mart, the Game Corner,
-# Type Comparisons (Razor Leaf on Charizard), the POKéDEX with a selection,
-# the Mewtwo picker and Eevee's evolution choice.
+# Reference screenshots of the original: the main window idle and through a
+# battle against Red's L.5 Charmander (seed 30), the item buttons, Battle
+# Info, the dialog kinds, the Mart, the Game Corner, Type Comparisons (Razor
+# Leaf on Charizard), the POKéDEX with a selection, the Mewtwo picker and
+# Eevee's evolution choice.
 Money 5000
 Potions 2
 party 25 5

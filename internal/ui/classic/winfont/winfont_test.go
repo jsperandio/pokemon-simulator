@@ -131,8 +131,7 @@ func Test_Font_Draw(t *testing.T) {
 	t.Run("when Name: is drawn, should set the pixels Wine draws", func(t *testing.T) {
 		t.Parallel()
 
-		// "Name:" as Wine draws it in the Statistics window
-		// (captures/screens/screens-game-stats.png).
+		// "Name:" as Wine draws it in the Statistics window.
 		dst := image.NewRGBA(image.Rect(0, 0, 31, 13))
 
 		fnt.Draw(dst, dst.Rect, 0, 0, "Name:", ink, false)

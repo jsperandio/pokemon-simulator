@@ -10,8 +10,8 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
-// Tournaments (notes/tournaments.md): eight random trainers in a row, an
-// entry fee, a level range, and a prize for winning all eight.
+// Tournaments: eight random trainers in a row, an entry fee, a level range,
+// and a prize for winning all eight.
 
 // tiers are the tournaments, by tier (1–6).
 var tiers = [...]struct {

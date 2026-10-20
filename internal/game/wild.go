@@ -4,8 +4,8 @@ package game
 
 import "slices"
 
-// Wild POKéMON (notes/wild.md): a random encounter that depends on the
-// badges, or, with a Mewtwo in the party, any POKéMON at any level.
+// Wild POKéMON: a random encounter that depends on the badges, or, with a
+// Mewtwo in the party, any POKéMON at any level.
 
 // Species that never appear in the wild: Vaporeon, Jolteon, Flareon,
 // Mewtwo, Mew, Espeon, Umbreon, Celebi, Jirachi, Deoxys.

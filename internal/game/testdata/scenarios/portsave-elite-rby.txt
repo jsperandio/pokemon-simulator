@@ -1,5 +1,5 @@
 # The original loads the save the port writes quitting elite-rby
-# (go test ./internal/game -args -saves captures/port-saves): the state and
+# (go test ./internal/game -args -saves <dir>): the state and
 # the menus it unlocks are the port's, and it writes the save back
 # unchanged.
 portsave elite-rby

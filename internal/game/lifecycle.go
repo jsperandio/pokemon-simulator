@@ -4,7 +4,7 @@ package game
 
 import "github.com/jsperandio/pokemon-simulator/internal/save"
 
-// Starting, loading and quitting (notes/lifecycle.md, notes/persistence.md).
+// Starting, loading and quitting.
 
 // Starters are the starter choice's species, in its order.
 var Starters = [3]int{1, 4, 7} // Bulbasaur, Charmander, Squirtle

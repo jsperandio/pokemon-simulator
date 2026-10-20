@@ -2,8 +2,8 @@
 
 package game
 
-// Items in battle (notes/catching.md): the Statistics window's six item
-// buttons, shown once a fighter is chosen.
+// Items in battle: the Statistics window's six item buttons, shown once a
+// fighter is chosen.
 
 // The item buttons, in the Statistics window's order.
 const (

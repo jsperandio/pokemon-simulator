@@ -118,7 +118,7 @@ func Test_ReferenceScreens(t *testing.T) {
 	}
 
 	// The loading screen, which the original shows for about a second: its
-	// screenshot is a frame of smoke/loading.sh's, at the badge names.
+	// screenshot is a frame of a screen recording, at the badge names.
 	t.Run("screens-start-loading", func(t *testing.T) {
 		t.Parallel()
 

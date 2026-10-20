@@ -9,8 +9,7 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
-// The party: new members, evolution and release (notes/lifecycle.md,
-// notes/evolution.md).
+// The party: new members, evolution and release.
 
 // AddPKMN adds a POKéMON at the given level, with level³ XP, and registers
 // its species (TForm5.AddPKMN). The original doesn't check for a full

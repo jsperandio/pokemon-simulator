@@ -1,6 +1,6 @@
-# Reference screenshots for Stage 4 (captures/screens/): the loading screen,
-# the start screen, the About box, a new game's name dialog, the starters,
-# then the POKéDEX and Statistics windows after choosing Bulbasaur.
+# Reference screenshots of the original: the loading screen, the start
+# screen, the About box, a new game's name dialog, the starters, then the
+# POKéDEX and Statistics windows after choosing Bulbasaur.
 startscreen
 > start
 > click Form1.AboutButton

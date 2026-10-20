@@ -8,9 +8,8 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 )
 
-// The battle (notes/battle.md). Both sides have one POKéMON with level ×
-// 10 HP and four fixed attacks that always hit; the enemy picks its attack
-// at random.
+// The battle. Both sides have one POKéMON with level × 10 HP and four fixed
+// attacks that always hit; the enemy picks its attack at random.
 
 const choosePrompt string = "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice."
 
@@ -294,8 +293,7 @@ func notVeryEffective(t1, t2 float64) bool {
 //
 // The original computes it in x87 Extended and Double. Integer arithmetic
 // gives the same result: the exact value has denominator 400 at most, and
-// the floating-point error is far too small to cross an integer
-// (notes/battle.md).
+// the floating-point error is far too small to cross an integer.
 func Damage(r, power, level int, crit bool, t1, t2 float64) int {
 	c := 1
 	if crit {

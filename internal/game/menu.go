@@ -238,8 +238,8 @@ var mainMenu = []menuDef{
 		{"Contents1", "Contents", 0, nil},
 		{"About1", "About...", 0, nil},
 	}},
-	// Hidden for good: nothing shows it, and F2 only disables its first
-	// item (notes/misc.md).
+	// Hidden for good: nothing shows it, and F2 only disables its
+	// first item.
 	{"Debug1", "Debug", hidden, []menuDef{
 		{"MakeVisible1", "Make Visible", 0, nil},
 		{"AlwaysshowattacksinPOKDEX1", "Always show attacks in POKéDEX", 0, nil},

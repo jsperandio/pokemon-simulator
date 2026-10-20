@@ -2,8 +2,7 @@
 
 package game
 
-// Trainers, gym leaders and the Elite Four (notes/trainers.md). Every
-// trainer has one POKéMON.
+// Trainers, gym leaders and the Elite Four. Every trainer has one POKéMON.
 
 // trainer is what a "Fight a Trainer" menu item starts.
 type trainer struct {

@@ -51,8 +51,7 @@ func newGame(t *testing.T) (*Game, *silent) {
 }
 
 // The win percentage is computed in x87 Extended; the Statistics window
-// showed 77.99 for 39 wins and 11 losses, and 33.33 for 1 and 2
-// (captures/screens/stats-percent-*.png).
+// showed 77.99 for 39 wins and 11 losses, and 33.33 for 1 and 2.
 func Test_Game_WinPercent(t *testing.T) {
 	t.Parallel()
 
@@ -109,8 +108,7 @@ func Test_Game_WinPercent(t *testing.T) {
 	})
 }
 
-// Type Comparisons printed "0.5" and "0.25" for Razor Leaf on Charizard
-// (captures/screens/screens-game-types.png).
+// Type Comparisons printed "0.5" and "0.25" for Razor Leaf on Charizard.
 func Test_Game_TypeMultipliers(t *testing.T) {
 	t.Parallel()
 
@@ -156,7 +154,7 @@ func Test_Game_PokedexCount(t *testing.T) {
 }
 
 // The POKéDEX shows what TForm8.UpdateDisplay showed, which runs only when
-// a species is selected or added (notes/side-screens.md).
+// a species is selected or added.
 func Test_Game_SelectPokedex(t *testing.T) {
 	t.Parallel()
 
@@ -203,8 +201,7 @@ func Test_Game_SelectPokedex(t *testing.T) {
 }
 
 // The PokéMart describes the item chosen in two lines, and nothing until one
-// is chosen, as TForm9's FormShow and RadioGroup1Click do
-// (notes/side-screens.md).
+// is chosen, as TForm9's FormShow and RadioGroup1Click do.
 func Test_Game_PokemartDescription(t *testing.T) {
 	t.Parallel()
 
@@ -567,7 +564,7 @@ func (uf uiFunc) Message(kind DialogKind, yesNo bool, text string) bool {
 }
 
 // The arena shows what the original's labels and gauges showed, which
-// lags the battle (notes/battle.md).
+// lags the battle.
 func Test_MainWindow(t *testing.T) {
 	t.Parallel()
 

@@ -67,8 +67,8 @@ type Game struct {
 	// original showed one by one before telling the result.
 	OnDraws func(draws []int)
 
-	// The battle (notes/state.md). The party indexes are 1-based, as in
-	// the original; 0 means none.
+	// The battle. The party indexes are 1-based, as in the original;
+	// 0 means none.
 	InWildBattle, InTrainerBattle, InTournament bool
 	BattleType                                  uint8 // what EndBattle does; not reset between battles
 	OwnIndex                                    int   // the party member fighting

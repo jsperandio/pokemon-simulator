@@ -1067,7 +1067,7 @@ func (p *Player) typeText(arg string) error {
 	return p.drv.Type(path, n)
 }
 
-// state dumps the variables as the probe did (notes/state.md).
+// state dumps the variables as the probe did.
 func (p *Player) state(string) error {
 	gam := p.Game
 	b := func(v bool) int {
@@ -1132,7 +1132,7 @@ func (p *Player) state(string) error {
 }
 
 // diffSave lists the lines of the save written on quit that differ from
-// the one the scenario started from (1-based, as in notes/persistence.md).
+// the one the scenario started from (1-based).
 func (p *Player) diffSave(end []byte) {
 	was := strings.Split(string(p.start), "\r\n")
 	now := strings.Split(string(end), "\r\n")

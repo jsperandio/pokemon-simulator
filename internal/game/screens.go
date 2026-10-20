@@ -8,8 +8,8 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/delphi"
 )
 
-// The side screens (notes/side-screens.md): POKéDEX, Type Comparisons,
-// the Mart, the Game Corner, and the Statistics window's figures.
+// The side screens: POKéDEX, Type Comparisons, the Mart, the Game Corner,
+// and the Statistics window's figures.
 
 // PokedexWindow is the POKéDEX (Form8).
 type PokedexWindow struct {

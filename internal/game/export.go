@@ -12,10 +12,10 @@ import (
 
 // ExportPage is the page File → Export POKéMON information... writes,
 // generated at now: the party and the POKéDEX as HTML, byte for byte as
-// the original wrote it (notes/persistence.md), unclosed POKéDEX rows
-// included, in cp1252 with CRLF line endings. The date is printed as
-// Windows' US English locale prints it (the original followed the
-// system's), and the POKéDEX count is the Statistics window's.
+// the original wrote it, unclosed POKéDEX rows included, in cp1252 with
+// CRLF line endings. The date is printed as Windows' US English locale
+// prints it (the original followed the system's), and the POKéDEX count is
+// the Statistics window's.
 func (g *Game) ExportPage(now time.Time) []byte {
 	var sb strings.Builder
 	line := func(s string) {
