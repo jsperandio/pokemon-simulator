@@ -361,20 +361,30 @@ func hit(wgt widget, pnt image.Point) widget {
 		return nil
 	}
 
-	loc := pnt.Sub(ctl.rect.Min)
+	if fnd := hitKids(ctl.kids, pnt.Sub(ctl.rect.Min)); fnd != nil {
+		return fnd
+	}
+
+	return wgt
+}
+
+// hitKids returns the deepest visible widget under pnt among kids (in
+// their parent's client coordinates), or nil: the windowed ones first, as
+// they paint over the others, and the last painted first.
+func hitKids(kids []widget, pnt image.Point) widget {
 	for _, windowed := range []bool{true, false} {
-		for _, kid := range slices.Backward(ctl.kids) {
+		for _, kid := range slices.Backward(kids) {
 			if kid.base().windowed != windowed {
 				continue
 			}
 
-			if fnd := hit(kid, loc); fnd != nil {
+			if fnd := hit(kid, pnt); fnd != nil {
 				return fnd
 			}
 		}
 	}
 
-	return wgt
+	return nil
 }
 
 // label is a TLabel.

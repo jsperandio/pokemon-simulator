@@ -525,20 +525,7 @@ func (w *window) paintCaptionButton(cv canvas, cbt int, br image.Rectangle) {
 
 // widgetAt returns the control under pnt (on the desktop), or nil.
 func (w *window) widgetAt(pnt image.Point) widget {
-	loc := pnt.Sub(w.clientOrigin())
-	for _, windowed := range []bool{true, false} {
-		for _, kid := range slices.Backward(w.kids) {
-			if kid.base().windowed != windowed {
-				continue
-			}
-
-			if fnd := hit(kid, loc); fnd != nil {
-				return fnd
-			}
-		}
-	}
-
-	return nil
+	return hitKids(w.kids, pnt.Sub(w.clientOrigin()))
 }
 
 // tabOrder lists the controls that Tab visits, in order.
