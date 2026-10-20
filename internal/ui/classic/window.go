@@ -65,13 +65,12 @@ type window struct {
 	noFocus bool // the focused control was disabled, which left nothing with the focus
 	menu    *menuBar
 
-	modal       bool
-	modalResult int
-	prevActive  *window          // the window active before ShowModal
-	onModal     func(result int) // when a modal window closes
-	onClose     func()           // the close button; nil hides the window
-	onClick     func()           // a click on the form itself (OnClick)
-	onKey       func(key ebiten.Key, mds mods) bool
+	modal      bool
+	prevActive *window          // the window active before ShowModal
+	onModal    func(result int) // when a modal window closes
+	onClose    func()           // the close button; nil hides the window
+	onClick    func()           // a click on the form itself (OnClick)
+	onKey      func(key ebiten.Key, mds mods) bool
 
 	onShow, onHide           func()
 	onActivate, onDeactivate func()
@@ -799,7 +798,6 @@ func (w *window) endModal(result int) {
 		return
 	}
 
-	w.modalResult = result
 	w.desk.closeModal(w)
 
 	if w.onModal != nil {

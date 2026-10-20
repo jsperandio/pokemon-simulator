@@ -54,7 +54,6 @@ func (me *menuEntry) visibleKids() []*menuEntry {
 
 // menuPopup is an open submenu.
 type menuPopup struct {
-	entry *menuEntry
 	items []*menuEntry
 	rect  image.Rectangle // on the screen
 	sel   int             // the selected item, or -1
@@ -275,7 +274,6 @@ func (mb *menuBar) hover(pnt image.Point, inside bool) {
 // gives the x to use when it doesn't fit on the right.
 func (mb *menuBar) popupFor(me *menuEntry, x, y, flip int) *menuPopup {
 	mp := &menuPopup{
-		entry:   me,
 		items:   me.visibleKids(),
 		sel:     -1,
 		child:   -1,

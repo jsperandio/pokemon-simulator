@@ -309,7 +309,6 @@ func (d *desktop) topModal() *window {
 // windows take no input.
 func (d *desktop) showModal(wdw *window) {
 	wdw.modal = true
-	wdw.modalResult = mrNone
 	wdw.prevActive = d.active
 	d.modals = append(d.modals, wdw)
 	d.show(wdw)
