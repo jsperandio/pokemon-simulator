@@ -165,11 +165,11 @@ func decode(name string, data []byte) (io.ReadSeeker, error) {
 
 	switch format(name, data) {
 	case "mp3":
-		stream, err = mp3Stream(rdr)
+		stream, err = mp3.DecodeWithSampleRate(sampleRate, rdr)
 	case "ogg":
-		stream, err = oggStream(rdr)
+		stream, err = vorbis.DecodeWithSampleRate(sampleRate, rdr)
 	case "wav":
-		stream, err = wavStream(rdr)
+		stream, err = wav.DecodeWithSampleRate(sampleRate, rdr)
 	default:
 		return nil, ErrFormat
 	}
@@ -179,33 +179,6 @@ func decode(name string, data []byte) (io.ReadSeeker, error) {
 	}
 
 	return stream, nil
-}
-
-func mp3Stream(r io.Reader) (io.ReadSeeker, error) {
-	s, err := mp3.DecodeWithSampleRate(sampleRate, r)
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
-}
-
-func oggStream(r io.Reader) (io.ReadSeeker, error) {
-	s, err := vorbis.DecodeWithSampleRate(sampleRate, r)
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
-}
-
-func wavStream(r io.Reader) (io.ReadSeeker, error) {
-	s, err := wav.DecodeWithSampleRate(sampleRate, r)
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
 }
 
 // format tells data's format from its first bytes, or else from name's
