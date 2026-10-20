@@ -1,0 +1,14 @@
+# Audit: the exported page's "...to next level" is (L+1)³ − XP in 32 bits,
+# printed unsigned: a level that lags its XP shows 2³² minus the difference.
+# Level 100 shows 0, and so does level 99 with the 1,000,000 cap.
+party 6 30 50000
+party 1 5
+party 150 100 1000000
+party 7 99 1000000
+> start
+> answer no
+> export
+dialog information "POKéMON Information exported to C:\\Temp\\probe-audit-export-lagging.htm. View file now?" -> No
+> quit
+exit 0
+save unchanged

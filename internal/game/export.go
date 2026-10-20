@@ -28,11 +28,11 @@ func (g *Game) ExportPage(now time.Time) []byte {
 	line("<p><table border><tr><td><b>Index</b></td><td><b>Number/Name</b></td><td><b>Level</b></td><td><b>Experience Points</b></td><td><b>...to next level</b></td></tr>")
 
 	for i, m := range g.Party() {
-		toNext := 0
+		var toNext uint32 // (L+1)³ − XP in 32 bits, printed unsigned: a lagging level wraps
 
 		if m.Level != 100 {
-			n := int(m.Level) + 1
-			toNext = n*n*n - int(m.XP)
+			n := uint32(m.Level) + 1
+			toNext = n*n*n - m.XP
 		}
 
 		spc := int(m.Species)

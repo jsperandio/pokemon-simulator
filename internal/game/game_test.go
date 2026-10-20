@@ -514,6 +514,49 @@ func Test_Game_ExportPage(t *testing.T) {
 
 		assert.Equal(t, string(want), string(got), "the page differs from the original's")
 	})
+
+	t.Run("when a level lags its XP, should print the next level's XP unsigned, as the original", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		sav := save.File{
+			PlayerName: "Probe",
+			PokeBalls:  3,
+		}
+		sav.Owned[0] = save.Slot{
+			Species: 6,
+			Level:   30,
+			XP:      50000, // past level 31's 29791
+		}
+		sav.Owned[1] = save.Slot{
+			Species: 1,
+			Level:   5,
+			XP:      125,
+		}
+		sav.Owned[2] = save.Slot{
+			Species: 150,
+			Level:   100,
+			XP:      1000000,
+		}
+		sav.Owned[3] = save.Slot{
+			Species: 7,
+			Level:   99,
+			XP:      1000000,
+		}
+
+		for _, s := range []int{1, 6, 7, 150} {
+			sav.InPokedex[s] = true
+		}
+
+		require.NoError(t, gam.Load(`C:\Temp\probe-audit-export-lagging.pgs`, sav.Bytes()))
+
+		want, err := os.ReadFile("testdata/export-lagging.htm")
+		require.NoError(t, err)
+
+		got := gam.ExportPage(time.Date(2026, 10, 20, 8, 13, 16, 0, time.Local))
+
+		assert.Equal(t, string(want), string(got), "the page differs from the original's")
+	})
 }
 
 // uiFunc answers dialogs with a function.
