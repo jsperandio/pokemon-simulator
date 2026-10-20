@@ -662,7 +662,9 @@ func (m *memo) setup(comp *layout.Component) {
 	m.color = vclColor(m.property("Color"), colWindow)
 
 	m.lines = slices.Clone(comp.Items)
-	m.scroll = scrollBar{vertical: true}
+	m.scroll = scrollBar{
+		vertical: true,
+	}
 	m.scroll.onScroll = m.invalidate
 }
 

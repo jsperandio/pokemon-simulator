@@ -8,7 +8,9 @@ import "math/big"
 // mantissa and rounds to nearest even after every operation (Delphi's
 // default control word). Where the original truncates an Extended result,
 // the extra rounding can land below an integer that float64 would hit.
-type Extended struct{ val big.Float }
+type Extended struct {
+	val big.Float
+}
 
 // NewExtended returns x as an Extended (exact: a float64 always fits).
 func NewExtended(x float64) *Extended {
