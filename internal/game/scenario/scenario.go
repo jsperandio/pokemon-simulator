@@ -33,6 +33,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -297,10 +298,8 @@ func counter(f *save.File, name string) *uint32 {
 		&f.PokeBalls, &f.GreatBalls, &f.UltraBalls, &f.MasterBalls, &f.Potions, &f.SuperPotions,
 	}
 
-	for i, n := range counterNames {
-		if n == name {
-			return all[i]
-		}
+	if i := slices.Index(counterNames, name); i >= 0 {
+		return all[i]
 	}
 
 	return nil

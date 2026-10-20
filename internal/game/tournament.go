@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
@@ -148,13 +149,9 @@ func (g *Game) drawLevels() {
 
 // isEvolved reports whether some species evolves into s.
 func (g *Game) isEvolved(s int) bool {
-	for _, spc := range g.Data.Species {
-		if spc.EvolveTo == s {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(g.Data.Species, func(spc gamedata.Species) bool {
+		return spc.EvolveTo == s
+	})
 }
 
 // trainerName is TrainerNames[TournamentTrainers[i]].

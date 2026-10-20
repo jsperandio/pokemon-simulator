@@ -14,6 +14,7 @@ package game
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/jsperandio/pokemon-simulator/internal/delphi"
@@ -307,13 +308,9 @@ func (g *Game) showInfo() {
 
 // partyHas reports whether species s is in the party.
 func (g *Game) partyHas(s int) bool {
-	for _, m := range g.Party() {
-		if int(m.Species) == s {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(g.Party(), func(m save.Slot) bool {
+		return int(m.Species) == s
+	})
 }
 
 // levelFor returns the level that xp reaches from level: levels only go up,

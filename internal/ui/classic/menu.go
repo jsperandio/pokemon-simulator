@@ -224,13 +224,7 @@ func (mb *menuBar) barRects() []image.Rectangle {
 }
 
 func (mb *menuBar) barAt(pnt image.Point) int {
-	for i, rect := range mb.barRects() {
-		if pnt.In(rect) {
-			return i
-		}
-	}
-
-	return -1
+	return slices.IndexFunc(mb.barRects(), pnt.In)
 }
 
 // active reports whether the menu is in menu mode.

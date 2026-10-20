@@ -389,13 +389,10 @@ func (hv *helpView) spotAt(pnt image.Point) int {
 	}
 
 	loc := pnt.Add(image.Pt(0, hv.scroll.pos-hv.head.Rect.Dy()))
-	for i, hsp := range hv.spots {
-		if slices.ContainsFunc(hsp.boxes, loc.In) {
-			return i
-		}
-	}
 
-	return -1
+	return slices.IndexFunc(hv.spots, func(hsp helpSpot) bool {
+		return slices.ContainsFunc(hsp.boxes, loc.In)
+	})
 }
 
 func (hv *helpView) mouseDown(pnt image.Point, _ bool) {
