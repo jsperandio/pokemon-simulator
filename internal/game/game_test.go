@@ -155,6 +155,53 @@ func Test_Game_PokedexCount(t *testing.T) {
 	})
 }
 
+// The POKéDEX shows what TForm8.UpdateDisplay showed, which runs only when
+// a species is selected or added (notes/side-screens.md).
+func Test_Game_SelectPokedex(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a new species is added, should show its attacks", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash")
+		gam.ChooseStarter(0) // Bulbasaur
+
+		assert.Equal(t, 0, gam.Pokedex.Index)
+		assert.True(t, gam.Pokedex.MovesShown)
+	})
+
+	t.Run("when an evolution registers the species shown, should keep its attacks hidden until it is selected again", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		sav := save.File{
+			PlayerName: "Probe",
+			PokeBalls:  3,
+		}
+		sav.Owned[0] = save.Slot{
+			Species: 1,
+			Level:   16,
+			XP:      4096,
+		}
+		sav.InPokedex[1] = true
+		require.NoError(t, gam.Load(`C:\Temp\probe-dex.pgs`, sav.Bytes()))
+
+		gam.OpenPokedex()
+		gam.SelectPokedex(1) // Ivysaur
+		require.False(t, gam.Pokedex.MovesShown)
+
+		gam.ClickMenu("Evolve1")
+		gam.ClickParty(0) // Bulbasaur evolves into Ivysaur
+		require.True(t, gam.InPokedex[2])
+		assert.False(t, gam.Pokedex.MovesShown)
+
+		gam.SelectPokedex(0)
+		gam.SelectPokedex(1)
+		assert.True(t, gam.Pokedex.MovesShown)
+	})
+}
+
 // The PokéMart describes the item chosen in two lines, and nothing until one
 // is chosen, as TForm9's FormShow and RadioGroup1Click do
 // (notes/side-screens.md).

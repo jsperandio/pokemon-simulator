@@ -211,8 +211,9 @@ func newPokedexForm(app *Application) *pokedexForm {
 	return pf
 }
 
-// sync is TForm8.UpdateDisplay: name, picture, types and evolution level
-// always; the attacks once the species is registered.
+// sync shows what TForm8.UpdateDisplay showed: name, picture, types and
+// evolution level always; the attacks once the species was registered
+// when it was selected.
 func (pf *pokedexForm) sync() {
 	gam := pf.app.game
 	pf.combo.setIndex(gam.Pokedex.Index)
@@ -238,7 +239,7 @@ func (pf *pokedexForm) sync() {
 	pf.image.setItems([]listItem{{"", sid - 1}})
 	get[*label](wdw, "Label1").setCaption(pf.combo.items[sid-1])
 
-	shown := gam.PokedexMovesShown(sid)
+	shown := gam.Pokedex.MovesShown
 
 	for i, nam := range []string{"Label6", "Label10", "Label11", "Label12"} {
 		name, typ := "???", "???"

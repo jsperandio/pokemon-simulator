@@ -42,6 +42,11 @@ var referenceShots = map[string]map[string]refShots{
 		"> choose 1 #2": {windows: []string{"Form4 next-chosen"}},
 		"> menu Actions > Fight a Trainer > Trainers > Beginner > Red": {windows: []string{"Form4 trainer"}},
 	},
+	"audit-pokedex-evolve": {
+		"> combo Form8.ComboBox1 1":    {windows: []string{"Form8 before-evolve"}},
+		"> choose 1":                   {windows: []string{"Form8 after-evolve"}},
+		"> combo Form8.ComboBox1 1 #2": {windows: []string{"Form8 reselected"}},
+	},
 	"screens-dex": {
 		"> menu Actions > View POKéDEX":    {windows: []string{"Form8 empty"}},
 		"> combo Form8.ComboBox1 24":       {windows: []string{"Form8 selected"}},

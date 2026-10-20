@@ -1,0 +1,20 @@
+# Audit: the POKéDEX redraws only when its selection changes or a species is
+# added (TForm8.UpdateDisplay). An evolution that registers the species shown
+# leaves its attacks as "???" until the species is selected again.
+party 1 16
+> start
+> menu Actions > View POKéDEX
+> combo Form8.ComboBox1 1
+> menu Actions > Evolve a POKéMON
+dialog information "Doubleclick a POKéMON in the Statistics window to evolve it. Once you have doubleclicked on a POKéMON, Evolution Mode will be disabled." -> OK
+> answer yes
+> choose 1
+dialog information "# 001 Bulbasaur, L.16, XP:4096, XP to next level:817" -> OK
+dialog confirmation "Your Bulbasaur can evolve into Ivysaur. Do you want to evolve it?" -> Yes
+dialog information "Bulbasaur evolved into Ivysaur!" -> OK
+> combo Form8.ComboBox1 0
+> combo Form8.ComboBox1 1
+> quit
+exit 0
+save line 21: "FALSE" -> "TRUE"
+save line 406: "1" -> "2"

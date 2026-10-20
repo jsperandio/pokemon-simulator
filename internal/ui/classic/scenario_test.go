@@ -155,19 +155,15 @@ func (ud *uiDriver) settle() {
 }
 
 // front brings wdw to the front when another window covers pnt, by clicking
-// a part of its caption that the others leave uncovered, as the player
-// would.
+// a part of it that the others leave uncovered, as the player would.
 func (ud *uiDriver) front(wdw *window, pnt image.Point) {
 	desk := ud.ta.desk
 	if desk.windowAt(pnt) == wdw {
 		return
 	}
 
-	rect := wdw.captionRect()
-	y := rect.Min.Y + rect.Dy()/2
-
-	for x := rect.Min.X + 20; x < rect.Max.X-3*captionButtonW-8; x++ { // past the icon, short of the buttons
-		if cur := image.Pt(x, y); desk.windowAt(cur) == wdw {
+	for _, cur := range harmlessPoints(wdw) {
+		if desk.windowAt(cur) == wdw {
 			ud.ta.click(cur)
 
 			break
@@ -175,6 +171,31 @@ func (ud *uiDriver) front(wdw *window, pnt image.Point) {
 	}
 
 	require.Same(ud.t, wdw, desk.windowAt(pnt), "%s stays behind another window", wdw.name)
+}
+
+// harmlessPoints are the points of wdw where a click only brings it to the
+// front: its caption, past the icon and short of the buttons, then its
+// frame's left, right and bottom edges.
+func harmlessPoints(wdw *window) []image.Point {
+	var pnts []image.Point
+
+	rect := wdw.captionRect()
+	y := rect.Min.Y + rect.Dy()/2
+
+	for x := rect.Min.X + 20; x < rect.Max.X-3*captionButtonW-8; x++ {
+		pnts = append(pnts, image.Pt(x, y))
+	}
+
+	out := wdw.rect()
+	for y := out.Min.Y; y < out.Max.Y; y++ {
+		pnts = append(pnts, image.Pt(out.Min.X+1, y), image.Pt(out.Max.X-2, y))
+	}
+
+	for x := out.Min.X; x < out.Max.X; x++ {
+		pnts = append(pnts, image.Pt(x, out.Max.Y-2))
+	}
+
+	return pnts
 }
 
 // clickAt clicks at pnt in wdw, brought to the front.

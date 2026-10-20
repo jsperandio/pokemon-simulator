@@ -15,6 +15,11 @@ import (
 type PokedexWindow struct {
 	Visible bool
 	Index   int // ComboBox1.ItemIndex: the species shown − 1, or -1
+
+	// Whether UpdateDisplay showed the species' attacks rather than "???".
+	// It runs only when the species is selected, so registering the
+	// species shown, by an evolution, changes nothing until then.
+	MovesShown bool
 }
 
 // OpenPokedex is Actions → View POKéDEX (it keeps its selection).
@@ -30,10 +35,11 @@ func (g *Game) ShowPokedex(k int) {
 	g.SelectPokedex(k)
 }
 
-// SelectPokedex shows species k+1 (ComboBox1's OnChange).
+// SelectPokedex shows species k+1 (ComboBox1's OnChange, UpdateDisplay).
 func (g *Game) SelectPokedex(k int) {
 	if k >= -1 && k < len(g.Data.Species) {
 		g.Pokedex.Index = k
+		g.Pokedex.MovesShown = g.pokedexMovesShown(k + 1)
 	}
 }
 
@@ -42,9 +48,9 @@ func (g *Game) ClosePokedex() {
 	g.Pokedex.Visible = false
 }
 
-// PokedexMovesShown reports whether the POKéDEX shows species s's attacks:
-// once it is registered, or always with the Debug option.
-func (g *Game) PokedexMovesShown(s int) bool {
+// pokedexMovesShown reports whether UpdateDisplay shows species s's
+// attacks: once it is registered, or always with the Debug option.
+func (g *Game) pokedexMovesShown(s int) bool {
 	registered := s >= 1 && s < len(g.InPokedex) && g.InPokedex[s]
 
 	return registered || g.menu["AlwaysshowattacksinPOKDEX1"].Checked
