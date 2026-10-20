@@ -351,9 +351,9 @@ func (fd *fileDialog) list() {
 	items := make([]listItem, len(fd.entries))
 
 	for i, ent := range fd.entries {
-		img := 1
+		img := fileIconDocument
 		if ent.Dir {
-			img = 0
+			img = fileIconFolder
 		}
 
 		items[i] = listItem{ent.Name, img}
