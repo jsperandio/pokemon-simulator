@@ -32,6 +32,8 @@ linters:
     - modernize
     - gocyclo
     - wsl_v5
+    - paralleltest
+    - testifylint
 
   settings:
     funcorder:
@@ -58,6 +60,11 @@ linters:
       disable:
         - after-decl
         - assign
+    testifylint:
+      disable:
+        # assert checks what a test verifies, require what it needs first;
+        # this checker would make every error check a require.
+        - require-error
 
   exclusions:
     rules:
