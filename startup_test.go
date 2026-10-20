@@ -7,35 +7,39 @@ package main
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // The game starts again without a title bar only when its window isn't
 // up in time where the desktop may be holding it back.
-func TestWatch(t *testing.T) {
-	for _, c := range []struct {
+func Test_watch(t *testing.T) {
+	t.Parallel()
+
+	for _, cas := range []struct {
 		name          string
 		shown, frames bool
 		want          bool
 	}{
-		{"shown on GNOME", true, true, false},
-		{"held back on GNOME", false, true, true},
-		{"slow elsewhere", false, false, false},
+		{"when the window shows on GNOME, should not start again", true, true, false},
+		{"when GNOME holds the window back, should start again", false, true, true},
+		{"when the window is slow elsewhere, should not start again", false, false, false},
 	} {
-		t.Run(c.name, func(t *testing.T) {
+		t.Run(cas.name, func(t *testing.T) {
+			t.Parallel()
+
 			shown := make(chan struct{})
-			if c.shown {
+			if cas.shown {
 				close(shown)
 			}
 
 			restarted := false
 
-			watch(shown, 10*time.Millisecond, c.frames, func() {
+			watch(shown, 10*time.Millisecond, cas.frames, func() {
 				restarted = true
 			})
 
-			if restarted != c.want {
-				t.Errorf("started again: %t, want %t", restarted, c.want)
-			}
+			assert.Equal(t, cas.want, restarted)
 		})
 	}
 }

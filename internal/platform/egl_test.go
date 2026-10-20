@@ -5,21 +5,27 @@ package platform
 import (
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-// TestEGLForX11 checks that a window system other than X11 named in
-// EGL_PLATFORM is forgotten, and X11 kept.
-func TestEGLForX11(t *testing.T) {
-	for _, c := range []struct{ value, want string }{
-		{"wayland", ""},
-		{"surfaceless", ""},
-		{"x11", "x11"},
-	} {
-		t.Setenv("EGL_PLATFORM", c.value)
+// Test_EGLForX11 runs its cases one after another: t.Setenv can't be used
+// in a parallel test.
+func Test_EGLForX11(t *testing.T) {
+	t.Run("when EGL_PLATFORM names another window system, should forget it", func(t *testing.T) {
+		for _, val := range []string{"wayland", "surfaceless"} {
+			t.Setenv("EGL_PLATFORM", val)
+			EGLForX11()
+
+			_, set := os.LookupEnv("EGL_PLATFORM")
+			assert.False(t, set, "EGL_PLATFORM=%s is still set", val)
+		}
+	})
+
+	t.Run("when EGL_PLATFORM is x11, should keep it", func(t *testing.T) {
+		t.Setenv("EGL_PLATFORM", "x11")
 		EGLForX11()
 
-		if got := os.Getenv("EGL_PLATFORM"); got != c.want {
-			t.Errorf("EGL_PLATFORM %q: became %q, want %q", c.value, got, c.want)
-		}
-	}
+		assert.Equal(t, "x11", os.Getenv("EGL_PLATFORM"))
+	})
 }
