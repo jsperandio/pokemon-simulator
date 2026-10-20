@@ -127,8 +127,16 @@ var pokemartItems = [5]int{
 	SuperPotion,
 }
 
-// OpenPokemart is Actions → Buy Items.
+// OpenPokemart is Actions → Buy Items (Form9.Show). FormShow runs only
+// when the Mart wasn't showing: an open one just comes to the front, as
+// it is.
 func (g *Game) OpenPokemart() {
+	if g.Pokemart.Visible {
+		g.show(PokemartForm)
+
+		return
+	}
+
 	g.Pokemart = PokemartWindow{
 		Visible: true,
 		Item:    -1,
@@ -228,8 +236,16 @@ var GameCornerPrizes = [6]struct {
 	{500, "Super Potion"},
 }
 
-// OpenGameCorner is Actions → Game Corner.
+// OpenGameCorner is Actions → Game Corner (FormB.Show). FormShow runs
+// only when the Game Corner wasn't showing: an open one just comes to the
+// front, as it is.
 func (g *Game) OpenGameCorner() {
+	if g.GameCorner.Visible {
+		g.show(GameCornerForm)
+
+		return
+	}
+
 	g.GameCorner.Visible = true
 	g.GameCorner.Bet = 0
 	g.GameCorner.Prize = -1
