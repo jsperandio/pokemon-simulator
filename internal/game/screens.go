@@ -87,7 +87,17 @@ func (g *Game) TypeMultipliers() (first, second, total string, ok bool) {
 	a := float32(g.Data.Effect(mov.Type, spc.Types[0]))
 	b := float32(g.Data.Effect(mov.Type, spc.Types[1]))
 
-	return delphi.FloatToStr(float64(a)), delphi.FloatToStr(float64(b)), delphi.FloatToStr(float64(a * b)), true
+	return floatToStr(float64(a)), floatToStr(float64(b)), floatToStr(float64(a * b)), true
+}
+
+// floatToStr prints x as the original's FloatToStr does, with "." for the
+// decimal separator where the original followed the Windows locale. Both
+// write 15 significant digits, in fixed notation for 0 and from 0.0001 up
+// to 10¹⁵, where every number the game prints falls: the type multipliers
+// (0 to 4) and the win percentage (0, or 0.01 and up, below 10¹² even when
+// Wins + Losses wraps). Elsewhere they differ ("1E-05" for "0.00001").
+func floatToStr(x float64) string {
+	return strconv.FormatFloat(x, 'G', 15, 64)
 }
 
 // CloseTypes is "Close".
@@ -351,7 +361,7 @@ func (g *Game) WinPercent() (percent string, ok bool) {
 	w := delphi.NewExtended(float64(g.Wins))
 	x := w.Quo(delphi.NewExtended(float64(n))).Mul(delphi.NewExtended(10000)).Int()
 
-	return delphi.FloatToStr(x.Quo(delphi.NewExtended(100)).Float64()), true
+	return floatToStr(x.Quo(delphi.NewExtended(100)).Float64()), true
 }
 
 // PokedexCount is the Statistics window's "In POKéDEX" figure, which counts
