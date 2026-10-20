@@ -36,8 +36,10 @@ func EncodeANSI(s string) []byte {
 	buf := make([]byte, 0, len(s))
 	for _, r := range s {
 		switch {
+		// equivalent to Latin-1, add
 		case r < 0x80 || (r >= 0xA0 && r <= 0xFF):
 			buf = append(buf, byte(r)) //nolint:gosec // a string's runes aren't negative
+		// undefined
 		case r >= 0x80 && r < 0xA0 && cp1252High[r-0x80] == 0:
 			buf = append(buf, byte(r)) // the undefined bytes decode to themselves
 		default:
