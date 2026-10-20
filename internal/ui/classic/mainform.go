@@ -278,7 +278,7 @@ var gaugeColors = map[game.GaugeColor]color.RGBA{
 // setItems replaces a radio group's items if they changed.
 func setRadioItems(rg *radioGroup, items []string) {
 	if !slices.Equal(rg.items, items) {
-		rg.setItems(append([]string(nil), items...))
+		rg.setItems(slices.Clone(items))
 	}
 }
 

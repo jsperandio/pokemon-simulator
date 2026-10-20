@@ -5,6 +5,7 @@
 package platform
 
 import (
+	"bytes"
 	"path"
 	"strings"
 	"sync"
@@ -132,7 +133,7 @@ func (m *memory) ReadFile(p string) ([]byte, error) {
 		return nil, ErrNotExist
 	}
 
-	return append([]byte(nil), b...), nil
+	return bytes.Clone(b), nil
 }
 
 func (m *memory) WriteFile(pth string, data []byte) error {
@@ -147,7 +148,7 @@ func (m *memory) WriteFile(pth string, data []byte) error {
 
 	now := time.Now()
 
-	m.files[pth] = append([]byte(nil), data...)
+	m.files[pth] = bytes.Clone(data)
 	m.times[pth] = now
 	db := m.db
 	m.mu.Unlock()

@@ -5,6 +5,7 @@ package classic
 import (
 	"image"
 	"image/color"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -659,7 +660,7 @@ func (m *memo) setup(comp *layout.Component) {
 	m.tabStop = m.property("TabStop") != "False"
 	m.color = vclColor(m.property("Color"), colWindow)
 
-	m.lines = append([]string(nil), comp.Items...)
+	m.lines = slices.Clone(comp.Items)
 	m.scroll = scrollBar{vertical: true}
 	m.scroll.onScroll = m.invalidate
 }
@@ -683,7 +684,7 @@ func (m *memo) setLines(lines []string) {
 	}
 
 	grew := len(lines) > len(m.lines)
-	m.lines = append(m.lines[:0:0], lines...)
+	m.lines = slices.Clone(lines)
 	m.layout()
 
 	if grew {
@@ -825,7 +826,7 @@ func (cb *comboBox) setup(comp *layout.Component) {
 	cb.color = vclColor(cb.property("Color"), colWindow)
 	cb.listOnly = cb.property("Style") == "csDropDownList"
 
-	cb.items = append([]string(nil), comp.Items...)
+	cb.items = slices.Clone(comp.Items)
 	cb.index = -1
 	cb.itemHeight = cb.propertyInt("ItemHeight", 13)
 	cb.tb.set(comp.Caption)

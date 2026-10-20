@@ -626,7 +626,7 @@ func (rg *radioGroup) setup(comp *layout.Component) {
 	rg.windowed = true
 	rg.tabStop = rg.property("TabStop") == "True"
 
-	rg.items = append([]string(nil), comp.Items...)
+	rg.items = slices.Clone(comp.Items)
 	rg.index = rg.propertyInt("ItemIndex", -1)
 	rg.columns = max(rg.propertyInt("Columns", 1), 1)
 	rg.pressing = -1
