@@ -100,9 +100,6 @@ type Application struct {
 	quit bool
 }
 
-// ErrQuit is returned by Update when the game ends.
-var ErrQuit = ebiten.Termination
-
 // NewApplication makes the user interface for a new run of the game, at its loading
 // screen. args are the command line's arguments: a save file among them
 // is loaded instead of showing the start screen.
@@ -389,12 +386,13 @@ func (app *Application) syncForms() {
 	app.gameCorner.sync()
 }
 
-// Update handles a frame's input (ebiten.Game).
+// Update handles a frame's input (ebiten.Game). It returns
+// ebiten.Termination when the game ends.
 func (app *Application) Update() error {
 	if app.quit {
 		platform.WarnOnLeave(false)
 
-		return ErrQuit
+		return ebiten.Termination
 	}
 
 	app.pace.wait()
@@ -416,7 +414,7 @@ func (app *Application) Update() error {
 	if app.quit {
 		platform.WarnOnLeave(false)
 
-		return ErrQuit
+		return ebiten.Termination
 	}
 
 	app.pace.next(&in, app.desk.dirty, app.music.Playing(), now)
