@@ -526,6 +526,31 @@ func Test_MainWindow(t *testing.T) {
 		assert.Equal(t, 25, win.Enemy.Species)
 	})
 
+	t.Run("when a battle has ended, should turn both gauges green for the next one", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash")
+		gam.ChooseStarter(1) // Charmander, L.5
+
+		win := &gam.Main
+
+		gam.StartWildBattle(25, 100) // Pikachu, L.100
+		gam.ClickParty(0)
+
+		gam.EnemyHP, gam.OwnHP = 200, 1 // Pikachu takes the attack and faints Charmander
+
+		win.AttackIndex = 0
+
+		gam.Go()
+		require.Equal(t, Red, win.EnemyColor)
+		require.Equal(t, Red, win.OwnColor)
+
+		gam.EndFight()
+		assert.Equal(t, Green, win.EnemyColor)
+		assert.Equal(t, Green, win.OwnColor)
+	})
+
 	t.Run("when the wild POKéMON is in the POKéDEX, should show the POKéBall", func(t *testing.T) {
 		t.Parallel()
 

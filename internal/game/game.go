@@ -151,8 +151,8 @@ type MainWindow struct {
 	Own        Shown // Label2, Label8, Gauge1, ListView2 and RadioGroup1's attacks
 	Pokeball   bool  // Image1: the wild POKéMON is already in the POKéDEX
 
-	// The HP gauges' colours (Gauge2, Gauge1), which only the attacks
-	// set: a new battle starts with the last one's colours.
+	// The HP gauges' colours (Gauge2, Gauge1): the attacks set them, and
+	// the end of a battle turns both green.
 	EnemyColor, OwnColor GaugeColor
 
 	// The Mewtwo-power picker (ComboBox1, SpinEdit1 and Button2–4).

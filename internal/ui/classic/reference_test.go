@@ -36,6 +36,12 @@ type refShots struct {
 // reference screenshots were taken, by the action before them (its second
 // time in the scenario with " #2" …).
 var referenceShots = map[string]map[string]refShots{
+	"audit-gauges": {
+		"> fightbest": {windows: []string{"Form4 won"}},
+		"> menu Actions > Fight a wild POKéMON > Search for a POKéMON #2": {windows: []string{"Form4 next"}},
+		"> choose 1 #2": {windows: []string{"Form4 next-chosen"}},
+		"> menu Actions > Fight a Trainer > Trainers > Beginner > Red": {windows: []string{"Form4 trainer"}},
+	},
 	"screens-dex": {
 		"> menu Actions > View POKéDEX":    {windows: []string{"Form8 empty"}},
 		"> combo Form8.ComboBox1 24":       {windows: []string{"Form8 selected"}},

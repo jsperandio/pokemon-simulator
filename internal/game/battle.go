@@ -424,6 +424,7 @@ func (g *Game) EndFight() {
 	g.Info.Visible = false
 	g.Main.Battle = false
 	g.Stats.PartyEnabled = true
+	g.Main.EnemyColor, g.Main.OwnColor = Green, Green
 	g.Main.Own = Shown{}
 	g.Main.Attacks = false
 	g.eliteFour()

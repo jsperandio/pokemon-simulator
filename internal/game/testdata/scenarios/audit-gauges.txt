@@ -1,0 +1,88 @@
+# Audit: the end of a battle turns both HP gauges green (TForm4.EndBattle,
+# SetForeColor clGreen), so the next battle starts with full green gauges
+# whatever colours the last one left.
+party 248 50
+> start
+> seed 5
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 60
+rand 386 = 69
+rand 386 = 219
+rand 30 = 16
+rand 30 = 7
+rand 20 = 18
+rand 30 = 16
+rand 20 = 4
+rand 20 = 12
+rand 10 = 7
+rand 10 = 0
+rand 19 = 8
+rand 9 = 8
+log Wild Swinub appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125000, XP to next level:7651" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 9
+rand 20 = 4
+log Tyranitar used Hyper Beam!
+log Critical hit!
+log Tyranitar did 168 points of damage to enemy Swinub.
+log Enemy Swinub fainted!
+log Tyranitar gained 271 experience points!
+rand 3 = 1
+log You got 500¥!
+> end
+> menu Actions > Fight a wild POKéMON > Search for a POKéMON
+rand 386 = 65
+rand 30 = 12
+rand 30 = 16
+rand 20 = 3
+rand 30 = 12
+rand 20 = 4
+rand 20 = 13
+rand 10 = 5
+rand 10 = 9
+rand 19 = 0
+rand 9 = 3
+log Wild Machop appeared!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125271, XP to next level:7380" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> run
+log Got away safely!
+> end
+> menu Actions > Fight a Trainer > Trainers > Beginner > Red
+log Red wants to fight!
+log Red sent out Charmander!
+dialog information "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice." -> OK
+> answer yes
+> choose 1
+dialog information "# 248 Tyranitar, L.50, XP:125271, XP to next level:7380" -> OK
+dialog confirmation "Choose Tyranitar?" -> Yes
+log Tyranitar, I choose you!
+> set EnemyHP 1
+> fightbest
+rand 10 = 1
+rand 20 = 1
+log Tyranitar used Rock Slide!
+log It's super effective!
+log Tyranitar did 102 points of damage to enemy Charmander.
+log Enemy Charmander fainted!
+log Tyranitar gained 61 experience points!
+rand 3 = 0
+log You got 250¥!
+> end
+> quit
+exit 0
+save line 9: "0" -> "750"
+save line 10: "0" -> "2"
+save line 12: "0" -> "3"
+save line 408: "125000" -> "125332"
