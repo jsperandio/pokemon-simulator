@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jsperandio/pokemon-simulator/assets"
 	"github.com/jsperandio/pokemon-simulator/internal/audio"
@@ -43,9 +45,7 @@ func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	t.Helper()
 
 	app, err := NewApplication(testData(t), platform.NewDisk(dir), args)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	app.game.Rand.Seed = 1
 
@@ -62,14 +62,10 @@ func testData(t *testing.T) *gamedata.Data {
 	t.Helper()
 
 	raw, err := assets.FS.ReadFile("pokegame.dat")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	data, err := gamedata.Load(raw)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	return data
 }
@@ -96,7 +92,9 @@ func (ta *testApp) click(pnt image.Point) {
 		down:    true,
 		pressed: true,
 	})
-	ta.frame(input{released: true})
+	ta.frame(input{
+		released: true,
+	})
 }
 
 func (ta *testApp) doubleClick(pnt image.Point) {
@@ -109,9 +107,7 @@ func (ta *testApp) clickOn(wdw *window, name string) {
 	ta.t.Helper()
 
 	wgt := wdw.find(name)
-	if wgt == nil {
-		ta.t.Fatalf("%s has no %s", wdw.name, name)
-	}
+	require.NotNil(ta.t, wgt, "%s has no %s", wdw.name, name)
 
 	ctl := wgt.base()
 	ta.click(widgetOrigin(wgt).Add(ctl.rect.Size().Div(2)))
@@ -119,13 +115,19 @@ func (ta *testApp) clickOn(wdw *window, name string) {
 
 // key presses and releases a key.
 func (ta *testApp) key(key ebiten.Key) {
-	ta.frame(input{keys: []ebiten.Key{key}})
-	ta.frame(input{keysUp: []ebiten.Key{key}})
+	ta.frame(input{
+		keys: []ebiten.Key{key},
+	})
+	ta.frame(input{
+		keysUp: []ebiten.Key{key},
+	})
 }
 
 // typeText types characters.
 func (ta *testApp) typeText(txt string) {
-	ta.frame(input{chars: []rune(txt)})
+	ta.frame(input{
+		chars: []rune(txt),
+	})
 }
 
 // shot paints the screen and, when $CLASSIC_SHOTS names a folder, saves
@@ -166,9 +168,7 @@ func (ta *testApp) menu(names ...string) {
 			}
 		}
 
-		if !found {
-			ta.t.Fatalf("menu item %s not open", nam)
-		}
+		require.True(ta.t, found, "menu item %s not open", nam)
 	}
 }
 
@@ -177,13 +177,11 @@ func (ta *testApp) answer(want string) {
 	ta.t.Helper()
 
 	wdw := ta.desk.topModal()
-	if wdw == nil {
-		ta.t.Fatalf("no dialog; want %q", want)
-	}
+	require.NotNil(ta.t, wdw, "no dialog; want %q", want)
 
-	if msg := wdw.find("Message"); msg == nil || !strings.Contains(msg.base().caption, want) {
-		ta.t.Fatalf("dialog %q, want %q", msg.base().caption, want)
-	}
+	msg := wdw.find("Message")
+	require.NotNil(ta.t, msg, "dialog %q has no message; want %q", wdw.caption, want)
+	require.Contains(ta.t, msg.base().caption, want, "dialog %q", wdw.caption)
 
 	ta.key(ebiten.KeyEnter)
 	ta.wait(1)
@@ -200,6 +198,18 @@ func (ta *testApp) startGame() {
 
 	rect := ta.main.starters.itemRect(1)
 	ta.click(widgetOrigin(ta.main.starters).Add(rect.Min).Add(image.Pt(20, 20)))
+	ta.wait(1)
+}
+
+// openSong opens song.ogg from the Music menu's Open file dialog, once
+// writeSong has put it in the folder.
+func (ta *testApp) openSong() {
+	ta.t.Helper()
+
+	ta.menu("SelectMusic1", "Openfile1")
+	ta.wait(1)
+	ta.typeText("song.ogg")
+	ta.key(ebiten.KeyEnter)
 	ta.wait(1)
 }
 
@@ -231,7 +241,7 @@ func (ta *testApp) spotPoint(target string) image.Point {
 		return widgetOrigin(hv).Add(pnt)
 	}
 
-	ta.t.Fatalf("%s has no link to %s", hv.name, target)
+	require.Fail(ta.t, "the page has no such link", "%s has no link to %s", hv.name, target)
 
 	return image.Point{}
 }
@@ -246,7 +256,9 @@ type menuEffects struct {
 }
 
 func (ta *testApp) menuEffects() menuEffects {
-	eff := menuEffects{quit: ta.quit}
+	eff := menuEffects{
+		quit: ta.quit,
+	}
 	if wdw := ta.desk.topModal(); wdw != nil {
 		eff.modal = wdw.caption
 	}
@@ -275,192 +287,181 @@ func (ta *testApp) menuEffects() menuEffects {
 	return eff
 }
 
-// TestNewGame plays the start of a game: loading, the start screen, the
+// Test_NewGame plays the start of a game: loading, the start screen, the
 // save file, the name and the starter.
-func TestNewGame(t *testing.T) {
-	ta := newTestApp(t)
-	ta.wait(20)
-	ta.shot("01-loading")
+func Test_NewGame(t *testing.T) {
+	t.Parallel()
 
-	if !ta.load.wdw.visible {
-		t.Fatal("no loading screen")
-	}
+	t.Run("when the player starts a new game and chooses a starter, should open the game with it", func(t *testing.T) {
+		t.Parallel()
 
-	ta.wait(60)
+		ta := newTestApp(t)
+		ta.wait(20)
+		ta.shot("01-loading")
 
-	if ta.load.wdw.visible || !ta.start.wdw.visible {
-		t.Fatal("the start screen didn't follow the loading screen")
-	}
+		require.True(t, ta.load.wdw.visible, "no loading screen")
 
-	ta.shot("02-start")
-	ta.clickOn(ta.start.wdw, "NewButton")
-	ta.wait(1)
-	ta.shot("03-save-dialog")
+		ta.wait(60)
 
-	top := ta.desk.topModal()
-	if top == nil || top.caption != "Save As" {
-		t.Fatalf("no save dialog: %v", top)
-	}
+		require.False(t, ta.load.wdw.visible, "the loading screen is still up")
+		require.True(t, ta.start.wdw.visible, "the start screen didn't follow the loading screen")
 
-	ta.typeText("ash")
-	ta.key(ebiten.KeyEnter)
-	ta.wait(1)
-	ta.shot("04-name")
+		ta.shot("02-start")
+		ta.clickOn(ta.start.wdw, "NewButton")
+		ta.wait(1)
+		ta.shot("03-save-dialog")
 
-	if top := ta.desk.topModal(); top != ta.name.wdw {
-		t.Fatalf("no name dialog: %v", top)
-	}
+		top := ta.desk.topModal()
+		require.NotNil(t, top, "no save dialog")
+		require.Equal(t, "Save As", top.caption, "the top dialog")
 
-	ta.typeText("Gary")
-	ta.key(ebiten.KeyEnter)
-	ta.wait(1)
-	ta.shot("05-starters")
-
-	if want := "POKéMON Simulator V4.5 - Gary [ash.pgs]"; ta.main.wdw.caption != want {
-		t.Errorf("caption %q, want %q", ta.main.wdw.caption, want)
-	}
-
-	if !ta.main.starters.shown() {
-		t.Fatal("no starters")
-	}
-
-	// Charmander, the second starter.
-	rect := ta.main.starters.itemRect(1)
-	ta.click(widgetOrigin(ta.main.starters).Add(rect.Min).Add(image.Pt(20, 20)))
-	ta.wait(1)
-	ta.shot("06-chosen")
-
-	if got := ta.game.Party(); len(got) != 1 || got[0].Species != 4 {
-		t.Fatalf("party %v", got)
-	}
-
-	if ta.desk.active != ta.main.wdw || !ta.stats.wdw.visible || !ta.pokedex.wdw.visible {
-		t.Errorf("windows: active %v, Statistics %v, POKéDEX %v", ta.desk.active, ta.stats.wdw.visible, ta.pokedex.wdw.visible)
-	}
-
-	ta.mouse = image.Pt(0, 0)
-	ta.wait(1)
-	ta.shot("07-game")
-
-	if !strings.HasSuffix(ta.game.SaveFile, "ash.pgs") {
-		t.Errorf("save file %q", ta.game.SaveFile)
-	}
-}
-
-func TestWildBattle(t *testing.T) {
-	ta := newTestApp(t)
-	ta.startGame()
-	ta.menu("Action1")
-	ta.shot("10-menu")
-	ta.menu("Action1", "FightWild1", "FindPKMN1")
-	ta.shot("11-wild")
-	ta.answer("Select a POKéMON from the Statistics Window")
-	ta.shot("12-arena")
-
-	rect := ta.stats.party.itemRect(0)
-	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
-	ta.shot("13-info")
-	ta.answer("# 004 Charmander, L.5, XP:125, XP to next level:91")
-	ta.shot("14-confirm")
-	ta.answer("Choose Charmander?")
-	ta.shot("15-fighter")
-
-	if !ta.main.goButton.shown() {
-		t.Fatal("no Go! button")
-	}
-
-	attacks := ta.main.attacks
-	ta.click(widgetOrigin(attacks).Add(attacks.buttonRect(0).Min).Add(image.Pt(20, 5)))
-	ta.clickOn(ta.main.wdw, "Button1")
-	ta.wait(1)
-	ta.shot("16-turn")
-
-	if len(ta.game.Info.Lines) < 4 {
-		t.Errorf("Battle Info: %q", ta.game.Info.Lines)
-	}
-
-	ta.clickOn(ta.stats.wdw, "Button1") // a POKéBall
-	ta.wait(1)
-	ta.shot("17-ball")
-
-	for ta.desk.topModal() != nil {
+		ta.typeText("ash")
 		ta.key(ebiten.KeyEnter)
 		ta.wait(1)
-	}
+		ta.shot("04-name")
 
-	ta.shot("18-after")
-	t.Logf("log: %q", ta.game.Info.Lines)
+		require.Same(t, ta.name.wdw, ta.desk.topModal(), "no name dialog")
+
+		ta.typeText("Gary")
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+		ta.shot("05-starters")
+
+		assert.Equal(t, "POKéMON Simulator V4.5 - Gary [ash.pgs]", ta.main.wdw.caption)
+		require.True(t, ta.main.starters.shown(), "no starters")
+
+		// Charmander, the second starter.
+		rect := ta.main.starters.itemRect(1)
+		ta.click(widgetOrigin(ta.main.starters).Add(rect.Min).Add(image.Pt(20, 20)))
+		ta.wait(1)
+		ta.shot("06-chosen")
+
+		got := ta.game.Party()
+		require.Len(t, got, 1)
+		require.Equal(t, int32(4), got[0].Species)
+
+		assert.Same(t, ta.main.wdw, ta.desk.active, "the active window")
+		assert.True(t, ta.stats.wdw.visible, "the Statistics window doesn't show")
+		assert.True(t, ta.pokedex.wdw.visible, "the POKéDEX window doesn't show")
+
+		ta.mouse = image.Pt(0, 0)
+		ta.wait(1)
+		ta.shot("07-game")
+
+		assert.True(t, strings.HasSuffix(ta.game.SaveFile, "ash.pgs"), "save file %q", ta.game.SaveFile)
+	})
 }
 
-// TestCatchSaveLoad catches a POKéMON, quits, which saves, and loads the
+func Test_WildBattle(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the player fights a wild POKéMON, should log the battle and close its dialogs", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.menu("Action1")
+		ta.shot("10-menu")
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.shot("11-wild")
+		ta.answer("Select a POKéMON from the Statistics Window")
+		ta.shot("12-arena")
+
+		rect := ta.stats.party.itemRect(0)
+		ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+		ta.shot("13-info")
+		ta.answer("# 004 Charmander, L.5, XP:125, XP to next level:91")
+		ta.shot("14-confirm")
+		ta.answer("Choose Charmander?")
+		ta.shot("15-fighter")
+
+		require.True(t, ta.main.goButton.shown(), "no Go! button")
+
+		attacks := ta.main.attacks
+		ta.click(widgetOrigin(attacks).Add(attacks.buttonRect(0).Min).Add(image.Pt(20, 5)))
+		ta.clickOn(ta.main.wdw, "Button1")
+		ta.wait(1)
+		ta.shot("16-turn")
+
+		assert.GreaterOrEqual(t, len(ta.game.Info.Lines), 4, "Battle Info: %q", ta.game.Info.Lines)
+
+		ta.clickOn(ta.stats.wdw, "Button1") // a POKéBall
+		ta.wait(1)
+		ta.shot("17-ball")
+
+		for ta.desk.topModal() != nil {
+			ta.key(ebiten.KeyEnter)
+			ta.wait(1)
+		}
+
+		ta.shot("18-after")
+		t.Logf("log: %q", ta.game.Info.Lines)
+	})
+}
+
+// Test_CatchSaveLoad catches a POKéMON, quits, which saves, and loads the
 // save in a new run.
-func TestCatchSaveLoad(t *testing.T) {
-	ta := newTestApp(t)
-	ta.startGame()
+func Test_CatchSaveLoad(t *testing.T) {
+	t.Parallel()
 
-	ta.game.MasterBalls = 1
-	ta.menu("Action1", "FightWild1", "FindPKMN1")
-	ta.answer("Select a POKéMON")
+	t.Run("when a POKéMON is caught and the game quit, should load the save in a new run", func(t *testing.T) {
+		t.Parallel()
 
-	rect := ta.stats.party.itemRect(0)
-	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
-	ta.answer("# 004 Charmander")
-	ta.answer("Choose Charmander?")
-	ta.clickOn(ta.stats.wdw, "Button4") // the Master Ball
-	ta.wait(1)
-	ta.shot("20-caught")
+		ta := newTestApp(t)
+		ta.startGame()
 
-	if !ta.main.endButton.shown() {
-		t.Fatalf("no End Fight; log %q", ta.game.Info.Lines)
-	}
+		ta.game.MasterBalls = 1
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.answer("Select a POKéMON")
 
-	ta.clickOn(ta.main.wdw, "EndButton")
-	ta.wait(1)
-	ta.shot("21-ended")
+		rect := ta.stats.party.itemRect(0)
+		ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+		ta.answer("# 004 Charmander")
+		ta.answer("Choose Charmander?")
+		ta.clickOn(ta.stats.wdw, "Button4") // the Master Ball
+		ta.wait(1)
+		ta.shot("20-caught")
 
-	if n := len(ta.game.Party()); n != 2 {
-		t.Fatalf("party of %d", n)
-	}
+		require.True(t, ta.main.endButton.shown(), "no End Fight; log %q", ta.game.Info.Lines)
 
-	ta.menu("File1", "Quit1")
-	ta.wait(1)
+		ta.clickOn(ta.main.wdw, "EndButton")
+		ta.wait(1)
+		ta.shot("21-ended")
 
-	if !ta.quit {
-		t.Fatal("still running after Quit")
-	}
+		require.Len(t, ta.game.Party(), 2)
 
-	saved := filepath.Join(ta.dir, "ash.pgs")
-	if _, err := os.Stat(saved); err != nil {
-		t.Fatal(err)
-	}
+		ta.menu("File1", "Quit1")
+		ta.wait(1)
 
-	tb := newTestApp(t)
-	tb.files = platform.NewDisk(ta.dir)
-	tb.wait(80)
-	tb.clickOn(tb.start.wdw, "LoadButton")
-	tb.wait(1)
-	tb.shot("22-open")
+		require.True(t, ta.quit, "still running after Quit")
 
-	if top := tb.desk.topModal(); top == nil || top.caption != "Open" {
-		t.Fatalf("no open dialog: %v", top)
-	}
+		saved := filepath.Join(ta.dir, "ash.pgs")
+		require.FileExists(t, saved)
 
-	tb.typeText("ash")
-	tb.key(ebiten.KeyEnter)
-	tb.wait(1)
-	tb.shot("23-loaded")
+		tb := newTestApp(t)
+		tb.files = platform.NewDisk(ta.dir)
+		tb.wait(80)
+		tb.clickOn(tb.start.wdw, "LoadButton")
+		tb.wait(1)
+		tb.shot("22-open")
 
-	if n := len(tb.game.Party()); n != 2 || tb.game.PlayerName != "Gary" {
-		t.Fatalf("loaded %q with a party of %d", tb.game.PlayerName, n)
-	}
+		top := tb.desk.topModal()
+		require.NotNil(t, top, "no open dialog")
+		require.Equal(t, "Open", top.caption, "the top dialog")
 
-	if tb.start.wdw.visible || !tb.main.wdw.visible || !tb.stats.wdw.visible {
-		t.Error("the game windows don't show")
-	}
+		tb.typeText("ash")
+		tb.key(ebiten.KeyEnter)
+		tb.wait(1)
+		tb.shot("23-loaded")
 
-	if got := tb.main.wdw.pos; got != image.Pt(95, 54) {
-		t.Errorf("game window at %v", got)
-	}
+		require.Len(t, tb.game.Party(), 2)
+		require.Equal(t, "Gary", tb.game.PlayerName)
+
+		assert.False(t, tb.start.wdw.visible, "the start screen still shows")
+		assert.True(t, tb.main.wdw.visible, "the game window doesn't show")
+		assert.True(t, tb.stats.wdw.visible, "the Statistics window doesn't show")
+		assert.Equal(t, image.Pt(95, 54), tb.main.wdw.pos, "the game window's position")
+	})
 }
 
 // fakeMusic records what the Music menu asks of the player.
@@ -492,127 +493,187 @@ func (fm *fakeMusic) Playing() bool {
 	return false
 }
 
-// TestMusicMenu opens music from the Music menu, stops it, and turns
+// writeSong puts song.ogg in dir, the folder the Open dialog starts in.
+func writeSong(t *testing.T, dir string) {
+	t.Helper()
+
+	err := os.WriteFile(filepath.Join(dir, "song.ogg"), []byte("OggS"), 0o600)
+	require.NoError(t, err)
+}
+
+// Test_MusicMenu opens music from the Music menu, stops it, and turns
 // Repeat Music off; the player's errors show as the original's exceptions.
-func TestMusicMenu(t *testing.T) {
-	ta := newTestApp(t)
-	fm := &fakeMusic{stopErr: audio.ErrNotOpen}
-	ta.music = fm
-	ta.startGame()
-	ta.wait(1)
+func Test_MusicMenu(t *testing.T) {
+	t.Parallel()
 
-	if !fm.repeat {
-		t.Error("Repeat Music is off at the start")
-	}
+	t.Run("when Stop Music is chosen with no music open, should show the media player's error", func(t *testing.T) {
+		t.Parallel()
 
-	ta.menu("SelectMusic1", "StopMusic1")
-	ta.wait(1)
-	ta.shot("40-stop-music")
+		ta := newTestApp(t)
+		ta.music = &fakeMusic{
+			stopErr: audio.ErrNotOpen,
+		}
+		ta.startGame()
+		ta.wait(1)
 
-	if top := ta.desk.topModal(); top == nil || top.caption != "POKéMON Simulator" {
-		t.Fatalf("no error box: %v", top)
-	}
+		ta.menu("SelectMusic1", "StopMusic1")
+		ta.wait(1)
+		ta.shot("40-stop-music")
 
-	ta.answer("No MCI device open.")
+		top := ta.desk.topModal()
+		require.NotNil(t, top, "no error box")
+		require.Equal(t, "POKéMON Simulator", top.caption, "the top dialog")
 
-	if err := os.WriteFile(filepath.Join(ta.dir, "song.ogg"), []byte("OggS"), 0o600); err != nil {
-		t.Fatal(err)
-	}
+		ta.answer("No MCI device open.")
+	})
 
-	ta.menu("SelectMusic1", "Openfile1")
-	ta.wait(1)
-	ta.shot("41-open-music")
-	ta.typeText("song.ogg")
-	ta.key(ebiten.KeyEnter)
-	ta.wait(1)
+	t.Run("when a song is opened from the menu, should open it", func(t *testing.T) {
+		t.Parallel()
 
-	if len(fm.opened) != 1 || fm.opened[0] != "song.ogg:OggS" {
-		t.Fatalf("opened %q", fm.opened)
-	}
+		ta := newTestApp(t)
+		fm := &fakeMusic{}
+		ta.music = fm
+		ta.startGame()
+		ta.wait(1)
+		writeSong(t, ta.dir)
 
-	fm.stopErr = nil
+		ta.menu("SelectMusic1", "Openfile1")
+		ta.wait(1)
+		ta.shot("41-open-music")
+		ta.typeText("song.ogg")
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
 
-	ta.menu("SelectMusic1", "StopMusic1")
-	ta.wait(1)
+		require.Equal(t, []string{"song.ogg:OggS"}, fm.opened)
+	})
 
-	if fm.stopped != 2 || ta.desk.topModal() != nil {
-		t.Errorf("Stop Music: %d stops, dialog %v", fm.stopped, ta.desk.topModal())
-	}
+	t.Run("when Stop Music is chosen once a song plays, should stop it with no error", func(t *testing.T) {
+		t.Parallel()
 
-	ta.menu("SelectMusic1", "RepeatMusic1")
-	ta.wait(1)
+		ta := newTestApp(t)
+		fm := &fakeMusic{}
+		ta.music = fm
+		ta.startGame()
+		ta.wait(1)
+		writeSong(t, ta.dir)
+		ta.openSong()
 
-	if fm.repeat {
-		t.Error("Repeat Music is still on")
-	}
+		ta.menu("SelectMusic1", "StopMusic1")
+		ta.wait(1)
 
-	fm.err = audio.ErrFormat
+		assert.Equal(t, 1, fm.stopped, "Stop Music's stops")
+		assert.Nil(t, ta.desk.topModal(), "Stop Music's dialog")
+	})
 
-	ta.menu("SelectMusic1", "Openfile1")
-	ta.wait(1)
-	ta.typeText("song.ogg")
-	ta.key(ebiten.KeyEnter)
-	ta.wait(1)
-	ta.shot("42-cannot-play")
-	ta.answer("Cannot play song.ogg. Only MP3, Ogg Vorbis and WAV files can be played.")
+	t.Run("when Repeat Music is on, should turn it off", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		fm := &fakeMusic{}
+		ta.music = fm
+		ta.startGame()
+		ta.wait(1)
+
+		assert.True(t, fm.repeat, "Repeat Music is off at the start")
+
+		ta.menu("SelectMusic1", "RepeatMusic1")
+		ta.wait(1)
+
+		assert.False(t, fm.repeat, "Repeat Music is still on")
+	})
+
+	t.Run("when a file that can't play is opened, should say it can't be played", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.music = &fakeMusic{
+			err: audio.ErrFormat,
+		}
+		ta.startGame()
+		ta.wait(1)
+		writeSong(t, ta.dir)
+
+		ta.openSong()
+		ta.shot("42-cannot-play")
+		ta.answer("Cannot play song.ogg. Only MP3, Ogg Vorbis and WAV files can be played.")
+	})
 }
 
-// A menu's keys type nothing in the dialog they open: Alt+M, then O,
-// whose character comes in the same frame as the key.
-func TestMenuKeysTypeNothing(t *testing.T) {
-	ta := newTestApp(t)
-	ta.music = &fakeMusic{}
-	ta.startGame()
-	ta.frame(input{
-		keys: []ebiten.Key{ebiten.KeyAltLeft},
-		mods: mods{alt: true},
+// Test_MenuKeys checks the keys that open the menus.
+func Test_MenuKeys(t *testing.T) {
+	t.Parallel()
+
+	// A menu's keys type nothing in the dialog they open: Alt+M, then O,
+	// whose character comes in the same frame as the key.
+	t.Run("when Alt+M and then O open the Open dialog, should type nothing into its file name", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.music = &fakeMusic{}
+		ta.startGame()
+		ta.frame(input{
+			keys: []ebiten.Key{ebiten.KeyAltLeft},
+			mods: mods{
+				alt: true,
+			},
+		})
+		ta.frame(input{
+			keys:  []ebiten.Key{ebiten.KeyM},
+			chars: []rune{'m'},
+			mods: mods{
+				alt: true,
+			},
+		})
+		ta.frame(input{
+			keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft},
+		})
+		ta.frame(input{
+			keys:  []ebiten.Key{ebiten.KeyO},
+			chars: []rune{'o'},
+		})
+		ta.frame(input{
+			keysUp: []ebiten.Key{ebiten.KeyO},
+		})
+
+		top := ta.desk.topModal()
+		require.NotNil(t, top, "no Open dialog")
+		require.Equal(t, "Open", top.caption, "the top dialog")
+
+		got := top.find("FileName").(*edit).text()
+		assert.Empty(t, got, "the file name box")
 	})
-	ta.frame(input{
-		keys:  []ebiten.Key{ebiten.KeyM},
-		chars: []rune{'m'},
-		mods:  mods{alt: true},
+
+	// Alt and a letter that come down in the same frame open the menu, which
+	// releasing Alt leaves open. Ebitengine lists them letter first.
+	t.Run("when Alt and M come down in one frame, should keep the menu open after Alt is released", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.music = &fakeMusic{}
+		ta.startGame()
+		ta.frame(input{
+			keys:  []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft},
+			chars: []rune{'m'},
+			mods: mods{
+				alt: true,
+			},
+		})
+		ta.frame(input{
+			keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft},
+		})
+
+		require.NotNil(t, ta.desk.menu, "releasing Alt closed the menu")
+
+		ta.frame(input{
+			keys:  []ebiten.Key{ebiten.KeyO},
+			chars: []rune{'o'},
+		})
+		ta.frame(input{
+			keysUp: []ebiten.Key{ebiten.KeyO},
+		})
+
+		top := ta.desk.topModal()
+		require.NotNil(t, top, "no Open dialog")
+		require.Equal(t, "Open", top.caption, "the top dialog")
 	})
-	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}})
-	ta.frame(input{
-		keys:  []ebiten.Key{ebiten.KeyO},
-		chars: []rune{'o'},
-	})
-	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyO}})
-
-	top := ta.desk.topModal()
-	if top == nil || top.caption != "Open" {
-		t.Fatalf("no Open dialog: %v", top)
-	}
-
-	if got := top.find("FileName").(*edit).text(); got != "" {
-		t.Errorf("the file name box has %q", got)
-	}
-}
-
-// Alt and a letter that come down in the same frame open the menu, which
-// releasing Alt leaves open. Ebitengine lists them letter first.
-func TestAltAndLetterInOneFrame(t *testing.T) {
-	ta := newTestApp(t)
-	ta.music = &fakeMusic{}
-	ta.startGame()
-	ta.frame(input{
-		keys:  []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft},
-		chars: []rune{'m'},
-		mods:  mods{alt: true},
-	})
-	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyM, ebiten.KeyAltLeft}})
-
-	if ta.desk.menu == nil {
-		t.Fatal("releasing Alt closed the menu")
-	}
-
-	ta.frame(input{
-		keys:  []ebiten.Key{ebiten.KeyO},
-		chars: []rune{'o'},
-	})
-	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyO}})
-
-	if top := ta.desk.topModal(); top == nil || top.caption != "Open" {
-		t.Fatalf("no Open dialog: %v", top)
-	}
 }

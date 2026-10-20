@@ -11,96 +11,192 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
-// The party list's hint shows after half a second on it, under the
-// cursor and kept on the screen, and hides after two and a half seconds,
-// when the mouse leaves the list, or at a click.
-func TestStatsHint(t *testing.T) {
-	ta := newTestApp(t)
-	ta.startGame()
+// The party list's hint shows after half a second on it, under the cursor
+// and kept on the screen, and hides after two and a half seconds, when the
+// mouse leaves the list, or at a click.
+func Test_statsForm(t *testing.T) {
+	t.Parallel()
 
-	lv := ta.stats.party
-	ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
-	ta.wait(29) // under half a second
+	t.Run("when the mouse rests on the party list, should show the hint under the cursor after half a second", func(t *testing.T) {
+		t.Parallel()
 
-	if ta.hintShown() {
-		t.Fatal("the hint shows before HintPause")
-	}
+		ta := newTestApp(t)
+		ta.startGame()
 
-	ta.wait(4)
+		lv := ta.stats.party
+		ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
+		ta.wait(29) // under half a second
 
-	hnt := ta.desk.hint
-	ta.shot("50-stats-hint")
+		require.False(t, ta.hintShown(), "the hint shows before HintPause")
 
-	if hnt.text != "Doubleclick a POKéMON to see its statistics." {
-		t.Fatalf("hint %q", hnt.text)
-	}
+		ta.wait(4)
 
-	// Under the cursor, and moved left to end at the screen's edge.
-	size := image.Pt(ta.res.sans.width(hnt.text)+6, ta.res.sans.height()+6)
-	pnt := image.Pt(screenWidth-size.X, ta.mouse.Y+hintCursorMargin)
+		hnt := ta.desk.hint
+		ta.shot("50-stats-hint")
 
-	want := image.Rectangle{
-		Min: pnt,
-		Max: pnt.Add(size),
-	}
-	if hnt.rect != want {
-		t.Errorf("hint at %v, want %v", hnt.rect, want)
-	}
+		require.Equal(t, "Doubleclick a POKéMON to see its statistics.", hnt.text)
 
-	ta.wait(140) // under three seconds on the list
+		// Under the cursor, and moved left to end at the screen's edge.
+		size := image.Pt(ta.res.sans.width(hnt.text)+6, ta.res.sans.height()+6)
+		pnt := image.Pt(screenWidth-size.X, ta.mouse.Y+hintCursorMargin)
 
-	if !ta.hintShown() {
-		t.Fatal("the hint hid before HintHidePause")
-	}
-
-	ta.wait(10)
-
-	if ta.hintShown() {
-		t.Fatal("the hint stays after HintHidePause")
-	}
-
-	ta.wait(60)
-
-	if ta.hintShown() {
-		t.Fatal("the hint came back on the same control")
-	}
-
-	// Off the list and back: it shows again, and a click hides it.
-	ta.mouse = image.Pt(10, 10)
-	ta.wait(1)
-
-	ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
-	ta.wait(33)
-
-	if !ta.hintShown() {
-		t.Fatal("no hint on coming back")
-	}
-
-	ta.frame(input{
-		down:    true,
-		pressed: true,
+		want := image.Rectangle{
+			Min: pnt,
+			Max: pnt.Add(size),
+		}
+		assert.Equal(t, want, hnt.rect, "the hint's rectangle")
 	})
-	ta.frame(input{released: true})
 
-	if ta.hintShown() {
-		t.Fatal("a click leaves the hint")
-	}
+	t.Run("when the hint has shown for two and a half seconds, should hide it, and show it again only once the mouse has left and come back", func(t *testing.T) {
+		t.Parallel()
 
-	ta.mouse = image.Pt(10, 10)
-	ta.wait(40)
+		ta := newTestApp(t)
+		ta.startGame()
 
-	if ta.hintShown() {
-		t.Fatal("a hint off the list")
-	}
+		lv := ta.stats.party
+		ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
+		ta.wait(33) // half a second
+
+		require.True(t, ta.hintShown(), "the hint doesn't show after half a second")
+
+		ta.wait(140) // under three seconds on the list
+
+		require.True(t, ta.hintShown(), "the hint hid before HintHidePause")
+
+		ta.wait(10)
+
+		require.False(t, ta.hintShown(), "the hint stays after HintHidePause")
+
+		ta.wait(60)
+
+		require.False(t, ta.hintShown(), "the hint came back on the same control")
+
+		// Off the list and back: it shows again.
+		ta.mouse = image.Pt(10, 10)
+		ta.wait(1)
+
+		ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
+		ta.wait(33)
+
+		require.True(t, ta.hintShown(), "no hint on coming back")
+	})
+
+	t.Run("when a click lands while the hint shows, should hide it, and keep it hidden once the mouse is off the list", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+
+		lv := ta.stats.party
+		ta.mouse = widgetOrigin(lv).Add(image.Pt(60, 100))
+		ta.wait(33)
+
+		require.True(t, ta.hintShown(), "no hint on the list")
+
+		ta.frame(input{
+			down:    true,
+			pressed: true,
+		})
+		ta.frame(input{
+			released: true,
+		})
+
+		require.False(t, ta.hintShown(), "a click leaves the hint")
+
+		ta.mouse = image.Pt(10, 10)
+		ta.wait(40)
+
+		require.False(t, ta.hintShown(), "a hint off the list")
+	})
 }
 
 // The Game Corner's bet goes up and down by its Increment, 50, with the
 // spin buttons and the arrow keys.
-func TestSpinIncrement(t *testing.T) {
+//
+// A play's draws show one after another in "Lucky number" for a second, the
+// bet already paid in Statistics, with no input taken, and the last one
+// stays: the one the game counts.
+func Test_gameCornerForm(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the spin's buttons and the arrow keys are used, should move the bet by its increment of 50", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newGameCorner(t)
+
+		se := get[*spinEdit](ta.gameCorner.wdw, "SpinEdit1")
+		up, down := se.buttons()
+		ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
+		ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
+
+		assert.Equal(t, 100, ta.game.GameCorner.Bet, "the bet after two clicks up")
+
+		ta.click(widgetOrigin(se).Add(down.Min).Add(down.Size().Div(2)))
+		ta.key(ebiten.KeyUp)
+		ta.key(ebiten.KeyUp)
+
+		assert.Equal(t, 150, ta.game.GameCorner.Bet, "the bet after a click down and two keys up")
+		assert.Equal(t, "150", se.tb.String(), "the bet's text")
+	})
+
+	t.Run("when a play is drawn, should show the draws one after another for about a second, with the bet already paid", func(t *testing.T) {
+		t.Parallel()
+
+		ta := startPlay(t)
+		gcf := ta.gameCorner
+
+		assert.Equal(t, "900", ta.stats.counts["MoneyLbl"].caption, "the money Statistics shows during the draws")
+
+		seen := map[int]bool{}
+		frames := 0
+
+		for ; ta.draws != nil && frames < 120; frames++ {
+			seen[gcf.drawn.index] = true
+
+			if frames == 20 {
+				ta.shot("51-corner-draws")
+			}
+
+			ta.wait(1)
+		}
+
+		assert.GreaterOrEqual(t, frames, 57, "the draws showed for %d frames, want about a second", frames)
+		assert.LessOrEqual(t, frames, 63, "the draws showed for %d frames, want about a second", frames)
+		assert.GreaterOrEqual(t, len(seen), 8, "the numbers shown during the draws")
+
+		ta.wait(1)
+
+		assert.Equal(t, ta.game.GameCorner.Drawn, gcf.drawn.index, "the number shown after the draws, the one the game drew")
+	})
+
+	t.Run("when Close is clicked while the draws show, should not close the Game Corner", func(t *testing.T) {
+		t.Parallel()
+
+		ta := startPlay(t)
+		gcf := ta.gameCorner
+
+		ta.wait(20)
+		ta.clickOn(gcf.wdw, "Button2") // Close: no input meanwhile
+
+		assert.NotNil(t, ta.draws, "the draws stopped at Close")
+
+		ta.wait(60) // past the draws' end
+
+		require.Nil(t, ta.draws, "the draws still show")
+		assert.True(t, gcf.wdw.visible, "Close worked during the draws")
+	})
+}
+
+// newGameCorner starts a game with money to bet, and opens the Game Corner.
+func newGameCorner(t *testing.T) *testApp {
+	t.Helper()
+
 	ta := newTestApp(t)
 	ta.startGame()
 
@@ -108,143 +204,149 @@ func TestSpinIncrement(t *testing.T) {
 	ta.menu("Action1", "GameCorner1")
 	ta.wait(1)
 
-	se := get[*spinEdit](ta.gameCorner.wdw, "SpinEdit1")
-	up, down := se.buttons()
-	ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
-	ta.click(widgetOrigin(se).Add(up.Min).Add(up.Size().Div(2)))
-
-	if ta.game.GameCorner.Bet != 100 {
-		t.Errorf("bet %d after two clicks up, want 100", ta.game.GameCorner.Bet)
-	}
-
-	ta.click(widgetOrigin(se).Add(down.Min).Add(down.Size().Div(2)))
-	ta.key(ebiten.KeyUp)
-	ta.key(ebiten.KeyUp)
-
-	if ta.game.GameCorner.Bet != 150 || se.tb.String() != "150" {
-		t.Errorf("bet %d, text %q, want 150", ta.game.GameCorner.Bet, se.tb.String())
-	}
+	return ta
 }
 
-// The start screen's minimize button minimizes the program's window.
-func TestMinimize(t *testing.T) {
-	ta := newTestApp(t)
-	n := 0
-	ta.desk.onMinimize = func() {
-		n++
-	}
-	ta.wait(80)
+// startPlay bets 100 on 3 for money in the Game Corner, and clicks Draw: the
+// draws show.
+func startPlay(t *testing.T) *testApp {
+	t.Helper()
 
-	wdw := ta.start.wdw
-	if !wdw.minBox {
-		t.Fatal("the start screen has no minimize button")
-	}
-
-	ta.click(wdw.captionButton(capMin).Min.Add(image.Pt(4, 4)))
-
-	if n != 1 || !wdw.visible {
-		t.Errorf("%d minimizes, start screen shown: %t", n, wdw.visible)
-	}
-}
-
-// A play's draws show one after another in "Lucky number" for a second,
-// the bet already paid in Statistics, with no input taken, and the last
-// one stays: the one the game counts.
-func TestCornerDraws(t *testing.T) {
-	ta := newTestApp(t)
-	ta.startGame()
-
-	ta.game.Money = 1000
-	ta.menu("Action1", "GameCorner1")
-	ta.wait(1)
-
+	ta := newGameCorner(t)
 	gcf := ta.gameCorner
-	radio := func(rg *radioGroup, idx int) {
-		rect := rg.buttonRect(idx)
-		ta.click(widgetOrigin(rg).Add(rect.Min).Add(image.Pt(6, rect.Dy()/2)))
-	}
-	radio(gcf.prize, 0)  // money
-	radio(gcf.number, 3) // on 3
+
+	clickRadio(ta, gcf.prize, 0)  // money
+	clickRadio(ta, gcf.number, 3) // on 3
 	ta.click(widgetOrigin(gcf.bet).Add(image.Pt(5, 5)))
 	ta.key(ebiten.KeyHome)
 	ta.frame(input{
 		keys: []ebiten.Key{ebiten.KeyEnd},
-		mods: mods{shift: true},
+		mods: mods{
+			shift: true,
+		},
 	})
-	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
+	ta.frame(input{
+		keysUp: []ebiten.Key{ebiten.KeyEnd},
+	})
 	ta.typeText("100")
 	ta.clickOn(gcf.wdw, "Button1") // Draw number!
 
-	if ta.draws == nil {
-		t.Fatal("no draws show")
-	}
+	require.NotNil(t, ta.draws, "no draws show")
 
-	if got := ta.stats.counts["MoneyLbl"].caption; got != "900" {
-		t.Errorf("Statistics shows %s¥ during the draws, want the bet paid", got)
-	}
+	return ta
+}
 
-	seen := map[int]bool{}
-	frames := 0
+// clickRadio clicks button idx of rg, near its left edge.
+func clickRadio(ta *testApp, rg *radioGroup, idx int) {
+	rect := rg.buttonRect(idx)
+	ta.click(widgetOrigin(rg).Add(rect.Min).Add(image.Pt(6, rect.Dy()/2)))
+}
 
-	for ; ta.draws != nil && frames < 120; frames++ {
-		seen[gcf.drawn.index] = true
+// The start screen's minimize button minimizes the program's window.
+func Test_startForm(t *testing.T) {
+	t.Parallel()
 
-		if frames == 20 {
-			ta.shot("51-corner-draws")
-			ta.clickOn(gcf.wdw, "Button2") // Close: no input meanwhile
+	t.Run("when its minimize button is clicked, should minimize the program's window and keep the start screen shown", func(t *testing.T) {
+		t.Parallel()
 
-			frames += 2
+		ta := newTestApp(t)
+		n := 0
+		ta.desk.onMinimize = func() {
+			n++
 		}
+		ta.wait(80)
 
-		ta.wait(1)
-	}
+		wdw := ta.start.wdw
+		require.True(t, wdw.minBox, "the start screen has no minimize button")
 
-	if frames < 57 || frames > 63 {
-		t.Errorf("the draws showed for %d frames, want about a second", frames)
-	}
+		ta.click(wdw.captionButton(capMin).Min.Add(image.Pt(4, 4)))
 
-	if len(seen) < 8 {
-		t.Errorf("%d numbers shown", len(seen))
-	}
-
-	if !gcf.wdw.visible {
-		t.Error("Close worked during the draws")
-	}
-
-	ta.wait(1)
-
-	if gcf.drawn.index != ta.game.GameCorner.Drawn {
-		t.Errorf("%d shows, the game drew %d", gcf.drawn.index, ta.game.GameCorner.Drawn)
-	}
+		assert.Equal(t, 1, n, "the minimizes of the program's window")
+		assert.True(t, wdw.visible, "the start screen hid")
+	})
 }
 
 // The loading screen is AutoSize: it grows to its title, a pixel wider in
 // Arial than the form, after Position centred it, and the labels anchored
 // to its right move with it.
-func TestLoadingFits(t *testing.T) {
-	wdw := newTestApp(t).load.wdw
-	if wdw.client != image.Pt(511, 157) || wdw.pos.X != (screenWidth-510)/2 {
-		t.Errorf("client %v at %v, want 511×157 centred as 510 wide", wdw.client, wdw.pos)
-	}
+func Test_loadForm(t *testing.T) {
+	t.Parallel()
 
-	for name, x := range map[string]int{
-		"Label1": 216,
-		"Label2": 265,
-		"Label3": 12,
-		"Label4": 29,
-	} {
-		rect := wdw.find(name).base().rect
-		if rect.Min.X != x {
-			t.Errorf("%s at x=%d, want %d", name, rect.Min.X, x)
+	t.Run("when the loading screen fits its title, should grow to 511×157 and stay centred as 510 wide", func(t *testing.T) {
+		t.Parallel()
+
+		wdw := newTestApp(t).load.wdw
+
+		assert.Equal(t, image.Pt(511, 157), wdw.client, "the client area")
+		assert.Equal(t, (screenWidth-510)/2, wdw.pos.X, "the x position")
+	})
+
+	t.Run("when the loading screen fits its title, should move the labels anchored to its right", func(t *testing.T) {
+		t.Parallel()
+
+		wdw := newTestApp(t).load.wdw
+
+		for name, x := range map[string]int{
+			"Label1": 216,
+			"Label2": 265,
+			"Label3": 12,
+			"Label4": 29,
+		} {
+			rect := wdw.find(name).base().rect
+			assert.Equal(t, x, rect.Min.X, "%s", name)
 		}
-	}
+	})
 }
 
 // The POKéDEX is AutoSize: with no species selected, its panel hidden, it
 // is its list and its button, and it grows to the panel with one. Shown
 // again, its FormShow selects the species again, which leaves the text
 // unselected: the focus is on the button that closed it.
-func TestDexFits(t *testing.T) {
+func Test_pokedexForm(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when no species is selected, should be only its list and its button", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+
+		assert.Equal(t, image.Pt(241, 25), ta.pokedex.wdw.client, "the client area with no selection")
+	})
+
+	t.Run("when a species is chosen, should grow to show its panel", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		pickCharmander(t, ta)
+
+		assert.Equal(t, image.Pt(241, 161), ta.pokedex.wdw.client, "the client area with Charmander")
+		assert.Equal(t, 3, ta.pokedex.combo.index, "the species chosen")
+	})
+
+	t.Run("when it is shown again, should select the species with its text unselected and the focus on the button that closed it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		pickCharmander(t, ta)
+
+		dex := ta.pokedex
+		ta.clickOn(dex.wdw, "Button1")
+		ta.menu("Action1", "ViewDEX1")
+		ta.wait(1)
+
+		cb := dex.combo
+		from, to := cb.tb.sel()
+		assert.Equal(t, from, to, "the text should be unselected, but is selected from %d to %d", from, to)
+		assert.Equal(t, "Charmander (#004)", cb.tb.String(), "the text")
+		assert.Same(t, dex.wdw.find("Button1"), dex.wdw.focus, "the focus left the button")
+	})
+}
+
+// newDexApp starts a game whose player has a Charmander and has it in the
+// POKéDEX, and opens the POKéDEX.
+func newDexApp(t *testing.T) *testApp {
+	t.Helper()
+
 	sav := save.File{
 		PlayerName: "Gary",
 		PokeBalls:  3,
@@ -258,41 +360,28 @@ func TestDexFits(t *testing.T) {
 	dir := t.TempDir()
 	file := filepath.Join(dir, "dex.pgs")
 
-	if err := os.WriteFile(file, sav.Bytes(), 0o600); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, os.WriteFile(file, sav.Bytes(), 0o600))
 
 	ta := newTestAppIn(t, dir, []string{file})
 	ta.wait(80)
 	ta.menu("Action1", "ViewDEX1")
 	ta.wait(1)
 
-	dex := ta.pokedex
-	if dex.wdw.client != image.Pt(241, 25) {
-		t.Errorf("client %v with no selection, want 241×25", dex.wdw.client)
-	}
+	return ta
+}
 
-	cb := dex.combo
+// pickCharmander opens the POKéDEX's list and chooses Charmander, the
+// fourth item, which closes the list again.
+func pickCharmander(t *testing.T, ta *testApp) {
+	t.Helper()
+
+	cb := ta.pokedex.combo
 	rect := cb.button()
 	ta.click(widgetOrigin(cb).Add(rect.Min).Add(rect.Size().Div(2)))
+
+	require.NotNil(t, cb.dropped, "the list didn't drop down")
 
 	drop := cb.dropped.rect
 	ta.click(drop.Min.Add(image.Pt(5, 1+3*cb.itemHeight+cb.itemHeight/2)))
 	ta.wait(1)
-
-	if dex.wdw.client != image.Pt(241, 161) || cb.index != 3 {
-		t.Errorf("client %v with species %d, want 241×161 with Charmander", dex.wdw.client, cb.index+1)
-	}
-
-	ta.clickOn(dex.wdw, "Button1")
-	ta.menu("Action1", "ViewDEX1")
-	ta.wait(1)
-
-	if from, to := cb.tb.sel(); from != to || cb.tb.String() != "Charmander (#004)" {
-		t.Errorf("text %q, selected from %d to %d; want Charmander's, unselected", cb.tb.String(), from, to)
-	}
-
-	if dex.wdw.focus != dex.wdw.find("Button1") {
-		t.Error("the focus left the button")
-	}
 }

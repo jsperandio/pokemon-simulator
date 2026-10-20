@@ -11,16 +11,21 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/jsperandio/pokemon-simulator/internal/audio"
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 )
 
-// TestEveryMenuCommand clicks each command of the game window's menu, in a
+// Test_EveryMenuCommand clicks each command of the game window's menu, in a
 // game where every trainer is unlocked, and checks that it does something
 // the player sees: a battle, a window, a dialog, a check mark, or the
 // end. The Debug menu stays hidden, as in the original.
-func TestEveryMenuCommand(t *testing.T) {
+func Test_EveryMenuCommand(t *testing.T) {
+	t.Parallel()
+
 	sav := save.File{
 		PlayerName:  "Ash",
 		GymProgress: 24,
@@ -47,61 +52,78 @@ func TestEveryMenuCommand(t *testing.T) {
 
 	var (
 		commands [][]string
-		walk     func(items []*game.MenuItem, path []string)
+		walk     func(items []*game.MenuItem, pth []string)
 	)
-	walk = func(items []*game.MenuItem, path []string) {
+	walk = func(items []*game.MenuItem, pth []string) {
 		for _, mi := range items {
 			if !mi.Visible {
 				continue
 			}
 
-			pth := append(slices.Clone(path), mi.Name)
+			cmd := append(slices.Clone(pth), mi.Name)
 			if len(mi.Items) > 0 {
-				walk(mi.Items, pth)
+				walk(mi.Items, cmd)
 
 				continue
 			}
 
-			commands = append(commands, pth)
+			commands = append(commands, cmd)
 		}
 	}
 	walk(game.New(nil, nil).Menu, nil)
 
-	// 45 trainers, 2 wild battles, 6 tournaments, 6 other actions, and
-	// File's 2, Music's 3 and Help's 2.
-	if len(commands) != 66 {
-		t.Errorf("%d commands, want the 66 outside the Debug menu", len(commands))
-	}
+	t.Run("when the menu is walked, should hold the 66 commands outside the Debug menu", func(t *testing.T) {
+		t.Parallel()
 
-	for _, path := range commands {
-		t.Run(path[len(path)-1], func(t *testing.T) {
-			dir := t.TempDir()
-			file := filepath.Join(dir, "all.pgs")
+		// 45 trainers, 2 wild battles, 6 tournaments, 6 other actions, and
+		// File's 2, Music's 3 and Help's 2.
+		assert.Len(t, commands, 66, "the commands outside the Debug menu")
+	})
 
-			if err := os.WriteFile(file, dat, 0o600); err != nil {
-				t.Fatal(err)
+	t.Run("when the game is loaded, should keep the Debug menu hidden", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newAllApp(t, dat)
+		ta.wait(80)
+
+		require.True(t, ta.main.wdw.visible, "the game didn't load")
+
+		bar := ta.main.wdw.menu
+		require.NotEmpty(t, bar.entries, "the menu bar")
+		assert.False(t, bar.entries[len(bar.entries)-1].item.Visible, "the Debug menu shows")
+	})
+
+	for _, cmd := range commands {
+		t.Run(cmd[len(cmd)-1], func(t *testing.T) {
+			t.Parallel()
+
+			ta := newAllApp(t, dat)
+			ta.music = &fakeMusic{
+				stopErr: audio.ErrNotOpen,
 			}
-
-			ta := newTestAppIn(t, dir, []string{file})
-			ta.music = &fakeMusic{stopErr: audio.ErrNotOpen}
 			ta.wait(80)
 
-			if !ta.main.wdw.visible {
-				t.Fatal("the game didn't load")
-			}
-
-			bar := ta.main.wdw.menu
-			if bar.entries[len(bar.entries)-1].item.Visible {
-				t.Error("the Debug menu shows")
-			}
+			require.True(t, ta.main.wdw.visible, "the game didn't load")
 
 			before := ta.menuEffects()
-			ta.menu(path...)
+			ta.menu(cmd...)
 			ta.wait(2)
 
-			if after := ta.menuEffects(); after == before {
-				t.Errorf("%s did nothing", strings.Join(path, " > "))
-			}
+			after := ta.menuEffects()
+			assert.NotEqual(t, before, after, "%s did nothing", strings.Join(cmd, " > "))
 		})
 	}
+}
+
+// newAllApp starts the program with the save dat in a folder of its own, the
+// game the menu test plays.
+func newAllApp(t *testing.T, dat []byte) *testApp {
+	t.Helper()
+
+	dir := t.TempDir()
+	file := filepath.Join(dir, "all.pgs")
+
+	require.NoError(t, os.WriteFile(file, dat, 0o600))
+
+	return newTestAppIn(t, dir, []string{file})
 }

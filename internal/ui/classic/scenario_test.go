@@ -15,20 +15,25 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/game/scenario"
 )
 
-// TestScenarios plays the traces of the original in
+// Test_Scenarios plays the traces of the original in
 // internal/game/testdata/scenarios on the classic user interface: each
 // action with the mouse and the keyboard, as a player would, and each of
 // the game's dialogs answered with its buttons. The traces must come out
 // as the original's, as they do when the game's handlers are called
 // directly.
-func TestScenarios(t *testing.T) {
+func Test_Scenarios(t *testing.T) {
+	t.Parallel()
+
 	ui := func(t *testing.T) scenario.Driver {
-		return &uiDriver{t: t}
+		return &uiDriver{
+			t: t,
+		}
 	}
 	scenario.Run(t, filepath.Join("..", "..", "game", "testdata", "scenarios"), testData(t), ui, "")
 }
@@ -94,7 +99,9 @@ func (ud *uiDriver) Launch(ply *scenario.Player, file string, save []byte, hook 
 
 	ta := newTestAppIn(ud.t, dir, args)
 	ud.ta = ta
-	ud.files = &writes{storage: ta.files}
+	ud.files = &writes{
+		storage: ta.files,
+	}
 	ta.files = ud.files
 	ta.game.UI = dialogs{ta.game.UI, ud}
 	hook(ta.game)
@@ -144,7 +151,7 @@ func (ud *uiDriver) settle() {
 		}
 	}
 
-	ud.t.Fatal("the game is still busy")
+	require.Fail(ud.t, "the game is still busy")
 }
 
 // front brings wdw to the front when another window covers pnt, by clicking
@@ -167,9 +174,7 @@ func (ud *uiDriver) front(wdw *window, pnt image.Point) {
 		}
 	}
 
-	if desk.windowAt(pnt) != wdw {
-		ud.t.Fatalf("%s stays behind another window", wdw.name)
-	}
+	require.Same(ud.t, wdw, desk.windowAt(pnt), "%s stays behind another window", wdw.name)
 }
 
 // clickAt clicks at pnt in wdw, brought to the front.
@@ -351,7 +356,9 @@ func (ud *uiDriver) Combo(path string, i int) error {
 			dy = 1
 		}
 
-		ud.ta.frame(input{wheel: dy})
+		ud.ta.frame(input{
+			wheel: dy,
+		})
 	}
 
 	ud.ta.click(dl.rect.Min.Add(image.Pt(5, 1+(i-dl.top)*cb.itemHeight+cb.itemHeight/2)))
@@ -380,9 +387,13 @@ func (ud *uiDriver) Type(path string, n int) error {
 	ta.key(ebiten.KeyHome)
 	ta.frame(input{
 		keys: []ebiten.Key{ebiten.KeyEnd},
-		mods: mods{shift: true},
+		mods: mods{
+			shift: true,
+		},
 	})
-	ta.frame(input{keysUp: []ebiten.Key{ebiten.KeyEnd}})
+	ta.frame(input{
+		keysUp: []ebiten.Key{ebiten.KeyEnd},
+	})
 	ta.typeText(strconv.Itoa(n))
 	ud.settle()
 

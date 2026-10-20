@@ -16,6 +16,8 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jsperandio/pokemon-simulator/internal/game/scenario"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
@@ -83,19 +85,23 @@ var originalClients = map[string]image.Point{
 	"screens-dex-empty": {241, 25}, // the POKéDEX's AutoSize, without its panel
 }
 
-// TestReferenceScreens plays the scenarios the original's reference
+// Test_ReferenceScreens plays the scenarios the original's reference
 // screenshots were taken in, through the classic interface, and takes the
 // port's at the same points, of the same areas: Wine's X11 window of each
 // window, which is its client area and menu bar (a tool window's whole),
 // and the menus open. The windows must have the original's client areas.
 // With $CLASSIC_SHOTS set, the screenshots are saved there with the
 // original's names (screens-game-idle.png …), to compare with its.
-func TestReferenceScreens(t *testing.T) {
+func Test_ReferenceScreens(t *testing.T) {
+	t.Parallel()
+
 	data := testData(t)
 	dir := filepath.Join("..", "..", "game", "testdata", "scenarios")
 
 	for name, shots := range referenceShots {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			shootScenario(t, data, dir, name, shots)
 		})
 	}
@@ -103,6 +109,8 @@ func TestReferenceScreens(t *testing.T) {
 	// The loading screen, which the original shows for about a second: its
 	// screenshot is a frame of smoke/loading.sh's, at the badge names.
 	t.Run("screens-start-loading", func(t *testing.T) {
+		t.Parallel()
+
 		lf := newTestApp(t).load
 		lf.startStep(2)
 
@@ -111,16 +119,18 @@ func TestReferenceScreens(t *testing.T) {
 		shootWindow(t, "screens-start-loading", lf.wdw)
 	})
 
-	t.Run("screens-menus", shootMenus)
+	t.Run("screens-menus", func(t *testing.T) {
+		t.Parallel()
+
+		shootMenus(t)
+	})
 }
 
 // shootScenario plays scenario name, in dir, through the classic
 // interface, and takes the port's screenshots after its actions in shots.
 func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots map[string]refShots) {
 	src, err := os.ReadFile(filepath.Join(dir, name+".txt")) //nolint:gosec // a scenario in testdata
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	var (
 		ud      *uiDriver
@@ -132,7 +142,9 @@ func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots ma
 		Data: data,
 	}
 	ply.NewDriver = func() scenario.Driver {
-		ud = &uiDriver{t: t}
+		ud = &uiDriver{
+			t: t,
+		}
 		ud.modal = func(wdw *window) {
 			if len(dialogs) > 0 {
 				shootWindow(t, name+"-"+dialogs[0], wdw)
@@ -159,34 +171,27 @@ func shootScenario(t *testing.T, data *gamedata.Data, dir, name string, shots ma
 
 		ud.settle()
 
-		for _, ws := range shs.windows {
-			form, label, _ := strings.Cut(ws, " ")
+		for _, spec := range shs.windows {
+			form, label, _ := strings.Cut(spec, " ")
 			wdw := ud.form(form)
 
-			if !wdw.visible {
-				t.Errorf("%s: %s isn't shown", label, form)
-
+			if !assert.True(t, wdw.visible, "%s: %s isn't shown", label, form) {
 				continue
 			}
 
 			shootWindow(t, name+"-"+label, wdw)
 		}
 
-		if len(dialogs) > 0 {
-			t.Errorf("after %s, no dialog showed for %q", action, dialogs)
-		}
+		assert.Empty(t, dialogs, "after %s, no dialog showed", action)
 
 		dialogs = shs.dialogs
 	}
 
-	if _, err := ply.Play(string(src)); err != nil {
-		t.Fatalf("%v\n%s", err, strings.Join(ply.Trace(), "\n"))
-	}
+	_, err = ply.Play(string(src))
+	require.NoError(t, err, "%s", strings.Join(ply.Trace(), "\n"))
 
 	for action := range shots {
-		if !taken[action] {
-			t.Errorf("no %q in the scenario", action)
-		}
+		assert.True(t, taken[action], "no %q in the scenario", action)
 	}
 }
 
@@ -207,9 +212,8 @@ func shootMenus(t *testing.T) {
 	dir := t.TempDir()
 	file := filepath.Join(dir, "probe-screens-menus.pgs")
 
-	if err := os.WriteFile(file, sav.Bytes(), 0o600); err != nil {
-		t.Fatal(err)
-	}
+	err := os.WriteFile(file, sav.Bytes(), 0o600)
+	require.NoError(t, err)
 
 	ta := newTestAppIn(t, dir, []string{file})
 	ta.wait(80)
@@ -237,23 +241,28 @@ func shootMenus(t *testing.T) {
 		letter := ebiten.KeyA + ebiten.Key(keys[0][0]-'a')
 		ta.frame(input{
 			keys: []ebiten.Key{ebiten.KeyAltLeft},
-			mods: mods{alt: true},
+			mods: mods{
+				alt: true,
+			},
 		})
 		ta.frame(input{
 			keys:  []ebiten.Key{letter},
 			chars: []rune{rune(keys[0][0])},
-			mods:  mods{alt: true},
+			mods: mods{
+				alt: true,
+			},
 		})
-		ta.frame(input{keysUp: []ebiten.Key{letter, ebiten.KeyAltLeft}})
+		ta.frame(input{
+			keysUp: []ebiten.Key{letter, ebiten.KeyAltLeft},
+		})
 
 		for _, key := range keys[1 : len(keys)-1] {
 			ta.key(arrows[key])
 		}
 
 		bar := ta.main.wdw.menu
-		if !bar.active() || len(bar.open) == 0 {
-			t.Fatalf("%s: no menu open", label)
-		}
+		require.True(t, bar.active(), "%s: no menu open", label)
+		require.NotEmpty(t, bar.open, "%s: no menu open", label)
 
 		shootWindow(t, "screens-menus-"+label, ta.main.wdw)
 
@@ -261,9 +270,7 @@ func shootMenus(t *testing.T) {
 			ta.key(ebiten.KeyEscape)
 		}
 
-		if bar.active() {
-			t.Fatalf("%s: the menu stays open", label)
-		}
+		require.False(t, bar.active(), "%s: the menu stays open", label)
 	}
 }
 
@@ -293,8 +300,8 @@ func shootWindow(t *testing.T, name string, wdw *window) {
 		want, ok = originalClients[wdw.name]
 	}
 
-	if ok && wdw.client != want {
-		t.Errorf("%s: %s's client area is %v, the original's %v", name, wdw.name, wdw.client, want)
+	if ok {
+		assert.Equal(t, want, wdw.client, "%s: %s's client area differs from the original's", name, wdw.name)
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
@@ -314,7 +321,9 @@ func shootWindow(t *testing.T, name string, wdw *window) {
 
 // crop copies a part of img.
 func crop(img *image.RGBA, rect image.Rectangle) *image.RGBA {
-	out := image.NewRGBA(image.Rectangle{Max: rect.Size()})
+	out := image.NewRGBA(image.Rectangle{
+		Max: rect.Size(),
+	})
 	draw.Draw(out, out.Rect, img, rect.Min, draw.Src)
 
 	return out
@@ -330,11 +339,10 @@ func savePNG(t *testing.T, name string, img image.Image) {
 	}
 
 	var buf bytes.Buffer
-	if err := png.Encode(&buf, img); err != nil {
-		t.Fatal(err)
-	}
 
-	if err := os.WriteFile(filepath.Join(dir, name+".png"), buf.Bytes(), 0o600); err != nil { //nolint:gosec // the folder $CLASSIC_SHOTS names
-		t.Fatal(err)
-	}
+	err := png.Encode(&buf, img)
+	require.NoError(t, err)
+
+	err = os.WriteFile(filepath.Join(dir, name+".png"), buf.Bytes(), 0o600) //nolint:gosec // the folder $CLASSIC_SHOTS names
+	require.NoError(t, err)
 }
