@@ -4,7 +4,10 @@
 // relies on, so the port computes and prints exactly what it did.
 package delphi
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 // DecodeANSI converts a Delphi AnsiString to UTF-8. The original ran on
 // Western Windows, whose ANSI code page is Windows-1252 (cp1252).
@@ -39,13 +42,8 @@ func EncodeANSI(s string) []byte {
 			buf = append(buf, byte(r)) // the undefined bytes decode to themselves
 		default:
 			c := byte('?')
-
-			for i, h := range cp1252High {
-				if h == r {
-					c = byte(0x80 + i)
-
-					break
-				}
+			if i := slices.Index(cp1252High[:], r); i >= 0 {
+				c = byte(0x80 + i) //nolint:gosec // one of the 32 bytes from 0x80
 			}
 
 			buf = append(buf, c)
