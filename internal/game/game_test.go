@@ -270,7 +270,7 @@ func TestExportPage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want, err := os.ReadFile("../export/testdata/export.htm")
+	want, err := os.ReadFile("testdata/export.htm")
 	if err != nil {
 		t.Fatal(err)
 	}

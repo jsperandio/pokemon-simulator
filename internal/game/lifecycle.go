@@ -2,12 +2,7 @@
 
 package game
 
-import (
-	"time"
-
-	"github.com/jsperandio/pokemon-simulator/internal/export"
-	"github.com/jsperandio/pokemon-simulator/internal/save"
-)
+import "github.com/jsperandio/pokemon-simulator/internal/save"
 
 // Starting, loading and quitting (notes/lifecycle.md, notes/persistence.md).
 
@@ -108,36 +103,4 @@ func (g *Game) Close() []byte {
 // wants to view it now.
 func (g *Game) Exported(file string) bool {
 	return g.UI.Message(Information, true, "POKéMON Information exported to "+file+". View file now?")
-}
-
-// ExportPage is the page File → Export POKéMON information... writes,
-// generated at now.
-func (g *Game) ExportPage(now time.Time) []byte {
-	info := export.Info{
-		Player:       g.Stats.Name,
-		PokedexCount: g.PokedexCount(),
-		Date:         now,
-	}
-	for _, m := range g.Party() {
-		s := int(m.Species)
-		info.Party = append(info.Party, export.Member{
-			Entry: export.Entry{
-				Number: s,
-				Name:   g.name(s),
-			},
-			Level: m.Level,
-			XP:    m.XP,
-		})
-	}
-
-	for s := 1; s < len(g.InPokedex); s++ {
-		if g.InPokedex[s] {
-			info.Pokedex = append(info.Pokedex, export.Entry{
-				Number: s,
-				Name:   g.name(s),
-			})
-		}
-	}
-
-	return export.Page(info)
 }
