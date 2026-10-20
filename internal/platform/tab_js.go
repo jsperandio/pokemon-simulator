@@ -4,20 +4,18 @@ package platform
 
 import "syscall/js"
 
-// openTab opens a page in a new browser tab, from a blob URL.
-func openTab(page []byte) error {
-	arr := js.Global().Get("Uint8Array").New(len(page))
-	js.CopyBytesToJS(arr, page)
-
-	blob := js.Global().Get("Blob").New([]any{arr}, map[string]any{"type": "text/html"})
+// OpenPage shows a page in a new tab, from a blob URL.
+func OpenPage(_ string, page []byte) error {
+	blob := js.Global().Get("Blob").New([]any{uint8Array(page)}, map[string]any{"type": "text/html"})
 	url := js.Global().Get("URL").Call("createObjectURL", blob)
 	js.Global().Call("open", url, "_blank")
 
 	return nil
 }
 
-// openURL opens an address in a new tab.
-func openURL(url string) error {
+// OpenURL opens a web address in a new tab; a mailto: one opens the
+// browser's e-mail program.
+func OpenURL(url string) error {
 	js.Global().Call("open", url, "_blank", "noopener")
 
 	return nil
