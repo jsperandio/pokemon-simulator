@@ -87,10 +87,8 @@ func (d disk) List(dir string) ([]Entry, error) {
 		}
 
 		out = append(out, Entry{
-			Name:    de.Name(),
-			Dir:     isDir,
-			Size:    info.Size(),
-			ModTime: info.ModTime(),
+			Name: de.Name(),
+			Dir:  isDir,
 		})
 	}
 
@@ -108,10 +106,8 @@ func (d disk) Stat(path string) (Entry, error) {
 	}
 
 	return Entry{
-		Name:    st.Name(),
-		Dir:     st.IsDir(),
-		Size:    st.Size(),
-		ModTime: st.ModTime(),
+		Name: st.Name(),
+		Dir:  st.IsDir(),
 	}, nil
 }
 

@@ -8,7 +8,6 @@ import (
 	"errors"
 	"slices"
 	"testing"
-	"time"
 )
 
 func TestMemory(t *testing.T) {
@@ -55,10 +54,9 @@ func TestMemory(t *testing.T) {
 // The database's records come back with the folders they are in.
 func TestMemoryRestore(t *testing.T) {
 	r := newMemory()
-	when := time.UnixMilli(1_000_000)
-	r.restore("/a/b/c.pgs", false, when, []byte("c"))
-	r.restore("/empty", true, when, nil)
-	r.restore("relative", false, when, []byte("?"))
+	r.restore("/a/b/c.pgs", false, []byte("c"))
+	r.restore("/empty", true, nil)
+	r.restore("relative", false, []byte("?"))
 
 	for _, p := range []string{"/a", "/a/b", "/empty"} {
 		if e, err := r.Stat(p); err != nil || !e.Dir {
@@ -66,7 +64,7 @@ func TestMemoryRestore(t *testing.T) {
 		}
 	}
 
-	if e, err := r.Stat("/a/b/c.pgs"); err != nil || e.Size != 1 || !e.ModTime.Equal(when) {
+	if e, err := r.Stat("/a/b/c.pgs"); err != nil || e.Dir {
 		t.Errorf("restored file: %+v, %v", e, err)
 	}
 

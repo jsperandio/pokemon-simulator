@@ -75,7 +75,6 @@ func (d *database) load(mem *memory) error {
 		}
 
 		v := cursor.Get("value")
-		t := time.UnixMilli(int64(v.Get("time").Float()))
 
 		var data []byte
 
@@ -84,7 +83,7 @@ func (d *database) load(mem *memory) error {
 			js.CopyBytesToGo(data, arr)
 		}
 
-		mem.restore(cursor.Get("key").String(), v.Get("dir").Truthy(), t, data)
+		mem.restore(cursor.Get("key").String(), v.Get("dir").Truthy(), data)
 		cursor.Call("continue")
 
 		return nil
@@ -105,10 +104,10 @@ func (d *database) load(mem *memory) error {
 }
 
 // put writes a file's or a folder's record and waits until it is kept.
-func (d *database) put(pth string, dir bool, t time.Time, data []byte) error {
+func (d *database) put(pth string, dir bool, data []byte) error {
 	rec := js.Global().Get("Object").New()
 	rec.Set("dir", dir)
-	rec.Set("time", t.UnixMilli())
+	rec.Set("time", time.Now().UnixMilli()) // the game's earlier versions read it
 
 	if !dir {
 		rec.Set("data", uint8Array(data))

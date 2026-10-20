@@ -4,10 +4,7 @@
 // where its files live, and showing a page in the browser.
 package platform
 
-import (
-	"errors"
-	"time"
-)
+import "errors"
 
 // ErrNotExist is returned for a path that doesn't exist.
 var ErrNotExist = errors.New("file does not exist")
@@ -20,8 +17,6 @@ type writer interface {
 
 // Entry is a file or folder.
 type Entry struct {
-	Name    string
-	Dir     bool
-	Size    int64
-	ModTime time.Time
+	Name string
+	Dir  bool
 }
