@@ -51,9 +51,16 @@ func Run(t *testing.T, dir string, data *gamedata.Data, newDriver func(t *testin
 	}
 }
 
+// reporter is what compare needs of a test: testing.T, or a fake that
+// records what compare reports.
+type reporter interface {
+	Helper()
+	Errorf(format string, args ...any)
+}
+
 // compare reports the first line where the port's trace differs from the
 // original's, with the port's lines before it.
-func compare(t *testing.T, want, got []string) {
+func compare(t reporter, want, got []string) {
 	t.Helper()
 
 	idx := firstDifference(want, got)
