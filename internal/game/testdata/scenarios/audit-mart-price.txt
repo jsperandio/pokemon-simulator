@@ -1,0 +1,35 @@
+# Audit: the Mart's price box (Edit1) is empty until the player first picks
+# an item or changes the quantity, since only RadioGroup1Click and
+# SpinEdit1Change write it. After that, opening the Mart shows "0¥": FormShow's
+# SpinEdit1.Value := 0 recomputes it when the quantity wasn't "0", and
+# otherwise the last price was for a quantity of 0.
+Money 30000
+party 25 10
+> start
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 ""
+> click Form9.Button2
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 ""
+> radio Form9.RadioGroup1 2
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> type Form9.SpinEdit1 3
+> text Form9.Edit1
+text Form9.Edit1 "9000¥"
+> click Form9.Button2
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> radio Form9.RadioGroup1 1
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> click Form9.Button2
+> menu Actions > Buy Items
+> text Form9.Edit1
+text Form9.Edit1 "0¥"
+> quit
+exit 0
+save unchanged

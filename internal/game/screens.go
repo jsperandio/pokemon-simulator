@@ -108,9 +108,9 @@ func (g *Game) CloseTypes() {
 // PokemartWindow is the POKéMON Mart (Form9).
 type PokemartWindow struct {
 	Visible    bool
-	Item       int // RadioGroup1.ItemIndex: PokemartPrices' index, or -1
-	Quantity   int // SpinEdit1.Value
-	Total      string
+	Item       int    // RadioGroup1.ItemIndex: PokemartPrices' index, or -1
+	Quantity   int    // SpinEdit1.Value
+	Total      string // Edit1: the price, "" until one is written
 	BuyEnabled bool
 }
 
@@ -137,10 +137,19 @@ func (g *Game) OpenPokemart() {
 		return
 	}
 
+	// Only RadioGroup1Click and SpinEdit1Change write the price, and
+	// FormShow's SpinEdit1.Value := 0 runs SpinEdit1Change only when the
+	// quantity wasn't "0". So the box stays empty until a price is
+	// written, and shows "0¥" from then on.
+	total := g.Pokemart.Total
+	if total != "" {
+		total = "0¥"
+	}
+
 	g.Pokemart = PokemartWindow{
 		Visible: true,
 		Item:    -1,
-		Total:   "0¥",
+		Total:   total,
 	}
 	g.show(PokemartForm)
 }
