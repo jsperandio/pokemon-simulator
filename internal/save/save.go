@@ -8,6 +8,7 @@ package save
 
 import (
 	"bytes"
+	"slices"
 	"strconv"
 
 	"github.com/jsperandio/pokemon-simulator/internal/delphi"
@@ -48,12 +49,15 @@ type Slot struct {
 	XP      uint32
 }
 
+// empty reports whether the slot ends the party.
+func (s Slot) empty() bool {
+	return s.Species <= 0
+}
+
 // Party returns the slots up to the first empty one, as the game reads them.
 func (f *File) Party() []Slot {
-	for i, s := range f.Owned {
-		if s.Species <= 0 {
-			return f.Owned[:i]
-		}
+	if n := slices.IndexFunc(f.Owned[:], Slot.empty); n >= 0 {
+		return f.Owned[:n]
 	}
 
 	return f.Owned[:]
@@ -98,7 +102,7 @@ func (f *File) Bytes() []byte {
 		boolean(f.InPokedex[s])
 	}
 
-	for _, s := range f.Owned {
+	for _, s := range f.Owned[:] {
 		line(strconv.Itoa(int(s.Species)))
 		line(strconv.Itoa(int(s.Level)))
 		line(strconv.FormatUint(uint64(s.XP), 10))
