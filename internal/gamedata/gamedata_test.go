@@ -6,202 +6,274 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/jsperandio/pokemon-simulator/assets"
 )
 
-func loadEmbedded(t *testing.T) *Data {
+// embeddedFile returns the POKéGAME.dat embedded in the port.
+func embeddedFile(t *testing.T) []byte {
 	t.Helper()
 
 	raw, err := assets.FS.ReadFile("pokegame.dat")
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
-	d, err := Load(raw)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return d
+	return raw
 }
 
-func TestLoadCounts(t *testing.T) {
-	d := loadEmbedded(t)
-	counts := []struct {
-		name      string
-		got, want int
-	}{
-		{"species", len(d.Species), NumSpecies},
-		{"badges", len(d.Badges), NumBadges},
-		{"moves", len(d.Moves), NumMoves},
-		{"prizes", len(d.Prizes), NumPrizes},
-		{"trainer names", len(d.TrainerNames), NumTrainerNames},
-	}
+// loadEmbedded loads the POKéGAME.dat embedded in the port.
+func loadEmbedded(t *testing.T) *Data {
+	t.Helper()
 
-	for _, c := range counts {
-		if c.got != c.want {
-			t.Errorf("%s: got %d, want %d", c.name, c.got, c.want)
-		}
-	}
+	gdt, err := Load(embeddedFile(t))
+	require.NoError(t, err)
+
+	return gdt
 }
 
-func TestTypes(t *testing.T) {
-	d := loadEmbedded(t)
-	if d.TypeName(Normal) != "Normal" || d.TypeName(Steel) != "Steel" || d.TypeName(Grass) != "Grass" {
-		t.Errorf("type names: %q", d.TypeNames)
-	}
+func Test_Load(t *testing.T) {
+	t.Parallel()
 
-	effects := []struct {
-		atk, def Type
-		want     float64
-	}{
-		{Normal, Ghost, 0},
-		{Normal, Rock, 0.5},
-		{Fire, Grass, 2},
-		{Fire, Water, 0.5},
-		{Fire, Steel, 2},
-		{Water, Fire, 2},
-		{Electric, Ground, 0},
-		{Fire, NoType, 1},
-	}
-	for _, e := range effects {
-		if got := d.Effect(e.atk, e.def); got != e.want {
-			t.Errorf("Effect(%s, %s) = %v, want %v", d.TypeName(e.atk), d.TypeName(e.def), got, e.want)
-		}
-	}
-}
-
-func TestSpecies(t *testing.T) {
-	d := loadEmbedded(t)
-	tests := []Species{
-		{
-			ID:          1,
-			Name:        "Bulbasaur",
-			Types:       [2]Type{Grass, Poison},
-			EvolveLevel: 16,
-			EvolveTo:    2,
-			Moves:       [4]int{1, 2, 3, 4},
-		},
-		{ID: 3, Name: "Venusaur", Types: [2]Type{Grass, Poison}},
-		{ID: 6, Name: "Charizard", Types: [2]Type{Fire, Flying}},
-		// The author's values differ from the official games (16 and 36).
-		{ID: 7, Name: "Squirtle", Types: [2]Type{Water, NoType}, EvolveLevel: 18, EvolveTo: 8},
-		{ID: 25, Name: "Pikachu", Types: [2]Type{Electric, NoType}, EvolveTo: 26},
-		{ID: 29, Name: "Nidoran[F]"},
-		// Branching evolution: a level but no single target.
-		{ID: 133, Name: "Eevee", Types: [2]Type{Normal, NoType}, EvolveLevel: 30},
-		{ID: 252, Name: "Treecko"},
-		{ID: 386, Name: "Deoxys"},
-	}
-
-	for _, want := range tests {
-		got := d.SpeciesByID(want.ID)
-		if got == nil || got.Name != want.Name {
-			t.Errorf("species %d: got %+v, want name %q", want.ID, got, want.Name)
-
-			continue
-		}
-
-		if want.Types != [2]Type{} && got.Types != want.Types {
-			t.Errorf("%s types: got %v, want %v", want.Name, got.Types, want.Types)
-		}
-
-		if want.EvolveLevel != 0 && got.EvolveLevel != want.EvolveLevel {
-			t.Errorf("%s evolve level: got %d, want %d", want.Name, got.EvolveLevel, want.EvolveLevel)
-		}
-
-		if want.EvolveTo != 0 && got.EvolveTo != want.EvolveTo {
-			t.Errorf("%s evolves to: got %d, want %d", want.Name, got.EvolveTo, want.EvolveTo)
-		}
-
-		if want.Moves != [4]int{} && got.Moves != want.Moves {
-			t.Errorf("%s moves: got %v, want %v", want.Name, got.Moves, want.Moves)
-		}
-	}
-
-	if eevee := d.SpeciesByID(133); eevee.EvolveTo != 0 {
-		t.Errorf("Eevee evolves to %d, want 0 (chosen by the game)", eevee.EvolveTo)
-	}
-
-	if d.SpeciesByID(0) != nil || d.SpeciesByID(387) != nil {
-		t.Error("SpeciesByID accepts out-of-range IDs")
-	}
-}
-
-// moveMatches reports whether got is the move want; a Power of 0 in want
-// isn't checked.
-func moveMatches(got *Move, want Move) bool {
-	if got == nil {
-		return false
-	}
-
-	return got.Name == want.Name && got.Type == want.Type && (want.Power == 0 || got.Power == want.Power)
-}
-
-func TestMoves(t *testing.T) {
-	d := loadEmbedded(t)
-	tests := []Move{
-		{ID: 1, Name: "Tackle", Power: 70, Type: Normal},
-		{ID: 3, Name: "Leech Seed", Power: 110, Type: Grass},
-		{ID: 8, Name: "Ember", Type: Fire},
-	}
-
-	for _, want := range tests {
-		got := d.MoveByID(want.ID)
-		if !moveMatches(got, want) {
-			t.Errorf("move %d: got %+v, want %+v", want.ID, got, want)
-		}
-	}
-
-	for _, s := range d.Species {
-		for _, m := range s.Moves {
-			if d.MoveByID(m) == nil {
-				t.Errorf("%s knows unknown move %d", s.Name, m)
-			}
-		}
-	}
-}
-
-func TestTexts(t *testing.T) {
-	d := loadEmbedded(t)
-	checks := []struct{ got, want string }{
-		{d.Badges[0], "BoulderBadge"},
-		{d.Badges[NumBadges-1], "RainBadge"},
-		{d.Prizes[0], "3 POKéBALLs"},
-		{d.Prizes[2], "2500¥"},
-		{d.Prizes[NumPrizes-1], "a random POKéMON at a random level"},
-		{d.TrainerNames[0], "Tracey"},
-		{d.TrainerNames[NumTrainerNames-1], "Julia"},
-	}
-
-	for _, c := range checks {
-		if c.got != c.want {
-			t.Errorf("got %q, want %q", c.got, c.want)
-		}
-	}
-}
-
-func TestLoadErrors(t *testing.T) {
-	raw, err := assets.FS.ReadFile("pokegame.dat")
-	if err != nil {
-		t.Fatal(err)
-	}
+	raw := embeddedFile(t)
+	gdt, err := Load(raw)
+	require.NoError(t, err)
 
 	lines := strings.Split(string(raw), "\r\n")
 
-	truncated := strings.Join(lines[:1000], "\r\n")
-	if _, err := Load([]byte(truncated)); err == nil || !strings.Contains(err.Error(), "line 1001") {
-		t.Errorf("truncated file: got error %v, want one naming line 1001", err)
-	}
+	t.Run("when the embedded file is loaded, should fill every table in full", func(t *testing.T) {
+		t.Parallel()
 
-	bad := append([]string(nil), lines...)
-	bad[699] = "four" // first type of Bulbasaur
+		assert.Len(t, gdt.Species, NumSpecies, "species")
+		assert.Len(t, gdt.Badges, NumBadges, "badges")
+		assert.Len(t, gdt.Moves, NumMoves, "moves")
+		assert.Len(t, gdt.Prizes, NumPrizes, "prizes")
+		assert.Len(t, gdt.TrainerNames, NumTrainerNames, "trainer names")
+	})
 
-	if _, err := Load([]byte(strings.Join(bad, "\r\n"))); err == nil || !strings.Contains(err.Error(), "line 700") {
-		t.Errorf("non-numeric value: got error %v, want one naming line 700", err)
-	}
+	t.Run("when the embedded file is loaded, should give its texts", func(t *testing.T) {
+		t.Parallel()
 
-	if _, err := Load([]byte(strings.ReplaceAll(string(raw), "\r\n", "\n"))); err != nil {
-		t.Errorf("LF line endings: %v", err)
-	}
+		require.Len(t, gdt.Badges, NumBadges)
+		require.Len(t, gdt.Prizes, NumPrizes)
+		require.Len(t, gdt.TrainerNames, NumTrainerNames)
+
+		assert.Equal(t, "BoulderBadge", gdt.Badges[0])
+		assert.Equal(t, "RainBadge", gdt.Badges[NumBadges-1])
+		assert.Equal(t, "3 POKéBALLs", gdt.Prizes[0])
+		assert.Equal(t, "2500¥", gdt.Prizes[2])
+		assert.Equal(t, "a random POKéMON at a random level", gdt.Prizes[NumPrizes-1])
+		assert.Equal(t, "Tracey", gdt.TrainerNames[0])
+		assert.Equal(t, "Julia", gdt.TrainerNames[NumTrainerNames-1])
+	})
+
+	t.Run("when the file is cut short, should fail naming line 1001", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := Load([]byte(strings.Join(lines[:1000], "\r\n")))
+		assert.ErrorContains(t, err, "line 1001")
+	})
+
+	t.Run("when a number's line holds a word, should fail naming line 700", func(t *testing.T) {
+		t.Parallel()
+
+		bad := append([]string(nil), lines...)
+		bad[699] = "four" // first type of Bulbasaur
+
+		_, err := Load([]byte(strings.Join(bad, "\r\n")))
+		assert.ErrorContains(t, err, "line 700")
+	})
+
+	t.Run("when the line endings are LF, should still load", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := Load([]byte(strings.ReplaceAll(string(raw), "\r\n", "\n")))
+		assert.NoError(t, err)
+	})
+}
+
+func Test_Data_TypeName(t *testing.T) {
+	t.Parallel()
+
+	gdt := loadEmbedded(t)
+
+	t.Run("when the type is in the chart, should give its name", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, "Normal", gdt.TypeName(Normal))
+		assert.Equal(t, "Steel", gdt.TypeName(Steel))
+		assert.Equal(t, "Grass", gdt.TypeName(Grass))
+	})
+
+	t.Run("when the type is NoType, should give no name", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Empty(t, gdt.TypeName(NoType))
+	})
+}
+
+func Test_Data_Effect(t *testing.T) {
+	t.Parallel()
+
+	gdt := loadEmbedded(t)
+
+	t.Run("when the defender is immune, should take no damage", func(t *testing.T) {
+		t.Parallel()
+
+		assertMultiplier(t, gdt, Normal, Ghost, 0)
+		assertMultiplier(t, gdt, Electric, Ground, 0)
+	})
+
+	t.Run("when the defender resists, should halve the damage", func(t *testing.T) {
+		t.Parallel()
+
+		assertMultiplier(t, gdt, Normal, Rock, 0.5)
+		assertMultiplier(t, gdt, Fire, Water, 0.5)
+	})
+
+	t.Run("when the defender is weak, should double the damage", func(t *testing.T) {
+		t.Parallel()
+
+		assertMultiplier(t, gdt, Fire, Grass, 2)
+		assertMultiplier(t, gdt, Fire, Steel, 2)
+		assertMultiplier(t, gdt, Water, Fire, 2)
+	})
+
+	t.Run("when the defender has no second type, should take normal damage", func(t *testing.T) {
+		t.Parallel()
+
+		assertMultiplier(t, gdt, Fire, NoType, 1)
+	})
+}
+
+// assertMultiplier asserts that an attack of type atk does want times the
+// damage to a defender of type def.
+func assertMultiplier(t *testing.T, gdt *Data, atk, def Type, want float64) {
+	t.Helper()
+
+	assert.Equal(t, want, gdt.Effect(atk, def), //nolint:testifylint // exact: 0, 0.5, 1 and 2 are binary fractions
+		"Effect(%s, %s)", gdt.TypeName(atk), gdt.TypeName(def))
+}
+
+func Test_Data_SpeciesByID(t *testing.T) {
+	t.Parallel()
+
+	gdt := loadEmbedded(t)
+
+	t.Run("when the ID is a species, should give the fields its row gives", func(t *testing.T) {
+		t.Parallel()
+
+		// A row's zero fields are not checked.
+		for _, cas := range []Species{
+			{
+				ID:          1,
+				Name:        "Bulbasaur",
+				Types:       [2]Type{Grass, Poison},
+				EvolveLevel: 16,
+				EvolveTo:    2,
+				Moves:       [4]int{1, 2, 3, 4},
+			},
+			{ID: 3, Name: "Venusaur", Types: [2]Type{Grass, Poison}},
+			{ID: 6, Name: "Charizard", Types: [2]Type{Fire, Flying}},
+			{ID: 25, Name: "Pikachu", Types: [2]Type{Electric, NoType}, EvolveTo: 26},
+			{ID: 29, Name: "Nidoran[F]"},
+			{ID: 252, Name: "Treecko"},
+			{ID: 386, Name: "Deoxys"},
+		} {
+			spc := gdt.SpeciesByID(cas.ID)
+			if !assert.NotNil(t, spc, "ID %d", cas.ID) {
+				continue
+			}
+
+			assert.Equal(t, cas.Name, spc.Name, "ID %d", cas.ID)
+
+			if cas.Types != [2]Type{} {
+				assert.Equal(t, cas.Types, spc.Types, "%s types", cas.Name)
+			}
+
+			if cas.EvolveLevel != 0 {
+				assert.Equal(t, cas.EvolveLevel, spc.EvolveLevel, "%s evolve level", cas.Name)
+			}
+
+			if cas.EvolveTo != 0 {
+				assert.Equal(t, cas.EvolveTo, spc.EvolveTo, "%s evolves to", cas.Name)
+			}
+
+			if cas.Moves != [4]int{} {
+				assert.Equal(t, cas.Moves, spc.Moves, "%s moves", cas.Name)
+			}
+		}
+	})
+
+	// The author's values differ from the official games (16 and 36).
+	t.Run("when Squirtle is read, should keep the author's evolution level and target", func(t *testing.T) {
+		t.Parallel()
+
+		spc := gdt.SpeciesByID(7)
+		require.NotNil(t, spc)
+
+		assert.Equal(t, "Squirtle", spc.Name)
+		assert.Equal(t, [2]Type{Water, NoType}, spc.Types)
+		assert.Equal(t, 18, spc.EvolveLevel)
+		assert.Equal(t, 8, spc.EvolveTo)
+	})
+
+	// Branching evolution: a level but no single target.
+	t.Run("when Eevee is read, should evolve at a level with no single target", func(t *testing.T) {
+		t.Parallel()
+
+		eevee := gdt.SpeciesByID(133)
+		require.NotNil(t, eevee)
+
+		assert.Equal(t, "Eevee", eevee.Name)
+		assert.Equal(t, [2]Type{Normal, NoType}, eevee.Types)
+		assert.Equal(t, 30, eevee.EvolveLevel)
+		assert.Zero(t, eevee.EvolveTo, "Eevee evolves to a target, want none (chosen by the game)")
+	})
+
+	t.Run("when the ID is out of range, should give nil", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Nil(t, gdt.SpeciesByID(0))
+		assert.Nil(t, gdt.SpeciesByID(387))
+	})
+}
+
+func Test_Data_MoveByID(t *testing.T) {
+	t.Parallel()
+
+	gdt := loadEmbedded(t)
+
+	t.Run("when the ID is a move, should give its name, power and type", func(t *testing.T) {
+		t.Parallel()
+
+		// A row's zero power is not checked.
+		for _, cas := range []Move{
+			{ID: 1, Name: "Tackle", Power: 70, Type: Normal},
+			{ID: 3, Name: "Leech Seed", Power: 110, Type: Grass},
+			{ID: 8, Name: "Ember", Type: Fire},
+		} {
+			mov := gdt.MoveByID(cas.ID)
+			if !assert.NotNil(t, mov, "move %d", cas.ID) {
+				continue
+			}
+
+			assert.Equal(t, cas.Name, mov.Name, "move %d", cas.ID)
+			assert.Equal(t, cas.Type, mov.Type, "%s type", cas.Name)
+
+			if cas.Power != 0 {
+				assert.Equal(t, cas.Power, mov.Power, "%s power", cas.Name)
+			}
+		}
+	})
+
+	t.Run("when a species knows a move, should find that move", func(t *testing.T) {
+		t.Parallel()
+
+		for _, spc := range gdt.Species {
+			for _, mid := range spc.Moves {
+				assert.NotNil(t, gdt.MoveByID(mid), "%s knows unknown move %d", spc.Name, mid)
+			}
+		}
+	})
 }

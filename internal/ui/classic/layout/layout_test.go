@@ -3,142 +3,183 @@
 package layout
 
 import (
-	"slices"
+	"io/fs"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jsperandio/pokemon-simulator/assets"
 )
 
-func TestAllForms(t *testing.T) {
-	if len(All) != 11 {
-		t.Fatalf("got %d forms, want 11", len(All))
-	}
+func Test_All(t *testing.T) {
+	t.Parallel()
 
-	seen := map[string]bool{}
-	for _, f := range All {
-		if seen[f.Name] {
-			t.Errorf("form %s listed twice", f.Name)
-		}
+	t.Run("when the forms are listed, should be 11, each listed once", func(t *testing.T) {
+		t.Parallel()
 
-		seen[f.Name] = true
-		if f.Class != "T"+f.Name {
-			t.Errorf("form %s has class %s", f.Name, f.Class)
-		}
-	}
-}
+		require.Len(t, All, 11)
 
-// The original places its three main windows at fixed screen positions:
-// Battle Info under the main window, Statistics to its right.
-func TestWindowArrangement(t *testing.T) {
-	checks := []struct {
-		form   *Component
-		x, y   int
-		cw, ch string
-	}{
-		{&Form4, 189, 105, "422", "270"},
-		{&Form7, 189, 419, "422", "159"},
-		{&Form5, 617, 105, "177", "473"},
-	}
-	for _, c := range checks {
-		b := c.form.Bounds
-		if b.X != c.x || b.Y != c.y {
-			t.Errorf("%s at (%d,%d), want (%d,%d)", c.form.Name, b.X, b.Y, c.x, c.y)
-		}
+		seen := map[string]bool{}
+		for _, frm := range All {
+			assert.False(t, seen[frm.Name], "form %s listed twice", frm.Name)
 
-		cw, ch := c.form.Props["ClientWidth"], c.form.Props["ClientHeight"]
-		if cw != c.cw || ch != c.ch {
-			t.Errorf("%s is %sx%s, want %sx%s", c.form.Name, cw, ch, c.cw, c.ch)
-		}
-	}
-}
-
-func TestMainMenu(t *testing.T) {
-	items := 0
-
-	Form4.Walk(func(c *Component) {
-		if c.Class == "TMenuItem" {
-			items++
+			seen[frm.Name] = true
 		}
 	})
 
-	if items != 86 {
-		t.Errorf("got %d menu items, want 86", items)
-	}
+	t.Run("when a form is listed, should have the class T and its name", func(t *testing.T) {
+		t.Parallel()
+
+		for _, frm := range All {
+			assert.Equal(t, "T"+frm.Name, frm.Class, "form %s", frm.Name)
+		}
+	})
+
+	t.Run("when the main windows are listed, should be placed as in the original", func(t *testing.T) {
+		t.Parallel()
+
+		// The original places its three main windows at fixed screen positions:
+		// Battle Info under the main window, Statistics to its right.
+		for _, cas := range []struct {
+			form   *Component
+			x, y   int
+			cw, ch string
+		}{
+			{&Form4, 189, 105, "422", "270"},
+			{&Form7, 189, 419, "422", "159"},
+			{&Form5, 617, 105, "177", "473"},
+		} {
+			assert.Equal(t, cas.x, cas.form.Bounds.X, "%s left edge", cas.form.Name)
+			assert.Equal(t, cas.y, cas.form.Bounds.Y, "%s top edge", cas.form.Name)
+			assert.Equal(t, cas.cw, cas.form.Props["ClientWidth"], "%s client width", cas.form.Name)
+			assert.Equal(t, cas.ch, cas.form.Props["ClientHeight"], "%s client height", cas.form.Name)
+		}
+	})
+
+	t.Run("when the bitmaps and pictures are listed, should be embedded files", func(t *testing.T) {
+		t.Parallel()
+
+		// Image lists and pictures point at embedded asset files.
+		var pths []string
+
+		for _, frm := range All {
+			frm.Walk(func(cmp *Component) {
+				for _, prop := range []string{"Bitmap", "Picture"} {
+					pth, ok := cmp.Props[prop]
+					if !ok {
+						continue
+					}
+
+					pths = append(pths, pth)
+				}
+			})
+		}
+
+		assert.Len(t, pths, 5, "asset references")
+
+		for _, pth := range pths {
+			_, err := fs.Stat(assets.FS, pth)
+			assert.NoError(t, err, "%s", pth)
+		}
+	})
+}
+
+func Test_Form4(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the menu is walked, should hold 86 menu items", func(t *testing.T) {
+		t.Parallel()
+
+		items := 0
+
+		Form4.Walk(func(cmp *Component) {
+			if cmp.Class == "TMenuItem" {
+				items++
+			}
+		})
+
+		assert.Equal(t, 86, items, "menu items")
+	})
+
+	t.Run("when FightTrainer1 is walked, should hold 45 trainers", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Len(t, fightTrainers(t), 45, "trainers")
+	})
+
+	t.Run("when FightTrainer1 is walked, should include the named trainers", func(t *testing.T) {
+		t.Parallel()
+
+		trainers := fightTrainers(t)
+
+		for _, name := range []string{
+			"Brock",
+			"Gary",
+			"Clair",
+			"Wallace",
+			"Tate && Liza",
+			"Me",
+		} {
+			assert.Contains(t, trainers, name, "trainer %q", name)
+		}
+	})
+}
+
+// fightTrainers returns the captions of the trainers' menu items under
+// FightTrainer1.
+func fightTrainers(t *testing.T) []string {
+	t.Helper()
 
 	fight := Form4.Find("FightTrainer1")
-	if fight == nil {
-		t.Fatal("no FightTrainer1 menu")
-	}
+	require.NotNil(t, fight, "no FightTrainer1 menu")
 
 	var trainers []string
 
-	fight.Walk(func(c *Component) {
-		if c.Class == "TMenuItem" && c.Events["OnClick"] != "" {
-			trainers = append(trainers, c.Caption)
+	fight.Walk(func(cmp *Component) {
+		if cmp.Class == "TMenuItem" && cmp.Events["OnClick"] != "" {
+			trainers = append(trainers, cmp.Caption)
 		}
 	})
 
-	if len(trainers) != 45 {
-		t.Errorf("got %d trainers, want 45: %v", len(trainers), trainers)
-	}
-
-	for _, name := range []string{
-		"Brock",
-		"Gary",
-		"Clair",
-		"Wallace",
-		"Tate && Liza",
-		"Me",
-	} {
-		if !slices.Contains(trainers, name) {
-			t.Errorf("trainer %q missing", name)
-		}
-	}
+	return trainers
 }
 
-func TestComponents(t *testing.T) {
-	starters := Form4.Find("ListView1")
-	want := []ListItem{{"Bulbasaur", 0}, {"Charmander", 3}, {"Squirtle", 6}}
+func Test_Component_Find(t *testing.T) {
+	t.Parallel()
 
-	if starters == nil || !slices.Equal(starters.List, want) {
-		t.Errorf("starters: got %+v, want %+v", starters, want)
-	}
+	t.Run("when a list is found by name, should hold the three starters", func(t *testing.T) {
+		t.Parallel()
 
-	if b := Form4.Find("EvolveButton"); b == nil || b.Events["OnClick"] != "EvolveButtonClick" || !b.Hidden {
-		t.Errorf("EvolveButton: got %+v", b)
-	}
+		starters := Form4.Find("ListView1")
+		require.NotNil(t, starters)
 
-	if e := OKRightDlg.Find("Edit1"); e == nil || e.Caption != "Ash" {
-		t.Errorf("name dialog default: got %+v", e)
-	}
+		want := []ListItem{{"Bulbasaur", 0}, {"Charmander", 3}, {"Squirtle", 6}}
+		assert.Equal(t, want, starters.List)
+	})
 
-	if Form4.Find("NoSuchComponent") != nil {
-		t.Error("Find returned a component for an unknown name")
-	}
-}
+	t.Run("when a button is found, should be hidden with its click handler", func(t *testing.T) {
+		t.Parallel()
 
-// Image lists and pictures point at embedded asset files.
-func TestAssetReferences(t *testing.T) {
-	refs := 0
+		btn := Form4.Find("EvolveButton")
+		require.NotNil(t, btn)
 
-	for _, f := range All {
-		f.Walk(func(c *Component) {
-			for _, prop := range []string{"Bitmap", "Picture"} {
-				path, ok := c.Props[prop]
-				if !ok {
-					continue
-				}
+		assert.True(t, btn.Hidden)
+		assert.Equal(t, "EvolveButtonClick", btn.Events["OnClick"])
+	})
 
-				refs++
+	t.Run("when the name dialog's edit box is found, should default to Ash", func(t *testing.T) {
+		t.Parallel()
 
-				if _, err := assets.FS.Open(path); err != nil {
-					t.Errorf("%s.%s.%s: %v", f.Name, c.Name, prop, err)
-				}
-			}
-		})
-	}
+		edt := OKRightDlg.Find("Edit1")
+		require.NotNil(t, edt)
 
-	if refs != 5 {
-		t.Errorf("got %d asset references, want 5", refs)
-	}
+		assert.Equal(t, "Ash", edt.Caption)
+	})
+
+	t.Run("when the name is not in the form, should give nil", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Nil(t, Form4.Find("NoSuchComponent"))
+	})
 }

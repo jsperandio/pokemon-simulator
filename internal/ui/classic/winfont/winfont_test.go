@@ -8,72 +8,110 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/jsperandio/pokemon-simulator/assets"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
+// sansSerifSizes parses the embedded MS Sans Serif, the font of every window
+// and dialog, in all its sizes.
+func sansSerifSizes(t *testing.T) []*Font {
+	t.Helper()
+
+	dat, err := assets.FS.ReadFile("wine/sserife.fon")
+	require.NoError(t, err)
+
+	fonts, err := Parse(dat)
+	require.NoError(t, err)
+
+	return fonts
+}
+
+// sansSerif returns the 8 pt size of the embedded MS Sans Serif.
 func sansSerif(t *testing.T) *Font {
 	t.Helper()
 
-	b, err := assets.FS.ReadFile("wine/sserife.fon")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fonts, err := Parse(b)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(fonts) != 3 {
-		t.Fatalf("%d sizes, want 3 (8, 10 and 12 pt)", len(fonts))
-	}
+	fonts := sansSerifSizes(t)
+	require.Len(t, fonts, 3, "8, 10 and 12 pt")
 
 	return fonts[0]
 }
 
-func TestParse(t *testing.T) {
-	f := sansSerif(t)
-	if f.Name != "MS Sans Serif" || [3]int{f.Points, f.Height, f.Ascent} != [3]int{8, 13, 11} {
-		t.Errorf("got %q %d pt, height %d, ascent %d", f.Name, f.Points, f.Height, f.Ascent)
-	}
+func Test_Parse(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the file is parsed, should give three sizes", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Len(t, sansSerifSizes(t), 3, "8, 10 and 12 pt")
+	})
+
+	t.Run("when the 8 pt size is read, should give its name and metrics", func(t *testing.T) {
+		t.Parallel()
+
+		fnt := sansSerif(t)
+
+		assert.Equal(t, "MS Sans Serif", fnt.Name)
+		assert.Equal(t, 8, fnt.Points)
+		assert.Equal(t, 13, fnt.Height)
+		assert.Equal(t, 11, fnt.Ascent)
+	})
 }
 
-// autoSized reports whether c is a label with a caption, whose width Delphi
+// autoSized reports whether cmp is a label with a caption, whose width Delphi
 // stored as measured in the form's font.
-func autoSized(c *layout.Component) bool {
-	return c.Class == "TLabel" && c.Caption != "" && c.Props["AutoSize"] != "False" && c.Props["Font.Name"] == ""
+func autoSized(cmp *layout.Component) bool {
+	isLabel := cmp.Class == "TLabel" && cmp.Caption != ""
+	autoSize := cmp.Props["AutoSize"] != "False" && cmp.Props["Font.Name"] == ""
+
+	return isLabel && autoSize
 }
 
-// Delphi stores an autosized label's width, measured with the real MS Sans
-// Serif when the author saved the form: Wine's font must measure the same.
-func TestLabelWidths(t *testing.T) {
-	f := sansSerif(t)
-	n := 0
+func Test_Font_Width(t *testing.T) {
+	t.Parallel()
 
-	for _, form := range layout.All {
-		form.Walk(func(c *layout.Component) {
-			if !autoSized(c) {
-				return
-			}
+	fnt := sansSerif(t)
 
-			n++
+	t.Run("when a label is autosized, should be as wide as Delphi stored it", func(t *testing.T) {
+		t.Parallel()
 
-			if w := f.Width(c.Caption, false); w != c.Bounds.W {
-				t.Errorf("%s.%s %q: %d pixels wide, the form says %d", form.Name, c.Name, c.Caption, w, c.Bounds.W)
-			}
-		})
-	}
+		// Delphi stores an autosized label's width, measured with the real MS Sans
+		// Serif when the author saved the form: Wine's font must measure the same.
+		num := 0
 
-	if n < 70 {
-		t.Errorf("only %d labels checked", n)
-	}
+		for _, frm := range layout.All {
+			frm.Walk(func(cmp *layout.Component) {
+				if !autoSized(cmp) {
+					return
+				}
+
+				num++
+
+				assert.Equal(t, cmp.Bounds.W, fnt.Width(cmp.Caption, false),
+					"%s.%s %q", frm.Name, cmp.Name, cmp.Caption)
+			})
+		}
+
+		assert.GreaterOrEqual(t, num, 70, "labels checked")
+	})
+
+	t.Run("when Name: is bold, should be 36 pixels wide", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, 36, fnt.Width("Name:", true))
+	})
 }
 
-// "Name:" as Wine draws it in the Statistics window
-// (captures/screens/screens-game-stats.png).
-func TestDraw(t *testing.T) {
-	f := sansSerif(t)
+// Test_Font_Draw checks "Name:" as Wine draws it, and where Draw ends.
+func Test_Font_Draw(t *testing.T) {
+	t.Parallel()
+
+	fnt := sansSerif(t)
+	ink := color.RGBA{
+		A: 255,
+	}
 	want := []string{
 		"...............................",
 		"...............................",
@@ -89,30 +127,47 @@ func TestDraw(t *testing.T) {
 		"...............................",
 		"...............................",
 	}
-	dst := image.NewRGBA(image.Rect(0, 0, 31, 13))
 
-	if x := f.Draw(dst, dst.Rect, 0, 0, "Name:", color.RGBA{A: 255}, false); x != 31 {
-		t.Errorf("Draw ends at %d, want 31", x)
-	}
+	t.Run("when Name: is drawn, should set the pixels Wine draws", func(t *testing.T) {
+		t.Parallel()
 
-	for y, row := range want {
-		var got strings.Builder
+		// "Name:" as Wine draws it in the Statistics window
+		// (captures/screens/screens-game-stats.png).
+		dst := image.NewRGBA(image.Rect(0, 0, 31, 13))
 
-		for x := range row {
+		fnt.Draw(dst, dst.Rect, 0, 0, "Name:", ink, false)
+
+		assert.Equal(t, want, pixelRows(dst))
+	})
+
+	t.Run("when Name: is drawn, should end at x 31", func(t *testing.T) {
+		t.Parallel()
+
+		dst := image.NewRGBA(image.Rect(0, 0, 31, 13))
+
+		assert.Equal(t, 31, fnt.Draw(dst, dst.Rect, 0, 0, "Name:", ink, false))
+	})
+}
+
+// pixelRows returns the rows of dst, with '#' where a pixel is drawn and '.'
+// where it is not.
+func pixelRows(dst *image.RGBA) []string {
+	rows := make([]string, dst.Rect.Dy())
+
+	for y := range rows {
+		var row strings.Builder
+
+		for x := range dst.Rect.Dx() {
 			pixel := byte('.')
 			if dst.RGBAAt(x, y).A != 0 {
 				pixel = '#'
 			}
 
-			got.WriteByte(pixel)
+			row.WriteByte(pixel)
 		}
 
-		if got.String() != row {
-			t.Errorf("row %d: %s, want %s", y, got.String(), row)
-		}
+		rows[y] = row.String()
 	}
 
-	if w := f.Width("Name:", true); w != 36 {
-		t.Errorf("bold width %d, want 36", w)
-	}
+	return rows
 }
