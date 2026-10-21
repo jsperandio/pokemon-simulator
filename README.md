@@ -1,5 +1,9 @@
 # POKéMON Simulator
 
+<p align="center">
+  <img src="docs/screenshot.png" width="800" alt="A battle in the classic interface: Ash's Pikachu against a wild Mewtwo, with Charizard, Bulbasaur, Squirtle, Pidgeotto and Kingler in the party">
+</p>
+
 A faithful, cross-platform port of **POKéMON Simulator V4.5** to [Go](https://go.dev) and [Ebitengine](https://ebitengine.org). The original is a Windows freeware game made by Michael Madsen (BirdieSoft) in 2002–2004.
 
 The original only runs on Windows, or on other systems through Wine. This port makes it playable again on Linux, Windows, macOS and in the browser, with the same rules, data and look.
