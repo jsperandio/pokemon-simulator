@@ -49,7 +49,7 @@ You need Go 1.26 or later. No C compiler is needed, because every build uses `CG
 | `make web` | Build only the WebAssembly version into `dist/web/` |
 | `make serve` | Build and serve the WebAssembly version at http://localhost:8080 (needs Python 3) |
 
-`make dist` names the archives after the latest `v*` tag, such as `v1.0.0`, which also goes into the Windows program's properties. It needs GNU tar and zip, and network access the first time, to fetch [go-winres](https://github.com/tc-hib/go-winres), which gives the Windows program its icon.
+`make dist` names the archives after the latest `v*` tag, such as `v4.5.0`, which also goes into the Windows program's properties. It needs GNU tar and zip, and network access the first time, to fetch [go-winres](https://github.com/tc-hib/go-winres), which gives the Windows program its icon.
 
 On Linux, the game loads the system's graphics and audio libraries at runtime. Desktop distributions already include them.
 
