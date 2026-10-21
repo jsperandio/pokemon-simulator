@@ -72,7 +72,7 @@ build:
 	go build -trimpath -ldflags "$(LDFLAGS)" -o $(DIST)/$(BINARY) .
 
 # dist builds every platform and the web, and packs each into an archive in
-# $(DIST). The web's has its files and DOCS at the top, as itch.io wants.
+# $(DIST). The web's has its files and DOCS at the top, with no folder.
 dist: $(PLATFORMS) web
 	rm -f $(DIST)/*.tar.gz $(DIST)/*.zip
 	$(foreach p,$(PLATFORMS),$(call package,$p))
