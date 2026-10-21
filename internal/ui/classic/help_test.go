@@ -25,7 +25,7 @@ func Test_helpWindow(t *testing.T) {
 
 	// The help's flow is one subtest: Tab chooses the hotspot after the
 	// links were followed, and the screenshots show that state.
-	t.Run("when the help opens from the start screen, should show the contents, follow the links, open the port note in the browser, and maximize and close", func(t *testing.T) {
+	t.Run("when the help opens from the start screen, should show the contents, follow the links, open the issue tracker in the browser, and maximize and close", func(t *testing.T) {
 		t.Parallel()
 
 		ta := newTestApp(t)
@@ -54,8 +54,13 @@ func Test_helpWindow(t *testing.T) {
 
 		followHelpLinks(t, ta)
 
-		// Tab chooses the first hotspot, the port note's link, and Enter
-		// follows it out to the browser.
+		ta.click(ta.spotPoint("support.md"))
+		ta.wait(1)
+
+		require.Equal(t, "support.md", hw.view.name, "the link to support.md")
+
+		// Tab chooses the page's hotspot, the issue tracker's link, and
+		// Enter follows it out to the browser.
 		ta.key(ebiten.KeyTab)
 		ta.shot("32-help-tab")
 		ta.key(ebiten.KeyEnter)

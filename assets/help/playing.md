@@ -52,7 +52,3 @@ Certain POKéMON cannot be found by facing wild POKéMON:
 The following POKéMON have special rules in comparison to the original Game Boy games:
 
 - Shedinja: Shedinja is not restricted to 1HP. 75% of the time, when you evolve a Nincada into Ninjask, you will also receive a Shedinja. In the original games, you get it if you have a free space in your party when you evolve Nincada into Ninjask.
-
-If you have any questions, [e-mail me.](mailto:mickeym@go.to)
-
-> **Port note:** This e-mail address is from 2004 and out of date. For questions about this port, use the [project's issue tracker](https://github.com/jsperandio/pokemon-simulator/issues).
