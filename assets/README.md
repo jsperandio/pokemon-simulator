@@ -1,6 +1,6 @@
 # Assets
 
-Everything in this directory, except the Go files and the fonts and icons in `wine/` and `liberation/`, comes from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds these files in its binaries, so it plays and looks exactly like the original.
+Everything in this directory, except the Go files, the fonts and icons in `wine/` and `liberation/`, and the manual's screenshots, comes from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds these files in its binaries, so it plays and looks exactly like the original.
 
 ## Rights
 
@@ -21,7 +21,7 @@ This is a non-commercial project. If you hold rights to any of this material and
 | `sprites/pokeball.png` | The 15×15 POKéBALL shown under a wild POKéMON that is already in the POKéDEX | `Form4.Image1` | Shipped with the original. POKéBALL design: Nintendo / Creatures / GAME FREAK |
 | `sprites/icon.png` | Program icon, a Pidgeot, 32×32 | `MAINICON` | Shipped with the original. Pidgeot: Nintendo / Creatures / GAME FREAK |
 | `help/*.md` | The game's manual, one page per topic | `POKéGAME.HLP` | Michael Madsen |
-| `help/*.png` | The manual's screenshots and figures | `POKéGAME.HLP` | Michael Madsen. The screenshots show sprites owned by Nintendo / Creatures / GAME FREAK |
+| `help/*.png` | The manual's screenshots | Taken in the port, of the scenes that `POKéGAME.HLP`'s screenshots show | Michael Madsen's windows and texts. The sprites in them: Nintendo / Creatures / GAME FREAK |
 
 The form layouts in `internal/ui/classic/layout/` hold the original's window positions, sizes, captions, menus and event handler names. They are Michael Madsen's design.
 
