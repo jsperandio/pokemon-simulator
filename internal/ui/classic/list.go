@@ -346,8 +346,9 @@ type listView struct {
 	items    []listItem
 	images   *imageList
 	border   bool
-	selected int // ItemIndex
-	hot      int // the item under the mouse, hot-tracked
+	showOnly bool // a click neither selects an item nor focuses the list
+	selected int  // ItemIndex
+	hot      int  // the item under the mouse, hot-tracked
 	hotTrack bool
 	scroll   scrollBar // horizontal, in columns
 	pressing bool
@@ -375,7 +376,7 @@ func (lv *listView) setup(comp *layout.Component) {
 }
 
 func (lv *listView) focusable() bool {
-	return true
+	return !lv.showOnly
 }
 
 // setItems replaces the items, keeping the selection when it still exists.
@@ -553,6 +554,10 @@ func (lv *listView) mouseDown(pnt image.Point, double bool) {
 	if lv.scroll.press(pnt) {
 		lv.invalidate()
 
+		return
+	}
+
+	if lv.showOnly {
 		return
 	}
 

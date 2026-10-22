@@ -466,6 +466,30 @@ func Test_WildBattle(t *testing.T) {
 		ta.shot("18-after")
 		t.Logf("log: %q", ta.game.Info.Lines)
 	})
+
+	t.Run("when the arena's sprites are clicked, should neither select nor focus them", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.answer("Select a POKéMON from the Statistics Window")
+
+		rect := ta.stats.party.itemRect(0)
+		ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+		ta.answer("# 004 Charmander")
+		ta.answer("Choose Charmander?")
+
+		for _, view := range []*listView{ta.main.ownImage, ta.main.enemyImage} {
+			ta.click(widgetOrigin(view).Add(view.itemRect(0).Min).Add(image.Pt(12, 12)))
+			ta.wait(1)
+
+			assert.Equal(t, -1, view.selected, "%s is selected", view.name)
+			assert.NotSame(t, view, ta.main.wdw.focus, "%s has the focus", view.name)
+		}
+
+		ta.shot("arena-clicked")
+	})
 }
 
 // Test_CatchSaveLoad catches a POKéMON, quits, which saves, and loads the

@@ -96,6 +96,11 @@ func newMainForm(app *Application) *mainForm {
 	mf.goButton = get[*button](wdw, "Button1")
 	mf.ownImage = get[*listView](wdw, "ListView2")
 	mf.enemyImage = get[*listView](wdw, "ListView3")
+	// The arena's sprites only show. The original's list views select a
+	// clicked sprite, which Windows draws tinted blue, with a focus
+	// rectangle beside it.
+	mf.ownImage.showOnly = true
+	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
 	mf.arena.over = func(cv canvas) {
 		mf.enemyAppear.paint(cv, mf.enemyImage.rect.Min)
