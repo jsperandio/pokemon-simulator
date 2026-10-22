@@ -72,6 +72,9 @@ type Application struct {
 	wheel  float64 // the wheel's movement not yet a whole notch
 	pace   *pacer
 
+	settings    settingsStore
+	preferences preferences // the player's, as the settings keep them
+
 	start      *startForm
 	load       *loadForm
 	main       *mainForm
@@ -101,9 +104,10 @@ type Application struct {
 }
 
 // NewApplication makes the user interface for a new run of the game, at its loading
-// screen. args are the command line's arguments: a save file among them
-// is loaded instead of showing the start screen.
-func NewApplication(data *gamedata.Data, files storage, args []string) (*Application, error) {
+// screen, with the player's preferences from settings. args are the
+// command line's arguments: a save file among them is loaded instead of
+// showing the start screen.
+func NewApplication(data *gamedata.Data, files storage, settings settingsStore, args []string) (*Application, error) {
 	res, err := loadResources()
 	if err != nil {
 		return nil, err
@@ -118,7 +122,13 @@ func NewApplication(data *gamedata.Data, files storage, args []string) (*Applica
 		requests: make(chan func()),
 		music:    &audio.Music{},
 		pace:     newPacer(),
+		settings: settings,
 	}
+
+	// Settings that can't be read leave the defaults.
+	dat, _ := settings.Read()
+	app.preferences = loadPreferences(dat)
+
 	if platform.Transfers {
 		app.xfer = browser{files}
 	}

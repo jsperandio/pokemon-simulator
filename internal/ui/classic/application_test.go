@@ -8,6 +8,7 @@ import (
 	"image"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -41,11 +42,24 @@ func newTestApp(t *testing.T) *testApp {
 }
 
 // newTestAppIn makes the user interface with the file dialogs in dir and
-// the command line's arguments args.
+// the command line's arguments args, and its settings turning the
+// animations off: the tests of the animations turn them on.
 func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	t.Helper()
 
-	app, err := NewApplication(testData(t), platform.NewDisk(dir), args)
+	off := &memorySettings{
+		data: []byte("[Graphics]\nAnimatedSprites=0\n"),
+	}
+
+	return newTestAppWith(t, dir, args, off)
+}
+
+// newTestAppWith makes the user interface as newTestAppIn does, with the
+// given settings.
+func newTestAppWith(t *testing.T, dir string, args []string, settings *memorySettings) *testApp {
+	t.Helper()
+
+	app, err := NewApplication(testData(t), platform.NewDisk(dir), settings, args)
 	require.NoError(t, err)
 
 	app.game.Rand.Seed = 1
@@ -56,6 +70,31 @@ func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 		now:         time.Date(2004, 1, 1, 12, 0, 0, 0, time.UTC),
 		dir:         dir,
 	}
+}
+
+// memorySettings keeps the settings in memory, as the tests' settings
+// file; err is what writing it returns.
+type memorySettings struct {
+	data []byte
+	err  error
+}
+
+func (ms *memorySettings) Read() ([]byte, error) {
+	if ms.data == nil {
+		return nil, platform.ErrNotExist
+	}
+
+	return ms.data, nil
+}
+
+func (ms *memorySettings) Write(data []byte) error {
+	if ms.err != nil {
+		return ms.err
+	}
+
+	ms.data = slices.Clone(data)
+
+	return nil
 }
 
 // testData returns the game's data.
