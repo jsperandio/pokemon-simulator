@@ -22,12 +22,14 @@ type settingsStore interface {
 // the original doesn't have.
 type preferences struct {
 	animatedSprites bool // Graphics: Enable animated sprites
+	choosePrompt    bool // Messages: Select a POKéMON reminder, game.ChoosePrompt
 }
 
 // defaultPreferences are the choices before the player makes any.
 func defaultPreferences() preferences {
 	return preferences{
 		animatedSprites: true,
+		choosePrompt:    true,
 	}
 }
 
@@ -37,6 +39,7 @@ func loadPreferences(dat []byte) preferences {
 	prf := defaultPreferences()
 	ini := parseINI(dat)
 	prf.animatedSprites = ini.boolean("Graphics", "AnimatedSprites", prf.animatedSprites)
+	prf.choosePrompt = ini.boolean("Messages", "SelectPokemon", prf.choosePrompt)
 
 	return prf
 }
@@ -46,14 +49,15 @@ func loadPreferences(dat []byte) preferences {
 func (prf preferences) store(dat []byte) []byte {
 	ini := parseINI(dat)
 	ini.setBoolean("Graphics", "AnimatedSprites", prf.animatedSprites)
+	ini.setBoolean("Messages", "SelectPokemon", prf.choosePrompt)
 
 	return ini.bytes()
 }
 
 // preferencesLayout is the Preferences window. It is the project's design,
 // not the original's, laid out as a Windows 98 dialog: the categories in
-// a list on the left, the selected one's page on the right, and OK,
-// Cancel and Apply below.
+// a list on the left, the selected one's page on the right, Restore
+// Defaults under the list, and OK, Cancel and Apply below the page.
 var preferencesLayout = layout.Component{
 	Class:   "TPreferencesForm",
 	Name:    "PreferencesForm",
@@ -71,7 +75,7 @@ var preferencesLayout = layout.Component{
 			Class:  "TListBox",
 			Name:   "Categories",
 			Bounds: layout.Rect{X: 8, Y: 8, W: 97, H: 153},
-			Items:  []string{"Graphics"},
+			Items:  []string{"Graphics", "Messages"},
 			Props: map[string]string{
 				"ItemIndex": "0",
 				"TabOrder":  "0",
@@ -108,13 +112,53 @@ var preferencesLayout = layout.Component{
 			},
 		},
 		{
+			Class:   "TGroupBox",
+			Name:    "MessagesPage",
+			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 153},
+			Caption: "Messages",
+			Hidden:  true,
+			Props: map[string]string{
+				"TabOrder": "2",
+			},
+			Children: []layout.Component{
+				{
+					Class:   "TCheckBox",
+					Name:    "ChoosePrompt",
+					Bounds:  layout.Rect{X: 12, Y: 22, W: 215, H: 17},
+					Caption: "&Select a POKéMON reminder",
+					Props: map[string]string{
+						"TabOrder": "0",
+					},
+				},
+				{
+					Class:   "TLabel",
+					Name:    "ChoosePromptNote",
+					Bounds:  layout.Rect{X: 29, Y: 42, W: 198, H: 39},
+					Caption: "Shows \"Select a POKéMON from the Statistics Window\" when a battle starts.",
+					Props: map[string]string{
+						"AutoSize": "False",
+						"WordWrap": "True",
+					},
+				},
+			},
+		},
+		{
+			Class:   "TButton",
+			Name:    "RestoreButton",
+			Bounds:  layout.Rect{X: 8, Y: 169, W: 97, H: 25},
+			Caption: "Restore &Defaults",
+			Props: map[string]string{
+				"TabOrder": "3",
+			},
+		},
+		{
 			Class:   "TButton",
 			Name:    "OKButton",
 			Bounds:  layout.Rect{X: 115, Y: 169, W: 75, H: 25},
 			Caption: "OK",
 			Props: map[string]string{
 				"Default":  "True",
-				"TabOrder": "2",
+				"TabOrder": "4",
 			},
 		},
 		{
@@ -125,7 +169,7 @@ var preferencesLayout = layout.Component{
 			Props: map[string]string{
 				"Cancel":      "True",
 				"ModalResult": "2",
-				"TabOrder":    "3",
+				"TabOrder":    "5",
 			},
 		},
 		{
@@ -135,7 +179,7 @@ var preferencesLayout = layout.Component{
 			Caption:  "&Apply",
 			Disabled: true,
 			Props: map[string]string{
-				"TabOrder": "4",
+				"TabOrder": "6",
 			},
 		},
 	},
@@ -149,6 +193,7 @@ type preferencesForm struct {
 	categories *listBox
 	pages      []*groupBox // one per category, in the list's order
 	animated   *checkBox
+	prompt     *checkBox
 	apply      *button
 }
 
@@ -160,13 +205,17 @@ func newPreferencesForm(app *Application) *preferencesForm {
 		categories: get[*listBox](wdw, "Categories"),
 		pages: []*groupBox{
 			get[*groupBox](wdw, "GraphicsPage"),
+			get[*groupBox](wdw, "MessagesPage"),
 		},
 		animated: get[*checkBox](wdw, "AnimatedSprites"),
+		prompt:   get[*checkBox](wdw, "ChoosePrompt"),
 		apply:    get[*button](wdw, "ApplyButton"),
 	}
 
 	pf.categories.onSelect = pf.showPage
 	pf.animated.onClick = pf.changed
+	pf.prompt.onClick = pf.changed
+	get[*button](wdw, "RestoreButton").onClick = pf.restore
 	pf.apply.onClick = func() {
 		pf.save()
 	}
@@ -185,8 +234,7 @@ func newPreferencesForm(app *Application) *preferencesForm {
 // category. It runs on the handler's goroutine, which waits for the
 // window to close.
 func (pf *preferencesForm) open() {
-	prf := pf.app.preferences
-	pf.animated.setChecked(prf.animatedSprites)
+	pf.showChoices(pf.app.preferences)
 	pf.apply.setEnabled(false)
 	pf.categories.setIndex(0)
 	pf.showPage()
@@ -195,11 +243,25 @@ func (pf *preferencesForm) open() {
 	pf.app.modal(pf.wdw)
 }
 
+// showChoices sets the controls to prf.
+func (pf *preferencesForm) showChoices(prf preferences) {
+	pf.animated.setChecked(prf.animatedSprites)
+	pf.prompt.setChecked(prf.choosePrompt)
+}
+
 // chosen returns the preferences as the window shows them.
 func (pf *preferencesForm) chosen() preferences {
 	return preferences{
 		animatedSprites: pf.animated.checked,
+		choosePrompt:    pf.prompt.checked,
 	}
+}
+
+// restore is Restore Defaults: every page's controls go back to the
+// defaults, which OK or Apply keep, as any change.
+func (pf *preferencesForm) restore() {
+	pf.showChoices(defaultPreferences())
+	pf.changed()
 }
 
 // showPage shows the selected category's page, and hides the others.
@@ -219,12 +281,7 @@ func (pf *preferencesForm) changed() {
 // player why not. They hold for the run either way, and Apply stays
 // enabled to try keeping them again.
 func (pf *preferencesForm) save() bool {
-	app := pf.app
-	prf := pf.chosen()
-	app.setPreferences(prf)
-
-	dat, _ := app.settings.Read()
-	if err := app.settings.Write(prf.store(dat)); err != nil {
+	if err := pf.app.keepPreferences(pf.chosen()); err != nil {
 		pf.fail("The preferences couldn't be saved: " + err.Error())
 
 		return false
@@ -239,7 +296,7 @@ func (pf *preferencesForm) save() bool {
 // own: the game's handler is waiting for the window to close.
 func (pf *preferencesForm) fail(text string) {
 	dsk := pf.app.desk
-	box := messageDialog(dsk, game.Error, false, text)
+	box := messageDialog(dsk, game.Error, false, text, "")
 	box.onModal = func(int) {
 		dsk.remove(box)
 	}

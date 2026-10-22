@@ -479,7 +479,7 @@ func (fd *fileDialog) choose(pth string) {
 // Yes.
 func (fd *fileDialog) alert(yesNo bool, text string, yes func()) {
 	dsk := fd.app.desk
-	md := messageDialog(dsk, game.Warning, yesNo, text)
+	md := messageDialog(dsk, game.Warning, yesNo, text, "")
 	md.caption = fd.wdw.caption
 	md.onModal = func(result int) {
 		dsk.remove(md)

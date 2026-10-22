@@ -579,7 +579,7 @@ func Test_MainWindow(t *testing.T) {
 
 		var during MainWindow
 		gam.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
-			if text == choosePrompt {
+			if text == ChoosePrompt {
 				during = *win
 			}
 
@@ -661,7 +661,7 @@ func Test_MainWindow(t *testing.T) {
 
 		var during int
 		gam.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
-			if text == choosePrompt {
+			if text == ChoosePrompt {
 				during = win.Appeared
 			}
 

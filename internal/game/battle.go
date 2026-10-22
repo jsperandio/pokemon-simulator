@@ -11,7 +11,9 @@ import (
 // The battle. Both sides have one POKéMON with level × 10 HP and four fixed
 // attacks that always hit; the enemy picks its attack at random.
 
-const choosePrompt string = "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice."
+// ChoosePrompt is the message every battle starts with, before the player
+// chooses a fighter.
+const ChoosePrompt string = "Select a POKéMON from the Statistics Window. You'll be asked to confirm your choice."
 
 // StartTrainerBattle starts a battle against a trainer's POKéMON. The
 // caller sets BattleType afterwards.
@@ -29,7 +31,7 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.Main.Enemy = Shown{species, level, level * 10}
 	g.Main.EnemyImage = species - 1
 	g.Main.Attacks = false
-	g.message(Information, choosePrompt)
+	g.message(Information, ChoosePrompt)
 
 	g.Main.EnemyMoves = g.Main.Enemy
 }
@@ -52,7 +54,7 @@ func (g *Game) StartWildBattle(species, level int) {
 	win.EnemyImage = species - 1
 	win.Appeared++
 
-	g.message(Information, choosePrompt)
+	g.message(Information, ChoosePrompt)
 
 	win.Attacks = false
 	win.EnemyMoves = win.Enemy

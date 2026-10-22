@@ -213,6 +213,16 @@ func (app *Application) setPreferences(prf preferences) {
 	}
 }
 
+// keepPreferences makes prf the player's preferences, and keeps them in
+// the settings for the next runs.
+func (app *Application) keepPreferences(prf preferences) error {
+	app.setPreferences(prf)
+
+	dat, _ := app.settings.Read()
+
+	return app.settings.Write(prf.store(dat))
+}
+
 // exit ends the program, as closing the loading screen, the main form,
 // does.
 func (app *Application) exit() {
@@ -321,17 +331,38 @@ func (app *Application) showException(msg string) {
 		msg += "."
 	}
 
-	wdw := messageDialog(app.desk, game.Error, false, msg)
+	wdw := messageDialog(app.desk, game.Error, false, msg, "")
 	wdw.caption = appTitle
 	app.modal(wdw)
 	app.desk.remove(wdw)
 }
 
 // Message shows a message dialog and waits for the player (game.UI).
+// The prompt every battle starts with, game.ChoosePrompt, has "Don't show
+// this message again", which the original doesn't have: once the player
+// closes it checked, it is skipped as if they had clicked OK.
 func (app *Application) Message(kind game.DialogKind, yesNo bool, text string) bool {
-	wdw := messageDialog(app.desk, kind, yesNo, text)
+	prompt := text == game.ChoosePrompt
+	if prompt && !app.preferences.choosePrompt {
+		return true
+	}
+
+	check := ""
+	if prompt {
+		check = dontShowAgain
+	}
+
+	wdw := messageDialog(app.desk, kind, yesNo, text, check)
 	rst := app.modal(wdw)
 	app.desk.remove(wdw)
+
+	// Any way of closing the box counts, as each one is its OK. If the
+	// choice can't be kept, it holds for the run.
+	if chb, ok := wdw.find("DontShowAgain").(*checkBox); ok && chb.checked {
+		prf := app.preferences
+		prf.choosePrompt = false
+		_ = app.keepPreferences(prf)
+	}
 
 	return rst == mrOk || rst == mrYes
 }

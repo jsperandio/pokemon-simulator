@@ -5,6 +5,7 @@
 package classic
 
 import (
+	"errors"
 	"image"
 	"os"
 	"path/filepath"
@@ -489,6 +490,101 @@ func Test_WildBattle(t *testing.T) {
 		}
 
 		ta.shot("arena-clicked")
+	})
+}
+
+// wildBattle starts a wild battle, at the game window, as a game handler.
+func wildBattle(ta *testApp) {
+	ta.call(func() {
+		ta.game.StartWildBattle(25, 50)
+	})
+	ta.wait(1)
+}
+
+func Test_Application_Message(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the choose prompt closes with its box checked, should skip it from then on and keep the choice", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		wildBattle(ta)
+		ta.clickOn(ta.desk.topModal(), "DontShowAgain")
+		ta.shot("prompt-checked")
+		ta.answer(game.ChoosePrompt)
+
+		assert.False(t, ta.preferences.choosePrompt)
+		assert.Contains(t, string(ta.settings.(*memorySettings).data), "[Messages]\nSelectPokemon=0\n")
+
+		ta.game.EndFight()
+		wildBattle(ta)
+		assert.Nil(t, ta.desk.topModal(), "a wild battle shows the prompt")
+		assert.True(t, ta.game.Main.Battle, "the wild battle didn't start")
+
+		ta.game.EndFight()
+		ta.call(func() {
+			ta.game.StartTrainerBattle(74, 12, "Brock")
+		})
+		ta.wait(1)
+		assert.Nil(t, ta.desk.topModal(), "a trainer battle shows the prompt")
+	})
+
+	t.Run("when the choose prompt closes with its box cleared, should show it the next time", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		wildBattle(ta)
+		ta.answer(game.ChoosePrompt)
+		ta.game.EndFight()
+		wildBattle(ta)
+
+		assert.True(t, ta.preferences.choosePrompt)
+		ta.answer(game.ChoosePrompt)
+	})
+
+	t.Run("when the choose prompt closes with Escape, its box checked, should still skip it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		wildBattle(ta)
+		ta.typeText("d")
+		ta.key(ebiten.KeyEscape)
+		ta.wait(1)
+
+		assert.Nil(t, ta.desk.topModal(), "Escape didn't close the prompt")
+		assert.False(t, ta.preferences.choosePrompt)
+	})
+
+	t.Run("when the choice can't be kept, should still skip the prompt for the run", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.settings.(*memorySettings).err = errors.New("disk full")
+		ta.startGame()
+		wildBattle(ta)
+		ta.clickOn(ta.desk.topModal(), "DontShowAgain")
+		ta.answer(game.ChoosePrompt)
+
+		assert.Nil(t, ta.desk.topModal(), "an error shows")
+		assert.False(t, ta.preferences.choosePrompt)
+	})
+
+	t.Run("when another message shows, should have no check box", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.call(func() {
+			ta.Message(game.Information, false, "Gotcha!")
+		})
+		ta.wait(1)
+
+		require.NotNil(t, ta.desk.topModal())
+		assert.Nil(t, ta.desk.topModal().find("DontShowAgain"))
+		ta.answer("Gotcha!")
 	})
 }
 

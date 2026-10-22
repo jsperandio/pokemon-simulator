@@ -130,6 +130,23 @@ func Test_appearance(t *testing.T) {
 		assert.Nil(t, ta.main.enemyAppear.sprite)
 	})
 
+	t.Run("when the choose prompt is hidden, should play as soon as the POKéMON appears", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.preferences.animatedSprites = true
+		ta.preferences.choosePrompt = false
+		ta.startGame()
+		ta.call(func() {
+			ta.game.StartWildBattle(lugia, 50)
+		})
+		ta.wait(1)
+
+		assert.Nil(t, ta.desk.topModal(), "the prompt shows")
+		assert.True(t, ta.main.enemyAppear.playing(), "not playing with nothing over the arena")
+		ta.shot("appearance-no-prompt")
+	})
+
 	t.Run("when the animations are off, should show the still sprite only", func(t *testing.T) {
 		t.Parallel()
 
