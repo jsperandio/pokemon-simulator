@@ -101,8 +101,10 @@ type menuBar struct {
 }
 
 // newMenuBar builds a window's menu from the game's menu and the form's
-// design: the images and the shortcuts.
-func newMenuBar(wdw *window, items []*game.MenuItem, design *layout.Component) *menuBar {
+// design: the images and the shortcuts. before adds the user interface's
+// own items, which the game's menu, the original's, doesn't have: each
+// one goes before the game's item it is keyed by.
+func newMenuBar(wdw *window, items []*game.MenuItem, design *layout.Component, before map[string]*game.MenuItem) *menuBar {
 	mb := &menuBar{
 		win:     wdw,
 		res:     wdw.res,
@@ -122,6 +124,15 @@ func newMenuBar(wdw *window, items []*game.MenuItem, design *layout.Component) *
 		out := make([]*menuEntry, 0, len(items))
 
 		for _, it := range items {
+			if add, ok := before[it.Name]; ok {
+				out = append(out, &menuEntry{
+					item:    add,
+					caption: add.Caption,
+					image:   -1,
+					key:     -1,
+				})
+			}
+
 			me := &menuEntry{
 				item:    it,
 				caption: it.Caption,

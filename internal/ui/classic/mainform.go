@@ -138,7 +138,14 @@ func newMainForm(app *Application) *mainForm {
 	}
 	wdw.onClose = mf.formClose
 
-	mb := newMenuBar(wdw, gam.Menu, layout.Form4.Find("MainMenu1"))
+	mb := newMenuBar(wdw, gam.Menu, layout.Form4.Find("MainMenu1"), map[string]*game.MenuItem{
+		"Quit1": {
+			Name:    "Preferences1",
+			Caption: "Preferences...",
+			Enabled: true,
+			Visible: true,
+		},
+	})
 	mb.onCommand = mf.menuCommand
 
 	app.desk.add(wdw)
@@ -168,6 +175,8 @@ func (mf *mainForm) menuCommand(me *menuEntry) {
 		app.call(mf.export)
 	case "Quit1":
 		mf.formClose()
+	case "Preferences1":
+		app.showPreferences()
 	case "Openfile1":
 		app.call(mf.openMusic)
 	case "StopMusic1":
@@ -402,6 +411,15 @@ func (mf *mainForm) showOwnImage() {
 	}
 
 	mf.ownImage.setItems([]listItem{{"", img}})
+}
+
+// stopAnimations stops the entry animations, showing the still sprites.
+func (mf *mainForm) stopAnimations() {
+	mf.enemyAppear.stop()
+	mf.ownAppear.stop()
+	mf.showEnemyImage()
+	mf.showOwnImage()
+	mf.arena.invalidate()
 }
 
 // animate moves the entry animations on. Each starts once the arena shows

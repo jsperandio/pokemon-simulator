@@ -86,6 +86,7 @@ type Application struct {
 	gameCorner *gameCornerForm
 	name       *nameDialog
 	about      *window
+	prefsForm  *preferencesForm
 
 	helpWindow *helpWindow // the manual, once opened
 	music      musicPlayer
@@ -175,6 +176,8 @@ func (app *Application) buildForms() {
 	app.name = newNameDialog(app)
 	app.about = newWindow(app.desk, &layout.AboutBox)
 	app.desk.add(app.about)
+
+	app.prefsForm = newPreferencesForm(app)
 }
 
 // placeWindows puts the game, Statistics and Battle Info windows side by
@@ -193,6 +196,21 @@ func (app *Application) showAbout() {
 	app.call(func() {
 		app.modal(app.about)
 	})
+}
+
+// showPreferences is File → Preferences..., the Preferences window.
+func (app *Application) showPreferences() {
+	app.call(app.prefsForm.open)
+}
+
+// setPreferences makes prf the player's preferences, which take effect at
+// once: animations turned off stop.
+func (app *Application) setPreferences(prf preferences) {
+	app.preferences = prf
+
+	if !prf.animatedSprites {
+		app.main.stopAnimations()
+	}
 }
 
 // exit ends the program, as closing the loading screen, the main form,

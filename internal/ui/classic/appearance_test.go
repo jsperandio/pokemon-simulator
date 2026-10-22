@@ -146,6 +146,32 @@ func Test_appearance(t *testing.T) {
 		assert.Equal(t, []listItem{{"", lugia - 1}}, ta.main.enemyImage.items)
 	})
 
+	t.Run("when the animations are turned off while one plays, should stop it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.preferences.animatedSprites = true
+		ta.startGame()
+		ta.call(func() {
+			ta.game.StartWildBattle(lugia, 50)
+		})
+		ta.wait(1)
+		ta.answer("Select a POKéMON")
+		require.True(t, ta.main.enemyAppear.playing())
+
+		ta.menu("File1", "Preferences1")
+		ta.wait(1)
+
+		pf := ta.prefsForm
+		ta.clickOn(pf.wdw, "AnimatedSprites")
+		require.True(t, ta.main.enemyAppear.playing(), "it ended before the choice")
+
+		ta.clickOn(pf.wdw, "OKButton")
+
+		assert.False(t, ta.main.enemyAppear.playing())
+		assert.Equal(t, []listItem{{"", lugia - 1}}, ta.main.enemyImage.items)
+	})
+
 	t.Run("when the player chooses a fighter, should play its entry, then show its still sprite", func(t *testing.T) {
 		t.Parallel()
 

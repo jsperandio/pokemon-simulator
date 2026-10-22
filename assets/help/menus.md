@@ -4,6 +4,8 @@
 
 Export POKéMON Information…: Exports information about your POKéMON to an HTML file. It also exports which POKéMON are in your POKéDEX.
 
+Preferences…: Opens the Preferences window, where the categories are listed on the left. Under Graphics, Enable animated sprites plays POKéMON Emerald's animation when a POKéMON comes into the Battle Arena: the wild POKéMON when it appears, and yours when you choose it. Your choice is kept for the next time you play.
+
 Quit: Quits the game. You can also click the X in the corner of the window. Your game is automatically saved when you exit.
 
 **Actions Menu**
