@@ -649,6 +649,51 @@ func Test_MainWindow(t *testing.T) {
 
 		assert.True(t, gam.Main.Pokeball)
 	})
+
+	t.Run("when POKéMON appear, should count the wild ones before the choose prompt", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash", true)
+		gam.ChooseStarter(1)
+
+		win := &gam.Main
+
+		var during int
+		gam.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
+			if text == choosePrompt {
+				during = win.Appeared
+			}
+
+			return true
+		})
+
+		gam.StartWildBattle(25, 7)
+		assert.Equal(t, 1, during)
+
+		gam.StartWildBattle(25, 7)
+		assert.Equal(t, 2, win.Appeared)
+
+		gam.StartTrainerBattle(74, 12, "Brock")
+		assert.Equal(t, 2, win.Appeared)
+	})
+
+	t.Run("when the player chooses a fighter, should count it", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash", true)
+		gam.ChooseStarter(1)
+
+		win := &gam.Main
+
+		gam.StartWildBattle(25, 7)
+		assert.Equal(t, 0, win.Chosen)
+
+		gam.ClickParty(0)
+		assert.Equal(t, 1, win.Chosen)
+		assert.Equal(t, 4, win.Own.Species)
+	})
 }
 
 func Test_gaugeColor(t *testing.T) {

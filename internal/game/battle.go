@@ -50,6 +50,7 @@ func (g *Game) StartWildBattle(species, level int) {
 
 	win.Enemy = Shown{species, level, level * 10}
 	win.EnemyImage = species - 1
+	win.Appeared++
 
 	g.message(Information, choosePrompt)
 
@@ -116,6 +117,7 @@ func (g *Game) choose(i int) {
 
 	g.OwnHP = int(m.Level) * 10
 	g.Main.Own = Shown{int(m.Species), int(m.Level), g.OwnHP}
+	g.Main.Chosen++
 	g.OwnIndex = i
 	g.Fights++
 }
