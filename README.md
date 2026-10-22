@@ -70,6 +70,7 @@ If you hold rights to any of this material and want it removed, please open an i
 
 - **Michael Madsen (BirdieSoft):** creator of the original POKéMON Simulator.
 - **Nintendo, Creatures Inc. and GAME FREAK inc.:** POKéMON.
+- **The Bulbagarden Archives' contributors:** the recordings of POKéMON Emerald's appearance animations.
 - **Hajime Hoshi and contributors:** Ebitengine.
 - **The Wine project:** the MS Sans Serif replacement font and the dialog icons.
 - **Red Hat and Google:** the Liberation Sans font.
