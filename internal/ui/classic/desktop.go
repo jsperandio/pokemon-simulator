@@ -867,8 +867,8 @@ func (d *desktop) keyUp(key ebiten.Key) {
 	}
 
 	if wdw := d.active; wdw != nil {
-		if btn, ok := wdw.focus.(*button); ok {
-			btn.keyUp(key)
+		if kup, ok := wdw.focus.(keyUpper); ok {
+			kup.keyUp(key)
 		}
 	}
 }

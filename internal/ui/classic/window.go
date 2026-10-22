@@ -742,8 +742,9 @@ func (w *window) focusDisabled() bool {
 	return w.focus != nil && !w.focus.base().usable()
 }
 
-// accelerator clicks the button whose accelerator chr is, or focuses the
-// control of the label whose it is; it reports whether there is one.
+// accelerator clicks the button whose accelerator chr is, toggles the check
+// box whose it is, or focuses the control of the label whose it is; it
+// reports whether there is one.
 func (w *window) accelerator(chr rune) bool {
 	lr := unicode.ToLower(chr)
 	for _, btn := range w.buttons() {
@@ -761,8 +762,8 @@ func (w *window) accelerator(chr rune) bool {
 	)
 	walk = func(ws []widget) {
 		for _, wgt := range ws {
-			if lbl, ok := wgt.(*label); ok && target == nil && lbl.isAccelTarget(lr) {
-				target = lbl.focusControl
+			if target == nil && accelTarget(wgt, lr) {
+				target = wgt
 			}
 
 			walk(wgt.base().kids)
@@ -770,10 +771,31 @@ func (w *window) accelerator(chr rune) bool {
 	}
 	walk(w.kids)
 
-	if target != nil && canFocus(target) {
-		w.setFocus(target, false)
+	switch tgt := target.(type) {
+	case *checkBox:
+		w.setFocus(tgt, false)
+		tgt.toggle()
 
 		return true
+	case *label:
+		if canFocus(tgt.focusControl) {
+			w.setFocus(tgt.focusControl, false)
+
+			return true
+		}
+	}
+
+	return false
+}
+
+// accelTarget reports whether accelerator lr is wgt's: a check box's that
+// can take the focus, or a label's that focuses a control.
+func accelTarget(wgt widget, lr rune) bool {
+	switch ctl := wgt.(type) {
+	case *checkBox:
+		return canFocus(ctl) && accel(ctl.caption) == lr
+	case *label:
+		return ctl.isAccelTarget(lr)
 	}
 
 	return false

@@ -21,6 +21,7 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
+	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
 // testApp drives the user interface headlessly, a frame at a time, on a
@@ -111,6 +112,16 @@ func (ta *testApp) clickOn(wdw *window, name string) {
 
 	ctl := wgt.base()
 	ta.click(widgetOrigin(wgt).Add(ctl.rect.Size().Div(2)))
+}
+
+// showWindow shows a window of comp's controls, over the loading screen.
+func (ta *testApp) showWindow(comp *layout.Component) *window {
+	wdw := newWindow(ta.desk, comp)
+	ta.desk.add(wdw)
+	ta.desk.show(wdw)
+	ta.wait(1)
+
+	return wdw
 }
 
 // key presses and releases a key.
