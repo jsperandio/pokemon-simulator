@@ -5,10 +5,12 @@
 package classic
 
 import (
+	"image"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
@@ -113,5 +115,20 @@ func Test_checkBox(t *testing.T) {
 
 		assert.True(t, first.checked)
 		assert.Same(t, first, wdw.focus)
+	})
+}
+
+func Test_panel_inside(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the panel has its bevel, should leave it out", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		pickCharmander(t, ta)
+
+		pnl := ta.pokedex.panel
+		require.True(t, pnl.beveled(), "the POKéDEX's panel has no bevel")
+		assert.Equal(t, image.Rect(1, 1, 240, 136), pnl.inside())
 	})
 }

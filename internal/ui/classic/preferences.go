@@ -103,7 +103,7 @@ var preferencesLayout = layout.Component{
 					Class:   "TLabel",
 					Name:    "AnimatedSpritesNote",
 					Bounds:  layout.Rect{X: 29, Y: 42, W: 198, H: 39},
-					Caption: "Plays POKéMON Emerald's animation when a POKéMON comes into the Battle Arena.",
+					Caption: "Plays POKéMON Emerald's animation when a POKéMON comes into the Battle Arena or is chosen in the POKéDEX.",
 					Props: map[string]string{
 						"AutoSize": "False",
 						"WordWrap": "True",

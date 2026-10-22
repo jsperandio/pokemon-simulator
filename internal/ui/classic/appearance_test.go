@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -85,7 +86,7 @@ func Test_appearance(t *testing.T) {
 		frm, on := spr.At(ta.now.Sub(apr.start))
 		require.True(t, on)
 		assert.Equal(t, frm, apr.frame)
-		assertFrameDrawn(t, ta, ta.main.enemyImage, spr, frm)
+		assertArenaFrame(t, ta, ta.main.enemyImage, spr, frm)
 
 		ta.wait(framesOf(spr))
 		assert.False(t, apr.playing())
@@ -208,7 +209,7 @@ func Test_appearance(t *testing.T) {
 		frm, on := spr.At(ta.now.Sub(apr.start))
 		require.True(t, on)
 		assert.Equal(t, frm, apr.frame)
-		assertFrameDrawn(t, ta, ta.main.ownImage, spr, frm)
+		assertArenaFrame(t, ta, ta.main.ownImage, spr, frm)
 
 		ta.wait(framesOf(spr))
 		assert.False(t, apr.playing())
@@ -230,6 +231,103 @@ func Test_appearance(t *testing.T) {
 
 		assert.False(t, ta.main.ownAppear.playing())
 		assert.Equal(t, []listItem{{"", -1}}, ta.main.ownImage.items)
+	})
+}
+
+func Test_pokedexForm_appear(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a POKéMON is chosen, should play its animation, then show the still sprite", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		ta.preferences.animatedSprites = true
+		pickCharmander(t, ta)
+
+		dex := ta.pokedex
+		apr := &dex.appear
+		require.True(t, apr.playing(), "not playing once chosen")
+		assert.Equal(t, []listItem{{"", -1}}, dex.image.items)
+
+		spr := apr.sprite
+
+		ta.wait(10)
+
+		frm, on := spr.At(ta.now.Sub(apr.start))
+		require.True(t, on)
+		assert.Equal(t, frm, apr.frame)
+		assertFrameDrawn(t, ta, dex.panel, []image.Rectangle{dex.panel.inside()}, dex.image, spr, frm)
+		ta.shot("dex-playing")
+
+		ta.wait(framesOf(spr))
+		assert.False(t, apr.playing())
+		assert.Equal(t, []listItem{{"", 3}}, dex.image.items)
+	})
+
+	t.Run("when another POKéMON is chosen while one plays, should play the new one from the start", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		ta.preferences.animatedSprites = true
+		pickCharmander(t, ta)
+		ta.wait(10)
+
+		apr := &ta.pokedex.appear
+		first := apr.start
+
+		ta.key(ebiten.KeyDown) // Charmeleon
+		ta.wait(1)
+
+		require.Equal(t, 4, ta.game.Pokedex.Index)
+		assert.True(t, apr.playing(), "not playing once chosen")
+		assert.True(t, apr.start.After(first), "the animation didn't start again")
+	})
+
+	t.Run("when the POKéDEX closes while it plays, should stop", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		ta.preferences.animatedSprites = true
+		pickCharmander(t, ta)
+		require.True(t, ta.pokedex.appear.playing())
+
+		ta.clickOn(ta.pokedex.wdw, "Button1")
+		ta.wait(1)
+
+		assert.False(t, ta.pokedex.appear.playing())
+		assert.Nil(t, ta.pokedex.appear.sprite)
+	})
+
+	t.Run("when the animations are turned off while one plays, should stop it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		ta.preferences.animatedSprites = true
+		pickCharmander(t, ta)
+		require.True(t, ta.pokedex.appear.playing())
+
+		ta.setPreferences(defaultPreferences())
+		ta.wait(1)
+		require.True(t, ta.pokedex.appear.playing(), "stopped with the animations on")
+
+		ta.setPreferences(preferences{
+			animatedSprites: false,
+			choosePrompt:    true,
+		})
+		ta.wait(1)
+
+		assert.False(t, ta.pokedex.appear.playing())
+		assert.Equal(t, []listItem{{"", 3}}, ta.pokedex.image.items)
+	})
+
+	t.Run("when the animations are off, should show the still sprite only", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		pickCharmander(t, ta)
+
+		assert.False(t, ta.pokedex.appear.playing())
+		assert.Equal(t, []listItem{{"", 3}}, ta.pokedex.image.items)
 	})
 }
 
@@ -257,29 +355,38 @@ func Test_groupBox_inside(t *testing.T) {
 	})
 }
 
-// assertFrameDrawn checks that the screen shows frame frm of spr where it
+// assertArenaFrame checks that the screen shows frame frm of spr where it
 // stands in for view's sprite, inside the arena's frame.
-func assertFrameDrawn(t *testing.T, ta *testApp, view *listView, spr *anim.Sprite, frm int) {
+func assertArenaFrame(t *testing.T, ta *testApp, view *listView, spr *anim.Sprite, frm int) {
+	t.Helper()
+
+	arena := ta.main.arena
+	assertFrameDrawn(t, ta, arena, arena.inside(), view, spr, frm)
+}
+
+// assertFrameDrawn checks that the screen shows frame frm of spr where it
+// stands in for view's sprite, inside host's rectangles inside, which are
+// in host's coordinates.
+func assertFrameDrawn(t *testing.T, ta *testApp, host widget, inside []image.Rectangle, view *listView, spr *anim.Sprite, frm int) {
 	t.Helper()
 
 	img := image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight))
 	ta.desk.paint(img)
 
-	arena := ta.main.arena
-	corner := widgetOrigin(view).Add(spr.Offset).Sub(widgetOrigin(arena))
+	corner := widgetOrigin(view).Add(spr.Offset).Sub(widgetOrigin(host))
 	src := spr.Frame(frm)
 	drawn := 0
 
 	for y := range src.Dy() {
 		for x := range src.Dx() {
 			pix := spr.Sheet.NRGBAAt(src.Min.X+x, src.Min.Y+y)
-			pnt := corner.Add(image.Pt(x, y)) // in the arena
+			pnt := corner.Add(image.Pt(x, y)) // in host
 
-			if pix.A == 0 || !inArena(arena, pnt) {
+			if pix.A == 0 || !slices.ContainsFunc(inside, pnt.In) {
 				continue
 			}
 
-			scr := pnt.Add(widgetOrigin(arena))
+			scr := pnt.Add(widgetOrigin(host))
 
 			got := img.RGBAAt(scr.X, scr.Y)
 			if !assert.Equal(t, [3]uint8{pix.R, pix.G, pix.B}, [3]uint8{got.R, got.G, got.B}, "pixel %v", pnt) {
@@ -290,7 +397,7 @@ func assertFrameDrawn(t *testing.T, ta *testApp, view *listView, spr *anim.Sprit
 		}
 	}
 
-	assert.Positive(t, drawn, "no pixel of the frame is inside the arena")
+	assert.Positive(t, drawn, "no pixel of the frame is inside %s", host.base().name)
 }
 
 // inArena reports whether pnt, in the arena's coordinates, is inside it.

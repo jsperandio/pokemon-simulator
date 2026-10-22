@@ -198,6 +198,25 @@ func Test_Game_SelectPokedex(t *testing.T) {
 		gam.SelectPokedex(1)
 		assert.True(t, gam.Pokedex.MovesShown)
 	})
+
+	t.Run("when species are selected, should count them, but not the POKéDEX opening", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash", true)
+		gam.ChooseStarter(0) // the POKéDEX shows Bulbasaur
+		require.Equal(t, 1, gam.Pokedex.Selected)
+
+		gam.OpenPokedex()
+		assert.Equal(t, 1, gam.Pokedex.Selected)
+
+		gam.SelectPokedex(24)
+		assert.Equal(t, 2, gam.Pokedex.Selected)
+
+		gam.SelectPokedex(-1)
+		gam.SelectPokedex(386)
+		assert.Equal(t, 2, gam.Pokedex.Selected)
+	})
 }
 
 // The PokéMart describes the item chosen in two lines, and nothing until one

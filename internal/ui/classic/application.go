@@ -210,6 +210,7 @@ func (app *Application) setPreferences(prf preferences) {
 
 	if !prf.animatedSprites {
 		app.main.stopAnimations()
+		app.pokedex.stopAnimation()
 	}
 }
 
@@ -491,6 +492,7 @@ func (app *Application) step(in input, now time.Time) {
 
 	app.desk.update(&in, now)
 	app.main.animate(now)
+	app.pokedex.animate(now)
 	app.load.tick()
 	app.music.Update(app.game.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
 

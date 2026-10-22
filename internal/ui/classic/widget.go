@@ -621,14 +621,18 @@ func (gb *groupBox) paint(cv canvas) {
 // paintOver runs over on canvases in the box's coordinates, clipped to each
 // rectangle of its inside.
 func (gb *groupBox) paintOver(cv canvas) {
-	if gb.over == nil {
-		return
+	if gb.over != nil {
+		paintOverlay(cv, gb.over, gb.inside()...)
 	}
+}
 
-	for _, rect := range gb.inside() {
+// paintOverlay runs over on canvases in cv's coordinates, clipped to each
+// of rects in turn.
+func paintOverlay(cv canvas, over func(cv canvas), rects ...image.Rectangle) {
+	for _, rect := range rects {
 		in := cv.sub(rect)
-		in.org = cv.org // keep the box's coordinates, clipped to the rectangle
-		gb.over(in)
+		in.org = cv.org // keep cv's coordinates, clipped to the rectangle
+		over(in)
 	}
 }
 
@@ -1029,6 +1033,7 @@ func (chb *checkBox) keyUp(key ebiten.Key) {
 // panel is a TPanel.
 type panel struct {
 	control
+	over func(cv canvas) // paints over the children, inside the bevel, if set
 }
 
 func (p *panel) setup(*layout.Component) {
@@ -1039,13 +1044,35 @@ func (p *panel) paint(cv canvas) {
 	rect := p.local()
 	cv.fill(rect, p.color)
 
-	if p.property("BevelOuter") != "bvNone" {
+	if p.beveled() {
 		cv.edge(rect, colHighlight, colShadow)
 	}
 
 	if p.caption != "" {
 		wid := p.font.width(plain(p.caption))
 		drawCaption(cv, p.font, (rect.Dx()-wid)/2, (rect.Dy()-p.font.height())/2, p.caption, p.fontColor)
+	}
+}
+
+// beveled reports whether the panel has its raised outer bevel.
+func (p *panel) beveled() bool {
+	return p.property("BevelOuter") != "bvNone"
+}
+
+// inside returns the panel's inside, within its bevel.
+func (p *panel) inside() image.Rectangle {
+	if p.beveled() {
+		return p.local().Inset(1)
+	}
+
+	return p.local()
+}
+
+// paintOver runs over on a canvas in the panel's coordinates, clipped to
+// its inside.
+func (p *panel) paintOver(cv canvas) {
+	if p.over != nil {
+		paintOverlay(cv, p.over, p.inside())
 	}
 }
 
