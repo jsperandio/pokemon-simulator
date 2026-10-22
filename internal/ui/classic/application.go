@@ -441,6 +441,7 @@ func (app *Application) step(in input, now time.Time) {
 	}
 
 	app.desk.update(&in, now)
+	app.main.animate(now)
 	app.load.tick()
 	app.music.Update(app.game.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
 

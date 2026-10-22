@@ -606,6 +606,7 @@ func (b *button) click() {
 // groupBox is a TGroupBox.
 type groupBox struct {
 	control
+	over func(cv canvas) // paints over the children, inside the frame, if set
 }
 
 func (gb *groupBox) setup(*layout.Component) {
@@ -615,6 +616,39 @@ func (gb *groupBox) setup(*layout.Component) {
 func (gb *groupBox) paint(cv canvas) {
 	cv.fill(gb.local(), gb.color)
 	paintGroupFrame(cv, gb.local(), gb.font, gb.caption, gb.color, gb.fontColor)
+}
+
+// paintOver runs over on canvases in the box's coordinates, clipped to each
+// rectangle of its inside.
+func (gb *groupBox) paintOver(cv canvas) {
+	if gb.over == nil {
+		return
+	}
+
+	for _, rect := range gb.inside() {
+		in := cv.sub(rect)
+		in.org = cv.org // keep the box's coordinates, clipped to the rectangle
+		gb.over(in)
+	}
+}
+
+// inside returns the box's inside as rectangles: within the frame that
+// paintGroupFrame draws, and around its caption.
+func (gb *groupBox) inside() []image.Rectangle {
+	rect := gb.local()
+	inner := image.Rect(rect.Min.X+2, gb.font.height()/2+1, rect.Max.X-2, rect.Max.Y-2)
+
+	if gb.caption == "" {
+		return []image.Rectangle{inner}
+	}
+
+	right, below := 8+gb.font.width(plain(gb.caption)), gb.font.height()
+
+	return []image.Rectangle{
+		image.Rect(inner.Min.X, below, inner.Max.X, inner.Max.Y),
+		image.Rect(inner.Min.X, inner.Min.Y, 8, below),
+		image.Rect(right, inner.Min.Y, inner.Max.X, below),
+	}
 }
 
 // paintGroupFrame draws a group box's etched frame and its caption, as
