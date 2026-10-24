@@ -206,8 +206,8 @@ kkkkyWykkkk
 // markNames are the marks' names, in Preferences' order.
 func markNames() []string {
 	names := make([]string, len(shinyMarks))
-	for i, inf := range shinyMarks {
-		names[i] = inf.name
+	for i, mi := range shinyMarks {
+		names[i] = mi.name
 	}
 
 	return names
@@ -216,8 +216,8 @@ func markNames() []string {
 // markByKey is the mark a settings value names, whatever its case, and
 // whether it names one.
 func markByKey(key string) (shinyMark, bool) {
-	for i, inf := range shinyMarks {
-		if strings.EqualFold(inf.key, key) {
+	for i, mi := range shinyMarks {
+		if strings.EqualFold(mi.key, key) {
 			return shinyMark(i), true
 		}
 	}
@@ -231,10 +231,10 @@ func (sm shinyMark) draw(cv canvas, x, y int) {
 		return
 	}
 
-	inf := shinyMarks[sm]
-	if inf.rows == "" {
+	mi := shinyMarks[sm]
+	if mi.rows == "" {
 		return
 	}
 
-	cv.pattern(x+inf.corner.X, y+inf.corner.Y, inf.rows, inf.colors)
+	cv.pattern(x+mi.corner.X, y+mi.corner.Y, mi.rows, mi.colors)
 }

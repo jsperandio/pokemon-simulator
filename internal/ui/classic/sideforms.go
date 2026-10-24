@@ -121,17 +121,17 @@ func (stf *statsForm) sync() {
 // "(shiny)" after a shiny one's, whose icon the list marks.
 func (stf *statsForm) partyItem(slt save.Slot) listItem {
 	sid := int(slt.Species)
-	itm := listItem{
+	li := listItem{
 		caption: stf.app.speciesName(sid),
 		image:   sid - 1,
 		shiny:   slt.Shiny,
 	}
 
 	if slt.Shiny {
-		itm.caption += " (shiny)"
+		li.caption += " (shiny)"
 	}
 
-	return itm
+	return li
 }
 
 // freshen is TForm5.Freshen, which the original runs on every tick while
@@ -336,16 +336,18 @@ func (pf *pokedexForm) sync() {
 // showImage shows the selected species' still sprite in ListView1, or
 // none while its animation plays there.
 func (pf *pokedexForm) showImage() {
-	img := pf.app.game.Pokedex.Index
+	pw := &pf.app.game.Pokedex
+
+	img := pw.Index
 	if pf.appear.playing() {
 		img = -1
 	}
 
-	itm := listItem{
+	li := listItem{
 		image: img,
-		shiny: pf.app.game.Pokedex.Shiny,
+		shiny: pw.Shiny,
 	}
-	pf.image.setItems([]listItem{itm})
+	pf.image.setItems([]listItem{li})
 }
 
 // stopAnimation stops the species' animation and its stars, showing its

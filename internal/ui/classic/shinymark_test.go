@@ -20,26 +20,26 @@ func Test_markByKey(t *testing.T) {
 	t.Run("when the key names a mark, should find it whatever its case", func(t *testing.T) {
 		t.Parallel()
 
-		mrk, ok := markByKey("outlinedtwinkles")
+		sm, ok := markByKey("outlinedtwinkles")
 		assert.True(t, ok)
-		assert.Equal(t, outlinedTwinkles, mrk)
+		assert.Equal(t, outlinedTwinkles, sm)
 	})
 
 	t.Run("when the key names none, should give the default", func(t *testing.T) {
 		t.Parallel()
 
-		mrk, ok := markByKey("Rainbow")
+		sm, ok := markByKey("Rainbow")
 		assert.False(t, ok)
-		assert.Equal(t, goldSparkles, mrk)
+		assert.Equal(t, goldSparkles, sm)
 	})
 
 	t.Run("when each mark's key is given, should find that mark", func(t *testing.T) {
 		t.Parallel()
 
-		for i, inf := range shinyMarks {
-			mrk, ok := markByKey(inf.key)
-			assert.True(t, ok, inf.key)
-			assert.Equal(t, shinyMark(i), mrk, inf.key)
+		for i, mi := range shinyMarks {
+			sm, ok := markByKey(mi.key)
+			assert.True(t, ok, mi.key)
+			assert.Equal(t, shinyMark(i), sm, mi.key)
 		}
 	})
 }
@@ -60,11 +60,11 @@ func Test_markNames(t *testing.T) {
 func Test_shinyMark_draw(t *testing.T) {
 	t.Parallel()
 
-	// drawn draws mrk over a 32×32 icon at (32, 32) and returns the
+	// drawn draws sm over a 32×32 icon at (32, 32) and returns the
 	// rectangle of what it drew.
-	drawn := func(mrk shinyMark) image.Rectangle {
+	drawn := func(sm shinyMark) image.Rectangle {
 		img := image.NewRGBA(image.Rect(0, 0, 96, 96))
-		mrk.draw(newCanvas(img), 32, 32)
+		sm.draw(newCanvas(img), 32, 32)
 
 		var box image.Rectangle
 
@@ -85,10 +85,10 @@ func Test_shinyMark_draw(t *testing.T) {
 		icon := image.Rect(32, 32, 64, 65) // the item is a row taller
 
 		for i := range int(noMark) {
-			mrk := shinyMark(i)
-			box := drawn(mrk)
-			assert.False(t, box.Empty(), "%s draws nothing", shinyMarks[mrk].name)
-			assert.True(t, box.In(icon), "%s draws at %v, off the icon", shinyMarks[mrk].name, box)
+			sm := shinyMark(i)
+			box := drawn(sm)
+			assert.False(t, box.Empty(), "%s draws nothing", shinyMarks[sm].name)
+			assert.True(t, box.In(icon), "%s draws at %v, off the icon", shinyMarks[sm].name, box)
 		}
 	})
 
@@ -115,9 +115,9 @@ func iconPixel(ta *testApp, lv *listView, off image.Point) color.RGBA {
 func Test_listView_paintIcon(t *testing.T) {
 	t.Parallel()
 
-	// paintIcon paints itm's icon from the image list named list, with a
+	// paintIcon paints li's icon from the image list named list, with a
 	// mark that records where it was drawn.
-	paintIcon := func(t *testing.T, list string, itm listItem) (*image.RGBA, []image.Point) {
+	paintIcon := func(t *testing.T, list string, li listItem) (*image.RGBA, []image.Point) {
 		t.Helper()
 
 		ta := newTestApp(t)
@@ -131,7 +131,7 @@ func Test_listView_paintIcon(t *testing.T) {
 			},
 		}
 		img := image.NewRGBA(image.Rect(0, 0, 64, 64))
-		lv.paintIcon(newCanvas(img), itm, image.Point{}, false)
+		lv.paintIcon(newCanvas(img), li, image.Point{}, false)
 
 		return img, marks
 	}
@@ -139,11 +139,11 @@ func Test_listView_paintIcon(t *testing.T) {
 	t.Run("when the item is shiny and the list has shiny frames, should draw the shiny frame and the mark over it", func(t *testing.T) {
 		t.Parallel()
 
-		itm := listItem{
+		li := listItem{
 			image: 129,
 			shiny: true,
 		}
-		img, marks := paintIcon(t, "PKMNImages", itm)
+		img, marks := paintIcon(t, "PKMNImages", li)
 		shiny := newTestApp(t).res.imageList("PKMNImages").shiny
 		frm := shiny.frame(129)
 
@@ -162,11 +162,11 @@ func Test_listView_paintIcon(t *testing.T) {
 	t.Run("when the item is shiny and the list has no shiny frames, should draw the mark over the frame", func(t *testing.T) {
 		t.Parallel()
 
-		itm := listItem{
+		li := listItem{
 			image: 129,
 			shiny: true,
 		}
-		_, marks := paintIcon(t, "SmallPKMNImg", itm)
+		_, marks := paintIcon(t, "SmallPKMNImg", li)
 
 		assert.Equal(t, []image.Point{{}}, marks)
 	})
@@ -174,10 +174,10 @@ func Test_listView_paintIcon(t *testing.T) {
 	t.Run("when the item isn't shiny, should draw the frame alone", func(t *testing.T) {
 		t.Parallel()
 
-		itm := listItem{
+		li := listItem{
 			image: 129,
 		}
-		_, marks := paintIcon(t, "SmallPKMNImg", itm)
+		_, marks := paintIcon(t, "SmallPKMNImg", li)
 
 		assert.Empty(t, marks)
 	})
@@ -268,8 +268,8 @@ func Test_mainForm_showStarters(t *testing.T) {
 		lv := ta.main.starters
 		shown := make([]bool, len(lv.items))
 
-		for i, itm := range lv.items {
-			shown[i] = itm.shiny
+		for i, li := range lv.items {
+			shown[i] = li.shiny
 		}
 
 		assert.Equal(t, []bool{true, false, true}, shown)
@@ -296,8 +296,8 @@ func Test_mainForm_showStarters(t *testing.T) {
 
 		ta := rolledApp(t, false, false, false)
 
-		for _, itm := range ta.main.starters.items {
-			assert.False(t, itm.shiny, itm.caption)
+		for _, li := range ta.main.starters.items {
+			assert.False(t, li.shiny, li.caption)
 		}
 	})
 }

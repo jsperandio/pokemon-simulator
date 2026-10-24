@@ -44,8 +44,8 @@ func loadPreferences(dat []byte) preferences {
 	prf.choosePrompt = ini.boolean("Messages", "SelectPokemon", prf.choosePrompt)
 
 	if key, ok := ini.value("Graphics", "ShinyMark"); ok {
-		if mrk, known := markByKey(key); known {
-			prf.shinyMark = mrk
+		if sm, known := markByKey(key); known {
+			prf.shinyMark = sm
 		}
 	}
 

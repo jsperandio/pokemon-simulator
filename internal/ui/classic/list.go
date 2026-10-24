@@ -371,11 +371,11 @@ func (lv *listView) setup(comp *layout.Component) {
 	lv.hotTrack = lv.property("HotTrackStyles") != ""
 
 	for _, it := range comp.List {
-		itm := listItem{
+		li := listItem{
 			caption: it.Caption,
 			image:   it.ImageIndex,
 		}
-		lv.items = append(lv.items, itm)
+		lv.items = append(lv.items, li)
 	}
 
 	lv.selected, lv.hot = -1, -1
@@ -557,18 +557,18 @@ func (lv *listView) paintItem(in canvas, i int, ir image.Rectangle, icon image.P
 	}
 }
 
-// paintIcon draws item it's icon at pnt, selected or not: for a shiny
-// item, the shiny frame if the image list has one, and the list's mark
-// over it.
-func (lv *listView) paintIcon(in canvas, it listItem, pnt image.Point, selected bool) {
-	ims := lv.images
-	if it.shiny && ims.shiny != nil {
-		ims = ims.shiny
+// paintIcon draws the icon of item li at pnt, selected or not: for a
+// shiny item, the shiny frame if the image list has one, and the list's
+// mark over it.
+func (lv *listView) paintIcon(in canvas, li listItem, pnt image.Point, selected bool) {
+	il := lv.images
+	if li.shiny && il.shiny != nil {
+		il = il.shiny
 	}
 
-	ims.drawFrame(in, pnt.X, pnt.Y, it.image, selected)
+	il.drawFrame(in, pnt.X, pnt.Y, li.image, selected)
 
-	if it.shiny && lv.mark != nil {
+	if li.shiny && lv.mark != nil {
 		lv.mark(in, pnt.X, pnt.Y)
 	}
 }

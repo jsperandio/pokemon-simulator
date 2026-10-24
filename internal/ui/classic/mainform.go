@@ -410,9 +410,9 @@ func (mf *mainForm) sync() {
 // showStarters shows each starter shiny or not, as the game rolled it.
 func (mf *mainForm) showStarters(shiny [3]bool) {
 	for i, shn := range shiny {
-		itm := &mf.starters.items[i]
-		if itm.shiny != shn {
-			itm.shiny = shn
+		li := &mf.starters.items[i]
+		if li.shiny != shn {
+			li.shiny = shn
 
 			mf.starters.invalidate()
 		}
@@ -422,31 +422,35 @@ func (mf *mainForm) showStarters(shiny [3]bool) {
 // showEnemyImage shows the enemy's still sprite in ListView3, or none while
 // its appearance animation plays there.
 func (mf *mainForm) showEnemyImage() {
-	img := mf.app.game.Main.EnemyImage
+	mgw := &mf.app.game.Main
+
+	img := mgw.EnemyImage
 	if mf.enemyAppear.playing() {
 		img = -1
 	}
 
-	itm := listItem{
+	li := listItem{
 		image: img,
-		shiny: mf.app.game.Main.Enemy.Shiny,
+		shiny: mgw.Enemy.Shiny,
 	}
-	mf.enemyImage.setItems([]listItem{itm})
+	mf.enemyImage.setItems([]listItem{li})
 }
 
 // showOwnImage shows the player's fighter's still sprite in ListView2, or
 // none while there is no fighter or its entry animation plays there.
 func (mf *mainForm) showOwnImage() {
-	img := mf.app.game.Main.Own.Species - 1
+	mgw := &mf.app.game.Main
+
+	img := mgw.Own.Species - 1
 	if mf.ownAppear.playing() {
 		img = -1
 	}
 
-	itm := listItem{
+	li := listItem{
 		image: img,
-		shiny: mf.app.game.Main.Own.Shiny,
+		shiny: mgw.Own.Shiny,
 	}
-	mf.ownImage.setItems([]listItem{itm})
+	mf.ownImage.setItems([]listItem{li})
 }
 
 // stopAnimations stops the entry animations, showing the still sprites,
