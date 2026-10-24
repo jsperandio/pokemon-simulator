@@ -15,7 +15,11 @@ type database struct {
 }
 
 const (
-	dbName    string = "pokemon-simulator"
+	// dbName is the database of the versions since 4.6, apart from v4.5.0's
+	// "pokemon-simulator", so that the faithful port keeps its own saves on
+	// a site that serves both. A version that changes the save format takes
+	// a new name, after itself; the settings' key follows it.
+	dbName    string = "pokemon-simulator-4.6"
 	dbVersion int    = 1
 	dbStore   string = "files"
 )

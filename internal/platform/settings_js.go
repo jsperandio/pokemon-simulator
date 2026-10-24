@@ -6,8 +6,9 @@ package platform
 
 import "syscall/js"
 
-// settingsKey is the settings' key in the page's local storage.
-const settingsKey string = "pokemon-simulator/settings.ini"
+// settingsKey is the settings' key in the page's local storage, under the
+// database's name.
+const settingsKey string = dbName + "/settings.ini"
 
 // Settings is where the game keeps the player's preferences between runs:
 // the page's local storage, apart from the saves in IndexedDB, so that the
