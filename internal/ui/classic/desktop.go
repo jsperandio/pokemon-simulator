@@ -88,7 +88,7 @@ type desktop struct {
 	modals  []*window
 	popups  []popup
 	menu    *menuBar // the menu bar while it tracks the mouse or keys
-	dirty   bool
+	dirty   bool     // needs repainting
 	now     time.Time
 
 	mouse      image.Point
