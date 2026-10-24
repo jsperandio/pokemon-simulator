@@ -48,6 +48,32 @@ func readOriginal(t *testing.T, name string) *File {
 	return sav
 }
 
+// shinySave returns the new game with two Gyarados after Charmander, the
+// first of them shiny.
+func shinySave(t *testing.T) *File {
+	t.Helper()
+
+	sav := readOriginal(t, "newgame")
+	sav.Owned[1] = Slot{
+		Species: 130,
+		Level:   50,
+		XP:      125000,
+		Shiny:   true,
+	}
+	sav.Owned[2] = Slot{
+		Species: 130,
+		Level:   50,
+		XP:      125000,
+	}
+
+	return sav
+}
+
+// lines splits a save into its lines.
+func lines(b []byte) []string {
+	return strings.Split(strings.TrimSuffix(string(b), "\r\n"), "\r\n")
+}
+
 // version1Save returns a version 1 save: no header, three flags, 251 POKéDEX
 // entries. The original loads it and writes testdata/load-v1 back.
 func version1Save() string {
@@ -170,6 +196,56 @@ func Test_Read(t *testing.T) {
 
 		assert.ErrorContains(t, err, "want a whole number")
 	})
+
+	t.Run("when the file ends with the shiny block, should mark those members shiny", func(t *testing.T) {
+		t.Parallel()
+
+		sav, err := Read(shinySave(t).Bytes())
+		require.NoError(t, err)
+
+		party := sav.Party()
+		require.Len(t, party, 3)
+		assert.False(t, party[0].Shiny, "Charmander")
+		assert.True(t, party[1].Shiny, "the first Gyarados")
+		assert.False(t, party[2].Shiny, "the second Gyarados")
+	})
+
+	t.Run("when the shiny block names a place outside the party, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		b := append(original(t, "newgame"), "SHINY\r\n1\r\n2\r\n"...)
+		_, err := Read(b)
+
+		assert.ErrorContains(t, err, "no party member 2")
+	})
+
+	t.Run("when the shiny block counts more members than the party has, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		b := append(original(t, "newgame"), "SHINY\r\n2\r\n1\r\n1\r\n"...)
+		_, err := Read(b)
+
+		assert.ErrorContains(t, err, "2 shiny POKéMON in a party of 1")
+	})
+
+	t.Run("when the shiny block ends early, should fail", func(t *testing.T) {
+		t.Parallel()
+
+		b := append(original(t, "newgame"), "SHINY\r\n1\r\n"...)
+		_, err := Read(b)
+
+		assert.ErrorContains(t, err, "the file ends at line")
+	})
+
+	t.Run("when other lines follow the party arrays, should ignore them as the original does", func(t *testing.T) {
+		t.Parallel()
+
+		b := append(original(t, "newgame"), "something else\r\n"...)
+		sav, err := Read(b)
+		require.NoError(t, err)
+
+		assert.False(t, sav.Party()[0].Shiny)
+	})
 }
 
 func Test_File_Party(t *testing.T) {
@@ -226,5 +302,30 @@ func Test_File_Bytes(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, string(want), string(sav.Bytes()), "the version 1 save isn't written back as the original wrote it")
+	})
+
+	t.Run("when a party member is shiny, should end with the shiny block", func(t *testing.T) {
+		t.Parallel()
+
+		got := lines(shinySave(t).Bytes())
+		plain := lines(original(t, "newgame"))
+
+		require.Len(t, got, len(plain)+3)
+		assert.Equal(t, []string{"SHINY", "1", "2"}, got[len(plain):])
+	})
+
+	t.Run("when a save with shinies is cut to the original's lines, should still read, as the original reads it", func(t *testing.T) {
+		t.Parallel()
+
+		full := lines(shinySave(t).Bytes())
+		cut := strings.Join(full[:len(full)-3], "\r\n") + "\r\n"
+
+		sav, err := Read([]byte(cut))
+		require.NoError(t, err)
+
+		party := sav.Party()
+		require.Len(t, party, 3)
+		assert.Equal(t, int32(130), party[1].Species)
+		assert.False(t, party[1].Shiny)
 	})
 }
