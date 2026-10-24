@@ -30,7 +30,7 @@ func appearingApp(t *testing.T, species int) *testApp {
 	ta.preferences.animatedSprites = true
 	ta.startGame()
 	ta.call(func() {
-		ta.game.StartWildBattle(species, 50)
+		ta.game.StartWildBattle(species, 50, false)
 	})
 	ta.wait(1)
 
@@ -108,7 +108,7 @@ func Test_appearance(t *testing.T) {
 
 		ta.game.EndFight()
 		ta.call(func() {
-			ta.game.StartWildBattle(25, 50)
+			ta.game.StartWildBattle(25, 50, false)
 		})
 		ta.wait(1)
 		ta.answer("Select a POKéMON")
@@ -139,7 +139,7 @@ func Test_appearance(t *testing.T) {
 		ta.preferences.choosePrompt = false
 		ta.startGame()
 		ta.call(func() {
-			ta.game.StartWildBattle(lugia, 50)
+			ta.game.StartWildBattle(lugia, 50, false)
 		})
 		ta.wait(1)
 
@@ -154,7 +154,7 @@ func Test_appearance(t *testing.T) {
 		ta := newTestApp(t)
 		ta.startGame()
 		ta.call(func() {
-			ta.game.StartWildBattle(lugia, 50)
+			ta.game.StartWildBattle(lugia, 50, false)
 		})
 		ta.wait(1)
 		ta.answer("Select a POKéMON")
@@ -171,7 +171,7 @@ func Test_appearance(t *testing.T) {
 		ta.preferences.animatedSprites = true
 		ta.startGame()
 		ta.call(func() {
-			ta.game.StartWildBattle(lugia, 50)
+			ta.game.StartWildBattle(lugia, 50, false)
 		})
 		ta.wait(1)
 		ta.answer("Select a POKéMON")

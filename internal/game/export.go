@@ -35,9 +35,8 @@ func (g *Game) ExportPage(now time.Time) []byte {
 			toNext = n*n*n - m.XP
 		}
 
-		spc := int(m.Species)
 		line(fmt.Sprintf("<tr bgcolor=%s><td>%d</td><td># %03d %s</td><td>%d</td><td>%d</td><td>%d</td></tr>",
-			rowColor(i), i+1, spc, g.name(spc), m.Level, m.XP, toNext))
+			rowColor(i), i+1, m.Species, g.shinyName(m), m.Level, m.XP, toNext))
 	}
 
 	line(fmt.Sprintf("</table><p><table border><tr><td><b>In POKéDEX (%d/386)</b></td></tr>", g.PokedexCount()))

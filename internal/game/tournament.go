@@ -266,7 +266,7 @@ var tournamentPrizes = [...]func(g *Game){
 func (g *Game) winPokemon() {
 	s := g.Rand.Random(386) + 1
 	l := uint8(g.Rand.Random(99) + 2) //nolint:gosec // 2–100
-	g.AddPKMN(s, g.name(s), l)
+	g.AddPKMN(s, g.name(s), l, false)
 	g.message(Information, fmt.Sprintf("You won a L.%d %s!", l, g.name(s)))
 }
 

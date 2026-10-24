@@ -38,7 +38,7 @@ func (g *Game) UseItem(k int) {
 	case MasterBall:
 		g.log("You threw a Master Ball.")
 		g.log("You caught " + g.name(g.EnemySpecies) + "!")
-		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel)
+		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel, g.EnemyShiny)
 
 		g.MasterBalls--
 		g.BattleType = 1
@@ -60,7 +60,7 @@ func (g *Game) throwBall(ball string, count *uint32, bound int) {
 	// Int(r − (EnemyHP + 0.5)) > 0 in Extended: r ≥ EnemyHP + 2.
 	if r := g.Rand.Random(bound); r >= g.EnemyHP+2 {
 		g.log("You caught " + g.name(g.EnemySpecies) + "!")
-		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel)
+		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel, g.EnemyShiny)
 
 		g.BattleType = 1
 		g.Main.EndFight = true
@@ -130,8 +130,8 @@ func (g *Game) enableItems() {
 	noBalls := func() {
 		enabled[PokeBall], enabled[GreatBall], enabled[UltraBall], enabled[MasterBall] = false, false, false, false
 	}
-	if g.partyHas(150) && g.Main.EnemyImage == 149 {
-		noBalls() // one Mewtwo at a time
+	if g.partyHasKind(150, g.EnemyShiny) && g.Main.EnemyImage == 149 {
+		noBalls() // one Mewtwo at a time, and one shiny Mewtwo
 	}
 
 	if g.InTrainerBattle || (g.InWildBattle && len(g.Party()) == len(g.Owned)) {

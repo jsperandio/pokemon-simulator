@@ -13,7 +13,7 @@ var Starters = [3]int{1, 4, 7} // Bulbasaur, Charmander, Squirtle
 // chosen the save file and closed the name dialog. With OK (ok), the name
 // typed is the player's, "Ash" if empty. Closed with Alt+F4, the dialog
 // sets nothing: the player has no name, and the game window keeps its
-// caption. The player picks a starter next.
+// caption. The player picks a starter next, each of which may be shiny.
 func (g *Game) NewGame(file, name string, ok bool) {
 	g.SaveFile = file
 	g.MinLevel, g.MaxLevel = 2, 100
@@ -31,6 +31,10 @@ func (g *Game) NewGame(file, name string, ok bool) {
 	g.InPokedex = [save.NumSpecies + 1]bool{}
 	g.Main.Starters = true
 	g.enable(false, "File1", "Action1")
+
+	for i := range g.Main.StarterShiny {
+		g.Main.StarterShiny[i] = g.rollShiny()
+	}
 }
 
 // setPlayer is the name dialog's OK (TOKRightDlg.OKBtnClick).
@@ -50,8 +54,12 @@ func (g *Game) ChooseStarter(k int) {
 		return
 	}
 
-	s := Starters[k]
-	g.AddPKMN(s, g.name(s), 5)
+	s, shiny := Starters[k], g.Main.StarterShiny[k]
+	g.AddPKMN(s, g.name(s), 5, shiny)
+
+	if shiny {
+		g.log("It's a shiny POKéMON!")
+	}
 
 	g.Main.Starters = false
 	g.enable(true, "File1", "Action1")

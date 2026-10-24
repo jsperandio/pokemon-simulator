@@ -20,7 +20,7 @@ func Test_appearance(t *testing.T) {
 		ta.preferences.animatedSprites = true
 		ta.startGame()
 		ta.call(func() {
-			ta.game.StartWildBattle(25, 50)
+			ta.game.StartWildBattle(25, 50, false)
 		})
 		ta.wait(1)
 		ta.answer("Select a POKéMON")

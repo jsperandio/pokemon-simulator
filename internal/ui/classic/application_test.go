@@ -496,7 +496,7 @@ func Test_WildBattle(t *testing.T) {
 // wildBattle starts a wild battle, at the game window, as a game handler.
 func wildBattle(ta *testApp) {
 	ta.call(func() {
-		ta.game.StartWildBattle(25, 50)
+		ta.game.StartWildBattle(25, 50, false)
 	})
 	ta.wait(1)
 }

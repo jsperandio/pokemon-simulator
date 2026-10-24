@@ -44,7 +44,7 @@ func (g *Game) ClickMenu(name string) bool {
 	case "FindPKMN1":
 		g.FindPKMN()
 	case "Mewtwo1":
-		g.StartWildBattle(150, 100)
+		g.StartWildBattle(150, 100, g.rollShiny())
 	case "Buy1":
 		g.OpenPokemart()
 	case "Evolve1":
