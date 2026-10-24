@@ -17,7 +17,7 @@ To turn them off, clear Enable animated sprites in File → Preferences..., unde
 
 A POKéMON found with Actions → Fight a wild POKéMON → Search for a POKéMON, or the Mewtwo fought from the same menu, is shiny 1 time in 4,096, as in the games since POKéMON X and Y. So is each starter of a new game, rolled on its own: all three can be shiny. The other POKéMON, such as trainers', never are.
 
-- **In the starter choice,** a shiny starter has its shiny colours and the mark below. Once chosen, Battle Info says "It's a shiny POKéMON!".
+- **In the starter choice,** a shiny starter has its shiny colours, with the Statistics window's mark (below) at the top left of its sprite. Once chosen, Battle Info says "It's a shiny POKéMON!".
 - **In battle,** a shiny POKéMON has POKéMON Emerald's shiny colours, and Battle Info says "It's a shiny POKéMON!". Stars circle it when it comes into the Battle Arena, wild or yours, as in Emerald, then stay around it.
 - **In your party,** a shiny POKéMON you catch stays shiny, and so do its evolutions: a shiny Nincada gives a shiny Shedinja. The Statistics window, its details and the exported page write "(shiny)" after its name.
 - **Its icon** in the Statistics window stays the original's, with a mark on it, as on a shiny starter. You choose the mark, or none, in File → Preferences..., under Graphics.

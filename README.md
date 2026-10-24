@@ -54,7 +54,7 @@ The original doesn't have these:
 
 - Animated sprites
 - Shiny POKéMON
-- Don't show messages again
+- Don't show this message again
 
 More details: [docs/improvements.md](docs/improvements.md).
 
