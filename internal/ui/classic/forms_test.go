@@ -381,8 +381,23 @@ func Test_mainForm_placeGauges(t *testing.T) {
 	})
 }
 
+// findEntry finds the menu entry named name among es, at any depth.
+func findEntry(es []*menuEntry, name string) *menuEntry {
+	for _, me := range es {
+		if me.name() == name {
+			return me
+		}
+
+		if fnd := findEntry(me.kids, name); fnd != nil {
+			return fnd
+		}
+	}
+
+	return nil
+}
+
 // The game window is the original's with what the port adds: a Search
-// Again button in the Battle Arena.
+// Again button in the Battle Arena, and F3 for Search for a POKéMON.
 func Test_mainLayout(t *testing.T) {
 	t.Parallel()
 
@@ -420,12 +435,24 @@ func Test_mainLayout(t *testing.T) {
 		ta.shot("fill-search-again")
 	})
 
+	t.Run("when the menu is made, should give Search for a POKéMON the F3 shortcut", func(t *testing.T) {
+		t.Parallel()
+
+		bar := newTestApp(t).main.wdw.menu
+		ent := findEntry(bar.entries, "FindPKMN1")
+
+		require.NotNil(t, ent, "no Search for a POKéMON")
+		assert.Equal(t, "F3", ent.shortcut)
+		assert.Equal(t, ebiten.KeyF3, ent.key)
+	})
+
 	t.Run("when the game window is made, should leave the original's layout as it was", func(t *testing.T) {
 		t.Parallel()
 
 		newTestApp(t)
 
 		assert.Nil(t, layout.Form4.Find("SearchAgainButton"))
+		assert.Nil(t, layout.Form4.Find("FindPKMN1").Props)
 	})
 }
 

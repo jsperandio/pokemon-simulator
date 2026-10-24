@@ -547,7 +547,8 @@ func (ta *testApp) winBattle() {
 
 // Search Again, which the original doesn't have, ends a battle a search
 // found and searches again, with the same fighter, which another party
-// member can replace until it acts.
+// member can replace until it acts. F3 is Search for a POKéMON's
+// shortcut, and Search Again's once the battle is over.
 func Test_SearchAgain(t *testing.T) {
 	t.Parallel()
 
@@ -575,6 +576,78 @@ func Test_SearchAgain(t *testing.T) {
 		assert.Equal(t, 4, mgw.Own.Species, "the fighter")
 		assert.Equal(t, 1, ta.main.attacks.index, "the attack selected")
 		assert.False(t, ta.main.searchButton.shown(), "Search Again shows in the battle")
+	})
+
+	t.Run("when F3 is pressed with the battle over, should search again", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		appeared := ta.game.Main.Appeared
+
+		ta.key(ebiten.KeyF3)
+		ta.wait(1)
+		assert.Nil(t, ta.desk.topModal(), "a dialog shows")
+		assert.Equal(t, appeared+1, ta.game.Main.Appeared, "no wild POKéMON appeared")
+		assert.True(t, ta.main.goButton.shown(), "no Go!")
+	})
+
+	t.Run("when Ctrl+F3 is pressed with the battle over, should do nothing", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		appeared := ta.game.Main.Appeared
+
+		ta.frame(input{
+			keys: []ebiten.Key{ebiten.KeyF3},
+			mods: mods{
+				ctrl: true,
+			},
+		})
+		ta.frame(input{
+			keysUp: []ebiten.Key{ebiten.KeyF3},
+		})
+		ta.wait(1)
+		assert.Equal(t, appeared, ta.game.Main.Appeared, "a wild POKéMON appeared")
+		assert.True(t, ta.main.searchButton.shown(), "no Search Again")
+	})
+
+	t.Run("when F3 is pressed in the game window with no battle, should search for a POKéMON", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.desk.activate(ta.main.wdw)
+		ta.key(ebiten.KeyF3)
+		ta.wait(1)
+		ta.answer("Select a POKéMON from the Statistics Window")
+
+		assert.True(t, ta.game.InWildBattle)
+	})
+
+	t.Run("when F3 is pressed during a battle, should do nothing", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+
+		appeared := ta.game.Main.Appeared
+
+		ta.key(ebiten.KeyF3)
+		ta.wait(1)
+		assert.Nil(t, ta.desk.topModal(), "a dialog shows")
+		assert.Equal(t, appeared, ta.game.Main.Appeared, "a wild POKéMON appeared")
+		assert.True(t, ta.main.goButton.shown(), "the battle is over")
 	})
 
 	t.Run("when Search Again has sent the fighter out, should send another party member double-clicked before it acts", func(t *testing.T) {

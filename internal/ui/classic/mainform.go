@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/jsperandio/pokemon-simulator/internal/audio"
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
@@ -70,12 +72,19 @@ var searchAgainButton = layout.Component{
 	},
 }
 
+// searchShortcut is Search for a POKéMON's shortcut, which the original
+// doesn't have: F3, as a TShortCut.
+const searchShortcut string = "114"
+
 // mainLayout is the original's game window with searchAgainButton in the
-// Battle Arena.
+// Battle Arena, and searchShortcut on Search for a POKéMON.
 func mainLayout() *layout.Component {
 	frm := layout.Form4.Clone()
 	arena := frm.Find("GroupBox1")
 	arena.Children = append(arena.Children, searchAgainButton)
+	frm.Find("FindPKMN1").Props = map[string]string{
+		"ShortCut": searchShortcut,
+	}
 
 	return &frm
 }
@@ -186,6 +195,7 @@ func newMainForm(app *Application) *mainForm {
 		app.call(gam.SearchAgain)
 	}
 	wdw.onClose = mf.formClose
+	wdw.onKey = mf.key
 
 	mb := newMenuBar(wdw, gam.Menu, lay.Find("MainMenu1"), map[string]*game.MenuItem{
 		"Quit1": {
@@ -257,6 +267,19 @@ func (mf *mainForm) leaveCentre() {
 
 	mf.wdw.pos = mf.gameSpot
 	mf.app.desk.dirty = true
+}
+
+// key is the game window's own key: F3 is Search Again once a battle a
+// search found is over, as the menu that has it for Search for a POKéMON
+// is disabled then.
+func (mf *mainForm) key(key ebiten.Key, mds mods) bool {
+	if key != ebiten.KeyF3 || mds != (mods{}) {
+		return false
+	}
+
+	mf.searchButton.click()
+
+	return true
 }
 
 // menuCommand runs a menu item: the user interface's own, or the game's.
