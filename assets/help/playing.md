@@ -28,6 +28,10 @@ The Battle Info window (which is only visible during battles) will then show som
 
 Once the battle has been finished, a button labeled "End Fight" appears. This button appears once the outcome of the fight has been decided. While the button is visible, the "Go!" button will be hidden, and you have a chance to review the battle. Click the button to fully end the fight.
 
+After a battle against a POKéMON you searched for, a "Search Again" button also appears, where "Go!" was. It ends the fight and searches again, and your POKéMON comes out again with the same attack selected. F3 does the same. Until you attack, run or throw a ball, you can double-click another POKéMON in the Statistics window to send it out instead, and the next search sends that one.
+
+When your POKéMON comes out, "Go!" has the focus, so Enter attacks.
+
 If you lose the fight, your money will be cut in half.
 
 Also see the rest of this help file for more information on battling.

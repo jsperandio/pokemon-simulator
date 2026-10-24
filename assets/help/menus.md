@@ -12,7 +12,7 @@ Quit: Quits the game. You can also click the X in the corner of the window. Your
 
 Fight a Trainer: Fight one of several different trainers for experience and money. Or fight Gym Leaders to get Badges and progress through the game.
 
-Fight a wild POKéMON: Fight or try to catch a wild POKéMON. Once you progressed far enough, you can try to fight and/or catch Mewtwo.
+Fight a wild POKéMON: Fight or try to catch a wild POKéMON. Once you progressed far enough, you can try to fight and/or catch Mewtwo. F3 is Search for a POKéMON, and once the battle is over, Search Again (see [Playing](playing.md)).
 
 Tournaments: Fight tournaments for special prizes. See [Tournaments](tournaments.md) for details.
 
