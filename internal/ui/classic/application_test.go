@@ -515,11 +515,16 @@ func (ta *testApp) fightWild() {
 
 	ta.menu("Action1", "FightWild1", "FindPKMN1")
 	ta.answer("Select a POKéMON from the Statistics Window")
-
-	rect := ta.stats.party.itemRect(0)
-	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+	ta.doubleClickParty(0)
 	ta.answer("# 004 Charmander")
 	ta.answer("Choose Charmander?")
+}
+
+// doubleClickParty double-clicks party member idx in the Statistics
+// window.
+func (ta *testApp) doubleClickParty(idx int) {
+	rect := ta.stats.party.itemRect(idx)
+	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
 }
 
 // clickAttack clicks attack idx in the Battle Arena.
@@ -541,7 +546,8 @@ func (ta *testApp) winBattle() {
 }
 
 // Search Again, which the original doesn't have, ends a battle a search
-// found and searches again, with the same fighter.
+// found and searches again, with the same fighter, which another party
+// member can replace until it acts.
 func Test_SearchAgain(t *testing.T) {
 	t.Parallel()
 
@@ -569,6 +575,30 @@ func Test_SearchAgain(t *testing.T) {
 		assert.Equal(t, 4, mgw.Own.Species, "the fighter")
 		assert.Equal(t, 1, ta.main.attacks.index, "the attack selected")
 		assert.False(t, ta.main.searchButton.shown(), "Search Again shows in the battle")
+	})
+
+	t.Run("when Search Again has sent the fighter out, should send another party member double-clicked before it acts", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+
+		ta.game.InPokedex[25] = true // so no POKéDEX opens over the party
+
+		ta.game.AddPKMN(25, "Pikachu", 50, false)
+		ta.wait(1)
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+		ta.clickOn(ta.main.wdw, "SearchAgainButton")
+		ta.wait(1)
+		ta.doubleClickParty(1)
+		ta.answer("# 025 Pikachu")
+		ta.answer("Choose Pikachu?")
+
+		assert.Equal(t, 25, ta.game.Main.Own.Species, "the fighter")
+		assert.Equal(t, -1, ta.main.attacks.index, "the attack selected")
+		ta.shot("search-again-swapped")
 	})
 }
 

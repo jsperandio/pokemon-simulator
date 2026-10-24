@@ -36,6 +36,7 @@ func (g *Game) UseItem(k int) {
 	case UltraBall:
 		g.throwBall("an Ultra Ball", &g.UltraBalls, 250)
 	case MasterBall:
+		g.lockFighter()
 		g.log("You threw a Master Ball.")
 		g.log("You caught " + g.name(g.EnemySpecies) + "!")
 		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel, g.EnemyShiny)
@@ -54,6 +55,7 @@ func (g *Game) UseItem(k int) {
 // throwBall throws a ball that catches when Random(bound) ≥ the enemy's
 // HP + 2; a miss gives the enemy a free attack.
 func (g *Game) throwBall(ball string, count *uint32, bound int) {
+	g.lockFighter()
 	g.log("You threw " + ball + ".")
 
 	*count--

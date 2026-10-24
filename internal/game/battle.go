@@ -82,7 +82,9 @@ func (g *Game) StartWildBattle(species, level int, shiny bool) {
 
 // ClickParty is a double click on party member k (0-based) in the
 // Statistics window (TForm5.ListView1Click): its details, then, depending
-// on the mode, choosing it to fight, evolving it or releasing it.
+// on the mode, choosing it to fight, evolving it or releasing it. Before
+// the fighter Search Again sent out acts, another member goes in its
+// place.
 func (g *Game) ClickParty(k int) {
 	party := g.Party()
 	if k < 0 || k >= len(party) || !g.Stats.PartyEnabled {
@@ -102,7 +104,10 @@ func (g *Game) ClickParty(k int) {
 
 	g.message(Information, fmt.Sprintf("# %03d %s, L.%d, XP:%d, XP to next level:%d", s, g.shinyName(*slt), slt.Level, slt.XP, toNext))
 
-	if g.InWildBattle && g.confirm("Choose "+name+"?") {
+	switch {
+	case g.swapping():
+		g.swap(i, name)
+	case g.InWildBattle && g.confirm("Choose "+name+"?"):
 		g.choose(i)
 	}
 
@@ -126,11 +131,19 @@ func (g *Game) ClickParty(k int) {
 
 // choose sends party member i into the battle.
 func (g *Game) choose(i int) {
+	g.sendOut(i)
+
+	g.Stats.PartyEnabled = false
+	g.Fights++
+}
+
+// sendOut puts party member i in the arena at full HP: the battle's
+// fighter, or one in its place before it acts.
+func (g *Game) sendOut(i int) {
 	m := g.member(i)
 	g.showItems()
 	g.log(g.name(int(m.Species)) + ", I choose you!")
 
-	g.Stats.PartyEnabled = false
 	g.Main.Go = true
 	g.Main.Attacks = true
 	g.enable(false, "File1")
@@ -144,7 +157,32 @@ func (g *Game) choose(i int) {
 	}
 	g.Main.Chosen++
 	g.OwnIndex = i
-	g.Fights++
+}
+
+// swap offers party member i, named name, in place of the fighter Search
+// Again sent, which hasn't acted, unless i is that fighter: the same
+// fight, and no attack selected, as the attacks are i's.
+func (g *Game) swap(i int, name string) {
+	if i == g.OwnIndex || !g.confirm("Choose "+name+"?") {
+		return
+	}
+
+	g.sendOut(i)
+
+	g.Main.AttackIndex = -1
+}
+
+// swapping reports whether the fighter can still change: Search Again sent
+// it out, and the party stays enabled until it acts.
+func (g *Game) swapping() bool {
+	return g.Main.Go && g.Stats.PartyEnabled
+}
+
+// lockFighter is the fighter's first action, an attack, Run! or a ball,
+// after which it stays: the party is disabled, as choosing does. A Potion
+// can't come first, as the fighter has full HP until the enemy attacks.
+func (g *Game) lockFighter() {
+	g.Stats.PartyEnabled = false
 }
 
 // Go is "Go!" (TForm4.Button1Click): the selected attack, then the
@@ -156,12 +194,15 @@ func (g *Game) Go() {
 
 	switch k := g.Main.AttackIndex; {
 	case 0 <= k && k <= 3:
+		g.lockFighter()
 		g.ownAttack(k)
 
 		if g.EnemyHP > 0 {
 			g.oppAttack()
 		}
 	case k == 4:
+		g.lockFighter()
+
 		if g.InTrainerBattle && !g.InTournament {
 			g.log("No! There's no running from a trainer battle!")
 		}

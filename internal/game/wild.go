@@ -200,9 +200,10 @@ func (g *Game) CanSearchAgain() bool {
 
 // SearchAgain is the Search Again button: End Fight, then the battle's
 // search again. The fighter comes out with no prompt, details or
-// confirmation, with its attack still selected (Run! isn't). A pick is
-// an ordinary wild battle this time: PickGo leaves BattleType as the last
-// battle did, whose reward would come again at every win.
+// confirmation, with its attack still selected (Run! isn't), and can
+// change until it acts. A pick is an ordinary wild battle this time:
+// PickGo leaves BattleType as the last battle did, whose reward would
+// come again at every win.
 func (g *Game) SearchAgain() {
 	if !g.CanSearchAgain() {
 		return
@@ -227,6 +228,8 @@ func (g *Game) SearchAgain() {
 
 	g.again = false
 	g.choose(fighter)
+
+	g.Stats.PartyEnabled = true // swapping until the fighter acts
 
 	if 0 <= attack && attack <= 3 {
 		g.Main.AttackIndex = attack
