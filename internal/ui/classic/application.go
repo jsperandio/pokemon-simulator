@@ -136,6 +136,7 @@ func NewApplication(data *gamedata.Data, files storage, settings settingsStore, 
 
 	app.desk.onMinimize = ebiten.MinimizeWindow
 	app.game = game.New(data, app)
+	app.game.RollShiny = game.RandomShiny
 	app.buildForms()
 
 	app.game.OnShow = app.show

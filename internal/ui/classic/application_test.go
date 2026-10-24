@@ -64,9 +64,10 @@ func newTestAppWith(t *testing.T, dir string, args []string, settings *memorySet
 	require.NoError(t, err)
 
 	app.game.Rand.Seed = 1
-	// The POKéDEX's "Shiny" box is the port's: it hides, so the window
-	// looks as the original's captures. The tests of the shinies bring it
-	// back.
+	// The shinies are the port's: none comes, and the POKéDEX's "Shiny"
+	// box hides, so the windows look as the original's captures. The
+	// tests of the shinies bring them back.
+	app.game.RollShiny = nil
 	app.pokedex.shiny.setVisible(false)
 
 	return &testApp{
