@@ -21,14 +21,16 @@ type settingsStore interface {
 // preferences are the player's choices in the Preferences window, which
 // the original doesn't have.
 type preferences struct {
-	animatedSprites bool // Graphics: Enable animated sprites
-	choosePrompt    bool // Messages: Select a POKéMON reminder, game.ChoosePrompt
+	animatedSprites bool      // Graphics: Enable animated sprites
+	shinyMark       shinyMark // Graphics: the shiny mark in the POKéMON lists
+	choosePrompt    bool      // Messages: Select a POKéMON reminder, game.ChoosePrompt
 }
 
 // defaultPreferences are the choices before the player makes any.
 func defaultPreferences() preferences {
 	return preferences{
 		animatedSprites: true,
+		shinyMark:       goldSparkles,
 		choosePrompt:    true,
 	}
 }
@@ -41,6 +43,12 @@ func loadPreferences(dat []byte) preferences {
 	prf.animatedSprites = ini.boolean("Graphics", "AnimatedSprites", prf.animatedSprites)
 	prf.choosePrompt = ini.boolean("Messages", "SelectPokemon", prf.choosePrompt)
 
+	if key, ok := ini.value("Graphics", "ShinyMark"); ok {
+		if mrk, known := markByKey(key); known {
+			prf.shinyMark = mrk
+		}
+	}
+
 	return prf
 }
 
@@ -49,6 +57,7 @@ func loadPreferences(dat []byte) preferences {
 func (prf preferences) store(dat []byte) []byte {
 	ini := parseINI(dat)
 	ini.setBoolean("Graphics", "AnimatedSprites", prf.animatedSprites)
+	ini.set("Graphics", "ShinyMark", shinyMarks[prf.shinyMark].key)
 	ini.setBoolean("Messages", "SelectPokemon", prf.choosePrompt)
 
 	return ini.bytes()
@@ -65,7 +74,7 @@ var preferencesLayout = layout.Component{
 	Props: map[string]string{
 		"BorderIcons":  "[biSystemMenu]",
 		"BorderStyle":  "bsDialog",
-		"ClientHeight": "202",
+		"ClientHeight": "230",
 		"ClientWidth":  "360",
 		"Color":        "clBtnFace",
 		"Position":     "poScreenCenter",
@@ -74,7 +83,7 @@ var preferencesLayout = layout.Component{
 		{
 			Class:  "TListBox",
 			Name:   "Categories",
-			Bounds: layout.Rect{X: 8, Y: 8, W: 97, H: 153},
+			Bounds: layout.Rect{X: 8, Y: 8, W: 97, H: 181},
 			Items:  []string{"Graphics", "Messages"},
 			Props: map[string]string{
 				"ItemIndex": "0",
@@ -84,7 +93,7 @@ var preferencesLayout = layout.Component{
 		{
 			Class:   "TGroupBox",
 			Name:    "GraphicsPage",
-			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 153},
+			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 181},
 			Caption: "Graphics",
 			Props: map[string]string{
 				"TabOrder": "1",
@@ -109,12 +118,43 @@ var preferencesLayout = layout.Component{
 						"WordWrap": "True",
 					},
 				},
+				{
+					Class:   "TLabel",
+					Name:    "ShinyMarkLabel",
+					Bounds:  layout.Rect{X: 12, Y: 90, W: 215, H: 13},
+					Caption: "Shiny mark in the POKéMON lists:",
+				},
+				{
+					Class:  "TComboBox",
+					Name:   "ShinyMark",
+					Bounds: layout.Rect{X: 12, Y: 106, W: 215, H: 21},
+					Props: map[string]string{
+						"Style":    "csDropDownList",
+						"TabOrder": "1",
+					},
+				},
+				{
+					Class:  "TListView",
+					Name:   "ShinyMarkPreview",
+					Bounds: layout.Rect{X: 12, Y: 133, W: 215, H: 38},
+					List: []layout.ListItem{
+						{
+							Caption:    "Gyarados (shiny)",
+							ImageIndex: 129,
+						},
+					},
+					Props: map[string]string{
+						"SmallImages": "SmallPKMNImg",
+						"TabStop":     "False",
+						"ViewStyle":   "vsList",
+					},
+				},
 			},
 		},
 		{
 			Class:   "TGroupBox",
 			Name:    "MessagesPage",
-			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 153},
+			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 181},
 			Caption: "Messages",
 			Hidden:  true,
 			Props: map[string]string{
@@ -145,7 +185,7 @@ var preferencesLayout = layout.Component{
 		{
 			Class:   "TButton",
 			Name:    "RestoreButton",
-			Bounds:  layout.Rect{X: 8, Y: 169, W: 97, H: 25},
+			Bounds:  layout.Rect{X: 8, Y: 197, W: 97, H: 25},
 			Caption: "Restore &Defaults",
 			Props: map[string]string{
 				"TabOrder": "3",
@@ -154,7 +194,7 @@ var preferencesLayout = layout.Component{
 		{
 			Class:   "TButton",
 			Name:    "OKButton",
-			Bounds:  layout.Rect{X: 115, Y: 169, W: 75, H: 25},
+			Bounds:  layout.Rect{X: 115, Y: 197, W: 75, H: 25},
 			Caption: "OK",
 			Props: map[string]string{
 				"Default":  "True",
@@ -164,7 +204,7 @@ var preferencesLayout = layout.Component{
 		{
 			Class:   "TButton",
 			Name:    "CancelButton",
-			Bounds:  layout.Rect{X: 196, Y: 169, W: 75, H: 25},
+			Bounds:  layout.Rect{X: 196, Y: 197, W: 75, H: 25},
 			Caption: "Cancel",
 			Props: map[string]string{
 				"Cancel":      "True",
@@ -175,7 +215,7 @@ var preferencesLayout = layout.Component{
 		{
 			Class:    "TButton",
 			Name:     "ApplyButton",
-			Bounds:   layout.Rect{X: 277, Y: 169, W: 75, H: 25},
+			Bounds:   layout.Rect{X: 277, Y: 197, W: 75, H: 25},
 			Caption:  "&Apply",
 			Disabled: true,
 			Props: map[string]string{
@@ -193,6 +233,8 @@ type preferencesForm struct {
 	categories *listBox
 	pages      []*groupBox // one per category, in the list's order
 	animated   *checkBox
+	mark       *comboBox
+	preview    *listView // a shiny Gyarados with the mark chosen
 	prompt     *checkBox
 	apply      *button
 }
@@ -208,12 +250,24 @@ func newPreferencesForm(app *Application) *preferencesForm {
 			get[*groupBox](wdw, "MessagesPage"),
 		},
 		animated: get[*checkBox](wdw, "AnimatedSprites"),
+		mark:     get[*comboBox](wdw, "ShinyMark"),
+		preview:  get[*listView](wdw, "ShinyMarkPreview"),
 		prompt:   get[*checkBox](wdw, "ChoosePrompt"),
 		apply:    get[*button](wdw, "ApplyButton"),
 	}
 
 	pf.categories.onSelect = pf.showPage
 	pf.animated.onClick = pf.changed
+	pf.mark.items = markNames()
+	pf.mark.onSelect = func(int) {
+		pf.preview.invalidate()
+		pf.changed()
+	}
+	pf.preview.items[0].shiny = true
+	pf.preview.showOnly = true
+	pf.preview.mark = func(cv canvas, x, y int) {
+		shinyMark(pf.mark.index).draw(cv, x, y)
+	}
 	pf.prompt.onClick = pf.changed
 	get[*button](wdw, "RestoreButton").onClick = pf.restore
 	pf.apply.onClick = func() {
@@ -246,6 +300,8 @@ func (pf *preferencesForm) open() {
 // showChoices sets the controls to prf.
 func (pf *preferencesForm) showChoices(prf preferences) {
 	pf.animated.setChecked(prf.animatedSprites)
+	pf.mark.setIndex(int(prf.shinyMark))
+	pf.preview.invalidate()
 	pf.prompt.setChecked(prf.choosePrompt)
 }
 
@@ -253,6 +309,7 @@ func (pf *preferencesForm) showChoices(prf preferences) {
 func (pf *preferencesForm) chosen() preferences {
 	return preferences{
 		animatedSprites: pf.animated.checked,
+		shinyMark:       shinyMark(pf.mark.index),
 		choosePrompt:    pf.prompt.checked,
 	}
 }

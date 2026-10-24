@@ -32,6 +32,9 @@ func newStatsForm(app *Application) *statsForm {
 		counts: map[string]*label{},
 	}
 	sf.party = get[*listView](wdw, "ListView1")
+	sf.party.mark = func(cv canvas, x, y int) {
+		app.preferences.shinyMark.draw(cv, x, y)
+	}
 
 	for i := range sf.items {
 		idx := i

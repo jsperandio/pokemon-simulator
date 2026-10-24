@@ -114,6 +114,9 @@ func newMainForm(app *Application) *mainForm {
 
 	gam := app.game
 	mf.starters.onClick = mf.starterClick
+	mf.starters.mark = func(cv canvas, x, y int) {
+		app.preferences.shinyMark.draw(cv, x, y)
+	}
 	mf.evolveChoice.onClick = func() {
 		gam.ChooseEvolution(mf.evolveChoice.index)
 	}
