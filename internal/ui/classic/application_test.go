@@ -264,14 +264,24 @@ func (ta *testApp) answer(want string) {
 
 // startGame plays up to the game window with a Charmander.
 func (ta *testApp) startGame() {
+	ta.chooseStarters()
+	ta.pickStarter(1)
+}
+
+// chooseStarters plays up to the starter choice.
+func (ta *testApp) chooseStarters() {
 	ta.wait(80)
 	ta.clickOn(ta.start.wdw, "NewButton")
 	ta.typeText("ash")
 	ta.key(ebiten.KeyEnter)
 	ta.typeText("Gary")
 	ta.key(ebiten.KeyEnter)
+	ta.wait(1)
+}
 
-	rect := ta.main.starters.itemRect(1)
+// pickStarter clicks starter idx.
+func (ta *testApp) pickStarter(idx int) {
+	rect := ta.main.starters.itemRect(idx)
 	ta.click(widgetOrigin(ta.main.starters).Add(rect.Min).Add(image.Pt(20, 20)))
 	ta.wait(1)
 }

@@ -286,6 +286,52 @@ func Test_startForm(t *testing.T) {
 	})
 }
 
+// The starter choice shows the game window alone, in the middle of the
+// screen; the starter chosen, it takes its place beside the Statistics and
+// Battle Info windows.
+func Test_mainForm_centreForStarters(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a new game asks for a starter, should centre the game window on the screen", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.chooseStarters()
+
+		size := ta.main.wdw.size()
+		want := image.Pt((screenWidth-size.X)/2, (screenHeight-size.Y)/2)
+
+		require.True(t, ta.main.starters.shown(), "no starters")
+		assert.Equal(t, want, ta.main.wdw.pos, "the game window's position")
+		ta.shot("starters-centred")
+	})
+
+	t.Run("when a starter is chosen, should move the game window beside the Statistics and Battle Info windows", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.chooseStarters()
+		ta.pickStarter(1)
+
+		assert.Equal(t, image.Pt(95, 64), ta.main.wdw.pos, "the game window's position")
+		assert.Equal(t, image.Pt(523, 64), ta.stats.wdw.pos, "the Statistics window's position")
+		assert.Equal(t, image.Pt(95, 378), ta.info.wdw.pos, "the Battle Info window's position")
+	})
+
+	t.Run("when the player moved the game window before choosing, should leave it where the player put it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.chooseStarters()
+
+		moved := image.Pt(20, 30)
+		ta.main.wdw.pos = moved
+		ta.pickStarter(1)
+
+		assert.Equal(t, moved, ta.main.wdw.pos, "the game window's position")
+	})
+}
+
 // The loading screen is AutoSize: it grows to its title, a pixel wider in
 // Arial than the form, after Position centred it, and the labels anchored
 // to its right move with it.

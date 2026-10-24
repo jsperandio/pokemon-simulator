@@ -24,6 +24,8 @@ type mainForm struct {
 
 	starterLabel *label
 	starters     *listView
+	starterSpot  image.Point // where the starter choice centred the window
+	gameSpot     image.Point // where the window goes once a starter is chosen
 
 	evolveChoice *radioGroup
 	evolveButton *button
@@ -176,7 +178,31 @@ func (mf *mainForm) starterClick() {
 	app := mf.app
 	app.call(func() {
 		app.game.ChooseStarter(idx)
+		mf.leaveCentre()
 	})
+}
+
+// centreForStarters puts the window in the middle of the screen for the
+// starter choice, when it is the only one shown; the spot it held beside
+// the other windows waits for the choice.
+func (mf *mainForm) centreForStarters() {
+	mf.gameSpot = mf.wdw.pos
+	mf.wdw.center()
+
+	mf.starterSpot = mf.wdw.pos
+	mf.app.desk.dirty = true
+}
+
+// leaveCentre moves the window from the middle of the screen to its place
+// beside the Statistics and Battle Info windows, once a starter is chosen,
+// unless the player has moved it.
+func (mf *mainForm) leaveCentre() {
+	if mf.app.game.Main.Starters || mf.wdw.pos != mf.starterSpot {
+		return
+	}
+
+	mf.wdw.pos = mf.gameSpot
+	mf.app.desk.dirty = true
 }
 
 // menuCommand runs a menu item: the user interface's own, or the game's.
