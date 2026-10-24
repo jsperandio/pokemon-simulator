@@ -313,9 +313,9 @@ func Test_mainForm_centreForStarters(t *testing.T) {
 		ta.chooseStarters()
 		ta.pickStarter(1)
 
-		assert.Equal(t, image.Pt(95, 64), ta.main.wdw.pos, "the game window's position")
-		assert.Equal(t, image.Pt(523, 64), ta.stats.wdw.pos, "the Statistics window's position")
-		assert.Equal(t, image.Pt(95, 378), ta.info.wdw.pos, "the Battle Info window's position")
+		assert.Equal(t, image.Pt(74, 64), ta.main.wdw.pos, "the game window's position")
+		assert.Equal(t, image.Pt(544, 64), ta.stats.wdw.pos, "the Statistics window's position")
+		assert.Equal(t, image.Pt(74, 378), ta.info.wdw.pos, "the Battle Info window's position")
 	})
 
 	t.Run("when the player moved the game window before choosing, should leave it where the player put it", func(t *testing.T) {
@@ -333,7 +333,9 @@ func Test_mainForm_centreForStarters(t *testing.T) {
 }
 
 // Both HP gauges start after the widest caption a fighter can have, so
-// they are the same width whatever the fighters' names.
+// they are the same width whatever the fighters' names: 126 pixels, half
+// as long again as the 84 the original's arena leaves, as the port widens
+// it by arenaExtra.
 func Test_mainForm_placeGauges(t *testing.T) {
 	t.Parallel()
 
@@ -355,6 +357,7 @@ func Test_mainForm_placeGauges(t *testing.T) {
 		require.True(t, ta.main.ownGauge.shown(), "no gauge for the player's fighter")
 		assert.Equal(t, own.Min.X, enemy.Min.X, "the gauges' left edges")
 		assert.Equal(t, own.Dx(), enemy.Dx(), "the gauges' widths")
+		assert.Equal(t, 126, own.Dx(), "the gauges' width")
 		assert.Equal(t, ta.main.attacks.rect.Max.X, own.Max.X, "the gauges' right edge, the attack boxes'")
 		assert.Less(t, ta.main.ownLabel.rect.Max.X, own.Min.X, "the player's fighter's caption reaches its gauge")
 		assert.Less(t, ta.main.enemyLabel.rect.Max.X, enemy.Min.X, "the enemy's caption reaches its gauge")

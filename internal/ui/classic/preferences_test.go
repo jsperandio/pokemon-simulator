@@ -337,7 +337,7 @@ func Test_preferencesForm(t *testing.T) {
 
 		assert.Equal(t, defaultPreferences(), ta.preferences)
 		assert.Equal(t, keptOn, string(settings.data))
-		assert.Equal(t, image.Pt(95, 54), ta.main.wdw.pos, "the game window isn't back beside the others")
+		assert.Equal(t, image.Pt(74, 54), ta.main.wdw.pos, "the game window isn't back beside the others")
 	})
 
 	t.Run("when a shiny mark is chosen and OK clicked, should keep it and mark the preview with it", func(t *testing.T) {
@@ -430,8 +430,8 @@ func Test_preferencesForm(t *testing.T) {
 		ta.clickOn(pf.wdw, "ApplyButton")
 
 		assert.False(t, ta.preferences.fillScreen)
-		assert.Equal(t, image.Pt(95, 54), ta.main.wdw.pos, "the game window's place")
-		assert.Equal(t, image.Pt(422, 270), ta.main.wdw.client, "the game window's size")
+		assert.Equal(t, image.Pt(74, 54), ta.main.wdw.pos, "the game window's place")
+		assert.Equal(t, image.Pt(464, 270), ta.main.wdw.client, "the game window's size")
 		assert.Equal(t, image.Pt(177, 473), ta.stats.wdw.client, "Statistics' size")
 	})
 }

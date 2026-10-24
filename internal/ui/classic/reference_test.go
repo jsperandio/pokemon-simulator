@@ -96,6 +96,13 @@ var originalClients = map[string]image.Point{
 	"screens-dex-empty": {241, 25}, // the POKéDEX's AutoSize, without its panel
 }
 
+// portClients are the client areas the port changes on purpose: the game
+// window and Battle Info are arenaExtra wider, for longer HP gauges.
+var portClients = map[string]image.Point{
+	"Form4": {422 + arenaExtra, 270},
+	"Form7": {422 + arenaExtra, 159},
+}
+
 // Test_ReferenceScreens plays the scenarios the original's reference
 // screenshots were taken in, through the classic interface, and takes the
 // port's at the same points, of the same areas: Wine's X11 window of each
@@ -309,6 +316,10 @@ func shootWindow(t *testing.T, name string, wdw *window) {
 	want, ok := originalClients[name]
 	if !ok {
 		want, ok = originalClients[wdw.name]
+	}
+
+	if widened, changed := portClients[wdw.name]; changed {
+		want = widened
 	}
 
 	if ok {

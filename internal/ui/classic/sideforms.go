@@ -196,8 +196,10 @@ func newInfoForm(app *Application) *infoForm {
 		wdw: newWindow(app.desk, &layout.Form7),
 	}
 	inf.memo = get[*memo](inf.wdw, "Memo1")
-	// The log grows with the window when the screen is filled.
+	// The log grows with the window: as wide as the game window above it,
+	// and more when the screen is filled.
 	inf.memo.setAnchors(akLeft | akTop | akRight | akBottom)
+	inf.wdw.widen(arenaExtra)
 
 	inf.wdw.onClose = func() { // Alt+F4
 		app.game.CloseInfo()

@@ -207,6 +207,14 @@ func (w *window) fit() {
 	}
 }
 
+// widen makes the window's own client area dx wider than the layout's,
+// its controls following their anchors.
+func (w *window) widen(dx int) {
+	w.resize(w.client.Add(image.Pt(dx, 0)))
+
+	w.design = w.client
+}
+
 // resize gives the window a client area of the given size, and its
 // controls follow their anchors.
 func (w *window) resize(client image.Point) {

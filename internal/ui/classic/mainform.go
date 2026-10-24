@@ -106,6 +106,7 @@ func newMainForm(app *Application) *mainForm {
 	mf.ownImage.showOnly = true
 	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
+	mf.widenArena()
 	mf.placeGauges()
 	mf.anchorForFill()
 
@@ -532,6 +533,31 @@ func (mf *mainForm) animate(now time.Time) {
 
 	if mf.ownSparkle.update(now, shown, free) {
 		mf.arena.invalidate()
+	}
+}
+
+// arenaExtra is the width the port adds to the game window, the Battle
+// Arena and Battle Info, for HP gauges half as long again as the 84 pixels
+// the widest caption leaves in the original's arena.
+const arenaExtra int = 42
+
+// widenArena makes the window arenaExtra wider than the original's: the
+// Battle Arena, its attack boxes and its gauges grow to the right, the Go!
+// button moves with them, and the starter choice stays centred. The
+// layout's anchors are still the defaults, so the resize moves nothing.
+func (mf *mainForm) widenArena() {
+	mf.wdw.widen(arenaExtra)
+
+	for _, ctl := range []*control{&mf.arena.control, &mf.attacks.control, &mf.enemyAttacks.control} {
+		rect := ctl.rect
+		rect.Max.X += arenaExtra
+		ctl.setBounds(rect)
+	}
+
+	mf.goButton.setBounds(mf.goButton.rect.Add(image.Pt(arenaExtra, 0)))
+
+	for _, ctl := range []*control{&mf.starterLabel.control, &mf.starters.control} {
+		ctl.setBounds(ctl.rect.Add(image.Pt(arenaExtra/2, 0)))
 	}
 }
 

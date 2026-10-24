@@ -664,7 +664,7 @@ func Test_CatchSaveLoad(t *testing.T) {
 		assert.False(t, tb.start.wdw.visible, "the start screen still shows")
 		assert.True(t, tb.main.wdw.visible, "the game window doesn't show")
 		assert.True(t, tb.stats.wdw.visible, "the Statistics window doesn't show")
-		assert.Equal(t, image.Pt(95, 54), tb.main.wdw.pos, "the game window's position")
+		assert.Equal(t, image.Pt(74, 54), tb.main.wdw.pos, "the game window's position")
 	})
 }
 
@@ -1018,7 +1018,7 @@ func Test_Application_placeWindows(t *testing.T) {
 
 		for _, wgt := range ta.main.arena.kids {
 			ctl := wgt.base()
-			assert.Equal(t, before[ctl.name].Add(image.Pt(94, 51)), ctl.rect, ctl.name)
+			assert.Equal(t, before[ctl.name].Add(image.Pt(73, 51)), ctl.rect, ctl.name)
 		}
 	})
 
@@ -1073,12 +1073,12 @@ func Test_Application_placeWindows(t *testing.T) {
 		ta.preferences.fillScreen = false
 		ta.placeWindows(246)
 
-		assert.Equal(t, image.Pt(95, 54), ta.main.wdw.pos, "the game window's place")
-		assert.Equal(t, image.Pt(422, 270), ta.main.wdw.client, "the game window's size")
+		assert.Equal(t, image.Pt(74, 54), ta.main.wdw.pos, "the game window's place")
+		assert.Equal(t, image.Pt(464, 270), ta.main.wdw.client, "the game window's size")
 		assert.Equal(t, image.Pt(177, 473), ta.stats.wdw.client, "Statistics' size")
-		assert.Equal(t, image.Pt(422, 159), ta.info.wdw.client, "Battle Info's size")
+		assert.Equal(t, image.Pt(464, 159), ta.info.wdw.client, "Battle Info's size")
 		assert.Equal(t, image.Rect(0, 248, 177, 473), ta.stats.party.rect, "the party list")
-		assert.Equal(t, image.Rect(120, 16, 417, 257), ta.main.arena.rect, "the arena's frame")
+		assert.Equal(t, image.Rect(120, 16, 459, 257), ta.main.arena.rect, "the arena's frame")
 		assert.False(t, ta.main.wdw.pinned, "the game window is still pinned")
 	})
 
