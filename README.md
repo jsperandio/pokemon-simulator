@@ -8,7 +8,7 @@ A cross-platform port of **POKéMON Simulator V4.5** to [Go](https://go.dev) and
 
 The original only runs on Windows, or on other systems through Wine. This port makes it playable again on Linux, Windows, macOS and in the browser, with the same rules, data and look, and adds a few [improvements](#improvements) of its own.
 
-> **The original, as it was:** [v4.5.0](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.0) is the faithful port, with nothing added. Take its archives to play the game exactly as Michael Madsen made it.
+> **The original, as it was:** [v4.5.0](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.0) is the faithful port, with nothing added. Take its archives, or [play it in the browser](https://jsperandio.github.io/pokemon-simulator-web/v4.5.0/), to have the game exactly as Michael Madsen made it.
 
 > **Status:** the port is complete. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays the whole game on the desktop and in the browser, with the manual and the music. The versions after v4.5.0 add improvements on top.
 
