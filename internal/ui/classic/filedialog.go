@@ -356,7 +356,10 @@ func (fd *fileDialog) list() {
 			img = fileIconFolder
 		}
 
-		items[i] = listItem{ent.Name, img}
+		items[i] = listItem{
+			caption: ent.Name,
+			image:   img,
+		}
 	}
 
 	fd.view.setItems(items)

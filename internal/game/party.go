@@ -11,11 +11,15 @@ import (
 
 // The party: new members, evolution and release.
 
-// AddPKMN adds a POKéMON at the given level, with level³ XP, and registers
-// its species (TForm5.AddPKMN). The original doesn't check for a full
-// party and writes past its arrays; the port drops the POKéMON instead.
-func (g *Game) AddPKMN(species int, name string, level uint8) {
-	if species == 150 {
+// AddPKMN adds a POKéMON at the given level, with level³ XP, a shiny one
+// if shiny, and registers its species (TForm5.AddPKMN). The original
+// doesn't check for a full party and writes past its arrays; the port
+// drops the POKéMON instead.
+func (g *Game) AddPKMN(species int, name string, level uint8, shiny bool) {
+	switch {
+	case species == 150 && shiny:
+		g.message(Information, "NOTE: You can only catch one shiny Mewtwo at a time. You must release the one(s) you already have if you want to catch another.")
+	case species == 150:
 		g.message(Information, "NOTE: You can only catch one Mewtwo at a time. You must release the one(s) you already have if you want to catch another.")
 	}
 
@@ -44,6 +48,7 @@ func (g *Game) AddPKMN(species int, name string, level uint8) {
 		Species: int32(species), //nolint:gosec // a species number
 		Level:   level,
 		XP:      l * l * l,
+		Shiny:   shiny,
 	}
 }
 
@@ -153,7 +158,8 @@ func (g *Game) evolve(i int) {
 }
 
 // evolveNincada asks to evolve Nincada into Ninjask, which gives a Shedinja
-// too 3 of 4 times. After a No it asks as for any other species.
+// too 3 of 4 times, a shiny one from a shiny Nincada, as in the games.
+// After a No it asks as for any other species.
 func (g *Game) evolveNincada(slt *save.Slot, spc *gamedata.Species) {
 	ninjask := g.species(290).EvolveTo
 	if !g.confirm("Your " + g.name(290) + " can evolve into " + g.name(ninjask) + ". Do you want to evolve it? NOTE: Nincada will evolve into Ninjask AND Shedinja every 3 of 4 times.") {
@@ -170,7 +176,7 @@ func (g *Game) evolveNincada(slt *save.Slot, spc *gamedata.Species) {
 		g.message(Information, "Shedinja didn't appear.")
 	} else {
 		g.message(Information, "Nincada also evolved into Shedinja!")
-		g.AddPKMN(292, "Shedinja", slt.Level)
+		g.AddPKMN(292, "Shedinja", slt.Level, slt.Shiny)
 	}
 }
 

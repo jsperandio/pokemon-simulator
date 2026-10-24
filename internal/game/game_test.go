@@ -604,10 +604,14 @@ func Test_MainWindow(t *testing.T) {
 
 			return true
 		})
-		gam.StartWildBattle(25, 7) // Pikachu, L.7
+		gam.StartWildBattle(25, 7, false) // Pikachu, L.7
 
 		// While the choose prompt shows: the enemy's level and HP, but no attacks.
-		assert.Equal(t, Shown{25, 7, 70}, during.Enemy)
+		assert.Equal(t, Shown{
+			Species: 25,
+			Level:   7,
+			HP:      70,
+		}, during.Enemy)
 		assert.Equal(t, Shown{}, during.EnemyMoves)
 
 		// After it: the enemy's attacks are listed, and no POKéBall shows.
@@ -615,7 +619,11 @@ func Test_MainWindow(t *testing.T) {
 		assert.False(t, win.Pokeball)
 
 		gam.ClickParty(0)
-		assert.Equal(t, Shown{4, 5, 50}, win.Own)
+		assert.Equal(t, Shown{
+			Species: 4,
+			Level:   5,
+			HP:      50,
+		}, win.Own)
 
 		win.AttackIndex = 0
 
@@ -641,7 +649,7 @@ func Test_MainWindow(t *testing.T) {
 
 		win := &gam.Main
 
-		gam.StartWildBattle(25, 100) // Pikachu, L.100
+		gam.StartWildBattle(25, 100, false) // Pikachu, L.100
 		gam.ClickParty(0)
 
 		gam.EnemyHP, gam.OwnHP = 200, 1 // Pikachu takes the attack and faints Charmander
@@ -664,7 +672,7 @@ func Test_MainWindow(t *testing.T) {
 		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(1) // Charmander is registered
 
-		gam.StartWildBattle(4, 5)
+		gam.StartWildBattle(4, 5, false)
 
 		assert.True(t, gam.Main.Pokeball)
 	})
@@ -687,10 +695,10 @@ func Test_MainWindow(t *testing.T) {
 			return true
 		})
 
-		gam.StartWildBattle(25, 7)
+		gam.StartWildBattle(25, 7, false)
 		assert.Equal(t, 1, during)
 
-		gam.StartWildBattle(25, 7)
+		gam.StartWildBattle(25, 7, false)
 		assert.Equal(t, 2, win.Appeared)
 
 		gam.StartTrainerBattle(74, 12, "Brock")
@@ -706,7 +714,7 @@ func Test_MainWindow(t *testing.T) {
 
 		win := &gam.Main
 
-		gam.StartWildBattle(25, 7)
+		gam.StartWildBattle(25, 7, false)
 		assert.Equal(t, 0, win.Chosen)
 
 		gam.ClickParty(0)
@@ -786,7 +794,7 @@ func Test_Game_OnShow(t *testing.T) {
 		gam.OnShow = func(w Window) {
 			shown = append(shown, w)
 		}
-		gam.StartWildBattle(25, 7)
+		gam.StartWildBattle(25, 7, false)
 
 		assert.Equal(t, []Window{InfoForm}, shown)
 	})
@@ -797,7 +805,7 @@ func Test_Game_OnShow(t *testing.T) {
 		gam, _ := newGame(t)
 		gam.NewGame("ash.pgs", "Ash", true)
 		gam.ChooseStarter(0)
-		gam.StartWildBattle(25, 7)
+		gam.StartWildBattle(25, 7, false)
 
 		var shown []Window
 		gam.OnShow = func(w Window) {

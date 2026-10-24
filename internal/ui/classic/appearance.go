@@ -22,10 +22,10 @@ type appearance struct {
 	frame  int          // the frame showing
 }
 
-// arm readies species' animation, if play, when entries, the game's count
-// of the entries this animation plays for, has changed since it was last
-// seen.
-func (a *appearance) arm(entries, species int, play bool) {
+// arm readies species' animation, shiny if shiny, if play, when entries,
+// the game's count of the entries this animation plays for, has changed
+// since it was last seen.
+func (a *appearance) arm(entries, species int, shiny, play bool) {
 	if entries == a.seen {
 		return
 	}
@@ -37,7 +37,7 @@ func (a *appearance) arm(entries, species int, play bool) {
 		return
 	}
 
-	if spr, err := anim.Load(species); err == nil {
+	if spr, err := anim.Load(species, shiny); err == nil {
 		a.sprite = spr
 	}
 }

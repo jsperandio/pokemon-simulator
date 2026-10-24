@@ -87,7 +87,7 @@ func (g *Game) FindPKMN() {
 	}
 
 	g.BattleType = 2
-	g.StartWildBattle(species, level)
+	g.StartWildBattle(species, level, g.rollShiny())
 }
 
 // wildLevels are the level rules by badge count, in the order they draw.
@@ -124,7 +124,7 @@ func (g *Game) PickGo() {
 		return
 	}
 
-	g.StartWildBattle(g.Main.PickSpecies+1, g.Main.PickLevel)
+	g.StartWildBattle(g.Main.PickSpecies+1, g.Main.PickLevel, false)
 }
 
 // PickCancel is the picker's "Cancel" (TForm4.Button3Click).
@@ -150,5 +150,5 @@ func (g *Game) PickRandom() {
 	s := g.Rand.Random(386) + 1
 	l := g.Rand.Random(11) + 90
 	g.BattleType = 2
-	g.StartWildBattle(s, l)
+	g.StartWildBattle(s, l, false)
 }

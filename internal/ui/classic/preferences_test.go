@@ -23,6 +23,7 @@ func Test_loadPreferences(t *testing.T) {
 		prf := loadPreferences(nil)
 		assert.True(t, prf.animatedSprites)
 		assert.True(t, prf.choosePrompt)
+		assert.Equal(t, goldSparkles, prf.shinyMark)
 	})
 
 	t.Run("when the file turns them off, should not animate the sprites", func(t *testing.T) {
@@ -62,6 +63,18 @@ func Test_loadPreferences(t *testing.T) {
 		assert.False(t, prf.choosePrompt)
 		assert.True(t, prf.animatedSprites)
 	})
+
+	t.Run("when the file names a shiny mark, should read it whatever its case", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, thinTwinkles, loadPreferences([]byte("[Graphics]\nshinymark = thintwinkles\n")).shinyMark)
+	})
+
+	t.Run("when the shiny mark isn't known, should keep the default", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, goldSparkles, loadPreferences([]byte("[Graphics]\nShinyMark=Rainbow\n")).shinyMark)
+	})
 }
 
 func Test_preferences_store(t *testing.T) {
@@ -69,20 +82,21 @@ func Test_preferences_store(t *testing.T) {
 
 	off := preferences{
 		animatedSprites: false,
+		shinyMark:       noMark,
 		choosePrompt:    false,
 	}
 
 	t.Run("when there is no file, should write a new one", func(t *testing.T) {
 		t.Parallel()
 
-		assert.Equal(t, "[Graphics]\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n", string(off.store(nil)))
+		assert.Equal(t, "[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n", string(off.store(nil)))
 	})
 
 	t.Run("when the keys are there, should change their lines only", func(t *testing.T) {
 		t.Parallel()
 
-		dat := "; comment\n[Graphics]\nTheme=classic\nAnimatedSprites=1\n\n[Messages]\nSelectPokemon=1\n\n[Sound]\nVolume=7\n"
-		want := "; comment\n[Graphics]\nTheme=classic\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n\n[Sound]\nVolume=7\n"
+		dat := "; comment\n[Graphics]\nShinyMark=OneTwinkle\nTheme=classic\nAnimatedSprites=1\n\n[Messages]\nSelectPokemon=1\n\n[Sound]\nVolume=7\n"
+		want := "; comment\n[Graphics]\nShinyMark=None\nTheme=classic\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n\n[Sound]\nVolume=7\n"
 		assert.Equal(t, want, string(off.store([]byte(dat))))
 	})
 
@@ -90,14 +104,14 @@ func Test_preferences_store(t *testing.T) {
 		t.Parallel()
 
 		dat := "[Graphics]\nTheme=classic\n\n[Messages]\nSelectPokemon=1\n"
-		want := "[Graphics]\nTheme=classic\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n"
+		want := "[Graphics]\nTheme=classic\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n"
 		assert.Equal(t, want, string(off.store([]byte(dat))))
 	})
 
 	t.Run("when the sections are missing, should add them at the end", func(t *testing.T) {
 		t.Parallel()
 
-		want := "[Sound]\nVolume=7\n\n[Graphics]\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n"
+		want := "[Sound]\nVolume=7\n\n[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n"
 		assert.Equal(t, want, string(off.store([]byte("[Sound]\r\nVolume=7\r\n"))))
 	})
 
@@ -106,6 +120,7 @@ func Test_preferences_store(t *testing.T) {
 
 		mixed := preferences{
 			animatedSprites: false,
+			shinyMark:       outlinedTwinkles,
 			choosePrompt:    true,
 		}
 
@@ -116,8 +131,8 @@ func Test_preferences_store(t *testing.T) {
 }
 
 // keptOn is what the test app's settings hold once the window keeps the
-// animations on, with the choose prompt shown.
-const keptOn string = "[Graphics]\nAnimatedSprites=1\n\n[Messages]\nSelectPokemon=1\n"
+// animations on, with the default shiny mark and the choose prompt shown.
+const keptOn string = "[Graphics]\nAnimatedSprites=1\nShinyMark=GoldSparkles\n\n[Messages]\nSelectPokemon=1\n"
 
 // openPreferences plays up to the game window, the first time, and opens
 // File → Preferences....
@@ -270,30 +285,38 @@ func Test_preferencesForm(t *testing.T) {
 
 		ta.clickOn(pf.wdw, "OKButton")
 
+		want := "[Graphics]\nAnimatedSprites=0\nShinyMark=GoldSparkles\n\n[Messages]\nSelectPokemon=0\n"
+
 		assert.False(t, ta.preferences.choosePrompt)
-		assert.Equal(t, "[Graphics]\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n", string(ta.settings.(*memorySettings).data))
+		assert.Equal(t, want, string(ta.settings.(*memorySettings).data))
 	})
 
 	t.Run("when Restore Defaults is clicked, should reset every page for OK or Apply to keep", func(t *testing.T) {
 		t.Parallel()
 
 		settings := &memorySettings{
-			data: []byte("[Graphics]\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n"),
+			data: []byte("[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n"),
 		}
 		ta := newTestAppWith(t, t.TempDir(), nil, settings)
 		pf := openPreferences(ta)
 		require.False(t, pf.animated.checked)
 		require.False(t, pf.prompt.checked)
+		require.Equal(t, int(noMark), pf.mark.index)
 
 		ta.clickOn(pf.wdw, "RestoreButton")
 
 		assert.True(t, pf.animated.checked, "the animations are still off")
 		assert.True(t, pf.prompt.checked, "the choose prompt is still hidden")
+		assert.Equal(t, int(goldSparkles), pf.mark.index, "the mark is still None")
 		assert.True(t, pf.apply.enabled, "Apply is greyed with a change to apply")
 		assert.False(t, ta.preferences.choosePrompt, "restored before OK or Apply")
 
 		ta.clickOn(pf.wdw, "CancelButton")
-		assert.Equal(t, preferences{}, ta.preferences, "Cancel kept the defaults")
+
+		kept := preferences{
+			shinyMark: noMark,
+		}
+		assert.Equal(t, kept, ta.preferences, "Cancel kept the defaults")
 
 		pf = openPreferences(ta)
 		ta.clickOn(pf.wdw, "RestoreButton")
@@ -301,6 +324,34 @@ func Test_preferencesForm(t *testing.T) {
 
 		assert.Equal(t, defaultPreferences(), ta.preferences)
 		assert.Equal(t, keptOn, string(settings.data))
+	})
+
+	t.Run("when a shiny mark is chosen and OK clicked, should keep it and mark the preview with it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		pf := openPreferences(ta)
+
+		assert.Equal(t, markNames(), pf.mark.items)
+		assert.Equal(t, int(goldSparkles), pf.mark.index)
+
+		ta.clickOn(pf.wdw, "ShinyMark")
+		ta.shot("prefs-shiny-marks")
+		ta.key(ebiten.KeyEscape)
+		ta.key(ebiten.KeyDown)
+		ta.shot("prefs-shiny-mark")
+
+		assert.Equal(t, int(goldSparklesOutlined), pf.mark.index)
+		assert.True(t, pf.apply.enabled, "Apply is greyed with a change to apply")
+		assert.Equal(t, markBrown, iconPixel(ta, pf.preview, image.Pt(11, 1)), "the preview hasn't the outlined mark")
+
+		ta.clickOn(pf.wdw, "OKButton")
+
+		want := "[Graphics]\nAnimatedSprites=0\nShinyMark=GoldSparklesOutlined\n\n[Messages]\nSelectPokemon=1\n"
+
+		assert.Nil(t, ta.desk.topModal(), "the window is still up")
+		assert.Equal(t, goldSparklesOutlined, ta.preferences.shinyMark)
+		assert.Equal(t, want, string(ta.settings.(*memorySettings).data))
 	})
 
 	t.Run("when the game starts again, should read the kept choice", func(t *testing.T) {

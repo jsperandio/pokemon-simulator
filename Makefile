@@ -18,9 +18,9 @@ WINRES := go run github.com/tc-hib/go-winres@v0.3.3
 # LINT checks the code with the linters and formatters in .golangci.yaml.
 LINT := golangci-lint run --config .golangci.yaml
 
-# DOCS go into every archive: the licences, and the sources of the embedded
-# fonts and icons (assets/README.md).
-DOCS := README.md LICENSE assets/README.md assets/wine/LGPL-2.1.txt assets/wine/ms_sans_serif.sfd \
+# DOCS go into every archive: the licences, the sources of the embedded
+# fonts and icons (assets/README.md), and the improvements the README links.
+DOCS := README.md docs/improvements.md LICENSE assets/README.md assets/wine/LGPL-2.1.txt assets/wine/ms_sans_serif.sfd \
 	$(wildcard assets/wine/*.svg) assets/liberation/OFL-1.1.txt
 
 # LINUX_FILES go into the Linux archives: the desktop entry and the scripts that install and remove it.

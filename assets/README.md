@@ -1,6 +1,16 @@
 # Assets
 
-Everything in this directory, except the Go files, the fonts and icons in `wine/` and `liberation/`, the manual's screenshots and the appearance animations in `anim/`, comes from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds these files in its binaries, so it plays and looks exactly like the original.
+Most files in this directory come from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds them in its binaries, so it plays and looks exactly like the original.
+
+These files do not come from the original:
+
+- the Go files;
+- the fonts and icons in `wine/` and `liberation/`;
+- the manual's screenshots;
+- the shiny sprites in `sprites/shiny64.png`;
+- the appearance animations in `anim/`.
+
+The original has no shiny POKéMON and no animations.
 
 ## Rights
 
@@ -16,13 +26,14 @@ This is a non-commercial project. If you hold rights to any of this material and
 |---|---|---|---|
 | `pokegame.dat` | Type chart, species, moves, badges, tournament prizes and trainer names | `POKéGAME.dat`, byte for byte | Michael Madsen (game data). Names of POKéMON, moves, types and badges: Nintendo / Creatures / GAME FREAK |
 | `sprites/front64.png` | 386 front sprites, 64×64, 20 per row. Frame *n* is species *n*+1 in "Old POKéDEX" order | Image list `PKMNImages` in `PokeGame.exe` | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Ruby & Sapphire front sprites |
+| `sprites/shiny64.png` | The 386 sprites of `front64.png` in their shiny colours, in the same layout. Not in the original game | `front64.png`, each pixel taking the shiny colour of the matching pixel in the Ruby & Sapphire shiny sprite from the [Bulbagarden Archives](https://archives.bulbagarden.net/wiki/Category:Ruby_and_Sapphire_Shiny_sprites) | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Ruby & Sapphire shiny colours |
 | `sprites/icons32.png` | The same 386 POKéMON at 32×32, in the same layout | Image list `SmallPKMNImg` | Nintendo / Creatures / GAME FREAK |
 | `sprites/small16.png` | The 16×16 icons of the File → Quit and Help → Contents menu items | Image list `ImageList1` | Unverified. They are Windows-style icons shipped with the original |
 | `sprites/pokeball.png` | The 15×15 POKéBALL shown under a wild POKéMON that is already in the POKéDEX | `Form4.Image1` | Shipped with the original. POKéBALL design: Nintendo / Creatures / GAME FREAK |
 | `sprites/icon.png` | Program icon, a Pidgeot, 32×32 | `MAINICON` | Shipped with the original. Pidgeot: Nintendo / Creatures / GAME FREAK |
 | `help/*.md` | The game's manual, one page per topic | `POKéGAME.HLP` | Michael Madsen |
 | `help/*.png` | The manual's screenshots | Taken in the port, of the scenes that `POKéGAME.HLP`'s screenshots show | Michael Madsen's windows and texts. The sprites in them: Nintendo / Creatures / GAME FREAK |
-| `anim/front/*.png`, `anim/front.json` | The animation POKéMON Emerald plays when each of the 386 POKéMON appears in battle: its distinct frames side by side, then each frame's place and how many Game Boy Advance frames it shows for. Not in the original game | Recordings of Emerald's animations from the [Bulbagarden Archives](https://archives.bulbagarden.net/wiki/Category:Emerald_sprites), repacked | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Emerald front sprites. The archive's contributors recorded them and claim fair use for them on the archive; that claim grants nothing to this project |
+| `anim/front/*.png`, `anim/front.json` | The animation POKéMON Emerald plays when each of the 386 POKéMON appears in battle: its distinct frames side by side, then each frame's place, how many Game Boy Advance frames it shows for, and the shiny colours of its palette. Not in the original game | Recordings of Emerald's animations from the [Bulbagarden Archives](https://archives.bulbagarden.net/wiki/Category:Emerald_sprites) and of their shiny versions, repacked | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Emerald front sprites. The archive's contributors recorded them and claim fair use for them on the archive; that claim grants nothing to this project |
 
 A build with `-tags noanim` leaves `anim/` out, and the game then shows the still sprites only.
 
@@ -40,16 +51,9 @@ The original draws its windows with fonts and icons that come with Windows and c
 
 The binaries embed the `.fon`, `.png` and `.ttf` files. Release archives ship the licence texts and the `.sfd` and `.svg` sources next to them.
 
-## How they were extracted
+## Original files
 
-The files were extracted from the original V4.5 release with one-off tools that are not part of this repository:
-
-- **Sprites.** The image lists' 32-bit bitmaps were decoded, and their 1-bit masks became the alpha channel.
-- **Pictures.** The background of `pokeball.png` (the colour of its bottom-left pixel) was made transparent, as a transparent Delphi TImage does. `icon.png` uses its icon mask as alpha.
-- **Animations.** The archive's animated PNGs of Emerald's front sprites, `Spr 3e 001.png` to `Spr 3e 386.png`, were downloaded on 2026-10-21 and checked against the SHA-1 digests the archive lists. Each one's frames were composed, the repeated frames dropped, and the rest cropped to the box that holds them all and saved losslessly as palette PNGs. The last frame, the archive's pause before the animation loops, was left out, since the game shows the still sprite from there. Each animation is placed so that its last frame lines up with the species' sprite in `front64.png`.
-- **Help.** The WinHelp file was decompiled with helpdeco and converted to Markdown, keeping its text, links and images. Each page's title is a Markdown heading. The red "POKéMON Simulator" banner above it in the original is left to the help viewer. The contents page keeps its links on consecutive lines, with Markdown line breaks, as the original had them. With Michael Madsen's permission, the parts that were out of date are gone: his 2004 e-mail address, the donation page and the Windows Media Player instructions. The Music page lists the port's file types, and the Technical Support page points to the project's issue tracker. Two sentences that the game contradicts were corrected: the Game Corner's numbers are 0-9, and quitting a tournament leaves at least 9 XP. The Game Corner's payouts, a picture in the help file, are a Markdown table, and the screenshots were taken again in the port, of the same scenes.
-
-Original files used:
+The files that come from the original were taken from these files of its V4.5 release:
 
 | File | SHA-256 |
 |---|---|

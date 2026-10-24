@@ -50,11 +50,42 @@ func Read(b []byte) (*File, error) {
 		}
 	}
 
+	if rdr.err == nil && rdr.idx < len(rdr.lines) && rdr.lines[rdr.idx] == ShinyHeader {
+		rdr.idx++
+		readShiny(rdr, sav)
+	}
+
 	if rdr.err != nil {
 		return nil, rdr.err
 	}
 
 	return sav, nil
+}
+
+// readShiny reads the shiny block's count and places, which must be the
+// party's.
+func readShiny(rdr *reader, sav *File) {
+	count := rdr.number()
+	members := len(sav.Party())
+
+	if rdr.err == nil && (count < 0 || count > int64(members)) {
+		rdr.err = fmt.Errorf("save: line %d: %d shiny POKéMON in a party of %d", rdr.idx, count, members)
+	}
+
+	for range count {
+		plc := rdr.number()
+		if rdr.err != nil {
+			return
+		}
+
+		if plc < 1 || plc > int64(members) {
+			rdr.err = fmt.Errorf("save: line %d: no party member %d to be shiny", rdr.idx, plc)
+
+			return
+		}
+
+		sav.Owned[plc-1].Shiny = true
+	}
 }
 
 // reader hands out the lines one value at a time and keeps the first error.

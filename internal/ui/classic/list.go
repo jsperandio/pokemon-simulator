@@ -336,7 +336,8 @@ func paintTriangle(cv canvas, x, y, dir int, clr color.RGBA) {
 // listItem is an item of a list view.
 type listItem struct {
 	caption string
-	image   int // the image list's frame, or -1
+	image   int  // the image list's frame, or -1
+	shiny   bool // a shiny POKéMON's: the shiny frame, if any, and the list's mark
 }
 
 // listView is a TListView in the list style (vsList): items in columns,
@@ -353,6 +354,8 @@ type listView struct {
 	scroll   scrollBar // horizontal, in columns
 	pressing bool
 	onSelect func() // the selection changed, by mouse or keyboard
+	// mark, if set, draws a shiny item's mark over its icon at (x, y).
+	mark func(cv canvas, x, y int)
 	// The layout, computed when the items change.
 	laid       bool
 	item, icon image.Point
@@ -368,7 +371,11 @@ func (lv *listView) setup(comp *layout.Component) {
 	lv.hotTrack = lv.property("HotTrackStyles") != ""
 
 	for _, it := range comp.List {
-		lv.items = append(lv.items, listItem{it.Caption, it.ImageIndex})
+		li := listItem{
+			caption: it.Caption,
+			image:   it.ImageIndex,
+		}
+		lv.items = append(lv.items, li)
 	}
 
 	lv.selected, lv.hot = -1, -1
@@ -519,7 +526,7 @@ func (lv *listView) paintItem(in canvas, i int, ir image.Rectangle, icon image.P
 
 	sel := i == lv.selected
 	if lv.images != nil && it.image >= 0 {
-		lv.images.drawFrame(in, ir.Min.X, ir.Min.Y, it.image, sel && focus)
+		lv.paintIcon(in, it, ir.Min, sel && focus)
 	}
 
 	tx := ir.Min.X + icon.X + 2
@@ -547,6 +554,22 @@ func (lv *listView) paintItem(in canvas, i int, ir image.Rectangle, icon image.P
 
 	if sel && focus {
 		in.focusRect(label)
+	}
+}
+
+// paintIcon draws the icon of item li at pnt, selected or not: for a
+// shiny item, the shiny frame if the image list has one, and the list's
+// mark over it.
+func (lv *listView) paintIcon(in canvas, li listItem, pnt image.Point, selected bool) {
+	il := lv.images
+	if li.shiny && il.shiny != nil {
+		il = il.shiny
+	}
+
+	il.drawFrame(in, pnt.X, pnt.Y, li.image, selected)
+
+	if li.shiny && lv.mark != nil {
+		lv.mark(in, pnt.X, pnt.Y)
 	}
 }
 

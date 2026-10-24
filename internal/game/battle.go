@@ -21,6 +21,7 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.enable(false, "Action1")
 
 	g.EnemyLevel, g.EnemySpecies = uint8(level), species //nolint:gosec // a Byte in the original
+	g.EnemyShiny = false
 	g.Main.Battle = true
 	g.InTrainerBattle = true
 	g.EnemyHP = level * 10
@@ -28,7 +29,11 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.log(trainer + " wants to fight!")
 	g.log(trainer + " sent out " + g.name(species) + "!")
 
-	g.Main.Enemy = Shown{species, level, level * 10}
+	g.Main.Enemy = Shown{
+		Species: species,
+		Level:   level,
+		HP:      level * 10,
+	}
 	g.Main.EnemyImage = species - 1
 	g.Main.Attacks = false
 	g.message(Information, ChoosePrompt)
@@ -36,9 +41,10 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.Main.EnemyMoves = g.Main.Enemy
 }
 
-// StartWildBattle starts a battle against a wild POKéMON. BattleType is
-// left as the last battle set it: the callers that want 2 set it first.
-func (g *Game) StartWildBattle(species, level int) {
+// StartWildBattle starts a battle against a wild POKéMON, a shiny one if
+// shiny. BattleType is left as the last battle set it: the callers that
+// want 2 set it first.
+func (g *Game) StartWildBattle(species, level int, shiny bool) {
 	win := &g.Main
 	win.Picker = false
 	win.Battle = true
@@ -50,7 +56,16 @@ func (g *Game) StartWildBattle(species, level int) {
 	g.EnemyLevel = uint8(level) //nolint:gosec // a Byte in the original
 	g.log("Wild " + g.name(species) + " appeared!")
 
-	win.Enemy = Shown{species, level, level * 10}
+	if shiny {
+		g.log("It's a shiny POKéMON!")
+	}
+
+	win.Enemy = Shown{
+		Species: species,
+		Level:   level,
+		HP:      level * 10,
+		Shiny:   shiny,
+	}
 	win.EnemyImage = species - 1
 	win.Appeared++
 
@@ -58,7 +73,7 @@ func (g *Game) StartWildBattle(species, level int) {
 
 	win.Attacks = false
 	win.EnemyMoves = win.Enemy
-	g.EnemySpecies = species
+	g.EnemySpecies, g.EnemyShiny = species, shiny
 	win.Pokeball = g.InPokedex[species]
 }
 
@@ -82,7 +97,7 @@ func (g *Game) ClickParty(k int) {
 		toNext = n*n*n - int(slt.XP)
 	}
 
-	g.message(Information, fmt.Sprintf("# %03d %s, L.%d, XP:%d, XP to next level:%d", s, name, slt.Level, slt.XP, toNext))
+	g.message(Information, fmt.Sprintf("# %03d %s, L.%d, XP:%d, XP to next level:%d", s, g.shinyName(*slt), slt.Level, slt.XP, toNext))
 
 	if g.InWildBattle && g.confirm("Choose "+name+"?") {
 		g.choose(i)
@@ -118,7 +133,12 @@ func (g *Game) choose(i int) {
 	g.enable(false, "File1")
 
 	g.OwnHP = int(m.Level) * 10
-	g.Main.Own = Shown{int(m.Species), int(m.Level), g.OwnHP}
+	g.Main.Own = Shown{
+		Species: int(m.Species),
+		Level:   int(m.Level),
+		HP:      g.OwnHP,
+		Shiny:   m.Shiny,
+	}
 	g.Main.Chosen++
 	g.OwnIndex = i
 	g.Fights++

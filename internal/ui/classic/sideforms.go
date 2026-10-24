@@ -32,6 +32,9 @@ func newStatsForm(app *Application) *statsForm {
 		counts: map[string]*label{},
 	}
 	sf.party = get[*listView](wdw, "ListView1")
+	sf.party.mark = func(cv canvas, x, y int) {
+		app.preferences.shinyMark.draw(cv, x, y)
+	}
 
 	for i := range sf.items {
 		idx := i
@@ -88,14 +91,13 @@ func (stf *statsForm) sync() {
 	stf.counts["PlayerNameLbl"].setCaption(gam.Stats.Name)
 
 	party := gam.Party()
-	if len(party) != len(stf.items0) || !slices.EqualFunc(party, stf.items0, func(slt save.Slot, it listItem) bool {
-		return it.image == int(slt.Species)-1
-	}) {
-		items := make([]listItem, len(party))
-		for i, slt := range party {
-			items[i] = listItem{stf.app.speciesName(int(slt.Species)), int(slt.Species) - 1}
-		}
+	items := make([]listItem, len(party))
 
+	for i, slt := range party {
+		items[i] = stf.partyItem(slt)
+	}
+
+	if !slices.Equal(items, stf.items0) {
 		stf.items0 = items
 		stf.party.setItems(items)
 	}
@@ -113,6 +115,23 @@ func (stf *statsForm) sync() {
 		btn.setVisible(gam.Stats.Items)
 		btn.setEnabled(gam.Stats.ItemEnabled[i])
 	}
+}
+
+// partyItem is a party member's item: its species' icon and name, with
+// "(shiny)" after a shiny one's, whose icon the list marks.
+func (stf *statsForm) partyItem(slt save.Slot) listItem {
+	sid := int(slt.Species)
+	li := listItem{
+		caption: stf.app.speciesName(sid),
+		image:   sid - 1,
+		shiny:   slt.Shiny,
+	}
+
+	if slt.Shiny {
+		li.caption += " (shiny)"
+	}
+
+	return li
 }
 
 // freshen is TForm5.Freshen, which the original runs on every tick while
@@ -189,30 +208,66 @@ func (inf *infoForm) sync() {
 
 // pokedexForm is the POKéDEX (TForm8).
 type pokedexForm struct {
-	app    *Application
-	wdw    *window
-	combo  *comboBox
-	panel  *panel
-	image  *listView
-	appear appearance // the species selected, over ListView1
+	app     *Application
+	wdw     *window
+	combo   *comboBox
+	panel   *panel
+	image   *listView
+	shiny   *checkBox  // ShinyBox
+	appear  appearance // the species selected, over ListView1
+	sparkle sparkle    // its stars when it shows shiny, while they move
+}
+
+// pokedexShinyBox is the POKéDEX's "Shiny" check box under the sprite,
+// which the original doesn't have: it shows the species shiny.
+var pokedexShinyBox = layout.Component{
+	Class:   "TCheckBox",
+	Name:    "ShinyBox",
+	Bounds:  layout.Rect{X: 8, Y: 118, W: 57, H: 17},
+	Caption: "&Shiny",
+	Props: map[string]string{
+		"TabOrder": "1",
+	},
+}
+
+// pokedexLayout is the original's POKéDEX with pokedexShinyBox in Panel1.
+func pokedexLayout() *layout.Component {
+	frm := layout.Form8
+	frm.Children = slices.Clone(frm.Children)
+
+	for i, chd := range frm.Children {
+		if chd.Name == "Panel1" {
+			chd.Children = append(slices.Clone(chd.Children), pokedexShinyBox)
+			frm.Children[i] = chd
+		}
+	}
+
+	return &frm
 }
 
 func newPokedexForm(app *Application) *pokedexForm {
 	pf := &pokedexForm{
 		app: app,
-		wdw: newWindow(app.desk, &layout.Form8),
+		wdw: newWindow(app.desk, pokedexLayout()),
 	}
 	pf.combo = get[*comboBox](pf.wdw, "ComboBox1")
 	pf.panel = get[*panel](pf.wdw, "Panel1")
 	pf.image = get[*listView](pf.wdw, "ListView1")
 	pf.image.showOnly = true // a click doesn't tint it, as the arena's sprites
+	pf.shiny = get[*checkBox](pf.wdw, "ShinyBox")
+	pf.sparkle.brief = true // the still sprite shows without stars
 	pf.panel.over = func(cv canvas) {
-		pf.appear.paint(cv, pf.image.rect.Min)
+		slot := pf.image.rect.Min
+		pf.appear.paint(cv, slot)
+		pf.sparkle.paint(cv, slot.Add(spriteCentre))
 	}
 	pf.combo.items = app.pokedexItems() // FormShow
 	pf.wdw.onShow = pf.combo.reselect
 	pf.combo.onSelect = func(i int) {
 		app.game.SelectPokedex(i)
+	}
+	pf.shiny.onClick = func() {
+		app.game.PokedexShiny(pf.shiny.checked)
 	}
 	get[*button](pf.wdw, "Button1").onClick = func() {
 		app.game.ClosePokedex()
@@ -250,7 +305,10 @@ func (pf *pokedexForm) sync() {
 		l3.setCaption("/" + gam.Data.TypeName(sp.Types[1]))
 	}
 
-	pf.appear.arm(gam.Pokedex.Selected, sid, pf.app.preferences.animatedSprites)
+	play := pf.app.preferences.animatedSprites
+	pf.appear.arm(gam.Pokedex.Selected, sid, gam.Pokedex.Shiny, play)
+	pf.sparkle.arm(gam.Pokedex.Selected, gam.Pokedex.Shiny, play)
+	pf.shiny.setChecked(gam.Pokedex.Shiny)
 	pf.showImage()
 	get[*label](wdw, "Label1").setCaption(pf.combo.items[sid-1])
 
@@ -278,17 +336,25 @@ func (pf *pokedexForm) sync() {
 // showImage shows the selected species' still sprite in ListView1, or
 // none while its animation plays there.
 func (pf *pokedexForm) showImage() {
-	img := pf.app.game.Pokedex.Index
+	pw := &pf.app.game.Pokedex
+
+	img := pw.Index
 	if pf.appear.playing() {
 		img = -1
 	}
 
-	pf.image.setItems([]listItem{{"", img}})
+	li := listItem{
+		image: img,
+		shiny: pw.Shiny,
+	}
+	pf.image.setItems([]listItem{li})
 }
 
-// stopAnimation stops the species' animation, showing its still sprite.
+// stopAnimation stops the species' animation and its stars, showing its
+// still sprite.
 func (pf *pokedexForm) stopAnimation() {
 	pf.appear.stop()
+	pf.sparkle.rest()
 	pf.showImage()
 	pf.panel.invalidate()
 }
@@ -302,6 +368,10 @@ func (pf *pokedexForm) animate(now time.Time) {
 
 	if pf.appear.update(now, shown, free) {
 		pf.showImage()
+		pf.panel.invalidate()
+	}
+
+	if pf.sparkle.update(now, shown, free) {
 		pf.panel.invalidate()
 	}
 }

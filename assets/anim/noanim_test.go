@@ -16,7 +16,7 @@ func Test_Load(t *testing.T) {
 	t.Run("when built without the animations, should find none", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := Load(25)
+		_, err := Load(25, true)
 		assert.Error(t, err)
 	})
 }

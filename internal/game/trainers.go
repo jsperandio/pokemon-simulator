@@ -148,7 +148,7 @@ func (g *Game) rewards() {
 
 	if g.BattleType == 9 {
 		g.message(Information, "You beat Ash! You can now battle me! Also, you get a Celebi at L.5!")
-		g.AddPKMN(251, "Celebi", 5)
+		g.AddPKMN(251, "Celebi", 5, false)
 		g.enable(true, "Me1")
 
 		g.BeatAsh = true
@@ -156,7 +156,7 @@ func (g *Game) rewards() {
 
 	if g.BattleType == 10 {
 		g.message(Information, "You beat me! You can now battle and/or catch Mewtwo! You can also fight the Hoenn Gym Leaders! And as if that wasn't enough, you also get a Mew at L.10!")
-		g.AddPKMN(151, "Mew", 10)
+		g.AddPKMN(151, "Mew", 10, false)
 		g.enable(true, "Mewtwo1", "HoennGymLeaders1")
 
 		g.BeatLink = true
@@ -211,7 +211,7 @@ func (g *Game) eliteFour() {
 		if !g.GotDeoxys {
 			g.GotDeoxys = true
 			g.message(Information, "Also, you get a Deoxys at L.5!")
-			g.AddPKMN(386, "Deoxys", 5)
+			g.AddPKMN(386, "Deoxys", 5, false)
 		}
 	}
 
@@ -226,7 +226,7 @@ func (g *Game) eliteFour() {
 		if !g.GotJirachi {
 			g.GotJirachi = true
 			g.message(Information, "Also, you get a Jirachi at L.5!")
-			g.AddPKMN(385, "Jirachi", 5)
+			g.AddPKMN(385, "Jirachi", 5, false)
 		}
 	}
 

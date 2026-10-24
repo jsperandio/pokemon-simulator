@@ -4,6 +4,11 @@
 // file with one value per line (CRLF, cp1252), 30,405 lines in version 2.
 // Version 1 files (no header, no Jirachi/Deoxys flags, 251 POKéDEX
 // entries) still load; saving always writes version 2, as the original did.
+//
+// A party with shiny POKéMON, which the original doesn't have, adds a block
+// after those lines: ShinyHeader, the number of shiny members, then their
+// 1-based places in the party, one per line. The original reads its 30,405
+// lines and stops, so it still loads such a file, without the shinies.
 package save
 
 import (
@@ -23,6 +28,8 @@ const (
 	NumSpecies int = 386
 	// v1Species is the number of POKéDEX entries in version 1.
 	v1Species int = 251
+	// ShinyHeader starts the block of shiny members.
+	ShinyHeader string = "SHINY"
 )
 
 // File is a save. The counters are Cardinals, as in the game.
@@ -47,6 +54,7 @@ type Slot struct {
 	Species int32
 	Level   uint8
 	XP      uint32
+	Shiny   bool // saved in the shiny block, not in the arrays
 }
 
 // empty reports whether the slot ends the party.
@@ -108,7 +116,29 @@ func (f *File) Bytes() []byte {
 		line(strconv.FormatUint(uint64(s.XP), 10))
 	}
 
+	if shiny := f.shinyPlaces(); len(shiny) > 0 {
+		line(ShinyHeader)
+		line(strconv.Itoa(len(shiny)))
+
+		for _, plc := range shiny {
+			line(strconv.Itoa(plc))
+		}
+	}
+
 	return buf.Bytes()
+}
+
+// shinyPlaces lists the 1-based places of the party's shiny members.
+func (f *File) shinyPlaces() []int {
+	var places []int
+
+	for i, s := range f.Party() {
+		if s.Shiny {
+			places = append(places, i+1)
+		}
+	}
+
+	return places
 }
 
 // boolText is a Boolean as the file writes it.

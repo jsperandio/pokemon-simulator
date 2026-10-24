@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
 // Package anim embeds the animations POKéMON Emerald plays when a POKéMON
-// appears, one per species, and tells which frame shows when. A build with
-// the noanim tag leaves them out, and Load then finds none. The embedded
-// files are not covered by the AGPL; see README.md in the assets
-// directory.
+// appears, one per species, in its normal and shiny colours, and tells which
+// frame shows when. A build with the noanim tag leaves them out, and Load
+// then finds none. The embedded files are not covered by the AGPL; see
+// README.md in the assets directory.
 package anim
 
 import (
@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/png"
 	"sync"
@@ -38,11 +39,12 @@ type Sprite struct {
 
 // entry is a species' line of front.json.
 type entry struct {
-	Width  int     `json:"width"`
-	Height int     `json:"height"`
-	Left   int     `json:"left"`
-	Top    int     `json:"top"`
-	Frames [][]int `json:"frames"` // [frame, ticks] pairs
+	Width  int        `json:"width"`
+	Height int        `json:"height"`
+	Left   int        `json:"left"`
+	Top    int        `json:"top"`
+	Frames [][]int    `json:"frames"` // [frame, ticks] pairs
+	Shiny  [][3]uint8 `json:"shiny"`  // the shiny colours of the sheet's palette entries 1 to n
 }
 
 // table reads front.json once.
@@ -60,8 +62,9 @@ var table = sync.OnceValues(func() ([]entry, error) {
 	return ents, nil
 })
 
-// Load returns the animation of species (1–386), decoding its frames.
-func Load(species int) (*Sprite, error) {
+// Load returns the animation of species (1–386), decoding its frames, in
+// the shiny colours if shiny.
+func Load(species int, shiny bool) (*Sprite, error) {
 	ents, err := table()
 	if err != nil {
 		return nil, err
@@ -83,10 +86,16 @@ func Load(species int) (*Sprite, error) {
 		return nil, fmt.Errorf("%s: %w", pth, err)
 	}
 
+	ent := ents[species-1]
+	if shiny {
+		if img, err = recolour(img, ent.Shiny); err != nil {
+			return nil, fmt.Errorf("%s: %w", pth, err)
+		}
+	}
+
 	sheet := image.NewNRGBA(img.Bounds())
 	draw.Draw(sheet, sheet.Rect, img, img.Bounds().Min, draw.Src)
 
-	ent := ents[species-1]
 	spr := &Sprite{
 		Sheet:  sheet,
 		Size:   image.Pt(ent.Width, ent.Height),
@@ -106,6 +115,33 @@ func Load(species int) (*Sprite, error) {
 	}
 
 	return spr, nil
+}
+
+// recolour gives a sheet the shiny colours: each entry of its palette
+// stands for a pair of colours, the normal one, which the palette holds,
+// and the shiny one, which front.json lists from entry 1 on.
+func recolour(img image.Image, colours [][3]uint8) (image.Image, error) {
+	pld, ok := img.(*image.Paletted)
+	if !ok || len(colours) >= len(pld.Palette) {
+		return nil, fmt.Errorf("no palette for %d shiny colours", len(colours))
+	}
+
+	pal := make(color.Palette, len(pld.Palette))
+	copy(pal, pld.Palette)
+
+	for i, rgb := range colours {
+		pal[i+1] = color.NRGBA{
+			R: rgb[0],
+			G: rgb[1],
+			B: rgb[2],
+			A: 0xff,
+		}
+	}
+
+	out := *pld
+	out.Palette = pal
+
+	return &out, nil
 }
 
 // Frame is frame i's rectangle in the sheet.

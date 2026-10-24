@@ -14,6 +14,7 @@ package game
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"slices"
 	"strings"
 
@@ -25,6 +26,16 @@ import (
 // Title is the start screen's caption; the game window adds the player's
 // name and save file to it.
 const Title string = "POKéMON Simulator V4.5"
+
+// ShinyOdds is the chance of a shiny POKéMON, 1 in ShinyOdds: the games'
+// since POKéMON X and Y. The original has no shinies.
+const ShinyOdds int = 4096
+
+// RandomShiny rolls for a shiny POKéMON at ShinyOdds, with a generator of
+// its own: the original's draws, which Rand replays, stay as they were.
+func RandomShiny() bool {
+	return rand.IntN(ShinyOdds) == 0 //nolint:gosec // a game's chance, not a secret
+}
 
 // DialogKind is a message dialog's icon and title (Delphi's TMsgDlgType).
 type DialogKind int
@@ -67,6 +78,11 @@ type Game struct {
 	// original showed one by one before telling the result.
 	OnDraws func(draws []int)
 
+	// RollShiny, if set, tells whether a starter, or the POKéMON a search
+	// or the Mewtwo fight meets, is shiny, such as RandomShiny. Unset, none
+	// is.
+	RollShiny func() bool
+
 	// The battle. The party indexes are 1-based, as in the original;
 	// 0 means none.
 	InWildBattle, InTrainerBattle, InTournament bool
@@ -76,6 +92,7 @@ type Game struct {
 	EnemySpecies                                int
 	EnemyLevel                                  uint8
 	EnemyHP                                     int
+	EnemyShiny                                  bool
 	MinLevel, MaxLevel                          uint8 // the levels allowed against trainers
 
 	TournamentTrainers [8]uint8 // 1-based indexes into Data.TrainerNames
@@ -133,7 +150,8 @@ type MainWindow struct {
 	Visible bool
 	Caption string
 
-	Starters bool // the starter choice (ListView1 and Label1)
+	Starters     bool    // the starter choice (ListView1 and Label1)
+	StarterShiny [3]bool // which starters are shiny, each rolled for a new game
 
 	Battle      bool // the battle arena (GroupBox1)
 	Go          bool // "Go!" (Button1)
@@ -173,6 +191,7 @@ type MainWindow struct {
 type Shown struct {
 	Species, Level int
 	HP             int // of Level × 10
+	Shiny          bool
 }
 
 // GaugeColor is an HP gauge's colour.
@@ -326,6 +345,30 @@ func (g *Game) partyHas(s int) bool {
 	return slices.ContainsFunc(g.Party(), func(m save.Slot) bool {
 		return int(m.Species) == s
 	})
+}
+
+// partyHasKind reports whether species s is in the party, shiny or not as
+// shiny says.
+func (g *Game) partyHasKind(s int, shiny bool) bool {
+	return slices.ContainsFunc(g.Party(), func(m save.Slot) bool {
+		return int(m.Species) == s && m.Shiny == shiny
+	})
+}
+
+// rollShiny tells whether a starter, or the POKéMON met, is shiny.
+func (g *Game) rollShiny() bool {
+	return g.RollShiny != nil && g.RollShiny()
+}
+
+// shinyName is a party member's name in the details and the export: the
+// species', with "(shiny)" after a shiny one's.
+func (g *Game) shinyName(m save.Slot) string {
+	name := g.name(int(m.Species))
+	if m.Shiny {
+		name += " (shiny)"
+	}
+
+	return name
 }
 
 // levelFor returns the level that xp reaches from level: levels only go up,

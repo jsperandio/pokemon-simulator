@@ -49,6 +49,8 @@ type mainForm struct {
 	endButton      *button
 	enemyAppear    appearance // the wild POKéMON's, over ListView3
 	ownAppear      appearance // the player's fighter's, over ListView2
+	enemySparkle   sparkle    // the wild POKéMON's stars when it is shiny
+	ownSparkle     sparkle    // the player's fighter's stars when it is shiny
 }
 
 func newMainForm(app *Application) *mainForm {
@@ -103,12 +105,18 @@ func newMainForm(app *Application) *mainForm {
 	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
 	mf.arena.over = func(cv canvas) {
-		mf.enemyAppear.paint(cv, mf.enemyImage.rect.Min)
-		mf.ownAppear.paint(cv, mf.ownImage.rect.Min)
+		enemy, own := mf.enemyImage.rect.Min, mf.ownImage.rect.Min
+		mf.enemyAppear.paint(cv, enemy)
+		mf.ownAppear.paint(cv, own)
+		mf.enemySparkle.paint(cv, enemy.Add(spriteCentre))
+		mf.ownSparkle.paint(cv, own.Add(spriteCentre))
 	}
 
 	gam := app.game
 	mf.starters.onClick = mf.starterClick
+	mf.starters.mark = func(cv canvas, x, y int) {
+		app.preferences.shinyMark.draw(cv, x, y)
+	}
 	mf.evolveChoice.onClick = func() {
 		gam.ChooseEvolution(mf.evolveChoice.index)
 	}
@@ -314,6 +322,7 @@ func (mf *mainForm) sync() {
 
 	mf.starterLabel.setVisible(mgw.Starters)
 	mf.starters.setVisible(mgw.Starters)
+	mf.showStarters(mgw.StarterShiny)
 
 	evolving := len(mgw.Choices) > 0
 	mf.evolveChoice.setVisible(evolving)
@@ -343,8 +352,10 @@ func (mf *mainForm) sync() {
 	mf.pokeball.setVisible(mgw.Pokeball)
 
 	play := app.preferences.animatedSprites
-	mf.enemyAppear.arm(mgw.Appeared, mgw.EnemyImage+1, play)
-	mf.ownAppear.arm(mgw.Chosen, mgw.Own.Species, play)
+	mf.enemyAppear.arm(mgw.Appeared, mgw.EnemyImage+1, mgw.Enemy.Shiny, play)
+	mf.ownAppear.arm(mgw.Chosen, mgw.Own.Species, mgw.Own.Shiny, play)
+	mf.enemySparkle.arm(mgw.Appeared, mgw.Enemy.Shiny, play)
+	mf.ownSparkle.arm(mgw.Chosen, mgw.Own.Shiny, play)
 	mf.showEnemyImage()
 	mf.showOwnImage()
 
@@ -396,32 +407,59 @@ func (mf *mainForm) sync() {
 	setRadioItems(mf.attacks, append(items, "Run!"))
 }
 
+// showStarters shows each starter shiny or not, as the game rolled it.
+func (mf *mainForm) showStarters(shiny [3]bool) {
+	for i, shn := range shiny {
+		li := &mf.starters.items[i]
+		if li.shiny != shn {
+			li.shiny = shn
+
+			mf.starters.invalidate()
+		}
+	}
+}
+
 // showEnemyImage shows the enemy's still sprite in ListView3, or none while
 // its appearance animation plays there.
 func (mf *mainForm) showEnemyImage() {
-	img := mf.app.game.Main.EnemyImage
+	mgw := &mf.app.game.Main
+
+	img := mgw.EnemyImage
 	if mf.enemyAppear.playing() {
 		img = -1
 	}
 
-	mf.enemyImage.setItems([]listItem{{"", img}})
+	li := listItem{
+		image: img,
+		shiny: mgw.Enemy.Shiny,
+	}
+	mf.enemyImage.setItems([]listItem{li})
 }
 
 // showOwnImage shows the player's fighter's still sprite in ListView2, or
 // none while there is no fighter or its entry animation plays there.
 func (mf *mainForm) showOwnImage() {
-	img := mf.app.game.Main.Own.Species - 1
+	mgw := &mf.app.game.Main
+
+	img := mgw.Own.Species - 1
 	if mf.ownAppear.playing() {
 		img = -1
 	}
 
-	mf.ownImage.setItems([]listItem{{"", img}})
+	li := listItem{
+		image: img,
+		shiny: mgw.Own.Shiny,
+	}
+	mf.ownImage.setItems([]listItem{li})
 }
 
-// stopAnimations stops the entry animations, showing the still sprites.
+// stopAnimations stops the entry animations, showing the still sprites,
+// and puts the stars at rest.
 func (mf *mainForm) stopAnimations() {
 	mf.enemyAppear.stop()
 	mf.ownAppear.stop()
+	mf.enemySparkle.rest()
+	mf.ownSparkle.rest()
 	mf.showEnemyImage()
 	mf.showOwnImage()
 	mf.arena.invalidate()
@@ -440,6 +478,14 @@ func (mf *mainForm) animate(now time.Time) {
 
 	if mf.ownAppear.update(now, shown, free) {
 		mf.showOwnImage()
+		mf.arena.invalidate()
+	}
+
+	if mf.enemySparkle.update(now, shown, free) {
+		mf.arena.invalidate()
+	}
+
+	if mf.ownSparkle.update(now, shown, free) {
 		mf.arena.invalidate()
 	}
 }

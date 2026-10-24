@@ -71,22 +71,24 @@ func loadResources() (*resources, error) {
 	for _, lst := range []struct {
 		names []string
 		path  string
+		shiny string
 		size  int
 	}{
-		{[]string{"PKMNImages", "Form4.PKMNImages"}, "sprites/front64.png", 64},
-		{[]string{"SmallPKMNImg", "Form4.SmallPKMNImg"}, "sprites/icons32.png", 32},
-		{[]string{"ImageList1"}, "sprites/small16.png", 16},
+		{[]string{"PKMNImages", "Form4.PKMNImages"}, "sprites/front64.png", "sprites/shiny64.png", 64},
+		{[]string{"SmallPKMNImg", "Form4.SmallPKMNImg"}, "sprites/icons32.png", "", 32},
+		{[]string{"ImageList1"}, "sprites/small16.png", "", 16},
 	} {
-		img, err := loadPNG(lst.path)
+		il, err := loadImageList(lst.path, lst.size)
 		if err != nil {
 			return nil, err
 		}
 
-		il := &imageList{
-			img:  img,
-			size: lst.size,
-			cols: img.Rect.Dx() / lst.size,
+		if lst.shiny != "" {
+			if il.shiny, err = loadImageList(lst.shiny, lst.size); err != nil {
+				return nil, err
+			}
 		}
+
 		for _, nam := range lst.names {
 			res.lists[nam] = il
 		}
@@ -112,6 +114,23 @@ func loadResources() (*resources, error) {
 	res.appIcon = shrink(res.pictures["sprites/icon.png"])
 
 	return res, nil
+}
+
+// loadImageList loads an image list of square frames of size from the PNG
+// at path.
+func loadImageList(path string, size int) (*imageList, error) {
+	img, err := loadPNG(path)
+	if err != nil {
+		return nil, err
+	}
+
+	il := &imageList{
+		img:  img,
+		size: size,
+		cols: img.Rect.Dx() / size,
+	}
+
+	return il, nil
 }
 
 func loadPNG(path string) (*image.NRGBA, error) {
@@ -305,9 +324,10 @@ type arialKey struct {
 
 // imageList is a TImageList: square frames in an atlas, row by row.
 type imageList struct {
-	img  *image.NRGBA
-	size int
-	cols int
+	img   *image.NRGBA
+	size  int
+	cols  int
+	shiny *imageList // the same frames, shiny, which the original doesn't have; or nil
 }
 
 func (il *imageList) frame(i int) image.Rectangle {

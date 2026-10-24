@@ -20,13 +20,13 @@ func Test_appearance(t *testing.T) {
 		ta.preferences.animatedSprites = true
 		ta.startGame()
 		ta.call(func() {
-			ta.game.StartWildBattle(25, 50)
+			ta.game.StartWildBattle(25, 50, false)
 		})
 		ta.wait(1)
 		ta.answer("Select a POKéMON")
 		ta.wait(1)
 
 		assert.False(t, ta.main.enemyAppear.playing())
-		assert.Equal(t, []listItem{{"", 24}}, ta.main.enemyImage.items)
+		assert.Equal(t, []listItem{{"", 24, false}}, ta.main.enemyImage.items)
 	})
 }

@@ -14,8 +14,9 @@ import (
 // PokedexWindow is the POKéDEX (Form8).
 type PokedexWindow struct {
 	Visible  bool
-	Index    int // ComboBox1.ItemIndex: the species shown − 1, or -1
-	Selected int // the species selected, each one animated as it shows
+	Index    int  // ComboBox1.ItemIndex: the species shown − 1, or -1
+	Selected int  // the species selected, each one animated as it shows
+	Shiny    bool // the "Shiny" check box, which the original doesn't have
 
 	// Whether UpdateDisplay showed the species' attacks rather than "???".
 	// It runs only when the species is selected, so registering the
@@ -44,6 +45,20 @@ func (g *Game) SelectPokedex(k int) {
 	}
 
 	if k >= 0 && k < len(g.Data.Species) {
+		g.Pokedex.Selected++
+	}
+}
+
+// PokedexShiny is the POKéDEX's "Shiny" check box: the species in its
+// shiny colours, or in its normal ones. A change animates the species shown
+// again, as selecting it does.
+func (g *Game) PokedexShiny(on bool) {
+	if on == g.Pokedex.Shiny {
+		return
+	}
+
+	g.Pokedex.Shiny = on
+	if g.Pokedex.Index >= 0 {
 		g.Pokedex.Selected++
 	}
 }

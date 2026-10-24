@@ -136,6 +136,7 @@ func NewApplication(data *gamedata.Data, files storage, settings settingsStore, 
 
 	app.desk.onMinimize = ebiten.MinimizeWindow
 	app.game = game.New(data, app)
+	app.game.RollShiny = game.RandomShiny
 	app.buildForms()
 
 	app.game.OnShow = app.show
@@ -204,9 +205,12 @@ func (app *Application) showPreferences() {
 }
 
 // setPreferences makes prf the player's preferences, which take effect at
-// once: animations turned off stop.
+// once: animations turned off stop, and the lists with shiny POKéMON show
+// the mark chosen.
 func (app *Application) setPreferences(prf preferences) {
 	app.preferences = prf
+	app.stats.party.invalidate()
+	app.main.starters.invalidate()
 
 	if !prf.animatedSprites {
 		app.main.stopAnimations()
