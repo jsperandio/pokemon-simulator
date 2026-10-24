@@ -49,16 +49,9 @@ The original draws its windows with fonts and icons that come with Windows and c
 
 The binaries embed the `.fon`, `.png` and `.ttf` files. Release archives ship the licence texts and the `.sfd` and `.svg` sources next to them.
 
-## How they were extracted
+## Original files
 
-The files were extracted from the original V4.5 release with one-off tools that are not part of this repository:
-
-- **Sprites.** The image lists' 32-bit bitmaps were decoded, and their 1-bit masks became the alpha channel.
-- **Pictures.** The background of `pokeball.png` (the colour of its bottom-left pixel) was made transparent, as a transparent Delphi TImage does. `icon.png` uses its icon mask as alpha.
-- **Animations.** The archive's animated PNGs of Emerald's front sprites, `Spr 3e 001.png` to `Spr 3e 386.png`, were downloaded on 2026-10-21 and checked against the SHA-1 digests the archive lists. Each one's frames were composed, the repeated frames dropped, and the rest cropped to the box that holds them all and saved losslessly as palette PNGs. The last frame, the archive's pause before the animation loops, was left out, since the game shows the still sprite from there. Each animation is placed so that its last frame lines up with the species' sprite in `front64.png`.
-- **Help.** The WinHelp file was decompiled with helpdeco and converted to Markdown, keeping its text, links and images. Each page's title is a Markdown heading. The red "POKéMON Simulator" banner above it in the original is left to the help viewer. The contents page keeps its links on consecutive lines, with Markdown line breaks, as the original had them. With Michael Madsen's permission, the parts that were out of date are gone: his 2004 e-mail address, the donation page and the Windows Media Player instructions. The Music page lists the port's file types, and the Technical Support page points to the project's issue tracker. Two sentences that the game contradicts were corrected: the Game Corner's numbers are 0-9, and quitting a tournament leaves at least 9 XP. The Game Corner's payouts, a picture in the help file, are a Markdown table, and the screenshots were taken again in the port, of the same scenes.
-
-Original files used:
+The files that come from the original were taken from these files of its V4.5 release:
 
 | File | SHA-256 |
 |---|---|
