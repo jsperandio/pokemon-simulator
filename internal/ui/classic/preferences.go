@@ -24,6 +24,7 @@ type preferences struct {
 	animatedSprites bool      // Graphics: Enable animated sprites
 	shinyMark       shinyMark // Graphics: the shiny mark in the POKéMON lists
 	choosePrompt    bool      // Messages: Select a POKéMON reminder, game.ChoosePrompt
+	fillScreen      bool      // Layout: Fill the screen, rather than separate windows
 }
 
 // defaultPreferences are the choices before the player makes any.
@@ -42,6 +43,7 @@ func loadPreferences(dat []byte) preferences {
 	ini := parseINI(dat)
 	prf.animatedSprites = ini.boolean("Graphics", "AnimatedSprites", prf.animatedSprites)
 	prf.choosePrompt = ini.boolean("Messages", "SelectPokemon", prf.choosePrompt)
+	prf.fillScreen = ini.boolean("Layout", "FillScreen", prf.fillScreen)
 
 	if key, ok := ini.value("Graphics", "ShinyMark"); ok {
 		if sm, known := markByKey(key); known {
@@ -59,6 +61,7 @@ func (prf preferences) store(dat []byte) []byte {
 	ini.setBoolean("Graphics", "AnimatedSprites", prf.animatedSprites)
 	ini.set("Graphics", "ShinyMark", shinyMarks[prf.shinyMark].key)
 	ini.setBoolean("Messages", "SelectPokemon", prf.choosePrompt)
+	ini.setBoolean("Layout", "FillScreen", prf.fillScreen)
 
 	return ini.bytes()
 }
@@ -84,7 +87,7 @@ var preferencesLayout = layout.Component{
 			Class:  "TListBox",
 			Name:   "Categories",
 			Bounds: layout.Rect{X: 8, Y: 8, W: 97, H: 181},
-			Items:  []string{"Graphics", "Messages"},
+			Items:  []string{"Graphics", "Messages", "Layout"},
 			Props: map[string]string{
 				"ItemIndex": "0",
 				"TabOrder":  "0",
@@ -183,12 +186,45 @@ var preferencesLayout = layout.Component{
 			},
 		},
 		{
+			Class:   "TGroupBox",
+			Name:    "LayoutPage",
+			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 181},
+			Caption: "Layout",
+			Hidden:  true,
+			Props: map[string]string{
+				"TabOrder": "3",
+			},
+			Children: []layout.Component{
+				{
+					Class:   "TRadioGroup",
+					Name:    "Windows",
+					Bounds:  layout.Rect{X: 12, Y: 22, W: 215, H: 65},
+					Caption: "Windows:",
+					Items:   []string{"Separate windows (classic)", "Fill the screen"},
+					Props: map[string]string{
+						"TabOrder": "0",
+						"TabStop":  "True",
+					},
+				},
+				{
+					Class:   "TLabel",
+					Name:    "WindowsNote",
+					Bounds:  layout.Rect{X: 12, Y: 96, W: 215, H: 65},
+					Caption: "Fill the screen puts Statistics down the right edge and Battle Info along the bottom, gives the game window the rest, and keeps them in place.",
+					Props: map[string]string{
+						"AutoSize": "False",
+						"WordWrap": "True",
+					},
+				},
+			},
+		},
+		{
 			Class:   "TButton",
 			Name:    "RestoreButton",
 			Bounds:  layout.Rect{X: 8, Y: 197, W: 97, H: 25},
 			Caption: "Restore &Defaults",
 			Props: map[string]string{
-				"TabOrder": "3",
+				"TabOrder": "4",
 			},
 		},
 		{
@@ -198,7 +234,7 @@ var preferencesLayout = layout.Component{
 			Caption: "OK",
 			Props: map[string]string{
 				"Default":  "True",
-				"TabOrder": "4",
+				"TabOrder": "5",
 			},
 		},
 		{
@@ -209,7 +245,7 @@ var preferencesLayout = layout.Component{
 			Props: map[string]string{
 				"Cancel":      "True",
 				"ModalResult": "2",
-				"TabOrder":    "5",
+				"TabOrder":    "6",
 			},
 		},
 		{
@@ -219,11 +255,17 @@ var preferencesLayout = layout.Component{
 			Caption:  "&Apply",
 			Disabled: true,
 			Props: map[string]string{
-				"TabOrder": "6",
+				"TabOrder": "7",
 			},
 		},
 	},
 }
+
+// The Layout page's Windows choices.
+const (
+	windowsSeparate int = iota
+	windowsFill
+)
 
 // preferencesForm is the Preferences window, File → Preferences..., which
 // the original doesn't have.
@@ -236,6 +278,7 @@ type preferencesForm struct {
 	mark       *comboBox
 	preview    *listView // a shiny Gyarados with the mark chosen
 	prompt     *checkBox
+	windows    *radioGroup // separate windows, or filling the screen
 	apply      *button
 }
 
@@ -248,11 +291,13 @@ func newPreferencesForm(app *Application) *preferencesForm {
 		pages: []*groupBox{
 			get[*groupBox](wdw, "GraphicsPage"),
 			get[*groupBox](wdw, "MessagesPage"),
+			get[*groupBox](wdw, "LayoutPage"),
 		},
 		animated: get[*checkBox](wdw, "AnimatedSprites"),
 		mark:     get[*comboBox](wdw, "ShinyMark"),
 		preview:  get[*listView](wdw, "ShinyMarkPreview"),
 		prompt:   get[*checkBox](wdw, "ChoosePrompt"),
+		windows:  get[*radioGroup](wdw, "Windows"),
 		apply:    get[*button](wdw, "ApplyButton"),
 	}
 
@@ -269,6 +314,7 @@ func newPreferencesForm(app *Application) *preferencesForm {
 		shinyMark(pf.mark.index).draw(cv, x, y)
 	}
 	pf.prompt.onClick = pf.changed
+	pf.windows.onClick = pf.changed
 	get[*button](wdw, "RestoreButton").onClick = pf.restore
 	pf.apply.onClick = func() {
 		pf.save()
@@ -303,6 +349,11 @@ func (pf *preferencesForm) showChoices(prf preferences) {
 	pf.mark.setIndex(int(prf.shinyMark))
 	pf.preview.invalidate()
 	pf.prompt.setChecked(prf.choosePrompt)
+	pf.windows.setIndex(windowsSeparate)
+
+	if prf.fillScreen {
+		pf.windows.setIndex(windowsFill)
+	}
 }
 
 // chosen returns the preferences as the window shows them.
@@ -311,6 +362,7 @@ func (pf *preferencesForm) chosen() preferences {
 		animatedSprites: pf.animated.checked,
 		shinyMark:       shinyMark(pf.mark.index),
 		choosePrompt:    pf.prompt.checked,
+		fillScreen:      pf.windows.index == windowsFill,
 	}
 }
 

@@ -592,7 +592,7 @@ func (d *desktop) captionDown(wdw *window, pnt image.Point) {
 		return
 	}
 
-	if !wdw.maximized {
+	if !wdw.maximized && !wdw.pinned {
 		d.drag = wdw
 		d.dragFrom = pnt.Sub(wdw.pos)
 	}

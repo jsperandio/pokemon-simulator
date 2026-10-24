@@ -56,7 +56,9 @@ type window struct {
 	maxBox  bool
 	pos     image.Point // the outer top-left corner, on the desktop
 	client  image.Point // the client area's size
+	design  image.Point // the client area's size in the layout
 	fits    bool        // AutoSize: the client area is the controls' extent
+	pinned  bool        // docked: the caption doesn't drag it
 	color   color.RGBA
 	visible bool
 	active  bool
@@ -121,6 +123,7 @@ func newWindow(dsk *desktop, comp *layout.Component) *window {
 		wdw.client = wdw.extent()
 	}
 
+	wdw.design = wdw.client
 	wdw.pos = image.Pt(comp.Bounds.X, comp.Bounds.Y)
 
 	switch props["Position"] {
@@ -293,6 +296,12 @@ func (w *window) menuH() int {
 	}
 
 	return menuHeight
+}
+
+// nonClient is the size the frame, the caption and the menu bar add to
+// the client area.
+func (w *window) nonClient() image.Point {
+	return w.size().Sub(w.client)
 }
 
 // size is the outer size.

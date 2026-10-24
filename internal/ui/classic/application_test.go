@@ -927,3 +927,175 @@ func Test_MenuKeys(t *testing.T) {
 		require.Equal(t, "Open", top.caption, "the top dialog")
 	})
 }
+
+// drag drags with the mouse from one point of the screen to another.
+func (ta *testApp) drag(from, to image.Point) {
+	ta.mouse = from
+	ta.frame(input{
+		down:    true,
+		pressed: true,
+	})
+
+	ta.mouse = to
+	ta.frame(input{
+		down: true,
+	})
+	ta.frame(input{
+		released: true,
+	})
+}
+
+// fillApp is a test app whose preferences fill the screen.
+func fillApp(t *testing.T) *testApp {
+	t.Helper()
+
+	ta := newTestApp(t)
+	ta.preferences.fillScreen = true
+
+	return ta
+}
+
+// Filling the screen docks the game, Statistics and Battle Info windows
+// edge to edge over the 800×600 screen; the separate windows have their
+// own sizes, side by side.
+func Test_Application_placeWindows(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name   string
+		window func(ta *testApp) *window
+		want   image.Rectangle
+	}{
+		{
+			name: "when the screen is filled, should dock Statistics down the right edge",
+			window: func(ta *testApp) *window {
+				return ta.stats.wdw
+			},
+			want: image.Rect(617, 0, 800, 600),
+		},
+		{
+			name: "when the screen is filled, should dock Battle Info along the bottom, against Statistics",
+			window: func(ta *testApp) *window {
+				return ta.info.wdw
+			},
+			want: image.Rect(0, 416, 617, 600),
+		},
+		{
+			name: "when the screen is filled, should give the game window the rest",
+			window: func(ta *testApp) *window {
+				return ta.main.wdw
+			},
+			want: image.Rect(0, 0, 617, 416),
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ta := fillApp(t)
+			ta.startGame()
+
+			assert.Equal(t, tc.want, tc.window(ta).rect())
+		})
+	}
+
+	t.Run("when the screen is filled, should stretch the arena's frame and keep its contents at their size, centred", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+
+		arena := ta.main.arena.rect
+		before := map[string]image.Rectangle{}
+
+		for _, wgt := range ta.main.arena.kids {
+			before[wgt.base().name] = wgt.base().rect
+		}
+
+		ta.preferences.fillScreen = true
+		ta.placeWindows(246)
+
+		assert.Equal(t, image.Rect(120, 16, 606, 359), ta.main.arena.rect, "the arena's frame, from %v", arena)
+
+		for _, wgt := range ta.main.arena.kids {
+			ctl := wgt.base()
+			assert.Equal(t, before[ctl.name].Add(image.Pt(94, 51)), ctl.rect, ctl.name)
+		}
+	})
+
+	t.Run("when the screen is filled, should grow the party list and the battle log with their windows", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+
+		assert.Equal(t, image.Rect(0, 248, 177, 575), ta.stats.party.rect, "the party list")
+		assert.Equal(t, image.Rect(0, 0, 611, 159), ta.info.memo.rect, "the battle log")
+	})
+
+	t.Run("when the screen is filled, should keep a window in place when its caption is dragged", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+
+		from := ta.main.wdw.captionRect().Min.Add(image.Pt(100, 5))
+		ta.drag(from, from.Add(image.Pt(50, 40)))
+
+		assert.Equal(t, image.Point{}, ta.main.wdw.pos, "the pinned window")
+
+		ta.main.wdw.pinned = false
+		ta.drag(from, from.Add(image.Pt(50, 40)))
+
+		assert.Equal(t, image.Pt(50, 40), ta.main.wdw.pos, "the same drag on the window unpinned")
+	})
+
+	t.Run("when the starter choice shows with the screen filled, should keep the game window in its place and centre the list", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.chooseStarters()
+
+		assert.Equal(t, image.Rect(0, 0, 617, 416), ta.main.wdw.rect(), "the game window")
+		assert.Equal(t, image.Rect(241, 83, 374, 300), ta.main.starters.rect, "the starter list")
+		ta.shot("fill-starters")
+
+		ta.pickStarter(0)
+
+		assert.Equal(t, image.Point{}, ta.main.wdw.pos, "the game window after the choice")
+	})
+
+	t.Run("when the layout goes back to separate windows, should give the windows their own sizes and places", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+
+		ta.preferences.fillScreen = false
+		ta.placeWindows(246)
+
+		assert.Equal(t, image.Pt(95, 54), ta.main.wdw.pos, "the game window's place")
+		assert.Equal(t, image.Pt(422, 270), ta.main.wdw.client, "the game window's size")
+		assert.Equal(t, image.Pt(177, 473), ta.stats.wdw.client, "Statistics' size")
+		assert.Equal(t, image.Pt(422, 159), ta.info.wdw.client, "Battle Info's size")
+		assert.Equal(t, image.Rect(0, 248, 177, 473), ta.stats.party.rect, "the party list")
+		assert.Equal(t, image.Rect(120, 16, 417, 257), ta.main.arena.rect, "the arena's frame")
+		assert.False(t, ta.main.wdw.pinned, "the game window is still pinned")
+	})
+
+	t.Run("when a battle shows with the screen filled, should look docked", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.answer("Select a POKéMON from the Statistics Window")
+
+		rect := ta.stats.party.itemRect(0)
+		ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+		ta.answer("# 004 Charmander")
+		ta.answer("Choose Charmander?")
+
+		assert.True(t, ta.info.wdw.visible, "Battle Info doesn't show")
+		ta.shot("fill-battle")
+	})
+}

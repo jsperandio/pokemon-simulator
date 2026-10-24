@@ -32,6 +32,9 @@ func newStatsForm(app *Application) *statsForm {
 		counts: map[string]*label{},
 	}
 	sf.party = get[*listView](wdw, "ListView1")
+	// The party list grows with the window when the screen is filled.
+	sf.party.setAnchors(akLeft | akTop | akRight | akBottom)
+
 	sf.party.mark = func(cv canvas, x, y int) {
 		app.preferences.shinyMark.draw(cv, x, y)
 	}
@@ -193,6 +196,9 @@ func newInfoForm(app *Application) *infoForm {
 		wdw: newWindow(app.desk, &layout.Form7),
 	}
 	inf.memo = get[*memo](inf.wdw, "Memo1")
+	// The log grows with the window when the screen is filled.
+	inf.memo.setAnchors(akLeft | akTop | akRight | akBottom)
+
 	inf.wdw.onClose = func() { // Alt+F4
 		app.game.CloseInfo()
 	}

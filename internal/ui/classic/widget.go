@@ -272,6 +272,13 @@ func (c *control) setBounds(rect image.Rectangle) {
 	}
 }
 
+// setAnchors changes the control's anchors, which keep it from where it is
+// now, in its parent's present size, as the VCL's UpdateAnchorRules does.
+func (c *control) setAnchors(anc anchors) {
+	c.anchors = anc
+	c.home, c.homeArea = c.rect, c.area()
+}
+
 // area is the size of the control's parent: the parent control's, or the
 // window's client area.
 func (c *control) area() image.Point {

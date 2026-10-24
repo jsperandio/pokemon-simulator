@@ -140,6 +140,19 @@ func Test_window_resize(t *testing.T) {
 		}
 	})
 
+	t.Run("when a control's anchors change after the window grew, should anchor it from where it is then", func(t *testing.T) {
+		t.Parallel()
+
+		wdw := anchorWindow(newTestApp(t))
+		wdw.resize(image.Pt(300, 160))
+
+		ctl := wdw.find("Fixed").base()
+		ctl.setAnchors(0)
+		wdw.resize(image.Pt(200, 100))
+
+		assert.Equal(t, image.Rect(-40, 40, 10, 60), ctl.rect)
+	})
+
 	t.Run("when a control is moved after the window grew, should keep the new place as it resizes", func(t *testing.T) {
 		t.Parallel()
 

@@ -24,6 +24,15 @@ func Test_loadPreferences(t *testing.T) {
 		assert.True(t, prf.animatedSprites)
 		assert.True(t, prf.choosePrompt)
 		assert.Equal(t, goldSparkles, prf.shinyMark)
+		assert.False(t, prf.fillScreen, "the screen is filled")
+	})
+
+	t.Run("when the file fills the screen, should fill it only", func(t *testing.T) {
+		t.Parallel()
+
+		prf := loadPreferences([]byte("[Layout]\nFillScreen=1\n"))
+		assert.True(t, prf.fillScreen)
+		assert.True(t, prf.animatedSprites)
 	})
 
 	t.Run("when the file turns them off, should not animate the sprites", func(t *testing.T) {
@@ -89,14 +98,14 @@ func Test_preferences_store(t *testing.T) {
 	t.Run("when there is no file, should write a new one", func(t *testing.T) {
 		t.Parallel()
 
-		assert.Equal(t, "[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n", string(off.store(nil)))
+		assert.Equal(t, "[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n\n[Layout]\nFillScreen=0\n", string(off.store(nil)))
 	})
 
 	t.Run("when the keys are there, should change their lines only", func(t *testing.T) {
 		t.Parallel()
 
 		dat := "; comment\n[Graphics]\nShinyMark=OneTwinkle\nTheme=classic\nAnimatedSprites=1\n\n[Messages]\nSelectPokemon=1\n\n[Sound]\nVolume=7\n"
-		want := "; comment\n[Graphics]\nShinyMark=None\nTheme=classic\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n\n[Sound]\nVolume=7\n"
+		want := "; comment\n[Graphics]\nShinyMark=None\nTheme=classic\nAnimatedSprites=0\n\n[Messages]\nSelectPokemon=0\n\n[Sound]\nVolume=7\n\n[Layout]\nFillScreen=0\n"
 		assert.Equal(t, want, string(off.store([]byte(dat))))
 	})
 
@@ -104,14 +113,14 @@ func Test_preferences_store(t *testing.T) {
 		t.Parallel()
 
 		dat := "[Graphics]\nTheme=classic\n\n[Messages]\nSelectPokemon=1\n"
-		want := "[Graphics]\nTheme=classic\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n"
+		want := "[Graphics]\nTheme=classic\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n\n[Layout]\nFillScreen=0\n"
 		assert.Equal(t, want, string(off.store([]byte(dat))))
 	})
 
 	t.Run("when the sections are missing, should add them at the end", func(t *testing.T) {
 		t.Parallel()
 
-		want := "[Sound]\nVolume=7\n\n[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n"
+		want := "[Sound]\nVolume=7\n\n[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n\n[Layout]\nFillScreen=0\n"
 		assert.Equal(t, want, string(off.store([]byte("[Sound]\r\nVolume=7\r\n"))))
 	})
 
@@ -122,6 +131,7 @@ func Test_preferences_store(t *testing.T) {
 			animatedSprites: false,
 			shinyMark:       outlinedTwinkles,
 			choosePrompt:    true,
+			fillScreen:      true,
 		}
 
 		assert.Equal(t, off, loadPreferences(off.store(nil)))
@@ -132,7 +142,7 @@ func Test_preferences_store(t *testing.T) {
 
 // keptOn is what the test app's settings hold once the window keeps the
 // animations on, with the default shiny mark and the choose prompt shown.
-const keptOn string = "[Graphics]\nAnimatedSprites=1\nShinyMark=GoldSparkles\n\n[Messages]\nSelectPokemon=1\n"
+const keptOn string = "[Graphics]\nAnimatedSprites=1\nShinyMark=GoldSparkles\n\n[Messages]\nSelectPokemon=1\n\n[Layout]\nFillScreen=0\n"
 
 // openPreferences plays up to the game window, the first time, and opens
 // File → Preferences....
@@ -172,7 +182,7 @@ func Test_preferencesForm(t *testing.T) {
 		ta.shot("prefs-open")
 
 		assert.Equal(t, "Preferences", pf.wdw.caption)
-		assert.Equal(t, []string{"Graphics", "Messages"}, pf.categories.items)
+		assert.Equal(t, []string{"Graphics", "Messages", "Layout"}, pf.categories.items)
 		assert.Equal(t, 0, pf.categories.selected)
 		assert.True(t, pf.pages[0].shown(), "the Graphics page is hidden")
 		assert.False(t, pf.pages[1].shown(), "the Messages page shows")
@@ -285,7 +295,7 @@ func Test_preferencesForm(t *testing.T) {
 
 		ta.clickOn(pf.wdw, "OKButton")
 
-		want := "[Graphics]\nAnimatedSprites=0\nShinyMark=GoldSparkles\n\n[Messages]\nSelectPokemon=0\n"
+		want := "[Graphics]\nAnimatedSprites=0\nShinyMark=GoldSparkles\n\n[Messages]\nSelectPokemon=0\n\n[Layout]\nFillScreen=0\n"
 
 		assert.False(t, ta.preferences.choosePrompt)
 		assert.Equal(t, want, string(ta.settings.(*memorySettings).data))
@@ -295,26 +305,29 @@ func Test_preferencesForm(t *testing.T) {
 		t.Parallel()
 
 		settings := &memorySettings{
-			data: []byte("[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n"),
+			data: []byte("[Graphics]\nAnimatedSprites=0\nShinyMark=None\n\n[Messages]\nSelectPokemon=0\n\n[Layout]\nFillScreen=1\n"),
 		}
 		ta := newTestAppWith(t, t.TempDir(), nil, settings)
 		pf := openPreferences(ta)
 		require.False(t, pf.animated.checked)
 		require.False(t, pf.prompt.checked)
 		require.Equal(t, int(noMark), pf.mark.index)
+		require.Equal(t, windowsFill, pf.windows.index)
 
 		ta.clickOn(pf.wdw, "RestoreButton")
 
 		assert.True(t, pf.animated.checked, "the animations are still off")
 		assert.True(t, pf.prompt.checked, "the choose prompt is still hidden")
 		assert.Equal(t, int(goldSparkles), pf.mark.index, "the mark is still None")
+		assert.Equal(t, windowsSeparate, pf.windows.index, "the screen is still filled")
 		assert.True(t, pf.apply.enabled, "Apply is greyed with a change to apply")
 		assert.False(t, ta.preferences.choosePrompt, "restored before OK or Apply")
 
 		ta.clickOn(pf.wdw, "CancelButton")
 
 		kept := preferences{
-			shinyMark: noMark,
+			shinyMark:  noMark,
+			fillScreen: true,
 		}
 		assert.Equal(t, kept, ta.preferences, "Cancel kept the defaults")
 
@@ -324,6 +337,7 @@ func Test_preferencesForm(t *testing.T) {
 
 		assert.Equal(t, defaultPreferences(), ta.preferences)
 		assert.Equal(t, keptOn, string(settings.data))
+		assert.Equal(t, image.Pt(95, 54), ta.main.wdw.pos, "the game window isn't back beside the others")
 	})
 
 	t.Run("when a shiny mark is chosen and OK clicked, should keep it and mark the preview with it", func(t *testing.T) {
@@ -347,7 +361,7 @@ func Test_preferencesForm(t *testing.T) {
 
 		ta.clickOn(pf.wdw, "OKButton")
 
-		want := "[Graphics]\nAnimatedSprites=0\nShinyMark=GoldSparklesOutlined\n\n[Messages]\nSelectPokemon=1\n"
+		want := "[Graphics]\nAnimatedSprites=0\nShinyMark=GoldSparklesOutlined\n\n[Messages]\nSelectPokemon=1\n\n[Layout]\nFillScreen=0\n"
 
 		assert.Nil(t, ta.desk.topModal(), "the window is still up")
 		assert.Equal(t, goldSparklesOutlined, ta.preferences.shinyMark)
@@ -367,5 +381,57 @@ func Test_preferencesForm(t *testing.T) {
 
 		tb := newTestAppWith(t, t.TempDir(), nil, settings)
 		assert.False(t, tb.preferences.animatedSprites)
+	})
+
+	t.Run("when Layout is chosen, should show the Windows choice at separate windows", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		pf := openPreferences(ta)
+		chooseCategory(ta, pf, 2)
+		ta.shot("prefs-layout")
+
+		assert.True(t, pf.pages[2].shown(), "the Layout page is hidden")
+		assert.False(t, pf.pages[0].shown(), "the Graphics page shows")
+		assert.Equal(t, windowsSeparate, pf.windows.index)
+	})
+
+	t.Run("when Fill the screen is chosen and OK clicked, should dock the windows at once and keep the choice", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		pf := openPreferences(ta)
+		chooseCategory(ta, pf, 2)
+		clickRadio(ta, pf.windows, windowsFill)
+
+		assert.True(t, pf.apply.enabled, "Apply is greyed with a change to apply")
+
+		ta.clickOn(pf.wdw, "OKButton")
+
+		assert.True(t, ta.preferences.fillScreen)
+		assert.Equal(t, image.Rect(0, 0, 617, 416), ta.main.wdw.rect(), "the game window")
+		assert.Equal(t, image.Rect(617, 0, 800, 600), ta.stats.wdw.rect(), "Statistics")
+		assert.Contains(t, string(ta.settings.(*memorySettings).data), "[Layout]\nFillScreen=1\n")
+	})
+
+	t.Run("when separate windows are chosen again with Apply, should put the windows side by side with their own sizes", func(t *testing.T) {
+		t.Parallel()
+
+		settings := &memorySettings{
+			data: []byte("[Graphics]\nAnimatedSprites=0\n\n[Layout]\nFillScreen=1\n"),
+		}
+		ta := newTestAppWith(t, t.TempDir(), nil, settings)
+		pf := openPreferences(ta)
+
+		require.Equal(t, image.Point{}, ta.main.wdw.pos, "the screen isn't filled to begin with")
+
+		chooseCategory(ta, pf, 2)
+		clickRadio(ta, pf.windows, windowsSeparate)
+		ta.clickOn(pf.wdw, "ApplyButton")
+
+		assert.False(t, ta.preferences.fillScreen)
+		assert.Equal(t, image.Pt(95, 54), ta.main.wdw.pos, "the game window's place")
+		assert.Equal(t, image.Pt(422, 270), ta.main.wdw.client, "the game window's size")
+		assert.Equal(t, image.Pt(177, 473), ta.stats.wdw.client, "Statistics' size")
 	})
 }

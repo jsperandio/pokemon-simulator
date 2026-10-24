@@ -107,6 +107,7 @@ func newMainForm(app *Application) *mainForm {
 	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
 	mf.placeGauges()
+	mf.anchorForFill()
 
 	mf.arena.over = func(cv canvas) {
 		enemy, own := mf.enemyImage.rect.Min, mf.ownImage.rect.Min
@@ -184,12 +185,32 @@ func (mf *mainForm) starterClick() {
 	})
 }
 
+// anchorForFill sets the anchors that fill the screen with the window: the
+// Battle Arena's frame stretches, and its contents, the starter list and
+// its caption keep their size, centred. The other controls stay at the
+// top left. The layout's anchors are the original's defaults, which the
+// separate windows keep, as they never resize.
+func (mf *mainForm) anchorForFill() {
+	mf.arena.setAnchors(akLeft | akTop | akRight | akBottom)
+
+	for _, wgt := range mf.arena.kids {
+		wgt.base().setAnchors(0)
+	}
+
+	mf.starterLabel.setAnchors(0)
+	mf.starters.setAnchors(0)
+}
+
 // centreForStarters puts the window in the middle of the screen for the
 // starter choice, when it is the only one shown; the spot it held beside
-// the other windows waits for the choice.
+// the other windows waits for the choice. Filling the screen, the window
+// already has its place.
 func (mf *mainForm) centreForStarters() {
 	mf.gameSpot = mf.wdw.pos
-	mf.wdw.center()
+
+	if !mf.app.preferences.fillScreen {
+		mf.wdw.center()
+	}
 
 	mf.starterSpot = mf.wdw.pos
 	mf.app.desk.dirty = true
