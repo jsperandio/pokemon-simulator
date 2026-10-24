@@ -10,6 +10,16 @@ The original only runs on Windows, or on other systems through Wine. This port m
 
 > **Status:** complete. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays the whole game on the desktop and in the browser, with the manual and the music.
 
+## Play in the browser
+
+Each link opens that version's game, with nothing to download:
+
+| Version | | What it is | Notes |
+|---|---|---|---|
+| [v4.5.0](https://jsperandio.github.io/pokemon-simulator-web/v4.5.0/) | Original | the 2004 game, as Michael Madsen made it | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.0) · [BirdieSoft's page](https://birdiesoft.dk/software.php?id=2) |
+
+[Playing](#playing) says how the game keeps its files in the browser.
+
 ## Download
 
 Each release has an archive per system on the repository's Releases page. Nothing needs installing: extract the archive and run the program in it. The programs aren't signed, so Windows and macOS warn about them the first time.
