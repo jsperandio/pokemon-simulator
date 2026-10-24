@@ -55,6 +55,8 @@ The original doesn't have these:
 - Animated sprites
 - Shiny POKéMON
 - Don't show this message again
+- Fill the screen
+- Small interface changes
 
 More details: [docs/improvements.md](docs/improvements.md).
 

@@ -5,6 +5,8 @@ The original POKéMON Simulator V4.5 doesn't have these. The port's v4.5.0 is th
 - [Animated sprites](#animated-sprites)
 - [Shiny POKéMON](#shiny-pokémon)
 - [Don't show this message again](#dont-show-this-message-again)
+- [Fill the screen](#fill-the-screen)
+- [Small interface changes](#small-interface-changes)
 - [Where the choices are kept](#where-the-choices-are-kept)
 
 ## Animated sprites
@@ -28,6 +30,21 @@ A POKéMON found with Actions → Fight a wild POKéMON → Search for a POKéMO
 ## Don't show this message again
 
 The message every battle starts with, "Select a POKéMON from the Statistics Window", has a check box that hides it from then on. To bring it back, check Select a POKéMON reminder in File → Preferences..., under Messages, or click Restore Defaults there.
+
+## Fill the screen
+
+Fill the screen, in File → Preferences..., under Layout, docks the game's windows edge to edge instead of side by side:
+
+- **Statistics** goes down the right edge, at the full height, so more of your party shows at once.
+- **Battle Info** goes along the bottom, against Statistics, with room for longer lines.
+- **The game window** takes the rest, with the Battle Arena in its middle.
+
+The three windows stay in place. The other windows, such as the POKéDEX, open over them as usual. Separate windows (classic), the default, puts them back side by side. The game's screen is 800×600, so in a wider window the bars at its sides stay.
+
+## Small interface changes
+
+- **The starter choice** opens in the middle of the screen. Once you choose, the game window moves beside the Statistics and Battle Info windows, unless you moved it yourself.
+- **The HP bars** in the Battle Arena are the same width for both POKéMON, and longer: the game window and Battle Info are 42 pixels wider to make room. The original started each bar after its POKéMON's name, so the enemy's, with "Enemy" before the name, was usually the shorter.
 
 ## Where the choices are kept
 
