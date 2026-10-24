@@ -332,6 +332,51 @@ func Test_mainForm_centreForStarters(t *testing.T) {
 	})
 }
 
+// Both HP gauges start after the widest caption a fighter can have, so
+// they are the same width whatever the fighters' names.
+func Test_mainForm_placeGauges(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when both fighters show, should give their HP gauges the same column and width", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.answer("Select a POKéMON from the Statistics Window")
+
+		rect := ta.stats.party.itemRect(0)
+		ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+		ta.answer("# 004 Charmander")
+		ta.answer("Choose Charmander?")
+
+		own, enemy := ta.main.ownGauge.rect, ta.main.enemyGauge.rect
+
+		require.True(t, ta.main.ownGauge.shown(), "no gauge for the player's fighter")
+		assert.Equal(t, own.Min.X, enemy.Min.X, "the gauges' left edges")
+		assert.Equal(t, own.Dx(), enemy.Dx(), "the gauges' widths")
+		assert.Equal(t, ta.main.attacks.rect.Max.X, own.Max.X, "the gauges' right edge, the attack boxes'")
+		assert.Less(t, ta.main.ownLabel.rect.Max.X, own.Min.X, "the player's fighter's caption reaches its gauge")
+		assert.Less(t, ta.main.enemyLabel.rect.Max.X, enemy.Min.X, "the enemy's caption reaches its gauge")
+		ta.shot("gauges-same-width")
+	})
+
+	t.Run("when an enemy has the longest name at level 100, should end its caption before the gauge", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+		lbl := mf.enemyLabel
+
+		for _, sp := range mf.app.game.Data.Species {
+			right := lbl.rect.Min.X + lbl.font.width("Enemy "+sp.Name+" L.100")
+
+			assert.Less(t, right, mf.enemyGauge.rect.Min.X, "%s's caption reaches the gauge", sp.Name)
+		}
+
+		assert.Positive(t, mf.enemyGauge.rect.Dx(), "the gauge's width")
+	})
+}
+
 // The loading screen is AutoSize: it grows to its title, a pixel wider in
 // Arial than the form, after Position centred it, and the labels anchored
 // to its right move with it.

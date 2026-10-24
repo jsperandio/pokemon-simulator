@@ -106,6 +106,8 @@ func newMainForm(app *Application) *mainForm {
 	mf.ownImage.showOnly = true
 	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
+	mf.placeGauges()
+
 	mf.arena.over = func(cv canvas) {
 		enemy, own := mf.enemyImage.rect.Min, mf.ownImage.rect.Min
 		mf.enemyAppear.paint(cv, enemy)
@@ -400,9 +402,6 @@ func (mf *mainForm) sync() {
 				lbl.setCaption(mv.Name)
 			}
 		}
-
-		// Gauge2 sits after Label3, as that fighter's caption sized it.
-		mf.placeGauge(mf.enemyGauge, "Enemy "+sp.Name+" L."+strconv.Itoa(enm.Level))
 	}
 
 	own := mgw.Own
@@ -419,7 +418,6 @@ func (mf *mainForm) sync() {
 	mf.ownLabel.setCaption(sp.Name + " L." + strconv.Itoa(own.Level))
 	mf.ownHP.setCaption(strconv.Itoa(own.HP) + "/" + strconv.Itoa(own.Level) + "0")
 	mf.ownGauge.set(own.Level*10, own.HP, gaugeColors[mgw.OwnColor])
-	mf.placeGauge(mf.ownGauge, sp.Name+" L."+strconv.Itoa(own.Level))
 	mf.attacks.setCaption(sp.Name + "'s attacks:")
 
 	items := make([]string, 0, 5)
@@ -516,10 +514,21 @@ func (mf *mainForm) animate(now time.Time) {
 	}
 }
 
-// placeGauge puts a gauge after its label's caption: Left = the label's
-// width + 80, and Width = 289 − Left.
-func (mf *mainForm) placeGauge(gge *gauge, caption string) {
-	left := mf.enemyLabel.font.width(caption) + 80
-	rect := gge.rect
-	gge.setBounds(image.Rect(left, rect.Min.Y, 289, rect.Max.Y))
+// placeGauges puts both HP gauges after the widest caption a fighter can
+// have, "Enemy " + the longest species name + " L.100": Left = its width
+// + 80, and the gauges end with the attack boxes, as the original's do at
+// 289. The original put each gauge after its own fighter's caption, so the
+// two were seldom the same width.
+func (mf *mainForm) placeGauges() {
+	wid := 0
+	for _, sp := range mf.app.game.Data.Species {
+		wid = max(wid, mf.enemyLabel.font.width("Enemy "+sp.Name+" L.100"))
+	}
+
+	left, right := wid+80, mf.attacks.rect.Max.X
+
+	for _, gge := range []*gauge{mf.ownGauge, mf.enemyGauge} {
+		rect := gge.rect
+		gge.setBounds(image.Rect(left, rect.Min.Y, right, rect.Max.Y))
+	}
 }
