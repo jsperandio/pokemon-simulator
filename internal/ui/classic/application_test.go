@@ -548,9 +548,39 @@ func (ta *testApp) winBattle() {
 // Search Again, which the original doesn't have, ends a battle a search
 // found and searches again, with the same fighter, which another party
 // member can replace until it acts. F3 is Search for a POKéMON's
-// shortcut, and Search Again's once the battle is over.
+// shortcut, and Search Again's once the battle is over. Go! has the focus
+// whenever a fighter comes out, and Enter presses it.
 func Test_SearchAgain(t *testing.T) {
 	t.Parallel()
+
+	t.Run("when a fighter comes out, should give Go! the focus, with the game window active", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+
+		assert.Same(t, ta.main.wdw, ta.desk.active, "the active window")
+		assert.Same(t, ta.main.goButton, ta.main.wdw.focus, "the focus")
+	})
+
+	t.Run("when an attack has the focus, should attack with Enter", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		require.Same(t, ta.main.attacks, ta.main.wdw.focus, "the attacks don't have the focus")
+
+		lines := len(ta.game.Info.Lines)
+
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+		require.Greater(t, len(ta.game.Info.Lines), lines, "Enter didn't attack")
+		assert.Equal(t, "Charmander used Scratch!", ta.game.Info.Lines[lines])
+		ta.shot("go-default")
+	})
 
 	t.Run("when a battle a search found is over, should show Search Again where Go! was, and start the next battle at a click with the same fighter and attack", func(t *testing.T) {
 		t.Parallel()
@@ -575,6 +605,7 @@ func Test_SearchAgain(t *testing.T) {
 		assert.Equal(t, appeared+1, mgw.Appeared, "no wild POKéMON appeared")
 		assert.Equal(t, 4, mgw.Own.Species, "the fighter")
 		assert.Equal(t, 1, ta.main.attacks.index, "the attack selected")
+		assert.Same(t, ta.main.goButton, ta.main.wdw.focus, "the focus")
 		assert.False(t, ta.main.searchButton.shown(), "Search Again shows in the battle")
 	})
 
@@ -671,6 +702,8 @@ func Test_SearchAgain(t *testing.T) {
 
 		assert.Equal(t, 25, ta.game.Main.Own.Species, "the fighter")
 		assert.Equal(t, -1, ta.main.attacks.index, "the attack selected")
+		assert.Same(t, ta.main.wdw, ta.desk.active, "the active window")
+		assert.Same(t, ta.main.goButton, ta.main.wdw.focus, "the focus")
 		ta.shot("search-again-swapped")
 	})
 }

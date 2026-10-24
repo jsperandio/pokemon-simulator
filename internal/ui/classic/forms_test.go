@@ -397,7 +397,8 @@ func findEntry(es []*menuEntry, name string) *menuEntry {
 }
 
 // The game window is the original's with what the port adds: a Search
-// Again button in the Battle Arena, and F3 for Search for a POKéMON.
+// Again button in the Battle Arena, F3 for Search for a POKéMON, and Go!
+// as the default button.
 func Test_mainLayout(t *testing.T) {
 	t.Parallel()
 
@@ -446,6 +447,12 @@ func Test_mainLayout(t *testing.T) {
 		assert.Equal(t, ebiten.KeyF3, ent.key)
 	})
 
+	t.Run("when the game window is made, should make Go! the default button", func(t *testing.T) {
+		t.Parallel()
+
+		assert.True(t, newTestApp(t).main.goButton.isDefault)
+	})
+
 	t.Run("when the game window is made, should leave the original's layout as it was", func(t *testing.T) {
 		t.Parallel()
 
@@ -453,6 +460,7 @@ func Test_mainLayout(t *testing.T) {
 
 		assert.Nil(t, layout.Form4.Find("SearchAgainButton"))
 		assert.Nil(t, layout.Form4.Find("FindPKMN1").Props)
+		assert.NotContains(t, layout.Form4.Find("Button1").Props, "Default")
 	})
 }
 

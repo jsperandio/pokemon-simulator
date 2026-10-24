@@ -48,6 +48,7 @@ type mainForm struct {
 	enemyAttacks   *groupBox
 	enemyMoves     [4]*label // Label4–7
 	goButton       *button
+	chosen         int       // the fighters sent out at the last sync: a new one takes Go!'s focus
 	ownImage       *listView // ListView2
 	enemyImage     *listView // ListView3
 	endButton      *button
@@ -77,7 +78,8 @@ var searchAgainButton = layout.Component{
 const searchShortcut string = "114"
 
 // mainLayout is the original's game window with searchAgainButton in the
-// Battle Arena, and searchShortcut on Search for a POKéMON.
+// Battle Arena, searchShortcut on Search for a POKéMON, and Go! as the
+// default button, so Enter presses it even when an attack has the focus.
 func mainLayout() *layout.Component {
 	frm := layout.Form4.Clone()
 	arena := frm.Find("GroupBox1")
@@ -85,6 +87,7 @@ func mainLayout() *layout.Component {
 	frm.Find("FindPKMN1").Props = map[string]string{
 		"ShortCut": searchShortcut,
 	}
+	frm.Find("Button1").Props["Default"] = "True"
 
 	return &frm
 }
@@ -454,6 +457,14 @@ func (mf *mainForm) sync() {
 	mf.attacks.setVisible(mgw.Attacks)
 	mf.attacks.setIndex(mgw.AttackIndex)
 	mf.pokeball.setVisible(mgw.Pokeball)
+
+	if mgw.Chosen != mf.chosen && mgw.Go {
+		// A fighter has come out: Enter attacks from the first turn.
+		mf.wdw.setFocus(mf.goButton, false)
+		app.desk.activate(mf.wdw)
+	}
+
+	mf.chosen = mgw.Chosen
 
 	play := app.preferences.animatedSprites
 	mf.enemyAppear.arm(mgw.Appeared, mgw.EnemyImage+1, mgw.Enemy.Shiny, play)
