@@ -1214,7 +1214,7 @@ func Test_Application_placeWindows(t *testing.T) {
 		ta.preferences.fillScreen = true
 		ta.placeWindows(246)
 
-		assert.Equal(t, image.Rect(120, 16, 606, 359), ta.main.arena.rect, "the arena's frame, from %v", arena)
+		assert.Equal(t, image.Rect(120, 6, 606, 365), ta.main.arena.rect, "the arena's frame, from %v", arena)
 
 		for _, wgt := range ta.main.arena.kids {
 			ctl := wgt.base()
@@ -1278,7 +1278,7 @@ func Test_Application_placeWindows(t *testing.T) {
 		assert.Equal(t, image.Pt(177, 473), ta.stats.wdw.client, "Statistics' size")
 		assert.Equal(t, image.Pt(464, 159), ta.info.wdw.client, "Battle Info's size")
 		assert.Equal(t, image.Rect(0, 248, 177, 473), ta.stats.party.rect, "the party list")
-		assert.Equal(t, image.Rect(120, 16, 459, 257), ta.main.arena.rect, "the arena's frame")
+		assert.Equal(t, image.Rect(120, 6, 459, 263), ta.main.arena.rect, "the arena's frame")
 		assert.False(t, ta.main.wdw.pinned, "the game window is still pinned")
 	})
 

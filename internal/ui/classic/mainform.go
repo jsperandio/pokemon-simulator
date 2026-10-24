@@ -61,11 +61,11 @@ type mainForm struct {
 
 // searchAgainButton is the Battle Arena's Search Again button, which the
 // original doesn't have: once a battle a search found is over, it shows in
-// Go!'s place, and ends where Go! ends.
+// Go!'s place, as high as Go!, and ends where Go! ends.
 var searchAgainButton = layout.Component{
 	Class:   "TButton",
 	Name:    "SearchAgainButton",
-	Bounds:  layout.Rect{X: 216, Y: 8, W: 75, H: 15},
+	Bounds:  layout.Rect{X: 214, Y: 13, W: 75, H: 22},
 	Caption: "Search Again",
 	Hidden:  true,
 	Props: map[string]string{
@@ -77,17 +77,46 @@ var searchAgainButton = layout.Component{
 // doesn't have: F3, as a TShortCut.
 const searchShortcut string = "114"
 
-// mainLayout is the original's game window with searchAgainButton in the
-// Battle Arena, searchShortcut on Search for a POKéMON, and Go! as the
+// goBounds is Go!'s place in the Battle Arena, in the room arenaRise and
+// arenaDrop make: 22 pixels high, 6 below the arena's frame and 5 above
+// the gauges, and ending with the gauges and the attack boxes. The
+// original's Go! was 15 high, with no room above or below it, and ended 2
+// pixels further right.
+var goBounds = layout.Rect{X: 246, Y: 13, W: 43, H: 22}
+
+// arenaRise and arenaDrop are how much further up and down the game window
+// the Battle Arena's frame reaches than the original's, into the window's
+// margins, so the window keeps its size. The arena's contents move down by
+// both, which leaves room above the gauges for goBounds.
+const (
+	arenaRise int = 10
+	arenaDrop int = 6
+)
+
+// mainLayout is the original's game window with the port's changes. The
+// Battle Arena's frame reaches arenaRise further up and arenaDrop further
+// down, and its contents move down by both. Go! is at goBounds, and is the
 // default button, so Enter presses it even when an attack has the focus.
+// The arena has searchAgainButton, and Search for a POKéMON has
+// searchShortcut.
 func mainLayout() *layout.Component {
 	frm := layout.Form4.Clone()
 	arena := frm.Find("GroupBox1")
+	arena.Bounds.Y -= arenaRise
+	arena.Bounds.H += arenaRise + arenaDrop
+
+	for i := range arena.Children {
+		arena.Children[i].Bounds.Y += arenaRise + arenaDrop
+	}
+
 	arena.Children = append(arena.Children, searchAgainButton)
 	frm.Find("FindPKMN1").Props = map[string]string{
 		"ShortCut": searchShortcut,
 	}
-	frm.Find("Button1").Props["Default"] = "True"
+
+	goButton := frm.Find("Button1")
+	goButton.Bounds = goBounds
+	goButton.Props["Default"] = "True"
 
 	return &frm
 }

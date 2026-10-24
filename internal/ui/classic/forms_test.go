@@ -398,7 +398,8 @@ func findEntry(es []*menuEntry, name string) *menuEntry {
 
 // The game window is the original's with what the port adds: a Search
 // Again button in the Battle Arena, F3 for Search for a POKéMON, and Go!
-// as the default button.
+// as the default button, taller, in room the arena's frame makes in the
+// window's margins.
 func Test_mainLayout(t *testing.T) {
 	t.Parallel()
 
@@ -415,6 +416,29 @@ func Test_mainLayout(t *testing.T) {
 		assert.Equal(t, goRect.Dy(), btn.rect.Dy(), "the heights")
 		assert.Less(t, btn.font.width("Search Again"), btn.rect.Dx(), "the caption's width")
 		assert.Less(t, btn.rect.Max.Y, mf.ownGauge.rect.Min.Y, "Search Again reaches the gauge")
+	})
+
+	t.Run("when the game window is made, should give Go! room below the frame and above the gauges, ending with them", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+		goRect, gauge := mf.goButton.rect, mf.ownGauge.rect
+		inside := mf.arena.font.height()/2 + 1 // the first row inside the arena's frame
+
+		assert.Equal(t, 22, goRect.Dy(), "the height")
+		assert.Equal(t, 6, goRect.Min.Y-inside, "the rows below the frame")
+		assert.Equal(t, 5, gauge.Min.Y-goRect.Max.Y, "the rows above the gauge")
+		assert.Equal(t, gauge.Max.X, goRect.Max.X, "the right edges")
+	})
+
+	t.Run("when the game window is made, should stretch the Battle Arena's frame into the window's margins and leave the window its size", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+
+		assert.Equal(t, image.Rect(120, 6, 459, 263), mf.arena.rect, "the arena's frame")
+		assert.Equal(t, 8, mf.arena.rect.Dy()-mf.enemyAttacks.rect.Max.Y, "the rows below the enemy's attacks, as in the original")
+		assert.Equal(t, image.Pt(422+arenaExtra, 270), mf.wdw.client, "the client area")
 	})
 
 	t.Run("when the screen is filled, should show Search Again where Go! ends", func(t *testing.T) {
@@ -461,6 +485,9 @@ func Test_mainLayout(t *testing.T) {
 		assert.Nil(t, layout.Form4.Find("SearchAgainButton"))
 		assert.Nil(t, layout.Form4.Find("FindPKMN1").Props)
 		assert.NotContains(t, layout.Form4.Find("Button1").Props, "Default")
+		assert.Equal(t, layout.Rect{X: 248, Y: 8, W: 43, H: 15}, layout.Form4.Find("Button1").Bounds, "Go!")
+		assert.Equal(t, layout.Rect{X: 120, Y: 16, W: 297, H: 241}, layout.Form4.Find("GroupBox1").Bounds, "the arena")
+		assert.Equal(t, 24, layout.Form4.Find("Gauge1").Bounds.Y, "the gauge's top")
 	})
 }
 
