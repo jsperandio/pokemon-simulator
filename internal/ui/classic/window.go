@@ -132,6 +132,8 @@ func newWindow(dsk *desktop, comp *layout.Component) *window {
 		wgt.base().parent = nil
 	}
 
+	keepHomes(wdw.kids, wdw.client)
+
 	// The labels measure their captions as they load (TCustomLabel.Loaded).
 	// The form's AutoSize applies once it has a window, after Position
 	// placed it: the loading screen grows to the right, to its title.
@@ -197,35 +199,21 @@ func (w *window) extent() image.Point {
 // while it has no selection. The controls anchored to the right or bottom
 // edge move with it.
 func (w *window) fit() {
-	if !w.fits {
+	if w.fits {
+		w.resize(w.extent())
+	}
+}
+
+// resize gives the window a client area of the given size, and its
+// controls follow their anchors.
+func (w *window) resize(client image.Point) {
+	if client == w.client {
 		return
 	}
 
-	pnt := w.extent().Sub(w.client)
-	if pnt == (image.Point{}) {
-		return
-	}
-
-	w.client = w.client.Add(pnt)
+	w.client = client
 	for _, wgt := range w.kids {
-		ctl := wgt.base()
-		anchors := ctl.property("Anchors")
-
-		if strings.Contains(anchors, "akRight") {
-			if strings.Contains(anchors, "akLeft") {
-				ctl.rect.Max.X += pnt.X
-			} else {
-				ctl.rect = ctl.rect.Add(image.Pt(pnt.X, 0))
-			}
-		}
-
-		if strings.Contains(anchors, "akBottom") {
-			if strings.Contains(anchors, "akTop") {
-				ctl.rect.Max.Y += pnt.Y
-			} else {
-				ctl.rect = ctl.rect.Add(image.Pt(0, pnt.Y))
-			}
-		}
+		wgt.base().anchor(client)
 	}
 
 	if w.desk != nil {

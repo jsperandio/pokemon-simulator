@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 
@@ -69,7 +70,60 @@ type (
 	cursorer interface {
 		cursor(pnt image.Point) ebiten.CursorShapeType
 	}
+	// resizer lays itself out again when its size changes.
+	resizer interface {
+		resized()
+	}
 )
+
+// anchors are a control's Anchors: the edges of its parent it keeps its
+// distance to when the parent resizes.
+type anchors uint8
+
+const (
+	akLeft anchors = 1 << iota
+	akTop
+	akRight
+	akBottom
+)
+
+// anchorNames are the Anchors' values.
+var anchorNames = map[string]anchors{
+	"akLeft":   akLeft,
+	"akTop":    akTop,
+	"akRight":  akRight,
+	"akBottom": akBottom,
+}
+
+// parseAnchors reads an Anchors property, such as "[akTop, akRight]". With
+// none, a control has the VCL's default, the left and top edges.
+func parseAnchors(prop string) anchors {
+	if prop == "" {
+		return akLeft | akTop
+	}
+
+	var anc anchors
+	for nam := range strings.SplitSeq(strings.Trim(prop, "[]"), ",") {
+		anc |= anchorNames[strings.TrimSpace(nam)]
+	}
+
+	return anc
+}
+
+// anchorSpan moves or stretches a span, from lo to hi, for a parent that
+// grew by dlt, as its anchors to the near and far edges ask.
+func anchorSpan(lo, hi, dlt int, near, far bool) (start, end int) {
+	switch {
+	case near && far:
+		return lo, max(hi+dlt, lo)
+	case far:
+		return lo + dlt, hi + dlt
+	case near:
+		return lo, hi
+	default:
+		return lo + dlt/2, hi + dlt/2
+	}
+}
 
 // mods are the modifier keys held.
 type mods struct {
@@ -92,6 +146,9 @@ type control struct {
 	parent   widget
 	kids     []widget
 	wdw      *window
+	anchors  anchors
+	home     image.Rectangle // where the control was last put, which its anchors keep
+	homeArea image.Point     // its parent's size then
 
 	caption   string
 	color     color.RGBA // background
@@ -205,11 +262,74 @@ func (c *control) setEnabled(ena bool) {
 	}
 }
 
+// setBounds puts the control at rect, which its anchors keep from then on.
 func (c *control) setBounds(rect image.Rectangle) {
+	c.home, c.homeArea = rect, c.area()
+
 	if c.rect != rect {
-		c.rect = rect
-		c.invalidate()
+		c.place(rect)
 		c.refit()
+	}
+}
+
+// area is the size of the control's parent: the parent control's, or the
+// window's client area.
+func (c *control) area() image.Point {
+	if c.parent != nil {
+		return c.parent.base().rect.Size()
+	}
+
+	if c.wdw != nil {
+		return c.wdw.client
+	}
+
+	return image.Point{}
+}
+
+// place moves the control to rect. When its size changes, its children
+// follow their anchors, and it lays itself out again.
+func (c *control) place(rect image.Rectangle) {
+	if c.rect == rect {
+		return
+	}
+
+	size := c.rect.Size()
+	c.rect = rect
+	c.invalidate()
+
+	if rect.Size() == size {
+		return
+	}
+
+	for _, kid := range c.kids {
+		kid.base().anchor(rect.Size())
+	}
+
+	if rsz, ok := c.self.(resizer); ok {
+		rsz.resized()
+	}
+}
+
+// anchor puts the control where its anchors keep it, from where it was
+// last put, in a parent of the given size. Anchored to neither edge of an
+// axis, it moves by half the parent's change, so a group of such controls
+// stays centred together. The VCL keeps each one's centre in proportion
+// instead, which would pull a group apart.
+func (c *control) anchor(area image.Point) {
+	dlt := area.Sub(c.homeArea)
+	anc := c.anchors
+	x0, x1 := anchorSpan(c.home.Min.X, c.home.Max.X, dlt.X, anc&akLeft != 0, anc&akRight != 0)
+	y0, y1 := anchorSpan(c.home.Min.Y, c.home.Max.Y, dlt.Y, anc&akTop != 0, anc&akBottom != 0)
+	c.place(image.Rect(x0, y0, x1, y1))
+}
+
+// keepHomes records where the controls are, in a parent of the given size,
+// for their anchors.
+func keepHomes(ws []widget, area image.Point) {
+	for _, wgt := range ws {
+		ctl := wgt.base()
+		ctl.home, ctl.homeArea = ctl.rect, area
+		keepHomes(ctl.kids, ctl.rect.Size())
 	}
 }
 
@@ -307,6 +427,7 @@ func build(win *window, parent widget, comp *layout.Component) widget {
 	ctl.enabled = !comp.Disabled
 	ctl.caption = comp.Caption
 	ctl.props = comp.Props
+	ctl.anchors = parseAnchors(ctl.property("Anchors"))
 	ctl.tabOrder = ctl.propertyInt("TabOrder", 0)
 	ctl.font, ctl.fontColor = win.res.sans, colText
 	pc := win.color

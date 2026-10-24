@@ -713,6 +713,12 @@ func (m *memo) layout() {
 	m.scroll.set(m.scroll.pos)
 }
 
+// resized wraps the lines again, and moves the scroll bar, for the new
+// size.
+func (m *memo) resized() {
+	m.layout()
+}
+
 func (m *memo) paint(cv canvas) {
 	needsLayout := (len(m.wraps) == 0 && len(m.lines) > 0) || m.scroll.rect.Empty()
 	if needsLayout {

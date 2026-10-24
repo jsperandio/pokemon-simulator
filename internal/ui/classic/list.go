@@ -356,7 +356,7 @@ type listView struct {
 	onSelect func() // the selection changed, by mouse or keyboard
 	// mark, if set, draws a shiny item's mark over its icon at (x, y).
 	mark func(cv canvas, x, y int)
-	// The layout, computed when the items change.
+	// The layout, computed when the items or the size change.
 	laid       bool
 	item, icon image.Point
 	perCol     int
@@ -463,6 +463,11 @@ func (lv *listView) layout() (item, icon image.Point, perCol int) {
 	}
 
 	return image.Pt(wid, hgt), icon, perCol
+}
+
+// resized lays the items and the scroll bar out again, for the new size.
+func (lv *listView) resized() {
+	lv.laid = false
 }
 
 // itemRect is item i's rectangle.
