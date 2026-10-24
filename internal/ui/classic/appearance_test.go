@@ -66,7 +66,7 @@ func Test_appearance(t *testing.T) {
 		require.NotNil(t, ta.desk.topModal(), "no message box")
 		assert.NotNil(t, ta.main.enemyAppear.sprite, "no animation armed")
 		assert.False(t, ta.main.enemyAppear.playing())
-		assert.Equal(t, []listItem{{"", lugia - 1}}, ta.main.enemyImage.items)
+		assert.Equal(t, []listItem{{"", lugia - 1, false}}, ta.main.enemyImage.items)
 	})
 
 	t.Run("when the message box closes, should play over the arena, then show the still sprite", func(t *testing.T) {
@@ -77,7 +77,7 @@ func Test_appearance(t *testing.T) {
 
 		apr := &ta.main.enemyAppear
 		require.True(t, apr.playing(), "not playing once the box closed")
-		assert.Equal(t, []listItem{{"", -1}}, ta.main.enemyImage.items)
+		assert.Equal(t, []listItem{{"", -1, false}}, ta.main.enemyImage.items)
 
 		spr := apr.sprite
 
@@ -91,11 +91,25 @@ func Test_appearance(t *testing.T) {
 		ta.wait(framesOf(spr))
 		assert.False(t, apr.playing())
 		assert.Nil(t, apr.sprite)
-		assert.Equal(t, []listItem{{"", lugia - 1}}, ta.main.enemyImage.items)
+		assert.Equal(t, []listItem{{"", lugia - 1, false}}, ta.main.enemyImage.items)
 
 		ta.shot("appearance-after")
 		ta.wait(1)
 		assert.False(t, ta.desk.dirty, "still repainting after the animation")
+	})
+
+	t.Run("when a shiny POKéMON appears, should play its shiny animation", func(t *testing.T) {
+		t.Parallel()
+
+		ta := shinyWildApp(t, true)
+		ta.answer("Select a POKéMON")
+
+		shiny, err := anim.Load(25, true)
+		require.NoError(t, err)
+
+		apr := &ta.main.enemyAppear
+		require.True(t, apr.playing(), "not playing once the box closed")
+		assert.Equal(t, shiny.Sheet.Pix, apr.sprite.Sheet.Pix, "not the shiny colours")
 	})
 
 	t.Run("when another POKéMON appears, should play its animation", func(t *testing.T) {
@@ -161,7 +175,7 @@ func Test_appearance(t *testing.T) {
 		ta.wait(1)
 
 		assert.False(t, ta.main.enemyAppear.playing())
-		assert.Equal(t, []listItem{{"", lugia - 1}}, ta.main.enemyImage.items)
+		assert.Equal(t, []listItem{{"", lugia - 1, false}}, ta.main.enemyImage.items)
 	})
 
 	t.Run("when the animations are turned off while one plays, should stop it", func(t *testing.T) {
@@ -187,7 +201,7 @@ func Test_appearance(t *testing.T) {
 		ta.clickOn(pf.wdw, "OKButton")
 
 		assert.False(t, ta.main.enemyAppear.playing())
-		assert.Equal(t, []listItem{{"", lugia - 1}}, ta.main.enemyImage.items)
+		assert.Equal(t, []listItem{{"", lugia - 1, false}}, ta.main.enemyImage.items)
 	})
 
 	t.Run("when the player chooses a fighter, should play its entry, then show its still sprite", func(t *testing.T) {
@@ -200,7 +214,7 @@ func Test_appearance(t *testing.T) {
 
 		apr := &ta.main.ownAppear
 		require.True(t, apr.playing(), "not playing once the fighter was chosen")
-		assert.Equal(t, []listItem{{"", -1}}, ta.main.ownImage.items)
+		assert.Equal(t, []listItem{{"", -1, false}}, ta.main.ownImage.items)
 
 		spr := apr.sprite
 
@@ -213,7 +227,7 @@ func Test_appearance(t *testing.T) {
 
 		ta.wait(framesOf(spr))
 		assert.False(t, apr.playing())
-		assert.Equal(t, []listItem{{"", 3}}, ta.main.ownImage.items)
+		assert.Equal(t, []listItem{{"", 3, false}}, ta.main.ownImage.items)
 	})
 
 	t.Run("when the battle ends while the fighter's entry plays, should stop and show no fighter", func(t *testing.T) {
@@ -230,7 +244,7 @@ func Test_appearance(t *testing.T) {
 		ta.wait(1)
 
 		assert.False(t, ta.main.ownAppear.playing())
-		assert.Equal(t, []listItem{{"", -1}}, ta.main.ownImage.items)
+		assert.Equal(t, []listItem{{"", -1, false}}, ta.main.ownImage.items)
 	})
 }
 
@@ -247,7 +261,7 @@ func Test_pokedexForm_appear(t *testing.T) {
 		dex := ta.pokedex
 		apr := &dex.appear
 		require.True(t, apr.playing(), "not playing once chosen")
-		assert.Equal(t, []listItem{{"", -1}}, dex.image.items)
+		assert.Equal(t, []listItem{{"", -1, false}}, dex.image.items)
 
 		spr := apr.sprite
 
@@ -261,7 +275,7 @@ func Test_pokedexForm_appear(t *testing.T) {
 
 		ta.wait(framesOf(spr))
 		assert.False(t, apr.playing())
-		assert.Equal(t, []listItem{{"", 3}}, dex.image.items)
+		assert.Equal(t, []listItem{{"", 3, false}}, dex.image.items)
 	})
 
 	t.Run("when another POKéMON is chosen while one plays, should play the new one from the start", func(t *testing.T) {
@@ -317,7 +331,7 @@ func Test_pokedexForm_appear(t *testing.T) {
 		ta.wait(1)
 
 		assert.False(t, ta.pokedex.appear.playing())
-		assert.Equal(t, []listItem{{"", 3}}, ta.pokedex.image.items)
+		assert.Equal(t, []listItem{{"", 3, false}}, ta.pokedex.image.items)
 	})
 
 	t.Run("when the animations are off, should show the still sprite only", func(t *testing.T) {
@@ -327,7 +341,7 @@ func Test_pokedexForm_appear(t *testing.T) {
 		pickCharmander(t, ta)
 
 		assert.False(t, ta.pokedex.appear.playing())
-		assert.Equal(t, []listItem{{"", 3}}, ta.pokedex.image.items)
+		assert.Equal(t, []listItem{{"", 3, false}}, ta.pokedex.image.items)
 	})
 }
 

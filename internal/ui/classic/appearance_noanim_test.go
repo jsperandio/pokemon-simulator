@@ -27,6 +27,6 @@ func Test_appearance(t *testing.T) {
 		ta.wait(1)
 
 		assert.False(t, ta.main.enemyAppear.playing())
-		assert.Equal(t, []listItem{{"", 24}}, ta.main.enemyImage.items)
+		assert.Equal(t, []listItem{{"", 24, false}}, ta.main.enemyImage.items)
 	})
 }
