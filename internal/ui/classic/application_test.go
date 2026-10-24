@@ -508,6 +508,70 @@ func Test_WildBattle(t *testing.T) {
 	})
 }
 
+// fightWild plays from the game window to a battle Search for a POKéMON
+// found, with Charmander out.
+func (ta *testApp) fightWild() {
+	ta.t.Helper()
+
+	ta.menu("Action1", "FightWild1", "FindPKMN1")
+	ta.answer("Select a POKéMON from the Statistics Window")
+
+	rect := ta.stats.party.itemRect(0)
+	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+	ta.answer("# 004 Charmander")
+	ta.answer("Choose Charmander?")
+}
+
+// clickAttack clicks attack idx in the Battle Arena.
+func (ta *testApp) clickAttack(idx int) {
+	attacks := ta.main.attacks
+	ta.click(widgetOrigin(attacks).Add(attacks.buttonRect(idx).Min).Add(image.Pt(20, 5)))
+}
+
+// winBattle wins the battle with the attack selected: the enemy has 1 HP
+// left, and Go! is clicked.
+func (ta *testApp) winBattle() {
+	ta.t.Helper()
+
+	ta.game.EnemyHP = 1
+
+	ta.clickOn(ta.main.wdw, "Button1")
+	ta.wait(1)
+	require.True(ta.t, ta.game.Main.EndFight, "the battle goes on")
+}
+
+// Search Again, which the original doesn't have, ends a battle a search
+// found and searches again, with the same fighter.
+func Test_SearchAgain(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a battle a search found is over, should show Search Again where Go! was, and start the next battle at a click with the same fighter and attack", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(1)
+		ta.winBattle()
+
+		require.True(t, ta.main.searchButton.shown(), "no Search Again")
+		assert.False(t, ta.main.goButton.shown(), "Go! shows")
+		assert.True(t, ta.main.endButton.shown(), "no End Fight")
+		ta.shot("search-again")
+
+		mgw := &ta.game.Main
+		appeared := mgw.Appeared
+
+		ta.clickOn(ta.main.wdw, "SearchAgainButton")
+		ta.wait(1)
+		assert.Nil(t, ta.desk.topModal(), "a dialog shows")
+		assert.Equal(t, appeared+1, mgw.Appeared, "no wild POKéMON appeared")
+		assert.Equal(t, 4, mgw.Own.Species, "the fighter")
+		assert.Equal(t, 1, ta.main.attacks.index, "the attack selected")
+		assert.False(t, ta.main.searchButton.shown(), "Search Again shows in the battle")
+	})
+}
+
 // wildBattle starts a wild battle, at the game window, as a game handler.
 func wildBattle(ta *testApp) {
 	ta.call(func() {

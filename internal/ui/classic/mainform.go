@@ -49,14 +49,40 @@ type mainForm struct {
 	ownImage       *listView // ListView2
 	enemyImage     *listView // ListView3
 	endButton      *button
+	searchButton   *button    // SearchAgainButton
 	enemyAppear    appearance // the wild POKéMON's, over ListView3
 	ownAppear      appearance // the player's fighter's, over ListView2
 	enemySparkle   sparkle    // the wild POKéMON's stars when it is shiny
 	ownSparkle     sparkle    // the player's fighter's stars when it is shiny
 }
 
+// searchAgainButton is the Battle Arena's Search Again button, which the
+// original doesn't have: once a battle a search found is over, it shows in
+// Go!'s place, and ends where Go! ends.
+var searchAgainButton = layout.Component{
+	Class:   "TButton",
+	Name:    "SearchAgainButton",
+	Bounds:  layout.Rect{X: 216, Y: 8, W: 75, H: 15},
+	Caption: "Search Again",
+	Hidden:  true,
+	Props: map[string]string{
+		"TabOrder": "6",
+	},
+}
+
+// mainLayout is the original's game window with searchAgainButton in the
+// Battle Arena.
+func mainLayout() *layout.Component {
+	frm := layout.Form4.Clone()
+	arena := frm.Find("GroupBox1")
+	arena.Children = append(arena.Children, searchAgainButton)
+
+	return &frm
+}
+
 func newMainForm(app *Application) *mainForm {
-	wdw := newWindow(app.desk, &layout.Form4)
+	lay := mainLayout()
+	wdw := newWindow(app.desk, lay)
 	mf := &mainForm{
 		app: app,
 		wdw: wdw,
@@ -106,6 +132,7 @@ func newMainForm(app *Application) *mainForm {
 	mf.ownImage.showOnly = true
 	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
+	mf.searchButton = get[*button](wdw, "SearchAgainButton")
 	mf.widenArena()
 	mf.placeGauges()
 	mf.anchorForFill()
@@ -155,9 +182,12 @@ func newMainForm(app *Application) *mainForm {
 	mf.endButton.onClick = func() {
 		app.call(gam.EndFight)
 	}
+	mf.searchButton.onClick = func() {
+		app.call(gam.SearchAgain)
+	}
 	wdw.onClose = mf.formClose
 
-	mb := newMenuBar(wdw, gam.Menu, layout.Form4.Find("MainMenu1"), map[string]*game.MenuItem{
+	mb := newMenuBar(wdw, gam.Menu, lay.Find("MainMenu1"), map[string]*game.MenuItem{
 		"Quit1": {
 			Name:    "Preferences1",
 			Caption: "Preferences...",
@@ -397,6 +427,7 @@ func (mf *mainForm) sync() {
 	mf.arena.setVisible(mgw.Battle)
 	mf.goButton.setVisible(mgw.Go)
 	mf.endButton.setVisible(mgw.EndFight)
+	mf.searchButton.setVisible(gam.CanSearchAgain())
 	mf.attacks.setVisible(mgw.Attacks)
 	mf.attacks.setIndex(mgw.AttackIndex)
 	mf.pokeball.setVisible(mgw.Pokeball)
@@ -543,8 +574,9 @@ const arenaExtra int = 42
 
 // widenArena makes the window arenaExtra wider than the original's: the
 // Battle Arena, its attack boxes and its gauges grow to the right, the Go!
-// button moves with them, and the starter choice stays centred. The
-// layout's anchors are still the defaults, so the resize moves nothing.
+// and Search Again buttons move with them, and the starter choice stays
+// centred. The layout's anchors are still the defaults, so the resize
+// moves nothing.
 func (mf *mainForm) widenArena() {
 	mf.wdw.widen(arenaExtra)
 
@@ -554,7 +586,9 @@ func (mf *mainForm) widenArena() {
 		ctl.setBounds(rect)
 	}
 
-	mf.goButton.setBounds(mf.goButton.rect.Add(image.Pt(arenaExtra, 0)))
+	for _, btn := range []*button{mf.goButton, mf.searchButton} {
+		btn.setBounds(btn.rect.Add(image.Pt(arenaExtra, 0)))
+	}
 
 	for _, ctl := range []*control{&mf.starterLabel.control, &mf.starters.control} {
 		ctl.setBounds(ctl.rect.Add(image.Pt(arenaExtra/2, 0)))

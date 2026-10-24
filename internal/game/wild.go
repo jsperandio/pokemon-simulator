@@ -64,6 +64,12 @@ func (g *Game) FindPKMN() {
 		return
 	}
 
+	g.meetWild()
+}
+
+// meetWild is Search for a POKéMON without a Mewtwo in the party, and
+// Search Again after it: a species and a level by the badges.
+func (g *Game) meetWild() {
 	species := g.Rand.Random(386) + 1
 	for !g.wildAllowed(species) {
 		species = g.Rand.Random(386) + 1
@@ -86,6 +92,9 @@ func (g *Game) FindPKMN() {
 		}
 	}
 
+	g.search = search{
+		kind: wildSearch,
+	}
 	g.BattleType = 2
 	g.StartWildBattle(species, level, g.rollShiny())
 }
@@ -124,7 +133,12 @@ func (g *Game) PickGo() {
 		return
 	}
 
-	g.StartWildBattle(g.Main.PickSpecies+1, g.Main.PickLevel, false)
+	g.search = search{
+		kind:    pickSearch,
+		species: g.Main.PickSpecies + 1,
+		level:   g.Main.PickLevel,
+	}
+	g.StartWildBattle(g.search.species, g.search.level, false)
 }
 
 // PickCancel is the picker's "Cancel" (TForm4.Button3Click).
@@ -146,9 +160,75 @@ func (g *Game) PickRandom() {
 	}
 
 	g.enable(true, "Action1")
+	g.fightRandom()
+}
 
+// fightRandom is the picker's Random, and Search Again after it.
+func (g *Game) fightRandom() {
 	s := g.Rand.Random(386) + 1
 	l := g.Rand.Random(11) + 90
+	g.search = search{
+		kind: randomSearch,
+	}
 	g.BattleType = 2
 	g.StartWildBattle(s, l, false)
+}
+
+// searchKind is how a wild battle was found, for Search Again.
+type searchKind uint8
+
+// The searches.
+const (
+	noSearch     searchKind = iota // none, as for the Mewtwo of the menu
+	wildSearch                     // Search for a POKéMON
+	pickSearch                     // the Mewtwo-power picker's Go!
+	randomSearch                   // its Random
+)
+
+// search is how the wild battle was found, which the original doesn't
+// keep: Search Again repeats it.
+type search struct {
+	kind           searchKind
+	species, level int // a pick's
+}
+
+// CanSearchAgain reports whether the Search Again button shows, which the
+// original doesn't have: a battle a search found is over.
+func (g *Game) CanSearchAgain() bool {
+	return g.Main.EndFight && g.InWildBattle && g.search.kind != noSearch
+}
+
+// SearchAgain is the Search Again button: End Fight, then the battle's
+// search again. The fighter comes out with no prompt, details or
+// confirmation, with its attack still selected (Run! isn't). A pick is
+// an ordinary wild battle this time: PickGo leaves BattleType as the last
+// battle did, whose reward would come again at every win.
+func (g *Game) SearchAgain() {
+	if !g.CanSearchAgain() {
+		return
+	}
+
+	again, fighter, attack := g.search, g.OwnIndex, g.Main.AttackIndex
+	g.EndFight()
+
+	g.again = true
+
+	switch again.kind {
+	case noSearch: // CanSearchAgain rules it out
+	case wildSearch:
+		g.meetWild()
+	case pickSearch:
+		g.search = again
+		g.BattleType = 2
+		g.StartWildBattle(again.species, again.level, false)
+	case randomSearch:
+		g.fightRandom()
+	}
+
+	g.again = false
+	g.choose(fighter)
+
+	if 0 <= attack && attack <= 3 {
+		g.Main.AttackIndex = attack
+	}
 }

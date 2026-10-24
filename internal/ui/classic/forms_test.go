@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/jsperandio/pokemon-simulator/internal/save"
+	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
 // The party list's hint shows after half a second on it, under the cursor
@@ -377,6 +378,54 @@ func Test_mainForm_placeGauges(t *testing.T) {
 		}
 
 		assert.Positive(t, mf.enemyGauge.rect.Dx(), "the gauge's width")
+	})
+}
+
+// The game window is the original's with what the port adds: a Search
+// Again button in the Battle Arena.
+func Test_mainLayout(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the game window is made, should hide Search Again in the Battle Arena, ending where Go! ends", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+		btn, goRect := mf.searchButton, mf.goButton.rect
+
+		assert.Contains(t, mf.arena.kids, widget(btn))
+		assert.False(t, btn.visible, "Search Again shows")
+		assert.Equal(t, goRect.Max.X, btn.rect.Max.X, "the right edges")
+		assert.Equal(t, goRect.Min.Y, btn.rect.Min.Y, "the tops")
+		assert.Equal(t, goRect.Dy(), btn.rect.Dy(), "the heights")
+		assert.Less(t, btn.font.width("Search Again"), btn.rect.Dx(), "the caption's width")
+		assert.Less(t, btn.rect.Max.Y, mf.ownGauge.rect.Min.Y, "Search Again reaches the gauge")
+	})
+
+	t.Run("when the screen is filled, should show Search Again where Go! ends", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+		ta.fightWild()
+
+		goRect := ta.main.goButton.rect
+
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		btn := ta.main.searchButton
+		require.True(t, btn.shown(), "no Search Again")
+		assert.Equal(t, goRect.Max.X, btn.rect.Max.X, "the right edges")
+		assert.Equal(t, goRect.Min.Y, btn.rect.Min.Y, "the tops")
+		ta.shot("fill-search-again")
+	})
+
+	t.Run("when the game window is made, should leave the original's layout as it was", func(t *testing.T) {
+		t.Parallel()
+
+		newTestApp(t)
+
+		assert.Nil(t, layout.Form4.Find("SearchAgainButton"))
 	})
 }
 

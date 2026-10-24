@@ -43,7 +43,8 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 
 // StartWildBattle starts a battle against a wild POKéMON, a shiny one if
 // shiny. BattleType is left as the last battle set it: the callers that
-// want 2 set it first.
+// want 2 set it first. Search Again's battle has no choose prompt, as its
+// fighter comes out at once.
 func (g *Game) StartWildBattle(species, level int, shiny bool) {
 	win := &g.Main
 	win.Picker = false
@@ -69,7 +70,9 @@ func (g *Game) StartWildBattle(species, level int, shiny bool) {
 	win.EnemyImage = species - 1
 	win.Appeared++
 
-	g.message(Information, ChoosePrompt)
+	if !g.again {
+		g.message(Information, ChoosePrompt)
+	}
 
 	win.Attacks = false
 	win.EnemyMoves = win.Enemy
@@ -441,6 +444,7 @@ func (g *Game) EndFight() {
 	g.Main.EndFight = false
 	g.Main.AttackIndex = -1
 	g.InTrainerBattle, g.InTournament, g.InWildBattle = false, false, false
+	g.search = search{} // Search Again's
 	g.enable(true, "File1", "Action1")
 
 	g.Info.Visible = false

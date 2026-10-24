@@ -95,6 +95,11 @@ type Game struct {
 	EnemyShiny                                  bool
 	MinLevel, MaxLevel                          uint8 // the levels allowed against trainers
 
+	// Search Again's: how the wild battle was found, and whether the one
+	// starting is its own, whose fighter comes out with no prompt.
+	search search
+	again  bool
+
 	TournamentTrainers [8]uint8 // 1-based indexes into Data.TrainerNames
 	TournamentSpecies  [8]int
 	TournamentLevels   [8]uint8
