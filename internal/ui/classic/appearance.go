@@ -37,7 +37,7 @@ func (a *appearance) arm(entries, species int, play bool) {
 		return
 	}
 
-	if spr, err := anim.Load(species); err == nil {
+	if spr, err := anim.Load(species, false); err == nil {
 		a.sprite = spr
 	}
 }

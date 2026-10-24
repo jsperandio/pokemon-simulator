@@ -23,7 +23,7 @@ func Test_Load(t *testing.T) {
 	errs := make([]error, species+1)
 
 	for spc := 1; spc <= species; spc++ {
-		sprites[spc], errs[spc] = Load(spc)
+		sprites[spc], errs[spc] = Load(spc, false)
 	}
 
 	t.Run("when every species is loaded, should find its animation", func(t *testing.T) {
@@ -68,11 +68,68 @@ func Test_Load(t *testing.T) {
 	t.Run("when the species is out of range, should fail", func(t *testing.T) {
 		t.Parallel()
 
-		_, err := Load(0)
+		_, err := Load(0, false)
 		assert.Error(t, err)
 
-		_, err = Load(species + 1)
+		_, err = Load(species+1, true)
 		assert.Error(t, err)
+	})
+}
+
+func Test_Load_shiny(t *testing.T) {
+	t.Parallel()
+
+	normal := make([]*Sprite, species+1)
+	shiny := make([]*Sprite, species+1)
+	errs := make([]error, species+1)
+
+	for spc := 1; spc <= species; spc++ {
+		normal[spc], _ = Load(spc, false)
+		shiny[spc], errs[spc] = Load(spc, true)
+	}
+
+	t.Run("when every species is loaded shiny, should find its animation", func(t *testing.T) {
+		t.Parallel()
+
+		for spc := 1; spc <= species; spc++ {
+			assert.NoError(t, errs[spc], "species %d", spc)
+		}
+	})
+
+	t.Run("when it is compared with the normal one, should play the same frames", func(t *testing.T) {
+		t.Parallel()
+
+		for spc := 1; spc <= species; spc++ {
+			nrm, shn := normal[spc], shiny[spc]
+			require.NotNil(t, nrm, "species %d", spc)
+			require.NotNil(t, shn, "species %d", spc)
+
+			assert.Equal(t, nrm.Size, shn.Size, "species %d", spc)
+			assert.Equal(t, nrm.Offset, shn.Offset, "species %d", spc)
+			assert.Equal(t, nrm.Steps, shn.Steps, "species %d", spc)
+			assert.Equal(t, nrm.Sheet.Rect, shn.Sheet.Rect, "species %d", spc)
+		}
+	})
+
+	t.Run("when its pixels are compared, should keep the shape in other colours", func(t *testing.T) {
+		t.Parallel()
+
+		for spc := 1; spc <= species; spc++ {
+			nrm, shn := normal[spc], shiny[spc]
+			require.NotNil(t, nrm, "species %d", spc)
+			require.NotNil(t, shn, "species %d", spc)
+
+			sameShape, recoloured := true, false
+
+			for i := 0; i < len(nrm.Sheet.Pix); i += 4 {
+				nrmPix, shnPix := nrm.Sheet.Pix[i:i+4], shn.Sheet.Pix[i:i+4]
+				sameShape = sameShape && nrmPix[3] == shnPix[3]
+				recoloured = recoloured || string(nrmPix) != string(shnPix)
+			}
+
+			assert.True(t, sameShape, "species %d: the shape changed", spc)
+			assert.True(t, recoloured, "species %d: no colour changed", spc)
+		}
 	})
 }
 
