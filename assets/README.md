@@ -1,6 +1,15 @@
 # Assets
 
-Everything in this directory, except the Go files, the fonts and icons in `wine/` and `liberation/`, the manual's screenshots and the appearance animations in `anim/`, comes from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds these files in its binaries, so it plays and looks exactly like the original.
+Most files in this directory come from the original **POKéMON Simulator V4.5** (Michael Madsen, BirdieSoft, 2004). The port embeds them in its binaries, so it plays and looks exactly like the original.
+
+These files do not come from the original:
+
+- the Go files;
+- the fonts and icons in `wine/` and `liberation/`;
+- the manual's screenshots;
+- the appearance animations in `anim/`.
+
+The original has no animations.
 
 ## Rights
 
