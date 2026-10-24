@@ -189,11 +189,12 @@ func (inf *infoForm) sync() {
 
 // pokedexForm is the POKéDEX (TForm8).
 type pokedexForm struct {
-	app   *Application
-	wdw   *window
-	combo *comboBox
-	panel *panel
-	image *listView
+	app    *Application
+	wdw    *window
+	combo  *comboBox
+	panel  *panel
+	image  *listView
+	appear appearance // the species selected, over ListView1
 }
 
 func newPokedexForm(app *Application) *pokedexForm {
@@ -204,6 +205,10 @@ func newPokedexForm(app *Application) *pokedexForm {
 	pf.combo = get[*comboBox](pf.wdw, "ComboBox1")
 	pf.panel = get[*panel](pf.wdw, "Panel1")
 	pf.image = get[*listView](pf.wdw, "ListView1")
+	pf.image.showOnly = true // a click doesn't tint it, as the arena's sprites
+	pf.panel.over = func(cv canvas) {
+		pf.appear.paint(cv, pf.image.rect.Min)
+	}
 	pf.combo.items = app.pokedexItems() // FormShow
 	pf.wdw.onShow = pf.combo.reselect
 	pf.combo.onSelect = func(i int) {
@@ -245,7 +250,8 @@ func (pf *pokedexForm) sync() {
 		l3.setCaption("/" + gam.Data.TypeName(sp.Types[1]))
 	}
 
-	pf.image.setItems([]listItem{{"", sid - 1}})
+	pf.appear.arm(gam.Pokedex.Selected, sid, pf.app.preferences.animatedSprites)
+	pf.showImage()
 	get[*label](wdw, "Label1").setCaption(pf.combo.items[sid-1])
 
 	shown := gam.Pokedex.MovesShown
@@ -267,6 +273,37 @@ func (pf *pokedexForm) sync() {
 
 	get[*label](wdw, "Label4").setCaption(evolve)
 	pf.panel.setVisible(true)
+}
+
+// showImage shows the selected species' still sprite in ListView1, or
+// none while its animation plays there.
+func (pf *pokedexForm) showImage() {
+	img := pf.app.game.Pokedex.Index
+	if pf.appear.playing() {
+		img = -1
+	}
+
+	pf.image.setItems([]listItem{{"", img}})
+}
+
+// stopAnimation stops the species' animation, showing its still sprite.
+func (pf *pokedexForm) stopAnimation() {
+	pf.appear.stop()
+	pf.showImage()
+	pf.panel.invalidate()
+}
+
+// animate moves the species' animation on, as mainForm.animate does the
+// arena's: it starts once the panel shows with no modal window open, and
+// stops if the POKéDEX closes first.
+func (pf *pokedexForm) animate(now time.Time) {
+	shown := pf.wdw.visible && pf.panel.shown()
+	free := pf.app.desk.topModal() == nil
+
+	if pf.appear.update(now, shown, free) {
+		pf.showImage()
+		pf.panel.invalidate()
+	}
 }
 
 // pokemartForm is the POKéMON Mart (TForm9).

@@ -44,6 +44,10 @@ type (
 		key(key ebiten.Key, mds mods) bool
 		char(chr rune)
 	}
+	// keyUpper is told when a key goes up while it has the focus.
+	keyUpper interface {
+		keyUp(key ebiten.Key)
+	}
 	// wheeler takes the mouse wheel.
 	wheeler interface {
 		wheel(dy int)
@@ -241,6 +245,12 @@ var classes = map[string]func() widget{
 	},
 	"TGroupBox": func() widget {
 		return &groupBox{}
+	},
+	"TCheckBox": func() widget {
+		return &checkBox{}
+	},
+	"TListBox": func() widget {
+		return &listBox{}
 	},
 	"TRadioGroup": func() widget {
 		return &radioGroup{}
@@ -596,6 +606,7 @@ func (b *button) click() {
 // groupBox is a TGroupBox.
 type groupBox struct {
 	control
+	over func(cv canvas) // paints over the children, inside the frame, if set
 }
 
 func (gb *groupBox) setup(*layout.Component) {
@@ -605,6 +616,43 @@ func (gb *groupBox) setup(*layout.Component) {
 func (gb *groupBox) paint(cv canvas) {
 	cv.fill(gb.local(), gb.color)
 	paintGroupFrame(cv, gb.local(), gb.font, gb.caption, gb.color, gb.fontColor)
+}
+
+// paintOver runs over on canvases in the box's coordinates, clipped to each
+// rectangle of its inside.
+func (gb *groupBox) paintOver(cv canvas) {
+	if gb.over != nil {
+		paintOverlay(cv, gb.over, gb.inside()...)
+	}
+}
+
+// paintOverlay runs over on canvases in cv's coordinates, clipped to each
+// of rects in turn.
+func paintOverlay(cv canvas, over func(cv canvas), rects ...image.Rectangle) {
+	for _, rect := range rects {
+		in := cv.sub(rect)
+		in.org = cv.org // keep cv's coordinates, clipped to the rectangle
+		over(in)
+	}
+}
+
+// inside returns the box's inside as rectangles: within the frame that
+// paintGroupFrame draws, and around its caption.
+func (gb *groupBox) inside() []image.Rectangle {
+	rect := gb.local()
+	inner := image.Rect(rect.Min.X+2, gb.font.height()/2+1, rect.Max.X-2, rect.Max.Y-2)
+
+	if gb.caption == "" {
+		return []image.Rectangle{inner}
+	}
+
+	right, below := 8+gb.font.width(plain(gb.caption)), gb.font.height()
+
+	return []image.Rectangle{
+		image.Rect(inner.Min.X, below, inner.Max.X, inner.Max.Y),
+		image.Rect(inner.Min.X, inner.Min.Y, 8, below),
+		image.Rect(right, inner.Min.Y, inner.Max.X, below),
+	}
 }
 
 // paintGroupFrame draws a group box's etched frame and its caption, as
@@ -821,9 +869,171 @@ func (rg *radioGroup) key(key ebiten.Key, _ mods) bool {
 
 func (rg *radioGroup) char(rune) {}
 
+// checkBox is a TCheckBox.
+type checkBox struct {
+	control
+	checked bool // Checked
+	down    bool // the mouse is pressing it
+	inside  bool // ... and is over it
+	keyDown bool // the space bar is pressing it
+}
+
+func (chb *checkBox) setup(*layout.Component) {
+	chb.windowed = true
+	chb.tabStop = chb.property("TabStop") != "False"
+	chb.checked = chb.property("Checked") == "True"
+}
+
+func (chb *checkBox) focusable() bool {
+	return true
+}
+
+// setChecked checks or clears the box without running OnClick.
+func (chb *checkBox) setChecked(checked bool) {
+	if chb.checked != checked {
+		chb.checked = checked
+		chb.invalidate()
+	}
+}
+
+// toggle checks or clears the box, then runs OnClick, as a click does.
+func (chb *checkBox) toggle() {
+	if !chb.usable() || !chb.shown() {
+		return
+	}
+
+	chb.setChecked(!chb.checked)
+
+	if chb.onClick != nil {
+		chb.onClick()
+	}
+}
+
+func (chb *checkBox) paint(cv canvas) {
+	rect := chb.local()
+	cv.fill(rect, chb.color)
+
+	pushed := (chb.down && chb.inside) || chb.keyDown
+	focus := chb.focused() && chb.wdw.active
+	paintCheck(cv, rect.Size(), chb.font, chb.caption, chb.checked, pushed, chb.usable(), focus, chb.fontColor)
+}
+
+// checkGlyph is Windows 98's check box (DFCS_BUTTONCHECK), a sunken
+// 13-pixel square: s shadow, k dark shadow, w highlight, l light, i the
+// inside.
+const checkGlyph string = `
+ssssssssssssw
+skkkkkkkkkklw
+skiiiiiiiiilw
+skiiiiiiiiilw
+skiiiiiiiiilw
+skiiiiiiiiilw
+skiiiiiiiiilw
+skiiiiiiiiilw
+skiiiiiiiiilw
+skiiiiiiiiilw
+skiiiiiiiiilw
+slllllllllllw
+wwwwwwwwwwwww
+`
+
+// checkMark is the tick inside a checked box.
+const checkMark string = `
+......#
+.....##
+#...###
+##.###.
+#####..
+.###...
+..#....
+`
+
+// paintCheck draws a check box and its caption in a rectangle of the given
+// size, laid out as paintRadio lays a radio button out: the box centred
+// with an odd pixel above it, the text 17 pixels in, and the focus
+// rectangle one pixel round the text but for the bottom.
+func paintCheck(cv canvas, size image.Point, fnt face, caption string, checked, pushed, enabled, focus bool, fg color.RGBA) {
+	gy := (size.Y - 13 + 1) >> 1
+	inside := colWindow
+
+	if pushed || !enabled {
+		inside = colFace
+	}
+
+	cv.pattern(0, gy, checkGlyph, map[byte]color.RGBA{
+		's': colShadow,
+		'k': colDkShadow,
+		'w': colHighlight,
+		'l': colLight,
+		'i': inside,
+	})
+
+	if checked {
+		mark := colText
+		if !enabled {
+			mark = colShadow
+		}
+
+		cv.pattern(3, gy+3, checkMark, map[byte]color.RGBA{'#': mark})
+	}
+
+	ty := size.Y/2 - fnt.height()/2
+	drawText(cv, fnt, 17, ty, caption, fg, enabled)
+
+	if focus {
+		wid := fnt.width(plain(caption))
+		cv.focusRect(image.Rect(16, ty-1, 17+wid+1, ty+fnt.height()))
+	}
+}
+
+func (chb *checkBox) mouseDown(image.Point, bool) {
+	chb.down, chb.inside = true, true
+	chb.invalidate()
+}
+
+func (chb *checkBox) mouseDrag(pnt image.Point) {
+	if in := pnt.In(chb.local()); in != chb.inside {
+		chb.inside = in
+		chb.invalidate()
+	}
+}
+
+func (chb *checkBox) mouseUp(pnt image.Point) {
+	click := chb.down && pnt.In(chb.local())
+	chb.down = false
+	chb.invalidate()
+
+	if click {
+		chb.toggle()
+	}
+}
+
+func (chb *checkBox) key(key ebiten.Key, _ mods) bool {
+	if key == ebiten.KeySpace {
+		chb.keyDown = true
+		chb.invalidate()
+
+		return true
+	}
+
+	return false
+}
+
+func (chb *checkBox) char(rune) {}
+
+// keyUp ends a space-bar press, which toggles the box.
+func (chb *checkBox) keyUp(key ebiten.Key) {
+	if key == ebiten.KeySpace && chb.keyDown {
+		chb.keyDown = false
+		chb.invalidate()
+		chb.toggle()
+	}
+}
+
 // panel is a TPanel.
 type panel struct {
 	control
+	over func(cv canvas) // paints over the children, inside the bevel, if set
 }
 
 func (p *panel) setup(*layout.Component) {
@@ -834,13 +1044,35 @@ func (p *panel) paint(cv canvas) {
 	rect := p.local()
 	cv.fill(rect, p.color)
 
-	if p.property("BevelOuter") != "bvNone" {
+	if p.beveled() {
 		cv.edge(rect, colHighlight, colShadow)
 	}
 
 	if p.caption != "" {
 		wid := p.font.width(plain(p.caption))
 		drawCaption(cv, p.font, (rect.Dx()-wid)/2, (rect.Dy()-p.font.height())/2, p.caption, p.fontColor)
+	}
+}
+
+// beveled reports whether the panel has its raised outer bevel.
+func (p *panel) beveled() bool {
+	return p.property("BevelOuter") != "bvNone"
+}
+
+// inside returns the panel's inside, within its bevel.
+func (p *panel) inside() image.Rectangle {
+	if p.beveled() {
+		return p.local().Inset(1)
+	}
+
+	return p.local()
+}
+
+// paintOver runs over on a canvas in the panel's coordinates, clipped to
+// its inside.
+func (p *panel) paintOver(cv canvas) {
+	if p.over != nil {
+		paintOverlay(cv, p.over, p.inside())
 	}
 }
 

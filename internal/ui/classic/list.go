@@ -5,6 +5,7 @@ package classic
 import (
 	"image"
 	"image/color"
+	"slices"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -345,8 +346,9 @@ type listView struct {
 	items    []listItem
 	images   *imageList
 	border   bool
-	selected int // ItemIndex
-	hot      int // the item under the mouse, hot-tracked
+	showOnly bool // a click neither selects an item nor focuses the list
+	selected int  // ItemIndex
+	hot      int  // the item under the mouse, hot-tracked
 	hotTrack bool
 	scroll   scrollBar // horizontal, in columns
 	pressing bool
@@ -374,7 +376,7 @@ func (lv *listView) setup(comp *layout.Component) {
 }
 
 func (lv *listView) focusable() bool {
-	return true
+	return !lv.showOnly
 }
 
 // setItems replaces the items, keeping the selection when it still exists.
@@ -555,6 +557,10 @@ func (lv *listView) mouseDown(pnt image.Point, double bool) {
 		return
 	}
 
+	if lv.showOnly {
+		return
+	}
+
 	idx := lv.at(pnt)
 	if lv.selected != idx {
 		lv.selected = idx
@@ -679,6 +685,240 @@ func (lv *listView) wheel(dy int) {
 	if lv.scroll.rect != (image.Rectangle{}) {
 		lv.scroll.set(lv.scroll.pos - dy)
 		lv.invalidate()
+	}
+}
+
+// listBox is a TListBox: lines of text in a sunken white box, one of them
+// selected, scrolling up and down.
+type listBox struct {
+	control
+	items    []string
+	selected int       // ItemIndex
+	scroll   scrollBar // vertical, in items; its position is the first shown
+	pressing bool      // the mouse is choosing an item
+	onSelect func()    // the selection changed, by mouse or keyboard
+}
+
+func (lbx *listBox) setup(comp *layout.Component) {
+	lbx.windowed = true
+	lbx.tabStop = lbx.property("TabStop") != "False"
+	lbx.color = vclColor(lbx.property("Color"), colWindow)
+	lbx.items = slices.Clone(comp.Items)
+	lbx.selected = lbx.propertyInt("ItemIndex", -1)
+	lbx.scroll = scrollBar{
+		vertical: true,
+		onScroll: lbx.invalidate,
+	}
+	lbx.layout()
+}
+
+func (lbx *listBox) focusable() bool {
+	return true
+}
+
+// itemHeight is a line's height: the font's, as ItemHeight is.
+func (lbx *listBox) itemHeight() int {
+	return lbx.font.height()
+}
+
+// client is the rectangle inside the border, left of the scroll bar.
+func (lbx *listBox) client() image.Rectangle {
+	rect := lbx.local().Inset(2)
+	if lbx.scroll.rect != (image.Rectangle{}) {
+		rect.Max.X -= scrollSize
+	}
+
+	return rect
+}
+
+// rows is how many whole lines show.
+func (lbx *listBox) rows() int {
+	return max(lbx.local().Inset(2).Dy()/lbx.itemHeight(), 1)
+}
+
+// layout shows the scroll bar when the items don't fit.
+func (lbx *listBox) layout() {
+	in := lbx.local().Inset(2)
+	bar := &lbx.scroll
+	bar.rect = image.Rectangle{}
+	bar.min, bar.max, bar.page = 0, max(len(lbx.items)-1, 0), lbx.rows()
+
+	if len(lbx.items) > bar.page {
+		bar.rect = image.Rect(in.Max.X-scrollSize, in.Min.Y, in.Max.X, in.Max.Y)
+	}
+
+	bar.set(bar.pos)
+}
+
+// setIndex selects item i, or none for -1, without running OnSelect.
+func (lbx *listBox) setIndex(i int) {
+	if lbx.selected != i {
+		lbx.selected = i
+		lbx.ensureVisible(i)
+		lbx.invalidate()
+	}
+}
+
+// choose selects item i as the player does, running OnSelect when the
+// selection changes.
+func (lbx *listBox) choose(i int) {
+	if i < 0 || i >= len(lbx.items) || i == lbx.selected {
+		return
+	}
+
+	lbx.setIndex(i)
+
+	if lbx.onSelect != nil {
+		lbx.onSelect()
+	}
+}
+
+// itemRect is line i's rectangle, which may be out of view.
+func (lbx *listBox) itemRect(i int) image.Rectangle {
+	cli := lbx.client()
+	y := cli.Min.Y + (i-lbx.scroll.pos)*lbx.itemHeight()
+
+	return image.Rect(cli.Min.X, y, cli.Max.X, y+lbx.itemHeight())
+}
+
+// at returns the item at pnt, or -1.
+func (lbx *listBox) at(pnt image.Point) int {
+	if !pnt.In(lbx.client()) {
+		return -1
+	}
+
+	i := lbx.scroll.pos + (pnt.Y-lbx.client().Min.Y)/lbx.itemHeight()
+	if i >= len(lbx.items) {
+		return -1
+	}
+
+	return i
+}
+
+// ensureVisible scrolls item i into view.
+func (lbx *listBox) ensureVisible(i int) {
+	switch bar := &lbx.scroll; {
+	case i < 0:
+	case i < bar.pos:
+		bar.set(i)
+	case i >= bar.pos+bar.page:
+		bar.set(i - bar.page + 1)
+	}
+}
+
+func (lbx *listBox) paint(cv canvas) {
+	cv.sunken(lbx.local())
+
+	cli := lbx.client()
+	cv.fill(cli, lbx.color)
+
+	in := cv.sub(cli)
+	in.org = cv.org // keep the list's coordinates, clipped to the inside
+	// The focus rectangle goes round the selected line, or the first.
+	current := max(lbx.selected, 0)
+	focus := lbx.focused() && lbx.wdw.active
+
+	for i, item := range lbx.items {
+		ir := lbx.itemRect(i)
+		if !ir.Overlaps(cli) {
+			continue
+		}
+
+		fg := lbx.fontColor
+		if i == lbx.selected {
+			in.fill(ir, colSelection)
+
+			fg = colSelText
+		}
+
+		drawText(in, lbx.font, ir.Min.X+2, ir.Min.Y, item, fg, lbx.usable())
+
+		if focus && i == current {
+			in.focusRect(ir)
+		}
+	}
+
+	if lbx.scroll.rect != (image.Rectangle{}) {
+		lbx.scroll.paint(cv)
+	}
+}
+
+func (lbx *listBox) mouseDown(pnt image.Point, _ bool) {
+	if lbx.scroll.press(pnt) {
+		lbx.invalidate()
+
+		return
+	}
+
+	lbx.pressing = true
+	lbx.choose(lbx.at(pnt))
+}
+
+// mouseDrag moves the scroll bar's thumb, or the selection with the
+// mouse, as a list box follows a held button.
+func (lbx *listBox) mouseDrag(pnt image.Point) {
+	if lbx.scroll.pressed != partNone {
+		lbx.scroll.drag(pnt)
+		lbx.invalidate()
+
+		return
+	}
+
+	if lbx.pressing {
+		lbx.choose(lbx.at(pnt))
+	}
+}
+
+func (lbx *listBox) mouseUp(image.Point) {
+	lbx.pressing = false
+
+	if lbx.scroll.pressed != partNone {
+		lbx.scroll.release()
+		lbx.invalidate()
+	}
+}
+
+func (lbx *listBox) tick(now time.Time) {
+	if lbx.scroll.tick(now) {
+		lbx.invalidate()
+	}
+}
+
+func (lbx *listBox) key(key ebiten.Key, _ mods) bool {
+	n := len(lbx.items)
+	if n == 0 {
+		return false
+	}
+
+	sel := lbx.selected
+
+	switch key {
+	case ebiten.KeyUp:
+		sel--
+	case ebiten.KeyDown:
+		sel++
+	case ebiten.KeyPageUp:
+		sel -= lbx.rows() - 1
+	case ebiten.KeyPageDown:
+		sel += lbx.rows() - 1
+	case ebiten.KeyHome:
+		sel = 0
+	case ebiten.KeyEnd:
+		sel = n - 1
+	default:
+		return false
+	}
+
+	lbx.choose(max(min(sel, n-1), 0))
+
+	return true
+}
+
+func (lbx *listBox) char(rune) {}
+
+func (lbx *listBox) wheel(dy int) {
+	if lbx.scroll.rect != (image.Rectangle{}) {
+		lbx.scroll.set(lbx.scroll.pos - dy)
 	}
 }
 

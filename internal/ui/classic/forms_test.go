@@ -360,6 +360,20 @@ func Test_pokedexForm(t *testing.T) {
 		assert.Equal(t, "Charmander (#004)", cb.tb.String(), "the text")
 		assert.Same(t, dex.wdw.find("Button1"), dex.wdw.focus, "the focus left the button")
 	})
+
+	t.Run("when its sprite is clicked, should neither select nor focus it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newDexApp(t)
+		pickCharmander(t, ta)
+
+		img := ta.pokedex.image
+		ta.click(widgetOrigin(img).Add(img.itemRect(0).Min).Add(image.Pt(12, 12)))
+		ta.wait(1)
+
+		assert.Equal(t, -1, img.selected, "the sprite is selected")
+		assert.NotSame(t, img, ta.pokedex.wdw.focus, "the sprite has the focus")
+	})
 }
 
 // newDexApp starts a game whose player has a Charmander and has it in the

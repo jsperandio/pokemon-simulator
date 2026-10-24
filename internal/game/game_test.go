@@ -198,6 +198,25 @@ func Test_Game_SelectPokedex(t *testing.T) {
 		gam.SelectPokedex(1)
 		assert.True(t, gam.Pokedex.MovesShown)
 	})
+
+	t.Run("when species are selected, should count them, but not the POKéDEX opening", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash", true)
+		gam.ChooseStarter(0) // the POKéDEX shows Bulbasaur
+		require.Equal(t, 1, gam.Pokedex.Selected)
+
+		gam.OpenPokedex()
+		assert.Equal(t, 1, gam.Pokedex.Selected)
+
+		gam.SelectPokedex(24)
+		assert.Equal(t, 2, gam.Pokedex.Selected)
+
+		gam.SelectPokedex(-1)
+		gam.SelectPokedex(386)
+		assert.Equal(t, 2, gam.Pokedex.Selected)
+	})
 }
 
 // The PokéMart describes the item chosen in two lines, and nothing until one
@@ -579,7 +598,7 @@ func Test_MainWindow(t *testing.T) {
 
 		var during MainWindow
 		gam.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
-			if text == choosePrompt {
+			if text == ChoosePrompt {
 				during = *win
 			}
 
@@ -648,6 +667,51 @@ func Test_MainWindow(t *testing.T) {
 		gam.StartWildBattle(4, 5)
 
 		assert.True(t, gam.Main.Pokeball)
+	})
+
+	t.Run("when POKéMON appear, should count the wild ones before the choose prompt", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash", true)
+		gam.ChooseStarter(1)
+
+		win := &gam.Main
+
+		var during int
+		gam.UI = uiFunc(func(kind DialogKind, yesNo bool, text string) bool {
+			if text == ChoosePrompt {
+				during = win.Appeared
+			}
+
+			return true
+		})
+
+		gam.StartWildBattle(25, 7)
+		assert.Equal(t, 1, during)
+
+		gam.StartWildBattle(25, 7)
+		assert.Equal(t, 2, win.Appeared)
+
+		gam.StartTrainerBattle(74, 12, "Brock")
+		assert.Equal(t, 2, win.Appeared)
+	})
+
+	t.Run("when the player chooses a fighter, should count it", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.NewGame("ash.pgs", "Ash", true)
+		gam.ChooseStarter(1)
+
+		win := &gam.Main
+
+		gam.StartWildBattle(25, 7)
+		assert.Equal(t, 0, win.Chosen)
+
+		gam.ClickParty(0)
+		assert.Equal(t, 1, win.Chosen)
+		assert.Equal(t, 4, win.Own.Species)
 	})
 }
 

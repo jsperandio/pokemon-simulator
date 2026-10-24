@@ -141,6 +141,8 @@ type MainWindow struct {
 	Attacks     bool // the fighter's attacks and "Run!" (RadioGroup1)
 	AttackIndex int  // RadioGroup1.ItemIndex: 0–3 an attack, 4 "Run!", -1 none
 	EnemyImage  int  // ListView3's image: the enemy's species − 1
+	Appeared    int  // the wild POKéMON that have appeared, each one animated as it does
+	Chosen      int  // the fighters the player has sent out, each one animated as it comes in
 
 	// What the arena shows, set where the original sets its labels and
 	// gauges, so it can lag the battle: a Potion's HP shows only once the

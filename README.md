@@ -4,11 +4,13 @@
   <img src="docs/screenshot.png" width="800" alt="A battle in the classic interface: Ash's Pikachu against a wild Mewtwo, with Charizard, Bulbasaur, Squirtle, Pidgeotto and Kingler in the party">
 </p>
 
-A faithful, cross-platform port of **POKéMON Simulator V4.5** to [Go](https://go.dev) and [Ebitengine](https://ebitengine.org). The original is a Windows freeware game made by Michael Madsen (BirdieSoft) in 2002–2004, and you can still download it from [its page on BirdieSoft's site](https://birdiesoft.dk/software.php?id=2).
+A cross-platform port of **POKéMON Simulator V4.5** to [Go](https://go.dev) and [Ebitengine](https://ebitengine.org). The original is a Windows freeware game made by Michael Madsen (BirdieSoft) in 2002–2004, and you can still download it from [its page on BirdieSoft's site](https://birdiesoft.dk/software.php?id=2).
 
-The original only runs on Windows, or on other systems through Wine. This port makes it playable again on Linux, Windows, macOS and in the browser, with the same rules, data and look.
+The original only runs on Windows, or on other systems through Wine. This port makes it playable again on Linux, Windows, macOS and in the browser, with the same rules, data and look, and adds a few [improvements](#improvements) of its own.
 
-> **Status:** complete. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays the whole game on the desktop and in the browser, with the manual and the music.
+> **The original, as it was:** [v4.5.0](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.0) is the faithful port, with nothing added. Take its archives, or [play it in the browser](https://jsperandio.github.io/pokemon-simulator-web/v4.5.0/), to have the game exactly as Michael Madsen made it.
+
+> **Status:** the port is complete. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays the whole game on the desktop and in the browser, with the manual and the music. The versions after v4.5.0 add improvements on top.
 
 ## Play in the browser
 
@@ -38,13 +40,22 @@ The Linux archive has two optional scripts for the desktop's menu and taskbar, w
 
 ## Playing
 
-The game plays as the original did, and its manual is under Help → Contents (F1). A few things differ by platform:
+The game plays as the original did, apart from the [improvements](#improvements), and its manual is under Help → Contents (F1). A few things differ by platform:
 
 - **Saving.** As in the original, you choose a save file when you start a new game, and the game saves when you quit (File → Quit, or closing the window).
 - **Music.** Music → Open file... plays MP3, Ogg Vorbis and WAV files. The original played what Windows Media Player could, but WMA, MIDI and video files aren't supported. On Linux, music needs a PulseAudio or PipeWire sound server, as desktop distributions have.
 - **On Linux with GNOME 44 or later,** the game's window gets its title bar from a GNOME helper, `mutter-x11-frames`, as every X11 program's does. If that helper has stopped, GNOME shows none of these windows. The game notices after a few seconds and starts again without a title bar, and a notification says so: move the window with the Super key and the mouse, and close it with Alt+F4 or File → Quit. Logging out and in again brings the title bars back.
 - **If the game can't start,** it says why in a notification or a message box, as there may be no terminal to read it in.
-- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab. The game needs WebGL 2, which current browsers have.
+- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. The versions after v4.5.0 keep their files apart from v4.5.0's: to carry a save over, Download it in one and Upload it in the other. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab. The game needs WebGL 2, which current browsers have.
+
+## Improvements
+
+The original doesn't have these:
+
+- **Animated sprites.** A POKéMON coming into the Battle Arena plays its animation from POKéMON Emerald: the wild POKéMON when it appears, and yours when you choose it. The POKéDEX plays it too, for the POKéMON you choose there. To turn them off, clear Enable animated sprites in File → Preferences..., under Graphics.
+- **Don't show this message again.** The message every battle starts with, "Select a POKéMON from the Statistics Window", has a check box that hides it from then on. To bring it back, check Select a POKéMON reminder in File → Preferences..., under Messages, or click Restore Defaults there.
+
+The game keeps these choices in `settings.ini`, in the system's folder for programs' settings (`~/.config/pokemon-simulator/` on Linux, `%AppData%\pokemon-simulator\` on Windows, `~/Library/Application Support/pokemon-simulator/` on macOS), or in the browser's storage.
 
 ## Building
 
@@ -80,6 +91,7 @@ If you hold rights to any of this material and want it removed, please open an i
 
 - **Michael Madsen (BirdieSoft):** creator of the original POKéMON Simulator.
 - **Nintendo, Creatures Inc. and GAME FREAK inc.:** POKéMON.
+- **The Bulbagarden Archives' contributors:** the recordings of POKéMON Emerald's appearance animations.
 - **Hajime Hoshi and contributors:** Ebitengine.
 - **The Wine project:** the MS Sans Serif replacement font and the dialog icons.
 - **Red Hat and Google:** the Liberation Sans font.

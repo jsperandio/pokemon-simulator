@@ -72,6 +72,9 @@ type Application struct {
 	wheel  float64 // the wheel's movement not yet a whole notch
 	pace   *pacer
 
+	settings    settingsStore
+	preferences preferences // the player's, as the settings keep them
+
 	start      *startForm
 	load       *loadForm
 	main       *mainForm
@@ -83,6 +86,7 @@ type Application struct {
 	gameCorner *gameCornerForm
 	name       *nameDialog
 	about      *window
+	prefsForm  *preferencesForm
 
 	helpWindow *helpWindow // the manual, once opened
 	music      musicPlayer
@@ -101,9 +105,10 @@ type Application struct {
 }
 
 // NewApplication makes the user interface for a new run of the game, at its loading
-// screen. args are the command line's arguments: a save file among them
-// is loaded instead of showing the start screen.
-func NewApplication(data *gamedata.Data, files storage, args []string) (*Application, error) {
+// screen, with the player's preferences from settings. args are the
+// command line's arguments: a save file among them is loaded instead of
+// showing the start screen.
+func NewApplication(data *gamedata.Data, files storage, settings settingsStore, args []string) (*Application, error) {
 	res, err := loadResources()
 	if err != nil {
 		return nil, err
@@ -118,7 +123,13 @@ func NewApplication(data *gamedata.Data, files storage, args []string) (*Applica
 		requests: make(chan func()),
 		music:    &audio.Music{},
 		pace:     newPacer(),
+		settings: settings,
 	}
+
+	// Settings that can't be read leave the defaults.
+	dat, _ := settings.Read()
+	app.preferences = loadPreferences(dat)
+
 	if platform.Transfers {
 		app.xfer = browser{files}
 	}
@@ -165,6 +176,8 @@ func (app *Application) buildForms() {
 	app.name = newNameDialog(app)
 	app.about = newWindow(app.desk, &layout.AboutBox)
 	app.desk.add(app.about)
+
+	app.prefsForm = newPreferencesForm(app)
 }
 
 // placeWindows puts the game, Statistics and Battle Info windows side by
@@ -183,6 +196,32 @@ func (app *Application) showAbout() {
 	app.call(func() {
 		app.modal(app.about)
 	})
+}
+
+// showPreferences is File → Preferences..., the Preferences window.
+func (app *Application) showPreferences() {
+	app.call(app.prefsForm.open)
+}
+
+// setPreferences makes prf the player's preferences, which take effect at
+// once: animations turned off stop.
+func (app *Application) setPreferences(prf preferences) {
+	app.preferences = prf
+
+	if !prf.animatedSprites {
+		app.main.stopAnimations()
+		app.pokedex.stopAnimation()
+	}
+}
+
+// keepPreferences makes prf the player's preferences, and keeps them in
+// the settings for the next runs.
+func (app *Application) keepPreferences(prf preferences) error {
+	app.setPreferences(prf)
+
+	dat, _ := app.settings.Read()
+
+	return app.settings.Write(prf.store(dat))
 }
 
 // exit ends the program, as closing the loading screen, the main form,
@@ -293,17 +332,38 @@ func (app *Application) showException(msg string) {
 		msg += "."
 	}
 
-	wdw := messageDialog(app.desk, game.Error, false, msg)
+	wdw := messageDialog(app.desk, game.Error, false, msg, "")
 	wdw.caption = appTitle
 	app.modal(wdw)
 	app.desk.remove(wdw)
 }
 
 // Message shows a message dialog and waits for the player (game.UI).
+// The prompt every battle starts with, game.ChoosePrompt, has "Don't show
+// this message again", which the original doesn't have: once the player
+// closes it checked, it is skipped as if they had clicked OK.
 func (app *Application) Message(kind game.DialogKind, yesNo bool, text string) bool {
-	wdw := messageDialog(app.desk, kind, yesNo, text)
+	prompt := text == game.ChoosePrompt
+	if prompt && !app.preferences.choosePrompt {
+		return true
+	}
+
+	check := ""
+	if prompt {
+		check = dontShowAgain
+	}
+
+	wdw := messageDialog(app.desk, kind, yesNo, text, check)
 	rst := app.modal(wdw)
 	app.desk.remove(wdw)
+
+	// Any way of closing the box counts, as each one is its OK. If the
+	// choice can't be kept, it holds for the run.
+	if chb, ok := wdw.find("DontShowAgain").(*checkBox); ok && chb.checked {
+		prf := app.preferences
+		prf.choosePrompt = false
+		_ = app.keepPreferences(prf)
+	}
 
 	return rst == mrOk || rst == mrYes
 }
@@ -431,6 +491,8 @@ func (app *Application) step(in input, now time.Time) {
 	}
 
 	app.desk.update(&in, now)
+	app.main.animate(now)
+	app.pokedex.animate(now)
 	app.load.tick()
 	app.music.Update(app.game.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
 

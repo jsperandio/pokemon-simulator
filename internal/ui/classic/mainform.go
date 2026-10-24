@@ -47,6 +47,8 @@ type mainForm struct {
 	ownImage       *listView // ListView2
 	enemyImage     *listView // ListView3
 	endButton      *button
+	enemyAppear    appearance // the wild POKéMON's, over ListView3
+	ownAppear      appearance // the player's fighter's, over ListView2
 }
 
 func newMainForm(app *Application) *mainForm {
@@ -94,7 +96,16 @@ func newMainForm(app *Application) *mainForm {
 	mf.goButton = get[*button](wdw, "Button1")
 	mf.ownImage = get[*listView](wdw, "ListView2")
 	mf.enemyImage = get[*listView](wdw, "ListView3")
+	// The arena's sprites only show. The original's list views select a
+	// clicked sprite, which Windows draws tinted blue, with a focus
+	// rectangle beside it.
+	mf.ownImage.showOnly = true
+	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
+	mf.arena.over = func(cv canvas) {
+		mf.enemyAppear.paint(cv, mf.enemyImage.rect.Min)
+		mf.ownAppear.paint(cv, mf.ownImage.rect.Min)
+	}
 
 	gam := app.game
 	mf.starters.onClick = mf.starterClick
@@ -132,7 +143,14 @@ func newMainForm(app *Application) *mainForm {
 	}
 	wdw.onClose = mf.formClose
 
-	mb := newMenuBar(wdw, gam.Menu, layout.Form4.Find("MainMenu1"))
+	mb := newMenuBar(wdw, gam.Menu, layout.Form4.Find("MainMenu1"), map[string]*game.MenuItem{
+		"Quit1": {
+			Name:    "Preferences1",
+			Caption: "Preferences...",
+			Enabled: true,
+			Visible: true,
+		},
+	})
 	mb.onCommand = mf.menuCommand
 
 	app.desk.add(wdw)
@@ -162,6 +180,8 @@ func (mf *mainForm) menuCommand(me *menuEntry) {
 		app.call(mf.export)
 	case "Quit1":
 		mf.formClose()
+	case "Preferences1":
+		app.showPreferences()
 	case "Openfile1":
 		app.call(mf.openMusic)
 	case "StopMusic1":
@@ -321,7 +341,12 @@ func (mf *mainForm) sync() {
 	mf.attacks.setVisible(mgw.Attacks)
 	mf.attacks.setIndex(mgw.AttackIndex)
 	mf.pokeball.setVisible(mgw.Pokeball)
-	mf.enemyImage.setItems([]listItem{{"", mgw.EnemyImage}})
+
+	play := app.preferences.animatedSprites
+	mf.enemyAppear.arm(mgw.Appeared, mgw.EnemyImage+1, play)
+	mf.ownAppear.arm(mgw.Chosen, mgw.Own.Species, play)
+	mf.showEnemyImage()
+	mf.showOwnImage()
 
 	if enm := mgw.Enemy; enm.Species != 0 {
 		name := app.speciesName(enm.Species)
@@ -350,13 +375,10 @@ func (mf *mainForm) sync() {
 	mf.ownGauge.setVisible(shown)
 
 	if !shown {
-		mf.ownImage.setItems([]listItem{{"", -1}})
-
 		return
 	}
 
 	sp := gam.Data.SpeciesByID(own.Species)
-	mf.ownImage.setItems([]listItem{{"", own.Species - 1}})
 	mf.ownLabel.setCaption(sp.Name + " L." + strconv.Itoa(own.Level))
 	mf.ownHP.setCaption(strconv.Itoa(own.HP) + "/" + strconv.Itoa(own.Level) + "0")
 	mf.ownGauge.set(own.Level*10, own.HP, gaugeColors[mgw.OwnColor])
@@ -372,6 +394,54 @@ func (mf *mainForm) sync() {
 	}
 
 	setRadioItems(mf.attacks, append(items, "Run!"))
+}
+
+// showEnemyImage shows the enemy's still sprite in ListView3, or none while
+// its appearance animation plays there.
+func (mf *mainForm) showEnemyImage() {
+	img := mf.app.game.Main.EnemyImage
+	if mf.enemyAppear.playing() {
+		img = -1
+	}
+
+	mf.enemyImage.setItems([]listItem{{"", img}})
+}
+
+// showOwnImage shows the player's fighter's still sprite in ListView2, or
+// none while there is no fighter or its entry animation plays there.
+func (mf *mainForm) showOwnImage() {
+	img := mf.app.game.Main.Own.Species - 1
+	if mf.ownAppear.playing() {
+		img = -1
+	}
+
+	mf.ownImage.setItems([]listItem{{"", img}})
+}
+
+// stopAnimations stops the entry animations, showing the still sprites.
+func (mf *mainForm) stopAnimations() {
+	mf.enemyAppear.stop()
+	mf.ownAppear.stop()
+	mf.showEnemyImage()
+	mf.showOwnImage()
+	mf.arena.invalidate()
+}
+
+// animate moves the entry animations on. Each starts once the arena shows
+// with no modal window open, and stops if the arena hides first.
+func (mf *mainForm) animate(now time.Time) {
+	shown := mf.wdw.visible && mf.arena.shown()
+	free := mf.app.desk.topModal() == nil
+
+	if mf.enemyAppear.update(now, shown, free) {
+		mf.showEnemyImage()
+		mf.arena.invalidate()
+	}
+
+	if mf.ownAppear.update(now, shown, free) {
+		mf.showOwnImage()
+		mf.arena.invalidate()
+	}
 }
 
 // placeGauge puts a gauge after its label's caption: Left = the label's

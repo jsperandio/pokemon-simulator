@@ -14,10 +14,33 @@ func mulDiv(num, nmr, den int) int {
 	return (num*nmr + den/2) / den
 }
 
+// dialogTitle is a message dialog's caption, as its kind gives it.
+func dialogTitle(kind game.DialogKind) string {
+	switch kind {
+	case game.Warning:
+		return "Warning"
+	case game.Error:
+		return "Error"
+	case game.Information:
+		return "Information"
+	case game.Confirmation:
+		return "Confirm"
+	default: // Custom
+		return game.Title
+	}
+}
+
+// dontShowAgain is the check box's caption in the boxes the player can
+// stop showing, which the original doesn't have.
+const dontShowAgain string = "&Don't show this message again"
+
 // messageDialog builds a message dialog as Delphi's CreateMessageDialog
 // does, in the message font: an icon, the text wrapped at half the
-// screen's width, and the buttons centred under them.
-func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) *window {
+// screen's width, and the buttons centred under them. With a check box's
+// caption, check, the check box goes between the text and the buttons,
+// lined up with the text, as Windows' boxes that ask whether to show them
+// again have it.
+func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text, check string) *window {
 	res := dsk.res
 	fnt := res.sans
 	dx, dy := res.charWidth, fnt.height() // the dialog units
@@ -59,30 +82,24 @@ func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) 
 		iconTextH = max(iconTextH, 32)
 	}
 
+	// The check box: its box and the text 17 pixels in, as paintCheck
+	// draws them, below the text.
+	checkW, checkH, blockH := 0, 0, iconTextH
+	if check != "" {
+		checkW, checkH = 17+fnt.width(plain(check))+2, mulDiv(10, dy, 8)
+		blockH += vertSpacing + checkH
+	}
+
 	n := len(buttons)
 	groupW := buttonWidth*n + buttonSpacing*(n-1)
-	clientW := max(iconTextW, groupW) + 2*horzMargin
-	clientH := iconTextH + buttonHeight + vertSpacing + 2*vertMargin
-
-	var title string
-
-	switch kind {
-	case game.Warning:
-		title = "Warning"
-	case game.Error:
-		title = "Error"
-	case game.Information:
-		title = "Information"
-	case game.Confirmation:
-		title = "Confirm"
-	default: // Custom
-		title = game.Title
-	}
+	textX := iconTextW - textW + horzMargin
+	clientW := max(iconTextW, textX-horzMargin+checkW, groupW) + 2*horzMargin
+	clientH := blockH + buttonHeight + vertSpacing + 2*vertMargin
 
 	comp := layout.Component{
 		Class:   "TMessageForm",
 		Name:    "MessageForm",
-		Caption: title,
+		Caption: dialogTitle(kind),
 		Props: map[string]string{
 			"BorderStyle":  "bsDialog",
 			"ClientWidth":  strconv.Itoa(clientW),
@@ -102,7 +119,7 @@ func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) 
 		Name:    "Message",
 		Caption: text,
 		Bounds: layout.Rect{
-			X: iconTextW - textW + horzMargin,
+			X: textX,
 			Y: vertMargin,
 			W: textW,
 			H: textH,
@@ -112,6 +129,23 @@ func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) 
 			"WordWrap": "True",
 		},
 	})
+	if check != "" {
+		comp.Children = append(comp.Children, layout.Component{
+			Class:   "TCheckBox",
+			Name:    "DontShowAgain",
+			Caption: check,
+			Bounds: layout.Rect{
+				X: textX,
+				Y: iconTextH + vertMargin + vertSpacing,
+				W: checkW,
+				H: checkH,
+			},
+			Props: map[string]string{
+				"TabOrder": strconv.Itoa(len(buttons)), // after them: OK keeps the focus
+			},
+		})
+	}
+
 	x := (clientW - groupW) / 2
 
 	for i, but := range buttons {
@@ -133,7 +167,7 @@ func messageDialog(dsk *desktop, kind game.DialogKind, yesNo bool, text string) 
 			Caption: but.caption,
 			Bounds: layout.Rect{
 				X: x,
-				Y: iconTextH + vertMargin + vertSpacing,
+				Y: blockH + vertMargin + vertSpacing,
 				W: buttonWidth,
 				H: buttonHeight,
 			},
