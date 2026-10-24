@@ -7,9 +7,10 @@ These files do not come from the original:
 - the Go files;
 - the fonts and icons in `wine/` and `liberation/`;
 - the manual's screenshots;
+- the shiny sprites in `sprites/shiny64.png`;
 - the appearance animations in `anim/`.
 
-The original has no animations.
+The original has no shiny POKéMON and no animations.
 
 ## Rights
 
@@ -25,13 +26,14 @@ This is a non-commercial project. If you hold rights to any of this material and
 |---|---|---|---|
 | `pokegame.dat` | Type chart, species, moves, badges, tournament prizes and trainer names | `POKéGAME.dat`, byte for byte | Michael Madsen (game data). Names of POKéMON, moves, types and badges: Nintendo / Creatures / GAME FREAK |
 | `sprites/front64.png` | 386 front sprites, 64×64, 20 per row. Frame *n* is species *n*+1 in "Old POKéDEX" order | Image list `PKMNImages` in `PokeGame.exe` | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Ruby & Sapphire front sprites |
+| `sprites/shiny64.png` | The 386 sprites of `front64.png` in their shiny colours, in the same layout. Not in the original game | `front64.png`, each pixel taking the shiny colour of the matching pixel in the Ruby & Sapphire shiny sprite from the [Bulbagarden Archives](https://archives.bulbagarden.net/wiki/Category:Ruby_and_Sapphire_Shiny_sprites) | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Ruby & Sapphire shiny colours |
 | `sprites/icons32.png` | The same 386 POKéMON at 32×32, in the same layout | Image list `SmallPKMNImg` | Nintendo / Creatures / GAME FREAK |
 | `sprites/small16.png` | The 16×16 icons of the File → Quit and Help → Contents menu items | Image list `ImageList1` | Unverified. They are Windows-style icons shipped with the original |
 | `sprites/pokeball.png` | The 15×15 POKéBALL shown under a wild POKéMON that is already in the POKéDEX | `Form4.Image1` | Shipped with the original. POKéBALL design: Nintendo / Creatures / GAME FREAK |
 | `sprites/icon.png` | Program icon, a Pidgeot, 32×32 | `MAINICON` | Shipped with the original. Pidgeot: Nintendo / Creatures / GAME FREAK |
 | `help/*.md` | The game's manual, one page per topic | `POKéGAME.HLP` | Michael Madsen |
 | `help/*.png` | The manual's screenshots | Taken in the port, of the scenes that `POKéGAME.HLP`'s screenshots show | Michael Madsen's windows and texts. The sprites in them: Nintendo / Creatures / GAME FREAK |
-| `anim/front/*.png`, `anim/front.json` | The animation POKéMON Emerald plays when each of the 386 POKéMON appears in battle: its distinct frames side by side, then each frame's place and how many Game Boy Advance frames it shows for. Not in the original game | Recordings of Emerald's animations from the [Bulbagarden Archives](https://archives.bulbagarden.net/wiki/Category:Emerald_sprites), repacked | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Emerald front sprites. The archive's contributors recorded them and claim fair use for them on the archive; that claim grants nothing to this project |
+| `anim/front/*.png`, `anim/front.json` | The animation POKéMON Emerald plays when each of the 386 POKéMON appears in battle: its distinct frames side by side, then each frame's place, how many Game Boy Advance frames it shows for, and the shiny colours of its palette. Not in the original game | Recordings of Emerald's animations from the [Bulbagarden Archives](https://archives.bulbagarden.net/wiki/Category:Emerald_sprites) and of their shiny versions, repacked | Nintendo / Creatures / GAME FREAK. These are the official POKéMON Emerald front sprites. The archive's contributors recorded them and claim fair use for them on the archive; that claim grants nothing to this project |
 
 A build with `-tags noanim` leaves `anim/` out, and the game then shows the still sprites only.
 

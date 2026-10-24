@@ -53,7 +53,8 @@ The game plays as the original did, apart from the [improvements](#improvements)
 The original doesn't have these:
 
 - Animated sprites
-- Don't show this message again
+- Shiny POKéMON
+- Don't show messages again
 
 More details: [docs/improvements.md](docs/improvements.md).
 
