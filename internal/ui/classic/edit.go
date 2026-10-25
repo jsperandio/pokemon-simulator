@@ -735,6 +735,14 @@ func (m *memo) setLines(lines []string, styles []lineStyle) {
 	m.invalidate()
 }
 
+// setColor changes the background.
+func (m *memo) setColor(clr color.RGBA) {
+	if m.color != clr {
+		m.color = clr
+		m.invalidate()
+	}
+}
+
 // style returns the face and colour line i is drawn in: its style's, or
 // the font's.
 func (m *memo) style(i int) (face, color.RGBA) {

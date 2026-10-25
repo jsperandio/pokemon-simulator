@@ -133,6 +133,16 @@ func Test_memo_paint(t *testing.T) {
 		assert.Equal(t, []color.RGBA{rgb(0x006400)}, rowInks(mem, 1), "the second row")
 	})
 
+	t.Run("when the background changes, should fill the text with it", func(t *testing.T) {
+		t.Parallel()
+
+		mem := memoWindow(newTestApp(t), "ssVertical")
+		mem.setColor(colWindow)
+
+		tr := mem.textRect()
+		assert.Equal(t, colWindow, paintMemo(mem).RGBAAt(tr.Max.X-1, tr.Max.Y-1))
+	})
+
 	t.Run("when ScrollBars is ssVertical, should draw the scroll bar at the right", func(t *testing.T) {
 		t.Parallel()
 

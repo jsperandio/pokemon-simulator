@@ -6,14 +6,18 @@ package classic
 
 import (
 	"image"
+	"image/color"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
@@ -623,4 +627,273 @@ func pickCharmander(t *testing.T, ta *testApp) {
 	drop := cb.dropped.rect
 	ta.click(drop.Min.Add(image.Pt(5, 1+3*cb.itemHeight+cb.itemHeight/2)))
 	ta.wait(1)
+}
+
+func Test_logStyle(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name  string
+		kinds []game.LineKind
+		ink   logInk
+	}{
+		{
+			name:  "when a line tells good news, should draw it green",
+			kinds: []game.LineKind{game.DamageDealt, game.CriticalDealt, game.EnemyFainted, game.Caught},
+			ink:   inkGreen,
+		},
+		{
+			name: "when a line tells bad news, should draw it red",
+			kinds: []game.LineKind{
+				game.DamageTaken,
+				game.CriticalTaken,
+				game.OwnFainted,
+				game.MoneyLost,
+				game.ExperienceLost,
+				game.LevelLost,
+			},
+			ink: inkRed,
+		},
+		{
+			name:  "when a line tells of experience, should draw it blue",
+			kinds: []game.LineKind{game.ExperienceGained, game.LevelUp},
+			ink:   inkBlue,
+		},
+		{
+			name:  "when a line tells of prize money or a shiny, should draw it gold",
+			kinds: []game.LineKind{game.PrizeMoney, game.Shiny},
+			ink:   inkGold,
+		},
+		{
+			name:  "when a line tells of a Potion, should draw it teal",
+			kinds: []game.LineKind{game.Healed},
+			ink:   inkTeal,
+		},
+		{
+			name:  "when a line tells of the POKéDEX, should draw it purple",
+			kinds: []game.LineKind{game.Registered},
+			ink:   inkPurple,
+		},
+		{
+			name:  "when a line is plain, should draw it black",
+			kinds: []game.LineKind{game.Plain},
+			ink: logInk{
+				grey:  colText,
+				white: colText,
+			},
+		},
+	}
+
+	for _, cas := range cases {
+		t.Run(cas.name, func(t *testing.T) {
+			t.Parallel()
+
+			for _, kind := range cas.kinds {
+				assert.Equal(t, cas.ink.grey, logStyle(kind, false).color, "kind %d on grey", kind)
+				assert.Equal(t, cas.ink.white, logStyle(kind, true).color, "kind %d on white", kind)
+			}
+		})
+	}
+
+	t.Run("when a line is a milestone or a critical hit, should draw it bold, and no other", func(t *testing.T) {
+		t.Parallel()
+
+		bold := []game.LineKind{
+			game.LevelUp,
+			game.Caught,
+			game.EnemyFainted,
+			game.OwnFainted,
+			game.Shiny,
+			game.CriticalDealt,
+			game.CriticalTaken,
+		}
+
+		for kind := game.Plain; kind <= game.Shiny; kind++ { // Shiny is the last kind
+			assert.Equal(t, slices.Contains(bold, kind), logStyle(kind, false).bold, "kind %d", kind)
+		}
+	})
+}
+
+func Test_logStyles(t *testing.T) {
+	t.Parallel()
+
+	kinds := []game.LineKind{game.Plain, game.DamageDealt}
+
+	t.Run("when the colours are off, should give no styles", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Nil(t, logStyles(kinds, preferences{}))
+	})
+
+	t.Run("when they are on, should give each line its kind's style on the background", func(t *testing.T) {
+		t.Parallel()
+
+		prf := preferences{
+			colourMessages:  true,
+			whiteBackground: true,
+		}
+		want := []lineStyle{
+			{
+				color: colText,
+			},
+			{
+				color: inkGreen.white,
+			},
+		}
+
+		assert.Equal(t, want, logStyles(kinds, prf))
+	})
+}
+
+// colouredApp is a test app with Battle Info's colours on, on a white
+// background if white.
+func colouredApp(t *testing.T, white bool) *testApp {
+	t.Helper()
+
+	data := "[Graphics]\nAnimatedSprites=0\n"
+
+	if white {
+		data += "\n[BattleInfo]\nWhiteBackground=1\n"
+	}
+
+	settings := &memorySettings{
+		data: []byte(data),
+	}
+
+	return newTestAppWith(t, t.TempDir(), nil, settings)
+}
+
+// fightTurn plays up to a battle Search for a POKéMON found and clicks Go!
+// with Charmander's first attack, which the enemy survives.
+func fightTurn(ta *testApp) {
+	ta.startGame()
+	ta.fightWild()
+	ta.clickAttack(0)
+	ta.clickOn(ta.main.wdw, "Button1")
+	ta.wait(1)
+}
+
+// criticalTurn plays fightTurn's turn with the generator at seed when Go!
+// is clicked: 29 gives Charmander's attack a critical hit, and 10 the
+// enemy's.
+func criticalTurn(ta *testApp, seed uint32) {
+	ta.startGame()
+	ta.fightWild()
+	ta.clickAttack(0)
+
+	ta.game.Rand.Seed = seed
+
+	ta.clickOn(ta.main.wdw, "Button1")
+	ta.wait(1)
+}
+
+// rowOf returns the index of the first of mem's rows with txt in it.
+func rowOf(t *testing.T, mem *memo, txt string) int {
+	t.Helper()
+
+	idx := slices.IndexFunc(mem.rows, func(row memoRow) bool {
+		return strings.Contains(row.text, txt)
+	})
+	require.GreaterOrEqual(t, idx, 0, "no row has %q", txt)
+
+	return idx
+}
+
+// Battle Info colours its lines by what they tell, which the original
+// doesn't: on its grey or on white, as the preferences have it.
+func Test_infoForm(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the colours are on, should draw the damage dealt green, the damage taken red and the rest black, on grey", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		fightTurn(ta)
+
+		mem := ta.info.memo
+		ta.shot("battle-info-coloured")
+
+		assert.Equal(t, colFace, mem.color, "Battle Info isn't grey")
+		assert.Equal(t, []color.RGBA{inkGreen.grey}, rowInks(mem, rowOf(t, mem, "points of damage to enemy")), "the damage dealt")
+		assert.Equal(t, []color.RGBA{inkRed.grey}, rowInks(mem, rowOf(t, mem, "points of damage to Charmander")), "the damage taken")
+		assert.Equal(t, []color.RGBA{colText}, rowInks(mem, rowOf(t, mem, "Charmander used")), "the attack")
+	})
+
+	t.Run("when the background is white, should fill Battle Info white and draw in the white inks", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, true)
+		fightTurn(ta)
+
+		mem := ta.info.memo
+		ta.shot("battle-info-white")
+
+		assert.Equal(t, colWindow, mem.color, "Battle Info isn't white")
+		assert.Equal(t, []color.RGBA{inkGreen.white}, rowInks(mem, rowOf(t, mem, "points of damage to enemy")), "the damage dealt")
+		assert.Equal(t, []color.RGBA{inkRed.white}, rowInks(mem, rowOf(t, mem, "points of damage to Charmander")), "the damage taken")
+	})
+
+	t.Run("when the enemy faints, should draw the faint in bold green, the experience blue and the money gold", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		mem := ta.info.memo
+		fainted := rowOf(t, mem, "fainted!")
+		gained := rowOf(t, mem, "experience points!")
+
+		assert.Equal(t, []color.RGBA{inkGreen.grey}, rowInks(mem, fainted), "the faint")
+		assert.True(t, mem.styles[mem.rows[fainted].line].bold, "the faint isn't bold")
+		assert.Equal(t, []color.RGBA{inkBlue.grey}, rowInks(mem, gained), "the experience")
+		assert.False(t, mem.styles[mem.rows[gained].line].bold, "the experience is bold")
+		assert.Equal(t, []color.RGBA{inkGold.grey}, rowInks(mem, rowOf(t, mem, "You got")), "the money")
+	})
+
+	t.Run("when the fighter lands a critical hit, should draw it in bold green", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		criticalTurn(ta, 29)
+
+		mem := ta.info.memo
+		critical := rowOf(t, mem, "Critical hit!")
+
+		assert.Contains(t, mem.rows[critical-1].text, "Charmander used", "not Charmander's critical hit")
+		assert.Equal(t, []color.RGBA{inkGreen.grey}, rowInks(mem, critical), "the critical hit")
+		assert.True(t, mem.styles[mem.rows[critical].line].bold, "the critical hit isn't bold")
+	})
+
+	t.Run("when the enemy lands a critical hit, should draw it in bold red", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		criticalTurn(ta, 10)
+
+		mem := ta.info.memo
+		critical := rowOf(t, mem, "Critical hit!")
+
+		assert.Contains(t, mem.rows[critical-1].text, "Enemy", "not the enemy's critical hit")
+		assert.Equal(t, []color.RGBA{inkRed.grey}, rowInks(mem, critical), "the critical hit")
+		assert.True(t, mem.styles[mem.rows[critical].line].bold, "the critical hit isn't bold")
+	})
+
+	t.Run("when the colours are off, should draw every line black on grey, as the original", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		fightTurn(ta)
+
+		mem := ta.info.memo
+
+		assert.Nil(t, mem.styles, "Battle Info is coloured")
+		assert.Equal(t, colFace, mem.color, "Battle Info isn't grey")
+
+		for i, row := range mem.rows {
+			assert.Equal(t, []color.RGBA{colText}, rowInks(mem, i), "row %q", row.text)
+		}
+	})
 }

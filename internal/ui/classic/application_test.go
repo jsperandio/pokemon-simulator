@@ -42,14 +42,19 @@ func newTestApp(t *testing.T) *testApp {
 	return newTestAppIn(t, t.TempDir(), nil)
 }
 
+// offSettings are the test app's settings: the animations and Battle Info's
+// colours off.
+const offSettings string = "[Graphics]\nAnimatedSprites=0\n\n[BattleInfo]\nColourMessages=0\n"
+
 // newTestAppIn makes the user interface with the file dialogs in dir and
 // the command line's arguments args, and its settings turning the
-// animations off: the tests of the animations turn them on.
+// animations and Battle Info's colours off, as the original has neither:
+// the tests of each turn them on.
 func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	t.Helper()
 
 	off := &memorySettings{
-		data: []byte("[Graphics]\nAnimatedSprites=0\n"),
+		data: []byte(offSettings),
 	}
 
 	return newTestAppWith(t, dir, args, off)

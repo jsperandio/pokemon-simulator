@@ -257,6 +257,7 @@ func (app *Application) setPreferences(prf preferences) {
 
 	app.stats.party.invalidate()
 	app.main.starters.invalidate()
+	app.info.sync()
 
 	if !prf.animatedSprites {
 		app.main.stopAnimations()
