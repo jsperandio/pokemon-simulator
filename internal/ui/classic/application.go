@@ -70,6 +70,7 @@ type Application struct {
 	screen *ebiten.Image // the screen Draw drew on last
 	shown  ebiten.CursorShapeType
 	wheel  float64 // the wheel's movement not yet a whole notch
+	finger finger  // a touch screen's left button
 	pace   *pacer
 
 	settings    settingsStore
@@ -91,6 +92,7 @@ type Application struct {
 	helpWindow *helpWindow // the manual, once opened
 	music      musicPlayer
 	xfer       transfers   // the browser's uploads and downloads, on the web
+	keyboard   *keyboard   // the keyboard a touch screen shows, on the web
 	fileDialog *fileDialog // the file dialog that shows, if one does
 	draws      *drawShow   // the Game Corner's draws, while they show
 
@@ -124,6 +126,7 @@ func NewApplication(data *gamedata.Data, files storage, settings settingsStore, 
 		music:    &audio.Music{},
 		pace:     newPacer(),
 		settings: settings,
+		keyboard: newKeyboard(),
 	}
 
 	// Settings that can't be read leave the defaults.
@@ -528,7 +531,9 @@ func (app *Application) Update() error {
 		return ebiten.Termination
 	}
 
-	app.pace.next(&in, app.desk.dirty, app.music.Playing(), now)
+	// The keyboard's text area wakes no frames, so frames run while it is up.
+	typing := app.keyboard != nil && app.keyboard.isOpen()
+	app.pace.next(&in, app.desk.dirty || typing, app.music.Playing(), now)
 
 	return nil
 }
@@ -541,7 +546,16 @@ func (app *Application) step(in input, now time.Time) {
 		return
 	}
 
+	if app.keyboard != nil {
+		app.keyboard.commits(&in)
+	}
+
 	app.desk.update(&in, now)
+
+	if app.keyboard != nil {
+		app.keyboard.follow(app.desk, &in)
+	}
+
 	app.main.animate(now)
 	app.pokedex.animate(now)
 	app.load.tick()
@@ -575,6 +589,7 @@ func (app *Application) input() input {
 	in.down = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 	in.pressed = inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 	in.released = inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft)
+	app.finger.read(&in, ebitenTouches{})
 
 	_, dy := ebiten.Wheel()
 	app.wheel += dy
