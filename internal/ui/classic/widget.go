@@ -283,7 +283,9 @@ func (c *control) setAnchors(anc anchors) {
 // window's client area.
 func (c *control) area() image.Point {
 	if c.parent != nil {
-		return c.parent.base().rect.Size()
+		ctl := c.parent.base()
+
+		return ctl.rect.Size()
 	}
 
 	if c.wdw != nil {

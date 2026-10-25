@@ -293,7 +293,8 @@ func (mf *mainForm) centreForStarters() {
 // beside the Statistics and Battle Info windows, once a starter is chosen,
 // unless the player has moved it.
 func (mf *mainForm) leaveCentre() {
-	if mf.app.game.Main.Starters || mf.wdw.pos != mf.starterSpot {
+	mgw := &mf.app.game.Main
+	if mgw.Starters || mf.wdw.pos != mf.starterSpot {
 		return
 	}
 
@@ -664,12 +665,15 @@ func (mf *mainForm) widenArena() {
 // 289. The original put each gauge after its own fighter's caption, so the
 // two were seldom the same width.
 func (mf *mainForm) placeGauges() {
+	gam := mf.app.game
+
 	wid := 0
-	for _, sp := range mf.app.game.Data.Species {
+	for _, sp := range gam.Data.Species {
 		wid = max(wid, mf.enemyLabel.font.width("Enemy "+sp.Name+" L.100"))
 	}
 
-	left, right := wid+80, mf.attacks.rect.Max.X
+	box := mf.attacks.rect
+	left, right := wid+80, box.Max.X
 
 	for _, gge := range []*gauge{mf.ownGauge, mf.enemyGauge} {
 		rect := gge.rect

@@ -720,7 +720,8 @@ func Test_SearchAgain(t *testing.T) {
 		ta.answer("# 025 Pikachu")
 		ta.answer("Choose Pikachu?")
 
-		assert.Equal(t, 25, ta.game.Main.Own.Species, "the fighter")
+		mgw := &ta.game.Main
+		assert.Equal(t, 25, mgw.Own.Species, "the fighter")
 		assert.Equal(t, -1, ta.main.attacks.index, "the attack selected")
 		assert.Same(t, ta.main.wdw, ta.desk.active, "the active window")
 		assert.Same(t, ta.main.goButton, ta.main.wdw.focus, "the focus")
@@ -1258,15 +1259,17 @@ func Test_Application_placeWindows(t *testing.T) {
 		ta := fillApp(t)
 		ta.startGame()
 
-		from := ta.main.wdw.captionRect().Min.Add(image.Pt(100, 5))
+		wdw := ta.main.wdw
+		from := wdw.captionRect().Min.Add(image.Pt(100, 5))
 		ta.drag(from, from.Add(image.Pt(50, 40)))
 
-		assert.Equal(t, image.Point{}, ta.main.wdw.pos, "the pinned window")
+		assert.Equal(t, image.Point{}, wdw.pos, "the pinned window")
 
-		ta.main.wdw.pinned = false
+		wdw.pinned = false
+
 		ta.drag(from, from.Add(image.Pt(50, 40)))
 
-		assert.Equal(t, image.Pt(50, 40), ta.main.wdw.pos, "the same drag on the window unpinned")
+		assert.Equal(t, image.Pt(50, 40), wdw.pos, "the same drag on the window unpinned")
 	})
 
 	t.Run("when the starter choice shows with the screen filled, should keep the game window in its place and centre the list", func(t *testing.T) {

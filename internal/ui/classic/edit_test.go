@@ -34,8 +34,10 @@ func Test_memo_resized(t *testing.T) {
 		rect.Max.X += 189
 		mem.setBounds(rect)
 
+		bar := &mem.scroll
+
 		assert.Len(t, mem.rows, 1, "the line after")
-		assert.Equal(t, rect.Dx()-2, mem.scroll.rect.Max.X, "the scroll bar's right edge")
+		assert.Equal(t, rect.Dx()-2, bar.rect.Max.X, "the scroll bar's right edge")
 	})
 }
 

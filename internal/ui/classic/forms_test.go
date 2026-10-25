@@ -357,15 +357,17 @@ func Test_mainForm_placeGauges(t *testing.T) {
 		ta.answer("# 004 Charmander")
 		ta.answer("Choose Charmander?")
 
-		own, enemy := ta.main.ownGauge.rect, ta.main.enemyGauge.rect
+		mf := ta.main
+		own, enemy := mf.ownGauge.rect, mf.enemyGauge.rect
+		box, ownCaption, enemyCaption := mf.attacks.rect, mf.ownLabel.rect, mf.enemyLabel.rect
 
-		require.True(t, ta.main.ownGauge.shown(), "no gauge for the player's fighter")
+		require.True(t, mf.ownGauge.shown(), "no gauge for the player's fighter")
 		assert.Equal(t, own.Min.X, enemy.Min.X, "the gauges' left edges")
 		assert.Equal(t, own.Dx(), enemy.Dx(), "the gauges' widths")
 		assert.Equal(t, 126, own.Dx(), "the gauges' width")
-		assert.Equal(t, ta.main.attacks.rect.Max.X, own.Max.X, "the gauges' right edge, the attack boxes'")
-		assert.Less(t, ta.main.ownLabel.rect.Max.X, own.Min.X, "the player's fighter's caption reaches its gauge")
-		assert.Less(t, ta.main.enemyLabel.rect.Max.X, enemy.Min.X, "the enemy's caption reaches its gauge")
+		assert.Equal(t, box.Max.X, own.Max.X, "the gauges' right edge, the attack boxes'")
+		assert.Less(t, ownCaption.Max.X, own.Min.X, "the player's fighter's caption reaches its gauge")
+		assert.Less(t, enemyCaption.Max.X, enemy.Min.X, "the enemy's caption reaches its gauge")
 		ta.shot("gauges-same-width")
 	})
 
@@ -373,15 +375,16 @@ func Test_mainForm_placeGauges(t *testing.T) {
 		t.Parallel()
 
 		mf := newTestApp(t).main
-		lbl := mf.enemyLabel
+		gam := mf.app.game
+		lbl, gauge := mf.enemyLabel, mf.enemyGauge.rect
 
-		for _, sp := range mf.app.game.Data.Species {
+		for _, sp := range gam.Data.Species {
 			right := lbl.rect.Min.X + lbl.font.width("Enemy "+sp.Name+" L.100")
 
-			assert.Less(t, right, mf.enemyGauge.rect.Min.X, "%s's caption reaches the gauge", sp.Name)
+			assert.Less(t, right, gauge.Min.X, "%s's caption reaches the gauge", sp.Name)
 		}
 
-		assert.Positive(t, mf.enemyGauge.rect.Dx(), "the gauge's width")
+		assert.Positive(t, gauge.Dx(), "the gauge's width")
 	})
 }
 
@@ -411,7 +414,7 @@ func Test_mainLayout(t *testing.T) {
 		t.Parallel()
 
 		mf := newTestApp(t).main
-		btn, goRect := mf.searchButton, mf.goButton.rect
+		btn, goRect, gauge := mf.searchButton, mf.goButton.rect, mf.ownGauge.rect
 
 		assert.Contains(t, mf.arena.kids, widget(btn))
 		assert.False(t, btn.visible, "Search Again shows")
@@ -419,7 +422,7 @@ func Test_mainLayout(t *testing.T) {
 		assert.Equal(t, goRect.Min.Y, btn.rect.Min.Y, "the tops")
 		assert.Equal(t, goRect.Dy(), btn.rect.Dy(), "the heights")
 		assert.Less(t, btn.font.width("Search Again"), btn.rect.Dx(), "the caption's width")
-		assert.Less(t, btn.rect.Max.Y, mf.ownGauge.rect.Min.Y, "Search Again reaches the gauge")
+		assert.Less(t, btn.rect.Max.Y, gauge.Min.Y, "Search Again reaches the gauge")
 	})
 
 	t.Run("when the game window is made, should give Go! room below the frame and above the gauges, ending with them", func(t *testing.T) {
@@ -439,9 +442,10 @@ func Test_mainLayout(t *testing.T) {
 		t.Parallel()
 
 		mf := newTestApp(t).main
+		arena, box := mf.arena.rect, mf.enemyAttacks.rect
 
-		assert.Equal(t, image.Rect(120, 6, 459, 263), mf.arena.rect, "the arena's frame")
-		assert.Equal(t, 8, mf.arena.rect.Dy()-mf.enemyAttacks.rect.Max.Y, "the rows below the enemy's attacks, as in the original")
+		assert.Equal(t, image.Rect(120, 6, 459, 263), arena, "the arena's frame")
+		assert.Equal(t, 8, arena.Dy()-box.Max.Y, "the rows below the enemy's attacks, as in the original")
 		assert.Equal(t, image.Pt(422+arenaExtra, 270), mf.wdw.client, "the client area")
 	})
 
@@ -486,12 +490,14 @@ func Test_mainLayout(t *testing.T) {
 
 		newTestApp(t)
 
-		assert.Nil(t, layout.Form4.Find("SearchAgainButton"))
-		assert.Nil(t, layout.Form4.Find("FindPKMN1").Props)
-		assert.NotContains(t, layout.Form4.Find("Button1").Props, "Default")
-		assert.Equal(t, layout.Rect{X: 248, Y: 8, W: 43, H: 15}, layout.Form4.Find("Button1").Bounds, "Go!")
-		assert.Equal(t, layout.Rect{X: 120, Y: 16, W: 297, H: 241}, layout.Form4.Find("GroupBox1").Bounds, "the arena")
-		assert.Equal(t, 24, layout.Form4.Find("Gauge1").Bounds.Y, "the gauge's top")
+		frm := &layout.Form4
+
+		assert.Nil(t, frm.Find("SearchAgainButton"))
+		assert.Nil(t, frm.Find("FindPKMN1").Props)
+		assert.NotContains(t, frm.Find("Button1").Props, "Default")
+		assert.Equal(t, layout.Rect{X: 248, Y: 8, W: 43, H: 15}, frm.Find("Button1").Bounds, "Go!")
+		assert.Equal(t, layout.Rect{X: 120, Y: 16, W: 297, H: 241}, frm.Find("GroupBox1").Bounds, "the arena")
+		assert.Equal(t, 24, frm.Find("Gauge1").Bounds.Y, "the gauge's top")
 	})
 }
 
