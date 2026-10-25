@@ -102,6 +102,21 @@ func (ta *testApp) doubleClick(pnt image.Point) {
 	ta.click(pnt)
 }
 
+// tap lands a finger at pnt on a touch screen and lifts it: the pointer
+// jumps there in the frame it lands.
+func (ta *testApp) tap(pnt image.Point) {
+	ta.mouse = pnt
+	ta.frame(input{
+		down:    true,
+		pressed: true,
+		touch:   true,
+	})
+	ta.frame(input{
+		released: true,
+		touch:    true,
+	})
+}
+
 // clickOn clicks the middle of a window's control.
 func (ta *testApp) clickOn(wdw *window, name string) {
 	ta.t.Helper()

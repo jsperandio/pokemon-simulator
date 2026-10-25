@@ -20,10 +20,13 @@ const (
 	screenHeight int = 600
 )
 
-// Double clicks, as Windows' defaults have them.
+// Double clicks, as Windows' defaults have them, and a finger's double
+// taps, whose second tap lands further from the first: within 12 pixels,
+// about 2.5 mm on a phone held sideways.
 const (
 	doubleClickTime time.Duration = 500 * time.Millisecond
 	doubleClickDist int           = 4 // SM_CXDOUBLECLK, SM_CYDOUBLECLK
+	doubleTapDist   int           = 24
 )
 
 // A popup is a window above all others that takes the mouse first: a
@@ -91,6 +94,7 @@ type desktop struct {
 	menu    *menuBar // the menu bar while it tracks the mouse or keys
 	dirty   bool
 	now     time.Time
+	touch   bool // the frame's left button is a finger
 
 	mouse      image.Point
 	capture    widget // the pressed widget: it gets the drags and the release
@@ -387,7 +391,7 @@ func (d *desktop) takesInput(wdw *window) bool {
 
 // update handles one frame's input.
 func (d *desktop) update(in *input, now time.Time) {
-	d.now = now
+	d.now, d.touch = now, in.touch
 	pnt := image.Pt(max(min(in.mouse.X, screenWidth-1), 0), max(min(in.mouse.Y, screenHeight-1), 0))
 	moved := pnt != d.mouse
 	d.mouse = pnt
@@ -454,12 +458,18 @@ func widgetOrigin(wgt widget) image.Point {
 	return ctl.wdw.clientOrigin().Add(ctl.origin())
 }
 
-// isDouble reports whether a press on target at pnt makes a double click.
+// isDouble reports whether a press on target at pnt makes a double click,
+// or a finger's double tap.
 func (d *desktop) isDouble(pnt image.Point, target any) bool {
+	dist := doubleClickDist
+	if d.touch {
+		dist = doubleTapDist
+	}
+
 	dp := pnt.Sub(d.lastPos)
 	sameTarget := target == d.lastTarget
 	inTime := d.now.Sub(d.lastClick) <= doubleClickTime
-	inRange := abs(dp.X) <= doubleClickDist/2 && abs(dp.Y) <= doubleClickDist/2
+	inRange := abs(dp.X) <= dist/2 && abs(dp.Y) <= dist/2
 	double := sameTarget && inTime && inRange
 
 	d.lastTarget = target
@@ -599,9 +609,15 @@ func (d *desktop) captionDown(wdw *window, pnt image.Point) {
 	}
 }
 
-// mouseMove follows the mouse: drags, hot-tracking and hovering.
+// mouseMove follows the mouse: drags, hot-tracking and hovering. A move
+// between two clicks ends a double click; a finger moves as it lands and
+// shakes as it rests, so for a finger only where it lands decides
+// (isDouble).
 func (d *desktop) mouseMove(pnt image.Point, down bool) {
-	d.lastTarget = nil
+	if !d.touch {
+		d.lastTarget = nil
+	}
+
 	if d.menu != nil {
 		d.menu.mouseMove(pnt, down)
 

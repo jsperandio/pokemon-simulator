@@ -11,6 +11,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // fakeTouches is a touch screen whose fingers a test sets for each frame.
@@ -207,5 +208,75 @@ func Test_finger_read(t *testing.T) {
 			down:    true,
 			pressed: true,
 		}, in, "the mouse's press")
+	})
+}
+
+func Test_DoubleTap(t *testing.T) {
+	t.Parallel()
+
+	// selecting runs a wild battle up to choosing the fighter, and returns
+	// a point on the first party member.
+	selecting := func(t *testing.T) (*testApp, image.Point) {
+		t.Helper()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.answer("Select a POKéMON")
+
+		rect := ta.stats.party.itemRect(0)
+
+		return ta, widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10))
+	}
+
+	t.Run("when a finger taps a party member twice, 10 px apart, should act as a double click", func(t *testing.T) {
+		t.Parallel()
+
+		ta, pnt := selecting(t)
+		ta.tap(pnt)
+		ta.tap(pnt.Add(image.Pt(10, 4)))
+
+		ta.answer("# 004 Charmander")
+	})
+
+	t.Run("when the second tap lands 30 px away, should not act", func(t *testing.T) {
+		t.Parallel()
+
+		ta, pnt := selecting(t)
+		ta.tap(pnt)
+		ta.tap(pnt.Add(image.Pt(30, 0)))
+
+		assert.Nil(t, ta.desk.topModal(), "a dialog showed")
+	})
+
+	t.Run("when the second tap lands 600 ms after the first, should not act", func(t *testing.T) {
+		t.Parallel()
+
+		ta, pnt := selecting(t)
+		ta.tap(pnt)
+		ta.wait(34) // with the taps' own frames, 36 frames of 1/60 s
+		ta.tap(pnt)
+
+		assert.Nil(t, ta.desk.topModal(), "a dialog showed")
+	})
+
+	t.Run("when the mouse clicks twice 3 px apart, should not act, as it moved between the clicks", func(t *testing.T) {
+		t.Parallel()
+
+		ta, pnt := selecting(t)
+		ta.click(pnt)
+		ta.click(pnt.Add(image.Pt(3, 0)))
+
+		assert.Nil(t, ta.desk.topModal(), "a dialog showed")
+	})
+
+	t.Run("when the mouse clicks twice on one spot, should still act", func(t *testing.T) {
+		t.Parallel()
+
+		ta, pnt := selecting(t)
+		ta.doubleClick(pnt)
+
+		require.NotNil(t, ta.desk.topModal(), "no dialog")
+		ta.answer("# 004 Charmander")
 	})
 }
