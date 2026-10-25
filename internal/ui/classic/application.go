@@ -70,6 +70,7 @@ type Application struct {
 	screen *ebiten.Image // the screen Draw drew on last
 	shown  ebiten.CursorShapeType
 	wheel  float64 // the wheel's movement not yet a whole notch
+	finger finger  // a touch screen's left button
 	pace   *pacer
 
 	start      *startForm
@@ -462,6 +463,7 @@ func (app *Application) input() input {
 	in.down = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 	in.pressed = inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 	in.released = inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft)
+	app.finger.read(&in, ebitenTouches{})
 
 	_, dy := ebiten.Wheel()
 	app.wheel += dy

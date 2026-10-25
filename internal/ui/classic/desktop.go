@@ -53,6 +53,7 @@ type input struct {
 	down     bool // the left button is held
 	pressed  bool // ... went down in this frame
 	released bool // ... went up in this frame
+	touch    bool // a finger is the left button in this frame: it landed, rests or lifted
 	wheel    int  // notches, positive away from the user
 	keys     []ebiten.Key
 	keysUp   []ebiten.Key
