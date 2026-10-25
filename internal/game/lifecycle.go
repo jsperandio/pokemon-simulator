@@ -58,7 +58,7 @@ func (g *Game) ChooseStarter(k int) {
 	g.AddPKMN(s, g.name(s), 5, shiny)
 
 	if shiny {
-		g.log("It's a shiny POKéMON!")
+		g.log(Shiny, "It's a shiny POKéMON!")
 	}
 
 	g.Main.Starters = false

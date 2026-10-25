@@ -26,8 +26,8 @@ func (g *Game) StartTrainerBattle(species, level int, trainer string) {
 	g.InTrainerBattle = true
 	g.EnemyHP = level * 10
 	g.showInfo()
-	g.log(trainer + " wants to fight!")
-	g.log(trainer + " sent out " + g.name(species) + "!")
+	g.log(Plain, trainer+" wants to fight!")
+	g.log(Plain, trainer+" sent out "+g.name(species)+"!")
 
 	g.Main.Enemy = Shown{
 		Species: species,
@@ -55,10 +55,10 @@ func (g *Game) StartWildBattle(species, level int, shiny bool) {
 
 	g.EnemyHP = level * 10
 	g.EnemyLevel = uint8(level) //nolint:gosec // a Byte in the original
-	g.log("Wild " + g.name(species) + " appeared!")
+	g.log(Plain, "Wild "+g.name(species)+" appeared!")
 
 	if shiny {
-		g.log("It's a shiny POKéMON!")
+		g.log(Shiny, "It's a shiny POKéMON!")
 	}
 
 	win.Enemy = Shown{
@@ -142,7 +142,7 @@ func (g *Game) choose(i int) {
 func (g *Game) sendOut(i int) {
 	m := g.member(i)
 	g.showItems()
-	g.log(g.name(int(m.Species)) + ", I choose you!")
+	g.log(Plain, g.name(int(m.Species))+", I choose you!")
 
 	g.Main.Go = true
 	g.Main.Attacks = true
@@ -204,11 +204,11 @@ func (g *Game) Go() {
 		g.lockFighter()
 
 		if g.InTrainerBattle && !g.InTournament {
-			g.log("No! There's no running from a trainer battle!")
+			g.log(Plain, "No! There's no running from a trainer battle!")
 		}
 
 		if g.InWildBattle {
-			g.log("Got away safely!")
+			g.log(Plain, "Got away safely!")
 
 			g.BattleType = 0
 			g.battleOver()
@@ -237,14 +237,14 @@ func (g *Game) ownAttack(k int) {
 	own := g.species(int(m.Species))
 	enemy := g.species(g.EnemySpecies)
 	mov := g.move(own.Moves[k])
-	g.log(own.Name + " used " + mov.Name + "!")
+	g.log(Plain, own.Name+" used "+mov.Name+"!")
 
 	if crit {
-		g.log("Critical hit!")
+		g.log(CriticalDealt, "Critical hit!")
 	}
 
 	d := g.hit(roll, mov, int(m.Level), crit, enemy)
-	g.logf("%s did %d points of damage to enemy %s.", own.Name, d, enemy.Name)
+	g.logf(DamageDealt, "%s did %d points of damage to enemy %s.", own.Name, d, enemy.Name)
 
 	g.EnemyHP -= d
 	g.Main.EnemyColor = gaugeColor(g.EnemyHP, int(g.EnemyLevel))
@@ -269,14 +269,14 @@ func (g *Game) oppAttack() {
 	own := g.species(int(slt.Species))
 	enemy := g.species(g.EnemySpecies)
 	mov := g.move(enemy.Moves[k])
-	g.log("Enemy " + enemy.Name + " used " + mov.Name + "!")
+	g.log(Plain, "Enemy "+enemy.Name+" used "+mov.Name+"!")
 
 	if crit {
-		g.log("Critical hit!")
+		g.log(CriticalTaken, "Critical hit!")
 	}
 
 	d := g.hit(roll, mov, int(g.EnemyLevel), crit, own)
-	g.logf("Enemy %s did %d points of damage to %s.", enemy.Name, d, own.Name)
+	g.logf(DamageTaken, "Enemy %s did %d points of damage to %s.", enemy.Name, d, own.Name)
 
 	g.OwnHP -= d
 	g.Main.OwnColor = gaugeColor(g.OwnHP, int(slt.Level))
@@ -293,8 +293,8 @@ func (g *Game) oppAttack() {
 		g.Fights++
 
 		g.Losses++
-		g.log(own.Name + " fainted!")
-		g.logf("You lost %d¥!", g.Money-g.Money/2)
+		g.log(OwnFainted, own.Name+" fainted!")
+		g.logf(MoneyLost, "You lost %d¥!", g.Money-g.Money/2)
 
 		g.Money /= 2
 	}
@@ -316,15 +316,15 @@ func (g *Game) hit(r int, mov *gamedata.Move, level int, crit bool, def *gamedat
 	damage := Damage(r, mov.Power, level, crit, t1, t2)
 
 	if superEffective(t1, t2) {
-		g.log("It's super effective!")
+		g.log(Plain, "It's super effective!")
 	}
 
 	if notVeryEffective(t1, t2) {
-		g.log("It's not very effective...")
+		g.log(Plain, "It's not very effective...")
 	}
 
 	if t1 == 0 || t2 == 0 {
-		g.log("It doesn't affect " + def.Name + "!")
+		g.log(Plain, "It doesn't affect "+def.Name+"!")
 
 		damage = 0
 	}
@@ -380,11 +380,11 @@ func (g *Game) victory() {
 
 	slt := g.member(g.OwnIndex)
 	own := g.name(int(slt.Species))
-	g.log("Enemy " + g.name(g.EnemySpecies) + " fainted!")
+	g.log(EnemyFainted, "Enemy "+g.name(g.EnemySpecies)+" fainted!")
 
 	e := uint32(g.EnemyLevel)
 	gain := e*e*e - (e-1)*(e-1)*(e-1)
-	g.logf("%s gained %d experience points!", own, gain)
+	g.logf(ExperienceGained, "%s gained %d experience points!", own, gain)
 
 	slt.XP += gain
 	old := slt.Level
@@ -399,7 +399,7 @@ func (g *Game) victory() {
 	}
 
 	if slt.Level > old {
-		g.logf("%s grew to level %d!", own, slt.Level)
+		g.logf(LevelUp, "%s grew to level %d!", own, slt.Level)
 	}
 
 	r := g.Rand.Random(3) + 1
@@ -426,7 +426,7 @@ func (g *Game) victory() {
 		money *= 8
 	}
 
-	g.logf("You got %d¥!", money)
+	g.logf(PrizeMoney, "You got %d¥!", money)
 
 	g.Money += uint32(money)
 }
@@ -438,13 +438,13 @@ func (g *Game) quitTournament() {
 		m := g.member(g.OwnIndex)
 		own := g.name(int(m.Species))
 		lost := (m.XP + 10) / 20 // rounded, as the original's Int(XP/20 + 0.5) is
-		g.logf("Quit the tournament! %s lost %d experience points!", own, lost)
+		g.logf(ExperienceLost, "Quit the tournament! %s lost %d experience points!", own, lost)
 
 		m.XP -= lost
 		for l := uint32(m.Level); l*l*l > m.XP; l = uint32(m.Level) {
 			m.Level--
 
-			g.log(own + " lost a level!")
+			g.log(LevelLost, own+" lost a level!")
 		}
 	}
 

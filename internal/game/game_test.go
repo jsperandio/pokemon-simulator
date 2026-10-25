@@ -816,3 +816,237 @@ func Test_Game_OnShow(t *testing.T) {
 		assert.Equal(t, []Window{PokedexForm}, shown)
 	})
 }
+
+// kindsSince returns the kinds of Battle Info's lines from the from-th on,
+// once it has checked that every line has one.
+func kindsSince(t *testing.T, gam *Game, from int) []LineKind {
+	t.Helper()
+
+	require.Len(t, gam.Info.Kinds, len(gam.Info.Lines), "a line without its kind")
+
+	return gam.Info.Kinds[from:]
+}
+
+// Each line of Battle Info has a kind, which the port colours it by.
+func Test_Game_log(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the game is made, should give Memo1's design-time line the plain kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+
+		assert.Equal(t, []string{""}, gam.Info.Lines)
+		assert.Equal(t, []LineKind{Plain}, kindsSince(t, gam, 0))
+	})
+
+	t.Run("when a battle starts, should clear the kinds with the lines and log who comes out as plain", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+
+		assert.Equal(t, []string{"Wild Weedle appeared!", "Charmander, I choose you!"}, gam.Info.Lines)
+		assert.Equal(t, []LineKind{Plain, Plain}, kindsSince(t, gam, 0))
+	})
+
+	t.Run("when the fighter wins, should log the damage dealt, the faint, the experience, the level and the money by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		from := len(gam.Info.Lines)
+		gam.member(1).XP = 6*6*6 - 1 // a level up at any win
+
+		winBattle(t, gam)
+
+		assert.Equal(t, []string{
+			"Charmander used Scratch!",
+			"Charmander did 9 points of damage to enemy Weedle.",
+			"Enemy Weedle fainted!",
+			"Charmander gained 91 experience points!",
+			"Charmander grew to level 6!",
+			"You got 250¥!",
+		}, gam.Info.Lines[from:])
+		assert.Equal(t, []LineKind{
+			Plain,
+			DamageDealt,
+			EnemyFainted,
+			ExperienceGained,
+			LevelUp,
+			PrizeMoney,
+		}, kindsSince(t, gam, from))
+	})
+
+	t.Run("when the fighter loses, should log the damage taken, its faint and the money lost by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		from := len(gam.Info.Lines)
+
+		loseBattle(t, gam)
+
+		assert.Equal(t, []string{
+			"Charmander used Scratch!",
+			"Charmander did 9 points of damage to enemy Weedle.",
+			"Enemy Weedle used Tackle!",
+			"Enemy Weedle did 12 points of damage to Charmander.",
+			"Charmander fainted!",
+			"You lost 0¥!",
+		}, gam.Info.Lines[from:])
+		assert.Equal(t, []LineKind{
+			Plain,
+			DamageDealt,
+			Plain,
+			DamageTaken,
+			OwnFainted,
+			MoneyLost,
+		}, kindsSince(t, gam, from))
+	})
+
+	t.Run("when the fighter lands a critical hit, should log it by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		from := len(gam.Info.Lines)
+		gam.Rand.Seed = 29 // Scratch's first draw is a critical hit
+
+		winBattle(t, gam)
+
+		assert.Equal(t, []string{
+			"Charmander used Scratch!",
+			"Critical hit!",
+			"Charmander did 1 points of damage to enemy Weedle.",
+		}, gam.Info.Lines[from:from+3])
+		assert.Equal(t, []LineKind{
+			Plain,
+			CriticalDealt,
+			DamageDealt,
+		}, kindsSince(t, gam, from)[:3])
+	})
+
+	t.Run("when the enemy lands a critical hit, should log it by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		from := len(gam.Info.Lines)
+		gam.Rand.Seed = 10 // the enemy's attack is a critical hit, and Scratch isn't
+
+		loseBattle(t, gam)
+
+		assert.Equal(t, []string{
+			"Charmander used Scratch!",
+			"Charmander did 1 points of damage to enemy Weedle.",
+			"Enemy Weedle used String Shot!",
+			"Critical hit!",
+			"It's not very effective...",
+			"Enemy Weedle did 1 points of damage to Charmander.",
+			"Charmander fainted!",
+			"You lost 0¥!",
+		}, gam.Info.Lines[from:])
+		assert.Equal(t, []LineKind{
+			Plain,
+			DamageDealt,
+			Plain,
+			CriticalTaken,
+			Plain,
+			DamageTaken,
+			OwnFainted,
+			MoneyLost,
+		}, kindsSince(t, gam, from))
+	})
+
+	t.Run("when a POKéBall catches the POKéMON, should log the catch and the new POKéDEX entry by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		from := len(gam.Info.Lines)
+
+		catchWithBall(t, gam)
+
+		assert.Equal(t, []string{
+			"You threw a POKéBall.",
+			"You caught Weedle!",
+			"Weedle has been added to the POKéDEX!",
+		}, gam.Info.Lines[from:])
+		assert.Equal(t, []LineKind{Plain, Caught, Registered}, kindsSince(t, gam, from))
+	})
+
+	t.Run("when the Master Ball catches the POKéMON, should log the catch by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		from := len(gam.Info.Lines)
+
+		catchWithMasterBall(t, gam)
+
+		assert.Equal(t, "You caught Weedle!", gam.Info.Lines[from+1])
+		assert.Equal(t, []LineKind{Plain, Caught, Registered}, kindsSince(t, gam, from))
+	})
+
+	t.Run("when a Potion heals the fighter, should log its HP by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		gam.OwnHP, gam.Potions = 10, 1
+		gam.enableItems()
+
+		from := len(gam.Info.Lines)
+
+		gam.UseItem(Potion)
+
+		assert.Equal(t, "Charmander recovered 40 HP!", gam.Info.Lines[from])
+		assert.Equal(t, []LineKind{Healed, Plain, DamageTaken}, kindsSince(t, gam, from))
+	})
+
+	t.Run("when the player quits a tournament, should log the experience and the level lost by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := searched(t)
+		fighter := gam.member(1)
+		fighter.Level, fighter.XP = 10, 1000 // a twentieth takes a level
+
+		from := len(gam.Info.Lines)
+
+		gam.quitTournament()
+
+		assert.Equal(t, []string{
+			"Quit the tournament! Charmander lost 50 experience points!",
+			"Charmander lost a level!",
+		}, gam.Info.Lines[from:])
+		assert.Equal(t, []LineKind{ExperienceLost, LevelLost}, kindsSince(t, gam, from))
+	})
+
+	t.Run("when a shiny POKéMON appears, should log it by kind", func(t *testing.T) {
+		t.Parallel()
+
+		slot := save.Slot{
+			Species: 4,
+			Level:   50,
+			XP:      125000,
+		}
+		gam, _ := shinyGame(t, slot)
+		gam.RollShiny = always
+
+		gam.FindPKMN()
+
+		assert.Equal(t, "It's a shiny POKéMON!", gam.Info.Lines[1])
+		assert.Equal(t, []LineKind{Plain, Shiny}, kindsSince(t, gam, 0))
+	})
+
+	t.Run("when the starter chosen is shiny, should log it by kind", func(t *testing.T) {
+		t.Parallel()
+
+		gam, _ := newGame(t)
+		gam.RollShiny = always
+		gam.NewGame("ash.pgs", "Ash", true)
+
+		from := len(gam.Info.Lines)
+
+		gam.ChooseStarter(1)
+
+		assert.Equal(t, []string{
+			"Charmander has been added to the POKéDEX!",
+			"It's a shiny POKéMON!",
+		}, gam.Info.Lines[from:])
+		assert.Equal(t, []LineKind{Registered, Shiny}, kindsSince(t, gam, from))
+	})
+}
