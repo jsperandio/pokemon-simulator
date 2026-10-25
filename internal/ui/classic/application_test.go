@@ -1182,7 +1182,7 @@ func fillApp(t *testing.T) *testApp {
 func Test_Application_placeWindows(t *testing.T) {
 	t.Parallel()
 
-	for _, tc := range []struct {
+	for _, cas := range []struct {
 		name   string
 		window func(ta *testApp) *window
 		want   image.Rectangle
@@ -1209,13 +1209,13 @@ func Test_Application_placeWindows(t *testing.T) {
 			want: image.Rect(0, 0, 617, 416),
 		},
 	} {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(cas.name, func(t *testing.T) {
 			t.Parallel()
 
 			ta := fillApp(t)
 			ta.startGame()
 
-			assert.Equal(t, tc.want, tc.window(ta).rect())
+			assert.Equal(t, cas.want, cas.window(ta).rect())
 		})
 	}
 

@@ -860,12 +860,12 @@ func (m *memo) style(i int) (face, color.RGBA) {
 		return m.font, m.fontColor
 	}
 
-	sty := m.styles[i]
-	if sty.bold {
-		return boldFace(m.font), sty.color
+	ls := m.styles[i]
+	if ls.bold {
+		return boldFace(m.font), ls.color
 	}
 
-	return m.font, sty.color
+	return m.font, ls.color
 }
 
 // layout wraps the lines, as WordWrap does, each in its own face, and
@@ -918,9 +918,9 @@ func (m *memo) paint(cv canvas) {
 			break
 		}
 
-		row := m.rows[i]
-		fnt, clr := m.style(row.line)
-		fnt.draw(in, 1, y, row.text, clr)
+		mr := m.rows[i]
+		fnt, clr := m.style(mr.line)
+		fnt.draw(in, 1, y, mr.text, clr)
 	}
 
 	if m.bar {

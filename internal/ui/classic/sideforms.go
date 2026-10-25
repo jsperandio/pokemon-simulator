@@ -261,16 +261,16 @@ func inkOf(kind game.LineKind) (logInk, bool) {
 // logStyle returns how Battle Info draws a line of kind kind in colour, on
 // white or on grey: in its ink, bold for a highlight, or plain black.
 func logStyle(kind game.LineKind, white bool) lineStyle {
-	ink, ok := inkOf(kind)
+	li, ok := inkOf(kind)
 	if !ok {
 		return lineStyle{
 			color: colText,
 		}
 	}
 
-	clr := ink.grey
+	clr := li.grey
 	if white {
-		clr = ink.white
+		clr = li.white
 	}
 
 	return lineStyle{

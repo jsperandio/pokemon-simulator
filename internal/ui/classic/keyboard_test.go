@@ -249,7 +249,7 @@ func Test_keyboard(t *testing.T) {
 		assert.Equal(t, 2, fi.sessions, "the sessions")
 	})
 
-	t.Run("while the keyboard is open, should drop the characters the text area forwards", func(t *testing.T) {
+	t.Run("when the keyboard is open, should drop the characters the text area forwards", func(t *testing.T) {
 		t.Parallel()
 
 		ta, _ := newSaveAs(t)

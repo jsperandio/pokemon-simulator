@@ -78,8 +78,8 @@ func (kbd *keyboard) commits(in *input) {
 // had the frame's input. While it is open, it keeps the IME's session in
 // step with the field: a field that changed under the session ends it,
 // and the next one starts from the field's text.
-func (kbd *keyboard) follow(d *desktop, in *input) {
-	fld := focusedField(d)
+func (kbd *keyboard) follow(dsk *desktop, in *input) {
+	fld := focusedField(dsk)
 	if kbd.field != nil && fld != kbd.field {
 		kbd.close()
 	}
@@ -181,12 +181,12 @@ func (kbd *keyboard) commit(txt string, replaced bool, before, after string) {
 
 // focusedField returns the active window's focused control when it is a
 // text field that takes typing, or nil.
-func focusedField(d *desktop) textField {
-	if d.active == nil {
+func focusedField(dsk *desktop) textField {
+	if dsk.active == nil {
 		return nil
 	}
 
-	fld, ok := d.active.focus.(textField)
+	fld, ok := dsk.active.focus.(textField)
 	if !ok {
 		return nil
 	}

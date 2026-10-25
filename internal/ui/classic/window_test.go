@@ -79,7 +79,7 @@ func anchorWindow(ta *testApp) *window {
 func Test_window_resize(t *testing.T) {
 	t.Parallel()
 
-	for _, tc := range []struct {
+	for _, cas := range []struct {
 		name    string
 		control string
 		want    image.Rectangle
@@ -110,13 +110,13 @@ func Test_window_resize(t *testing.T) {
 			want:    image.Rect(70, 40, 120, 60),
 		},
 	} {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(cas.name, func(t *testing.T) {
 			t.Parallel()
 
 			wdw := anchorWindow(newTestApp(t))
 			wdw.resize(image.Pt(300, 160))
 
-			assert.Equal(t, tc.want, wdw.find(tc.control).base().rect)
+			assert.Equal(t, cas.want, wdw.find(cas.control).base().rect)
 		})
 	}
 
@@ -124,7 +124,14 @@ func Test_window_resize(t *testing.T) {
 		t.Parallel()
 
 		wdw := anchorWindow(newTestApp(t))
-		names := []string{"Stretched", "Right", "Centred", "Fixed", "Box", "Inner"}
+		names := []string{
+			"Stretched",
+			"Right",
+			"Centred",
+			"Fixed",
+			"Box",
+			"Inner",
+		}
 		before := map[string]image.Rectangle{}
 
 		for _, nam := range names {
