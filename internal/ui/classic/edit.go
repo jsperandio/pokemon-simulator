@@ -648,11 +648,29 @@ func (se *spinEdit) cursor(pnt image.Point) ebiten.CursorShapeType {
 	return ebiten.CursorShapeText
 }
 
-// memo is a read-only TMemo with a vertical scroll bar: Battle Info.
+// lineStyle is how a memo draws a line: in a colour, and in bold or not.
+type lineStyle struct {
+	color color.RGBA
+	bold  bool
+}
+
+// memoRow is a row of a memo's text: a line, or the part of one that
+// wrapping leaves on the row.
+type memoRow struct {
+	text string
+	line int // the line's index
+}
+
+// memo is a read-only TMemo: Battle Info, with a vertical scroll bar, and
+// the preview of its colours in Preferences, with none. Each line can have
+// a style of its own, which the original's memo doesn't have.
 type memo struct {
 	control
-	lines  []string // as the program set them
-	wraps  []string // wrapped to the width
+	lines  []string    // as the program set them
+	styles []lineStyle // the lines', as the program set them; none is the font's
+	rows   []memoRow   // the lines wrapped to the width
+	bar    bool        // ScrollBars is ssVertical
+	laid   bool        // the rows and the scroll bar fit the size
 	scroll scrollBar
 }
 
@@ -660,6 +678,7 @@ func (m *memo) setup(comp *layout.Component) {
 	m.windowed = true
 	m.tabStop = m.property("TabStop") != "False"
 	m.color = vclColor(m.property("Color"), colWindow)
+	m.bar = m.property("ScrollBars") == "ssVertical"
 
 	m.lines = slices.Clone(comp.Items)
 	m.scroll = scrollBar{
@@ -672,22 +691,41 @@ func (m *memo) focusable() bool {
 	return true
 }
 
-// text returns the client rectangle for the text.
+// textRect returns the client rectangle for the text: inside the border,
+// left of the scroll bar.
 func (m *memo) textRect() image.Rectangle {
 	rect := m.local().Inset(2)
-	rect.Max.X -= scrollSize
+	if m.bar {
+		rect.Max.X -= scrollSize
+	}
 
 	return rect
 }
 
-// setLines replaces the text; lines added at the end scroll into view.
-func (m *memo) setLines(lines []string) {
-	if strings.Join(lines, "\n") == strings.Join(m.lines, "\n") {
+// barRect returns the scroll bar's rectangle, along the right edge inside
+// the border, or an empty one without the bar.
+func (m *memo) barRect() image.Rectangle {
+	if !m.bar {
+		return image.Rectangle{}
+	}
+
+	rect := m.local().Inset(2)
+
+	return image.Rect(rect.Max.X-scrollSize, rect.Min.Y, rect.Max.X, rect.Max.Y)
+}
+
+// setLines replaces the text and its styles: styles may be shorter than
+// lines, or nil, and the lines without one have the font's. Lines added at
+// the end scroll into view.
+func (m *memo) setLines(lines []string, styles []lineStyle) {
+	same := slices.Equal(lines, m.lines) && slices.Equal(styles, m.styles)
+	if same {
 		return
 	}
 
 	grew := len(lines) > len(m.lines)
 	m.lines = slices.Clone(lines)
+	m.styles = slices.Clone(styles)
 	m.layout()
 
 	if grew {
@@ -697,20 +735,43 @@ func (m *memo) setLines(lines []string) {
 	m.invalidate()
 }
 
-// layout wraps the lines, as WordWrap does, and sizes the scroll bar.
-func (m *memo) layout() {
-	tr := m.textRect()
-	m.wraps = m.wraps[:0]
-
-	for _, lin := range m.lines {
-		m.wraps = append(m.wraps, wrap(m.font, lin, tr.Dx()-2)...)
+// style returns the face and colour line i is drawn in: its style's, or
+// the font's.
+func (m *memo) style(i int) (face, color.RGBA) {
+	if i >= len(m.styles) {
+		return m.font, m.fontColor
 	}
 
-	rect := m.local().Inset(2)
-	m.scroll.rect = image.Rect(rect.Max.X-scrollSize, rect.Min.Y, rect.Max.X, rect.Max.Y)
-	m.scroll.min, m.scroll.max = 0, len(m.wraps)-1
+	sty := m.styles[i]
+	if sty.bold {
+		return boldFace(m.font), sty.color
+	}
+
+	return m.font, sty.color
+}
+
+// layout wraps the lines, as WordWrap does, each in its own face, and
+// sizes the scroll bar.
+func (m *memo) layout() {
+	tr := m.textRect()
+	m.rows = m.rows[:0]
+
+	for i, lin := range m.lines {
+		fnt, _ := m.style(i)
+		for _, txt := range wrap(fnt, lin, tr.Dx()-2) {
+			m.rows = append(m.rows, memoRow{
+				text: txt,
+				line: i,
+			})
+		}
+	}
+
+	m.scroll.rect = m.barRect()
+	m.scroll.min, m.scroll.max = 0, len(m.rows)-1
 	m.scroll.page = (tr.Dy() - 2) / m.font.height()
 	m.scroll.set(m.scroll.pos)
+
+	m.laid = true
 }
 
 // resized wraps the lines again, and moves the scroll bar, for the new
@@ -720,8 +781,7 @@ func (m *memo) resized() {
 }
 
 func (m *memo) paint(cv canvas) {
-	needsLayout := (len(m.wraps) == 0 && len(m.lines) > 0) || m.scroll.rect.Empty()
-	if needsLayout {
+	if !m.laid {
 		m.layout()
 	}
 
@@ -734,16 +794,20 @@ func (m *memo) paint(cv canvas) {
 	// The format rectangle is a pixel inside the client area.
 	in := cv.sub(tr)
 
-	for i := m.scroll.pos; i < len(m.wraps); i++ {
+	for i := m.scroll.pos; i < len(m.rows); i++ {
 		y := 1 + (i-m.scroll.pos)*m.font.height()
 		if y >= tr.Dy() {
 			break
 		}
 
-		m.font.draw(in, 1, y, m.wraps[i], m.fontColor)
+		row := m.rows[i]
+		fnt, clr := m.style(row.line)
+		fnt.draw(in, 1, y, row.text, clr)
 	}
 
-	m.scroll.paint(cv)
+	if m.bar {
+		m.scroll.paint(cv)
+	}
 }
 
 func (m *memo) mouseDown(pnt image.Point, _ bool) {

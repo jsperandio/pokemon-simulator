@@ -211,7 +211,7 @@ func newInfoForm(app *Application) *infoForm {
 
 func (inf *infoForm) sync() {
 	gam := inf.app.game
-	inf.memo.setLines(gam.Info.Lines)
+	inf.memo.setLines(gam.Info.Lines, nil)
 }
 
 // pokedexForm is the POKéDEX (TForm8).
