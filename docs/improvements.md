@@ -1,6 +1,6 @@
 # Improvements
 
-The original POKéMON Simulator V4.5 doesn't have these. The port's v4.5.0 is the original as it was; the versions after it add them.
+The original POKéMON Simulator V4.5 doesn't have these. The port's v4.5 releases are the original as it was; the versions from 4.6 on add them.
 
 - [Animated sprites](#animated-sprites)
 - [Shiny POKéMON](#shiny-pokémon)
@@ -27,7 +27,7 @@ A POKéMON found with Actions → Fight a wild POKéMON → Search for a POKéMO
 - **Its icon** in the Statistics window stays the original's, with a mark on it, as on a shiny starter. You choose the mark, or none, in File → Preferences..., under Graphics.
 - **Mewtwo:** you can keep a shiny Mewtwo besides a normal one, but not a second of either.
 - **In the POKéDEX,** the Shiny box under the sprite shows any species shiny. There the stars play with the animation only, and the still sprite has none.
-- **Saves** keep shininess in lines after the original's, which the original doesn't read. They still load in the original and in v4.5.0, where every POKéMON is normal.
+- **Saves** keep shininess in lines after the original's, which the original doesn't read. They still load in the original and in the port's v4.5 releases, where every POKéMON is normal.
 
 ## Don't show this message again
 
