@@ -31,6 +31,11 @@ type textBox struct {
 	onChange func()              // after any change of the text
 	blink    time.Time           // when the caret was last moved
 	dragging bool
+
+	// The word a touch screen's keyboard is composing, shown in the
+	// selection's place until it is typed, and the caret in it.
+	composing    []rune
+	composeCaret int
 }
 
 func (tbx *textBox) String() string {
@@ -86,21 +91,59 @@ func (tbx *textBox) replace(txt string) {
 	tbx.changed()
 }
 
-// typed handles a typed character: one cp1252 can hold, that the box
-// accepts.
-func (tbx *textBox) typed(chr rune) {
+// takes reports whether chr may be typed in the box: a character cp1252
+// can hold, that the box accepts.
+func (tbx *textBox) takes(chr rune) bool {
 	control := chr < 0x20 || chr == 0x7f
 	outsideANSI := string(delphi.EncodeANSI(string(chr))) == "?" && chr != '?'
 
 	if control || outsideANSI {
+		return false
+	}
+
+	return tbx.valid == nil || tbx.valid(chr)
+}
+
+// typed handles a typed character, if the box takes it.
+func (tbx *textBox) typed(chr rune) {
+	if tbx.takes(chr) {
+		tbx.replace(string(chr))
+	}
+}
+
+// splice sets the text to before, txt and after, with the caret after txt,
+// as a touch screen's keyboard types over the text around the caret. Of
+// txt, the box keeps the characters it takes, within its length limit.
+func (tbx *textBox) splice(before, txt, after string) {
+	if tbx.readOnly {
 		return
 	}
 
-	if tbx.valid != nil && !tbx.valid(chr) {
-		return
+	head, tail := []rune(before), []rune(after)
+	kept := make([]rune, 0, len(txt))
+
+	for _, chr := range txt {
+		if tbx.takes(chr) {
+			kept = append(kept, chr)
+		}
 	}
 
-	tbx.replace(string(chr))
+	if tbx.maxLen > 0 {
+		kept = kept[:min(len(kept), max(tbx.maxLen-len(head)-len(tail), 0))]
+	}
+
+	tbx.text = slices.Concat(head, kept, tail)
+	tbx.caret = len(head) + len(kept)
+	tbx.anchor = tbx.caret
+	tbx.changed()
+}
+
+// compose shows txt as the word a touch screen's keyboard is composing,
+// with the caret caret runes into it; an empty txt ends the word.
+func (tbx *textBox) compose(txt string, caret int) {
+	tbx.composing = []rune(txt)
+	tbx.composeCaret = max(min(caret, len(tbx.composing)), 0)
+	tbx.blink = time.Now()
 }
 
 // key handles the editing keys; it reports whether key was one.
@@ -229,7 +272,12 @@ func (tbx *textBox) at(fnt face, x int) int {
 
 // fit scrolls the text so that the caret shows in a box wid pixels wide.
 func (tbx *textBox) fit(fnt face, wid int) {
-	cx := fnt.width(string(tbx.text[:tbx.caret]))
+	tbx.scrollTo(wid, fnt.width(string(tbx.text[:tbx.caret])), fnt.width(string(tbx.text)))
+}
+
+// scrollTo scrolls a text full pixels wide so that a caret cx pixels into
+// it shows in a box wid pixels wide.
+func (tbx *textBox) scrollTo(wid, cx, full int) {
 	if cx-tbx.scroll > wid-1 {
 		tbx.scroll = cx - wid + 1 + wid/4
 	}
@@ -238,8 +286,8 @@ func (tbx *textBox) fit(fnt face, wid int) {
 		tbx.scroll = max(cx-wid/4, 0)
 	}
 
-	if fnt.width(string(tbx.text))-tbx.scroll < wid-1 {
-		tbx.scroll = max(fnt.width(string(tbx.text))-wid+1, 0)
+	if full-tbx.scroll < wid-1 {
+		tbx.scroll = max(full-wid+1, 0)
 	}
 }
 
@@ -256,6 +304,12 @@ func blinkOn(since time.Duration) bool {
 // paint draws the text in rect with its selection (when focused) and the
 // blinking caret.
 func (tbx *textBox) paint(cv canvas, rect image.Rectangle, fnt face, fg color.RGBA, focused bool) {
+	if len(tbx.composing) > 0 {
+		tbx.paintComposing(cv, rect, fnt, fg, focused)
+
+		return
+	}
+
 	tbx.fit(fnt, rect.Dx())
 
 	in := cv.sub(rect)
@@ -279,10 +333,35 @@ func (tbx *textBox) paint(cv canvas, rect image.Rectangle, fnt face, fg color.RG
 
 	hasCaret := focused && beg == end && !tbx.readOnly
 	if hasCaret && blinkOn(time.Since(tbx.blink)) {
-		cx := fnt.width(string(tbx.text[:tbx.caret])) - tbx.scroll
-		for y := range fnt.height() {
-			in.invert(cx, y)
-		}
+		drawCaret(in, fnt, fnt.width(string(tbx.text[:tbx.caret]))-tbx.scroll)
+	}
+}
+
+// paintComposing draws the text in rect with the word being composed in
+// the selection's place, underlined as Windows' IME underlines a
+// composition, and the blinking caret in the word.
+func (tbx *textBox) paintComposing(cv canvas, rect image.Rectangle, fnt face, fg color.RGBA, focused bool) {
+	beg, end := tbx.sel()
+	pre, word, post := string(tbx.text[:beg]), string(tbx.composing), string(tbx.text[end:])
+	cx := fnt.width(pre + string(tbx.composing[:tbx.composeCaret]))
+	tbx.scrollTo(rect.Dx(), cx, fnt.width(pre+word+post))
+
+	in := cv.sub(rect)
+	wordX := fnt.draw(in, -tbx.scroll, 0, pre, fg)
+	postX := fnt.draw(in, wordX, 0, word, fg)
+	line := min(fnt.ascent()+1, fnt.height()-1)
+	in.fill(image.Rect(wordX, line, postX, line+1), fg)
+	fnt.draw(in, postX, 0, post, fg)
+
+	if focused && blinkOn(time.Since(tbx.blink)) {
+		drawCaret(in, fnt, cx-tbx.scroll)
+	}
+}
+
+// drawCaret inverts the caret's column at x.
+func drawCaret(in canvas, fnt face, x int) {
+	for y := range fnt.height() {
+		in.invert(x, y)
 	}
 }
 
@@ -373,7 +452,25 @@ func (e *edit) paint(cv canvas) {
 	}
 
 	cv.fill(in, e.color)
-	e.tb.paint(cv, image.Rect(e.inset, e.inset, rect.Max.X-3, rect.Max.Y-2), e.font, fg, e.focused() && e.wdw.active)
+	e.tb.paint(cv, e.textRect(), e.font, fg, e.focused() && e.wdw.active)
+}
+
+// textRect is where the text shows, in the control.
+func (e *edit) textRect() image.Rectangle {
+	rect := e.local()
+
+	return image.Rect(e.inset, e.inset, rect.Max.X-3, rect.Max.Y-2)
+}
+
+// textArea returns the text box and where its text shows (textField); a
+// read-only edit takes no typing.
+func (e *edit) textArea() (tbx *textBox, rect image.Rectangle, ok bool) {
+	return &e.tb, e.textRect(), !e.tb.readOnly
+}
+
+// splice types over the text around the caret (textField).
+func (e *edit) splice(before, txt, after string) {
+	e.tb.splice(before, txt, after)
 }
 
 func (e *edit) mouseDown(pnt image.Point, double bool) {
@@ -520,7 +617,7 @@ func (se *spinEdit) paint(cv canvas) {
 	cv.fill(in, se.color)
 
 	up, down := se.buttons()
-	se.tb.paint(cv, image.Rect(se.inset, se.inset, up.Min.X-1, rect.Max.Y-2), se.font, fg, se.focused() && se.wdw.active)
+	se.tb.paint(cv, se.textRect(), se.font, fg, se.focused() && se.wdw.active)
 
 	// Two speed buttons, the down one painted last, each drawn by
 	// DrawFrameControl with its glyph centred inside the frame.
@@ -544,6 +641,19 @@ func (se *spinEdit) paint(cv canvas) {
 
 		cv.pattern(x, y, glyph, map[byte]color.RGBA{'#': colText})
 	}
+}
+
+// textRect is where the text shows, in the control: left of the buttons.
+func (se *spinEdit) textRect() image.Rectangle {
+	up, _ := se.buttons()
+
+	return image.Rect(se.inset, se.inset, up.Min.X-1, se.local().Max.Y-2)
+}
+
+// textArea returns the text box and where its text shows (textField); a
+// read-only spin edit takes no typing.
+func (se *spinEdit) textArea() (tbx *textBox, rect image.Rectangle, ok bool) {
+	return &se.tb, se.textRect(), !se.tb.readOnly
 }
 
 func (se *spinEdit) mouseDown(pnt image.Point, double bool) {
@@ -927,10 +1037,29 @@ func (cb *comboBox) paint(cv canvas) {
 	if cb.listOnly {
 		cb.paintSelection(cv, image.Rect(in.Min.X+1, in.Min.Y+1, box.Min.X-1, in.Max.Y-1), fg)
 	} else {
-		cb.tb.paint(cv, image.Rect(3, 3, box.Min.X-1, rect.Max.Y-3), cb.font, fg, cb.focused() && cb.wdw.active)
+		cb.tb.paint(cv, cb.textRect(), cb.font, fg, cb.focused() && cb.wdw.active)
 	}
 
 	paintArrowButton(cv, box, arrowDown, cb.usable(), cb.pressing && cb.dropped != nil, 5)
+}
+
+// textRect is where the edit's text shows, in the control: left of the
+// button.
+func (cb *comboBox) textRect() image.Rectangle {
+	return image.Rect(3, 3, cb.button().Min.X-1, cb.local().Max.Y-3)
+}
+
+// textArea returns the edit's text box and where its text shows
+// (textField); a list-only box takes no typing.
+func (cb *comboBox) textArea() (tbx *textBox, rect image.Rectangle, ok bool) {
+	return &cb.tb, cb.textRect(), !cb.listOnly
+}
+
+// splice types over the text around the caret (textField), as typing a
+// text the items don't complete: the selection is lost.
+func (cb *comboBox) splice(before, txt, after string) {
+	cb.tb.splice(before, txt, after)
+	cb.typedText()
 }
 
 // paintSelection paints the selected item of a list-only box in tr,

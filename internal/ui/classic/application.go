@@ -88,6 +88,7 @@ type Application struct {
 	helpWindow *helpWindow // the manual, once opened
 	music      musicPlayer
 	xfer       transfers   // the browser's uploads and downloads, on the web
+	keyboard   *keyboard   // the keyboard a touch screen shows, on the web
 	fileDialog *fileDialog // the file dialog that shows, if one does
 	draws      *drawShow   // the Game Corner's draws, while they show
 
@@ -119,6 +120,7 @@ func NewApplication(data *gamedata.Data, files storage, args []string) (*Applica
 		requests: make(chan func()),
 		music:    &audio.Music{},
 		pace:     newPacer(),
+		keyboard: newKeyboard(),
 	}
 	if platform.Transfers {
 		app.xfer = browser{files}
@@ -418,7 +420,9 @@ func (app *Application) Update() error {
 		return ebiten.Termination
 	}
 
-	app.pace.next(&in, app.desk.dirty, app.music.Playing(), now)
+	// The keyboard's text area wakes no frames, so frames run while it is up.
+	typing := app.keyboard != nil && app.keyboard.isOpen()
+	app.pace.next(&in, app.desk.dirty || typing, app.music.Playing(), now)
 
 	return nil
 }
@@ -431,7 +435,16 @@ func (app *Application) step(in input, now time.Time) {
 		return
 	}
 
+	if app.keyboard != nil {
+		app.keyboard.commits(&in)
+	}
+
 	app.desk.update(&in, now)
+
+	if app.keyboard != nil {
+		app.keyboard.follow(app.desk, &in)
+	}
+
 	app.load.tick()
 	app.music.Update(app.game.Item("RepeatMusic1").Checked) // TForm4.Timer1Timer
 
