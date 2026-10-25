@@ -57,6 +57,7 @@ The original doesn't have these:
 - Don't show this message again
 - Fill the screen
 - Search Again
+- Coloured Battle Info
 - Small interface changes
 
 More details: [docs/improvements.md](docs/improvements.md).

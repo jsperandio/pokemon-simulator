@@ -7,6 +7,7 @@ The original POKéMON Simulator V4.5 doesn't have these. The port's v4.5.0 is th
 - [Don't show this message again](#dont-show-this-message-again)
 - [Fill the screen](#fill-the-screen)
 - [Search Again](#search-again)
+- [Coloured Battle Info](#coloured-battle-info)
 - [Small interface changes](#small-interface-changes)
 - [Where the choices are kept](#where-the-choices-are-kept)
 
@@ -53,6 +54,21 @@ When a battle against a POKéMON you searched for is over, Search Again shows wh
 - **F3** is Search for a POKéMON, as the menu shows, and Search Again once the battle is over, while the game window is active.
 
 Search Again doesn't show after Actions → Fight a wild POKéMON → Mewtwo, or after a trainer's battle.
+
+## Coloured Battle Info
+
+Battle Info colours the lines that tell how the battle is going:
+
+- **Green:** the damage your POKéMON deals and its critical hits, the enemy fainting, and a catch.
+- **Red:** the damage your POKéMON takes and the enemy's critical hits, your POKéMON fainting, and the money, experience or level you lose.
+- **Blue:** the experience your POKéMON gains, and a level up.
+- **Gold:** the money you win, and "It's a shiny POKéMON!".
+- **Teal:** the HP a Potion gives back.
+- **Purple:** a POKéMON added to the POKéDEX.
+
+A level up, a catch, either POKéMON fainting, a shiny and a critical hit are in bold too. The other lines, such as the attacks used and how effective they are, stay black, as in the original.
+
+In File → Preferences..., under Battle Info, clear Colour the messages to turn the colours off, and choose White under Background to make Battle Info white instead of the original's grey. The colours are a little darker on the grey, where pure red and green are hard to read. The page's preview shows your choice before you keep it.
 
 ## Small interface changes
 
