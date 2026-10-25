@@ -16,7 +16,7 @@ Each link opens that version's game, with nothing to download:
 
 | Version | | What it is | Notes |
 |---|---|---|---|
-| [v4.5.0](https://jsperandio.github.io/pokemon-simulator-web/v4.5.0/) | Original | the 2004 game, as Michael Madsen made it | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.0) · [BirdieSoft's page](https://birdiesoft.dk/software.php?id=2) |
+| [v4.5.1](https://jsperandio.github.io/pokemon-simulator-web/v4.5.1/) | Original | the 2004 game, as Michael Madsen made it | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.1) · [BirdieSoft's page](https://birdiesoft.dk/software.php?id=2) |
 
 [Playing](#playing) says how the game keeps its files in the browser.
 
@@ -45,6 +45,7 @@ The game plays as the original did, and its manual is under Help → Contents (F
 - **On Linux with GNOME 44 or later,** the game's window gets its title bar from a GNOME helper, `mutter-x11-frames`, as every X11 program's does. If that helper has stopped, GNOME shows none of these windows. The game notices after a few seconds and starts again without a title bar, and a notification says so: move the window with the Super key and the mouse, and close it with Alt+F4 or File → Quit. Logging out and in again brings the title bars back.
 - **If the game can't start,** it says why in a notification or a message box, as there may be no terminal to read it in.
 - **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab. The game needs WebGL 2, which current browsers have.
+- **On a phone or a tablet,** a tap is a click, and two quick taps on one spot are a double click. Tapping a text box, such as the file name in Save As, brings up the keyboard, whose Enter key works as Enter does; the word being typed shows underlined until the keyboard types it in. The game's 800×600 screen is easier to play with the device held sideways.
 
 ## Building
 
@@ -59,7 +60,7 @@ You need Go 1.26 or later. No C compiler is needed, because every build uses `CG
 | `make web` | Build only the WebAssembly version into `dist/web/` |
 | `make serve` | Build and serve the WebAssembly version at http://localhost:8080 (needs Python 3) |
 
-`make dist` names the archives after the latest `v*` tag, such as `v4.5.0`, which also goes into the Windows program's properties. It needs GNU tar and zip, and network access the first time, to fetch [go-winres](https://github.com/tc-hib/go-winres), which gives the Windows program its icon.
+`make dist` names the archives after the latest `v*` tag, such as `v4.5.1`, which also goes into the Windows program's properties. It needs GNU tar and zip, and network access the first time, to fetch [go-winres](https://github.com/tc-hib/go-winres), which gives the Windows program its icon.
 
 On Linux, the game loads the system's graphics and audio libraries at runtime. Desktop distributions already include them.
 
