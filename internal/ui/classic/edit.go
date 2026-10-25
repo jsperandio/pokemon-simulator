@@ -58,6 +58,13 @@ func (tbx *textBox) sel() (from, to int) {
 	return min(tbx.anchor, tbx.caret), max(tbx.anchor, tbx.caret)
 }
 
+// aroundSelection returns the text before and after the selection.
+func (tbx *textBox) aroundSelection() (before, after string) {
+	beg, end := tbx.sel()
+
+	return string(tbx.text[:beg]), string(tbx.text[end:])
+}
+
 func (tbx *textBox) changed() {
 	tbx.blink = time.Now()
 	if tbx.onChange != nil {

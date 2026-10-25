@@ -93,7 +93,8 @@ func (kbd *keyboard) follow(dsk *desktop, in *input) {
 		return
 	}
 
-	if before, after := aroundSelection(kbd.field); before != kbd.before || after != kbd.after {
+	tbx, _, _ := kbd.field.textArea()
+	if before, after := tbx.aroundSelection(); before != kbd.before || after != kbd.after {
 		kbd.ime.Confirm()
 	}
 
@@ -138,7 +139,7 @@ func (kbd *keyboard) session() (caret image.Rectangle, before, after string, ok 
 	}
 
 	tbx, rect, _ := kbd.field.textArea()
-	kbd.before, kbd.after = aroundSelection(kbd.field)
+	kbd.before, kbd.after = tbx.aroundSelection()
 
 	fnt := kbd.field.base().font
 	org := widgetOrigin(kbd.field).Add(rect.Min)
@@ -204,12 +205,4 @@ func pressedText(fld textField) bool {
 	tbx, _, _ := fld.textArea()
 
 	return tbx.dragging
-}
-
-// aroundSelection returns a field's text before and after its selection.
-func aroundSelection(fld textField) (before, after string) {
-	tbx, _, _ := fld.textArea()
-	beg, end := tbx.sel()
-
-	return string(tbx.text[:beg]), string(tbx.text[end:])
 }
