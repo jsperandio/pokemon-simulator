@@ -503,7 +503,8 @@ func Test_mainLayout(t *testing.T) {
 
 // The loading screen is AutoSize: it grows to its title, a pixel wider in
 // Arial than the form, after Position centred it, and the labels anchored
-// to its right move with it.
+// to its right move with it. The port's title has a box as wide as the
+// original's, so a version of any width gives the same.
 func Test_loadForm(t *testing.T) {
 	t.Parallel()
 
@@ -530,6 +531,16 @@ func Test_loadForm(t *testing.T) {
 			rect := wdw.find(name).base().rect
 			assert.Equal(t, x, rect.Min.X, "%s", name)
 		}
+	})
+
+	t.Run("when the title is wider than the original's, should keep the screen's size and the labels' places", func(t *testing.T) {
+		t.Parallel()
+
+		wdw := newTestApp(t).load.wdw
+		get[*label](wdw, "Title").setCaption("POKéMON Simulator V4.10.12-rc.1")
+
+		assert.Equal(t, image.Pt(511, 157), wdw.client, "the client area")
+		assert.Equal(t, 216, wdw.find("Label1").base().rect.Min.X, "Label1")
 	})
 }
 

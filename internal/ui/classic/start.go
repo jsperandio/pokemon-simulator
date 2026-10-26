@@ -45,10 +45,41 @@ type loadForm struct {
 	running bool
 }
 
+// loadWidth is the loading screen's width in its layout, and loadTitleWidth
+// its title's in the original, a pixel wider, which AutoSize gave it.
+const (
+	loadWidth      int = 510
+	loadTitleWidth int = 511
+)
+
+// loadLayout is the original's loading screen with the port's change: the
+// title and the version line, which show the port's version, are centred
+// in boxes of fixed widths, the title's as wide as the original's. The
+// screen then keeps the original's size and places, which AutoSize gives
+// from the title, with a version of any width.
+func loadLayout() *layout.Component {
+	frm := layout.Form3.Clone()
+
+	ttl := frm.Find("Title")
+	ttl.Bounds.W = loadTitleWidth
+	ttl.Props["Alignment"] = "taCenter"
+	ttl.Props["AutoSize"] = "False"
+
+	ver := frm.Find("Label5")
+	ver.Bounds.X = 0
+	ver.Bounds.W = loadWidth
+	ver.Props = map[string]string{
+		"Alignment": "taCenter",
+		"AutoSize":  "False",
+	}
+
+	return &frm
+}
+
 func newLoadForm(app *Application) *loadForm {
 	lf := &loadForm{
 		app: app,
-		wdw: newWindow(app.desk, &layout.Form3),
+		wdw: newWindow(app.desk, loadLayout()),
 	}
 	app.desk.add(lf.wdw)
 
