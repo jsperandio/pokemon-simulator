@@ -4,6 +4,8 @@
 
 package layout
 
+import "github.com/jsperandio/pokemon-simulator/internal/version"
+
 // Form3 is TForm3 ("Form3"), the loading screen.
 var Form3 = Component{
 	Class:   "TForm3",
@@ -56,7 +58,7 @@ var Form3 = Component{
 			Class:   "TLabel",
 			Name:    "Title",
 			Bounds:  Rect{0, 0, 510, 49},
-			Caption: "POKéMON Simulator V4.5",
+			Caption: version.Title(),
 			Props: map[string]string{
 				"Color":        "clTeal",
 				"Font.Charset": "ANSI_CHARSET",
@@ -101,7 +103,7 @@ var Form3 = Component{
 			Class:   "TLabel",
 			Name:    "Label5",
 			Bounds:  Rect{148, 144, 214, 13},
-			Caption: "Version 4.5, Copyright© BirdieSoft 2002-2004",
+			Caption: "Version " + version.Number() + ", Copyright© BirdieSoft 2002-2004",
 		},
 		{
 			Class:   "TLabel",

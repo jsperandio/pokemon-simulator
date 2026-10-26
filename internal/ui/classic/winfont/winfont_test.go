@@ -69,6 +69,13 @@ func autoSized(cmp *layout.Component) bool {
 	return isLabel && autoSize
 }
 
+// originalCaptions are the captions Delphi measured of the labels that
+// show the port's version instead.
+var originalCaptions = map[string]string{
+	"AboutBox.Version": "Version 4.5 (32-bit)",
+	"Form3.Label5":     "Version 4.5, Copyright© BirdieSoft 2002-2004",
+}
+
 func Test_Font_Width(t *testing.T) {
 	t.Parallel()
 
@@ -89,8 +96,13 @@ func Test_Font_Width(t *testing.T) {
 
 				num++
 
-				assert.Equal(t, cmp.Bounds.W, fnt.Width(cmp.Caption, false),
-					"%s.%s %q", frm.Name, cmp.Name, cmp.Caption)
+				txt := cmp.Caption
+				if org, ok := originalCaptions[frm.Name+"."+cmp.Name]; ok {
+					txt = org
+				}
+
+				assert.Equal(t, cmp.Bounds.W, fnt.Width(txt, false),
+					"%s.%s %q", frm.Name, cmp.Name, txt)
 			})
 		}
 

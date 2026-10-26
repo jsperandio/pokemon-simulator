@@ -41,6 +41,7 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
+	"github.com/jsperandio/pokemon-simulator/internal/version"
 )
 
 // Driver does a scenario's actions on the port. The Player checks that
@@ -700,7 +701,12 @@ func (p *Player) item(arg string) error {
 	return p.drv.Item(k - 1)
 }
 
-// text records the game window's caption or the Mart's total.
+// originalTitle is the original's title, which its traces record in the
+// game window's caption where the port has its own.
+const originalTitle string = "POKéMON Simulator V4.5"
+
+// text records the game window's caption or the Mart's total. The caption
+// begins with the original's title, as the trace has it.
 func (p *Player) text(arg string) error {
 	if arg != "Form4" && arg != "Form9.Edit1" {
 		return fmt.Errorf("no text for %s", arg)
@@ -709,6 +715,10 @@ func (p *Player) text(arg string) error {
 	s, err := p.drv.Text(arg)
 	if err != nil {
 		return err
+	}
+
+	if rest, ok := strings.CutPrefix(s, version.Title()); ok {
+		s = originalTitle + rest
 	}
 
 	p.emit("text %s %q", arg, s)

@@ -24,6 +24,7 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
+	"github.com/jsperandio/pokemon-simulator/internal/version"
 )
 
 // testApp drives the user interface headlessly, a frame at a time, on a
@@ -432,7 +433,7 @@ func Test_NewGame(t *testing.T) {
 		ta.wait(1)
 		ta.shot("05-starters")
 
-		assert.Equal(t, "POKéMON Simulator V4.5 - Gary [ash.pgs]", ta.main.wdw.caption)
+		assert.Equal(t, version.Title()+" - Gary [ash.pgs]", ta.main.wdw.caption)
 		require.True(t, ta.main.starters.shown(), "no starters")
 
 		// Charmander, the second starter.

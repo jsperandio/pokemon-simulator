@@ -4,13 +4,15 @@
 
 package layout
 
-// Form4 is TForm4 ("POKéMON Simulator V4.5"), the main game window: menu,
+import "github.com/jsperandio/pokemon-simulator/internal/version"
+
+// Form4 is TForm4 (the program's title), the main game window: menu,
 // starter list, battle arena, evolve panel and wild-fight picker.
 var Form4 = Component{
 	Class:   "TForm4",
 	Name:    "Form4",
 	Bounds:  Rect{189, 105, 0, 0},
-	Caption: "POKéMON Simulator V4.5",
+	Caption: version.Title(),
 	Events: map[string]string{
 		"OnClose": "FormClose",
 		"OnShow":  "FormShow",

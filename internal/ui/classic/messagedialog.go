@@ -7,6 +7,7 @@ import (
 
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
+	"github.com/jsperandio/pokemon-simulator/internal/version"
 )
 
 // mulDiv is Windows' MulDiv: num × nmr / den, rounded.
@@ -26,7 +27,7 @@ func dialogTitle(kind game.DialogKind) string {
 	case game.Confirmation:
 		return "Confirm"
 	default: // Custom
-		return game.Title
+		return version.Title()
 	}
 }
 

@@ -4,12 +4,14 @@
 
 package layout
 
-// Form1 is TForm1 ("POKéMON Simulator V4.5"), the start menu.
+import "github.com/jsperandio/pokemon-simulator/internal/version"
+
+// Form1 is TForm1 (the program's title), the start menu.
 var Form1 = Component{
 	Class:   "TForm1",
 	Name:    "Form1",
 	Bounds:  Rect{192, 107, 544, 393},
-	Caption: "POKéMON Simulator V4.5",
+	Caption: version.Title(),
 	Events: map[string]string{
 		"OnClose":      "FormClose",
 		"OnDeactivate": "FormDeactivate",
@@ -29,7 +31,7 @@ var Form1 = Component{
 			Class:   "TLabel",
 			Name:    "Title",
 			Bounds:  Rect{0, 0, 536, 49},
-			Caption: "POKéMON Simulator V4.5",
+			Caption: version.Title(),
 			Props: map[string]string{
 				"Align":        "alTop",
 				"Alignment":    "taCenter",
