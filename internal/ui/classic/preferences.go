@@ -24,6 +24,9 @@ type preferences struct {
 	animatedSprites bool      // Graphics: Enable animated sprites
 	shinyMark       shinyMark // Graphics: the shiny mark in the POKéMON lists
 	choosePrompt    bool      // Messages: Select a POKéMON reminder, game.ChoosePrompt
+	fillScreen      bool      // Layout: Fill the screen, rather than separate windows
+	colourMessages  bool      // Battle Info: Colour the messages
+	whiteBackground bool      // Battle Info: a white background, rather than grey
 }
 
 // defaultPreferences are the choices before the player makes any.
@@ -32,6 +35,7 @@ func defaultPreferences() preferences {
 		animatedSprites: true,
 		shinyMark:       goldSparkles,
 		choosePrompt:    true,
+		colourMessages:  true,
 	}
 }
 
@@ -42,6 +46,9 @@ func loadPreferences(dat []byte) preferences {
 	ini := parseINI(dat)
 	prf.animatedSprites = ini.boolean("Graphics", "AnimatedSprites", prf.animatedSprites)
 	prf.choosePrompt = ini.boolean("Messages", "SelectPokemon", prf.choosePrompt)
+	prf.fillScreen = ini.boolean("Layout", "FillScreen", prf.fillScreen)
+	prf.colourMessages = ini.boolean("BattleInfo", "ColourMessages", prf.colourMessages)
+	prf.whiteBackground = ini.boolean("BattleInfo", "WhiteBackground", prf.whiteBackground)
 
 	if key, ok := ini.value("Graphics", "ShinyMark"); ok {
 		if sm, known := markByKey(key); known {
@@ -59,6 +66,9 @@ func (prf preferences) store(dat []byte) []byte {
 	ini.setBoolean("Graphics", "AnimatedSprites", prf.animatedSprites)
 	ini.set("Graphics", "ShinyMark", shinyMarks[prf.shinyMark].key)
 	ini.setBoolean("Messages", "SelectPokemon", prf.choosePrompt)
+	ini.setBoolean("Layout", "FillScreen", prf.fillScreen)
+	ini.setBoolean("BattleInfo", "ColourMessages", prf.colourMessages)
+	ini.setBoolean("BattleInfo", "WhiteBackground", prf.whiteBackground)
 
 	return ini.bytes()
 }
@@ -84,7 +94,7 @@ var preferencesLayout = layout.Component{
 			Class:  "TListBox",
 			Name:   "Categories",
 			Bounds: layout.Rect{X: 8, Y: 8, W: 97, H: 181},
-			Items:  []string{"Graphics", "Messages"},
+			Items:  []string{"Graphics", "Messages", "Layout", "Battle Info"},
 			Props: map[string]string{
 				"ItemIndex": "0",
 				"TabOrder":  "0",
@@ -183,12 +193,98 @@ var preferencesLayout = layout.Component{
 			},
 		},
 		{
+			Class:   "TGroupBox",
+			Name:    "LayoutPage",
+			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 181},
+			Caption: "Layout",
+			Hidden:  true,
+			Props: map[string]string{
+				"TabOrder": "3",
+			},
+			Children: []layout.Component{
+				{
+					Class:   "TRadioGroup",
+					Name:    "Windows",
+					Bounds:  layout.Rect{X: 12, Y: 22, W: 215, H: 65},
+					Caption: "Windows:",
+					Items:   []string{"Separate windows (classic)", "Fill the screen"},
+					Props: map[string]string{
+						"TabOrder": "0",
+						"TabStop":  "True",
+					},
+				},
+				{
+					Class:   "TLabel",
+					Name:    "WindowsNote",
+					Bounds:  layout.Rect{X: 12, Y: 96, W: 215, H: 65},
+					Caption: "Fill the screen puts Statistics down the right edge and Battle Info along the bottom, gives the game window the rest, and keeps them in place.",
+					Props: map[string]string{
+						"AutoSize": "False",
+						"WordWrap": "True",
+					},
+				},
+			},
+		},
+		{
+			Class:   "TGroupBox",
+			Name:    "BattleInfoPage",
+			Bounds:  layout.Rect{X: 113, Y: 8, W: 239, H: 181},
+			Caption: "Battle Info",
+			Hidden:  true,
+			Props: map[string]string{
+				"TabOrder": "4",
+			},
+			Children: []layout.Component{
+				{
+					Class:   "TCheckBox",
+					Name:    "ColourMessages",
+					Bounds:  layout.Rect{X: 12, Y: 22, W: 215, H: 17},
+					Caption: "&Colour the messages",
+					Props: map[string]string{
+						"TabOrder": "0",
+					},
+				},
+				{
+					Class:   "TLabel",
+					Name:    "ColourMessagesNote",
+					Bounds:  layout.Rect{X: 29, Y: 42, W: 198, H: 26},
+					Caption: "Damage you deal in green, damage you take in red, experience in blue.",
+					Props: map[string]string{
+						"AutoSize": "False",
+						"WordWrap": "True",
+					},
+				},
+				{
+					Class:   "TRadioGroup",
+					Name:    "Background",
+					Bounds:  layout.Rect{X: 12, Y: 72, W: 215, H: 38},
+					Caption: "Background:",
+					Items:   []string{"Grey (classic)", "White"},
+					Props: map[string]string{
+						"Columns":  "2",
+						"TabOrder": "1",
+						"TabStop":  "True",
+					},
+				},
+				{
+					Class:  "TMemo",
+					Name:   "BattleInfoPreview",
+					Bounds: layout.Rect{X: 12, Y: 114, W: 215, H: 58}, // four lines, unscrolled
+					Props: map[string]string{
+						"Color":    "clBtnFace",
+						"ReadOnly": "True",
+						"TabStop":  "False",
+					},
+				},
+			},
+		},
+		{
 			Class:   "TButton",
 			Name:    "RestoreButton",
 			Bounds:  layout.Rect{X: 8, Y: 197, W: 97, H: 25},
 			Caption: "Restore &Defaults",
 			Props: map[string]string{
-				"TabOrder": "3",
+				"TabOrder": "5",
 			},
 		},
 		{
@@ -198,7 +294,7 @@ var preferencesLayout = layout.Component{
 			Caption: "OK",
 			Props: map[string]string{
 				"Default":  "True",
-				"TabOrder": "4",
+				"TabOrder": "6",
 			},
 		},
 		{
@@ -209,7 +305,7 @@ var preferencesLayout = layout.Component{
 			Props: map[string]string{
 				"Cancel":      "True",
 				"ModalResult": "2",
-				"TabOrder":    "5",
+				"TabOrder":    "7",
 			},
 		},
 		{
@@ -219,11 +315,40 @@ var preferencesLayout = layout.Component{
 			Caption:  "&Apply",
 			Disabled: true,
 			Props: map[string]string{
-				"TabOrder": "6",
+				"TabOrder": "8",
 			},
 		},
 	},
 }
+
+// The Layout page's Windows choices.
+const (
+	windowsSeparate int = iota
+	windowsFill
+)
+
+// The Battle Info page's Background choices.
+const (
+	backgroundGrey int = iota
+	backgroundWhite
+)
+
+// The Battle Info page's preview: a line of each colour its note names,
+// and a milestone, with their kinds.
+var (
+	previewLines = []string{
+		"Mew did 8 points of damage to enemy Onix.",
+		"Enemy Onix did 9 points of damage to Mew.",
+		"Mew gained 397 experience points!",
+		"Mew grew to level 13!",
+	}
+	previewKinds = []game.LineKind{
+		game.DamageDealt,
+		game.DamageTaken,
+		game.ExperienceGained,
+		game.LevelUp,
+	}
+)
 
 // preferencesForm is the Preferences window, File → Preferences..., which
 // the original doesn't have.
@@ -236,6 +361,10 @@ type preferencesForm struct {
 	mark       *comboBox
 	preview    *listView // a shiny Gyarados with the mark chosen
 	prompt     *checkBox
+	windows    *radioGroup // separate windows, or filling the screen
+	colours    *checkBox   // Colour the messages
+	background *radioGroup // Battle Info's grey or white
+	logPreview *memo       // Battle Info's lines as the page has them
 	apply      *button
 }
 
@@ -248,12 +377,18 @@ func newPreferencesForm(app *Application) *preferencesForm {
 		pages: []*groupBox{
 			get[*groupBox](wdw, "GraphicsPage"),
 			get[*groupBox](wdw, "MessagesPage"),
+			get[*groupBox](wdw, "LayoutPage"),
+			get[*groupBox](wdw, "BattleInfoPage"),
 		},
-		animated: get[*checkBox](wdw, "AnimatedSprites"),
-		mark:     get[*comboBox](wdw, "ShinyMark"),
-		preview:  get[*listView](wdw, "ShinyMarkPreview"),
-		prompt:   get[*checkBox](wdw, "ChoosePrompt"),
-		apply:    get[*button](wdw, "ApplyButton"),
+		animated:   get[*checkBox](wdw, "AnimatedSprites"),
+		mark:       get[*comboBox](wdw, "ShinyMark"),
+		preview:    get[*listView](wdw, "ShinyMarkPreview"),
+		prompt:     get[*checkBox](wdw, "ChoosePrompt"),
+		windows:    get[*radioGroup](wdw, "Windows"),
+		colours:    get[*checkBox](wdw, "ColourMessages"),
+		background: get[*radioGroup](wdw, "Background"),
+		logPreview: get[*memo](wdw, "BattleInfoPreview"),
+		apply:      get[*button](wdw, "ApplyButton"),
 	}
 
 	pf.categories.onSelect = pf.showPage
@@ -269,6 +404,9 @@ func newPreferencesForm(app *Application) *preferencesForm {
 		shinyMark(pf.mark.index).draw(cv, x, y)
 	}
 	pf.prompt.onClick = pf.changed
+	pf.windows.onClick = pf.changed
+	pf.colours.onClick = pf.restyled
+	pf.background.onClick = pf.restyled
 	get[*button](wdw, "RestoreButton").onClick = pf.restore
 	pf.apply.onClick = func() {
 		pf.save()
@@ -303,6 +441,20 @@ func (pf *preferencesForm) showChoices(prf preferences) {
 	pf.mark.setIndex(int(prf.shinyMark))
 	pf.preview.invalidate()
 	pf.prompt.setChecked(prf.choosePrompt)
+	pf.windows.setIndex(windowsSeparate)
+
+	if prf.fillScreen {
+		pf.windows.setIndex(windowsFill)
+	}
+
+	pf.colours.setChecked(prf.colourMessages)
+	pf.background.setIndex(backgroundGrey)
+
+	if prf.whiteBackground {
+		pf.background.setIndex(backgroundWhite)
+	}
+
+	pf.showPreview()
 }
 
 // chosen returns the preferences as the window shows them.
@@ -311,7 +463,26 @@ func (pf *preferencesForm) chosen() preferences {
 		animatedSprites: pf.animated.checked,
 		shinyMark:       shinyMark(pf.mark.index),
 		choosePrompt:    pf.prompt.checked,
+		fillScreen:      pf.windows.index == windowsFill,
+		colourMessages:  pf.colours.checked,
+		whiteBackground: pf.background.index == backgroundWhite,
 	}
+}
+
+// showPreview shows the Battle Info page's preview as the page's choices
+// would show Battle Info.
+func (pf *preferencesForm) showPreview() {
+	prf := pf.chosen()
+
+	pf.logPreview.setColor(logBackground(prf.whiteBackground))
+	pf.logPreview.setLines(previewLines, logStyles(previewKinds, prf))
+}
+
+// restyled follows a change of Battle Info's colours or background: the
+// preview shows it, and Apply can keep it.
+func (pf *preferencesForm) restyled() {
+	pf.showPreview()
+	pf.changed()
 }
 
 // restore is Restore Defaults: every page's controls go back to the

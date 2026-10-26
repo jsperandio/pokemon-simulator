@@ -56,7 +56,9 @@ type window struct {
 	maxBox  bool
 	pos     image.Point // the outer top-left corner, on the desktop
 	client  image.Point // the client area's size
+	design  image.Point // the client area's size in the layout
 	fits    bool        // AutoSize: the client area is the controls' extent
+	pinned  bool        // docked: the caption doesn't drag it
 	color   color.RGBA
 	visible bool
 	active  bool
@@ -121,6 +123,7 @@ func newWindow(dsk *desktop, comp *layout.Component) *window {
 		wdw.client = wdw.extent()
 	}
 
+	wdw.design = wdw.client
 	wdw.pos = image.Pt(comp.Bounds.X, comp.Bounds.Y)
 
 	switch props["Position"] {
@@ -131,6 +134,8 @@ func newWindow(dsk *desktop, comp *layout.Component) *window {
 	for _, wgt := range wdw.kids {
 		wgt.base().parent = nil
 	}
+
+	keepHomes(wdw.kids, wdw.client)
 
 	// The labels measure their captions as they load (TCustomLabel.Loaded).
 	// The form's AutoSize applies once it has a window, after Position
@@ -197,35 +202,29 @@ func (w *window) extent() image.Point {
 // while it has no selection. The controls anchored to the right or bottom
 // edge move with it.
 func (w *window) fit() {
-	if !w.fits {
+	if w.fits {
+		w.resize(w.extent())
+	}
+}
+
+// widen makes the window's own client area dx wider than the layout's,
+// its controls following their anchors.
+func (w *window) widen(dx int) {
+	w.resize(w.client.Add(image.Pt(dx, 0)))
+
+	w.design = w.client
+}
+
+// resize gives the window a client area of the given size, and its
+// controls follow their anchors.
+func (w *window) resize(client image.Point) {
+	if client == w.client {
 		return
 	}
 
-	pnt := w.extent().Sub(w.client)
-	if pnt == (image.Point{}) {
-		return
-	}
-
-	w.client = w.client.Add(pnt)
+	w.client = client
 	for _, wgt := range w.kids {
-		ctl := wgt.base()
-		anchors := ctl.property("Anchors")
-
-		if strings.Contains(anchors, "akRight") {
-			if strings.Contains(anchors, "akLeft") {
-				ctl.rect.Max.X += pnt.X
-			} else {
-				ctl.rect = ctl.rect.Add(image.Pt(pnt.X, 0))
-			}
-		}
-
-		if strings.Contains(anchors, "akBottom") {
-			if strings.Contains(anchors, "akTop") {
-				ctl.rect.Max.Y += pnt.Y
-			} else {
-				ctl.rect = ctl.rect.Add(image.Pt(0, pnt.Y))
-			}
-		}
+		wgt.base().anchor(client)
 	}
 
 	if w.desk != nil {
@@ -305,6 +304,12 @@ func (w *window) menuH() int {
 	}
 
 	return menuHeight
+}
+
+// nonClient is the size the frame, the caption and the menu bar add to
+// the client area.
+func (w *window) nonClient() image.Point {
+	return w.size().Sub(w.client)
 }
 
 // size is the outer size.

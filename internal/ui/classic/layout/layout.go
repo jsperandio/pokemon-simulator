@@ -9,6 +9,11 @@
 // true, and so on.
 package layout
 
+import (
+	"maps"
+	"slices"
+)
+
 // All lists every form of the original game.
 var All = []*Component{
 	&Form1,
@@ -73,4 +78,21 @@ func (c *Component) Walk(fn func(*Component)) {
 	for i := range c.Children {
 		c.Children[i].Walk(fn)
 	}
+}
+
+// Clone returns a deep copy of c, for a layout the port changes: the
+// forms share their slices and maps.
+func (c *Component) Clone() Component {
+	out := *c
+	out.Items = slices.Clone(c.Items)
+	out.List = slices.Clone(c.List)
+	out.Events = maps.Clone(c.Events)
+	out.Props = maps.Clone(c.Props)
+	out.Children = slices.Clone(c.Children)
+
+	for i := range out.Children {
+		out.Children[i] = c.Children[i].Clone()
+	}
+
+	return out
 }

@@ -4,7 +4,7 @@
 
 Export POKéMON Information…: Exports information about your POKéMON to an HTML file. It also exports which POKéMON are in your POKéDEX.
 
-Preferences…: Opens the Preferences window, where the categories are listed on the left. Under Graphics, Enable animated sprites plays POKéMON Emerald's animation when a POKéMON comes into the Battle Arena: the wild POKéMON when it appears, and yours when you choose it. The POKéDEX plays it too, for the POKéMON you choose there. Under Messages, Select a POKéMON reminder shows the message that starts each battle, which its own Don't show this message again box can also hide. Restore Defaults puts every option back as it first was. Your choices are kept for the next time you play.
+Preferences…: Opens the Preferences window, where the categories are listed on the left. Under Graphics, Enable animated sprites plays POKéMON Emerald's animation when a POKéMON comes into the Battle Arena: the wild POKéMON when it appears, and yours when you choose it. The POKéDEX plays it too, for the POKéMON you choose there. Under Messages, Select a POKéMON reminder shows the message that starts each battle, which its own Don't show this message again box can also hide. Under Layout, Fill the screen puts Statistics down the right edge and Battle Info along the bottom, and gives the game window the rest; Separate windows (classic) puts them side by side, as they first were. Under Battle Info, Colour the messages colours the lines of the Battle Info window by what they tell, such as the damage your POKéMON deals in green and the damage it takes in red, and Background makes the window white instead of grey. Restore Defaults puts every option back as it first was. Your choices are kept for the next time you play.
 
 Quit: Quits the game. You can also click the X in the corner of the window. Your game is automatically saved when you exit.
 
@@ -12,7 +12,7 @@ Quit: Quits the game. You can also click the X in the corner of the window. Your
 
 Fight a Trainer: Fight one of several different trainers for experience and money. Or fight Gym Leaders to get Badges and progress through the game.
 
-Fight a wild POKéMON: Fight or try to catch a wild POKéMON. Once you progressed far enough, you can try to fight and/or catch Mewtwo.
+Fight a wild POKéMON: Fight or try to catch a wild POKéMON. Once you progressed far enough, you can try to fight and/or catch Mewtwo. F3 is Search for a POKéMON, and once the battle is over, Search Again (see [Playing](playing.md)).
 
 Tournaments: Fight tournaments for special prizes. See [Tournaments](tournaments.md) for details.
 

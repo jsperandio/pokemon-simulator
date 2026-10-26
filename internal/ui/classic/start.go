@@ -178,6 +178,7 @@ func (sf *startForm) newButtonClick() {
 		app.game.NewGame(file, name, ok)
 		app.sync()
 		app.placeWindows(236)
+		app.main.centreForStarters()
 	})
 }
 

@@ -6,15 +6,20 @@ package classic
 
 import (
 	"image"
+	"image/color"
 	"os"
 	"path/filepath"
+	"slices"
+	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
+	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
 // The party list's hint shows after half a second on it, under the cursor
@@ -286,6 +291,216 @@ func Test_startForm(t *testing.T) {
 	})
 }
 
+// The starter choice shows the game window alone, in the middle of the
+// screen; the starter chosen, it takes its place beside the Statistics and
+// Battle Info windows.
+func Test_mainForm_centreForStarters(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a new game asks for a starter, should centre the game window on the screen", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.chooseStarters()
+
+		size := ta.main.wdw.size()
+		want := image.Pt((screenWidth-size.X)/2, (screenHeight-size.Y)/2)
+
+		require.True(t, ta.main.starters.shown(), "no starters")
+		assert.Equal(t, want, ta.main.wdw.pos, "the game window's position")
+		ta.shot("starters-centred")
+	})
+
+	t.Run("when a starter is chosen, should move the game window beside the Statistics and Battle Info windows", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.chooseStarters()
+		ta.pickStarter(1)
+
+		assert.Equal(t, image.Pt(74, 64), ta.main.wdw.pos, "the game window's position")
+		assert.Equal(t, image.Pt(544, 64), ta.stats.wdw.pos, "the Statistics window's position")
+		assert.Equal(t, image.Pt(74, 378), ta.info.wdw.pos, "the Battle Info window's position")
+	})
+
+	t.Run("when the player moved the game window before choosing, should leave it where the player put it", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.chooseStarters()
+
+		moved := image.Pt(20, 30)
+		ta.main.wdw.pos = moved
+		ta.pickStarter(1)
+
+		assert.Equal(t, moved, ta.main.wdw.pos, "the game window's position")
+	})
+}
+
+// Both HP gauges start after the widest caption a fighter can have, so
+// they are the same width whatever the fighters' names: 126 pixels, half
+// as long again as the 84 the original's arena leaves, as the port widens
+// it by arenaExtra.
+func Test_mainForm_placeGauges(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when both fighters show, should give their HP gauges the same column and width", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.answer("Select a POKéMON from the Statistics Window")
+
+		rect := ta.stats.party.itemRect(0)
+		ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+		ta.answer("# 004 Charmander")
+		ta.answer("Choose Charmander?")
+
+		mf := ta.main
+		own, enemy := mf.ownGauge.rect, mf.enemyGauge.rect
+		box, ownCaption, enemyCaption := mf.attacks.rect, mf.ownLabel.rect, mf.enemyLabel.rect
+
+		require.True(t, mf.ownGauge.shown(), "no gauge for the player's fighter")
+		assert.Equal(t, own.Min.X, enemy.Min.X, "the gauges' left edges")
+		assert.Equal(t, own.Dx(), enemy.Dx(), "the gauges' widths")
+		assert.Equal(t, 126, own.Dx(), "the gauges' width")
+		assert.Equal(t, box.Max.X, own.Max.X, "the gauges' right edge, the attack boxes'")
+		assert.Less(t, ownCaption.Max.X, own.Min.X, "the player's fighter's caption reaches its gauge")
+		assert.Less(t, enemyCaption.Max.X, enemy.Min.X, "the enemy's caption reaches its gauge")
+		ta.shot("gauges-same-width")
+	})
+
+	t.Run("when an enemy has the longest name at level 100, should end its caption before the gauge", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+		gam := mf.app.game
+		lbl, gauge := mf.enemyLabel, mf.enemyGauge.rect
+
+		for _, sp := range gam.Data.Species {
+			right := lbl.rect.Min.X + lbl.font.width("Enemy "+sp.Name+" L.100")
+
+			assert.Less(t, right, gauge.Min.X, "%s's caption reaches the gauge", sp.Name)
+		}
+
+		assert.Positive(t, gauge.Dx(), "the gauge's width")
+	})
+}
+
+// findEntry finds the menu entry named name among es, at any depth.
+func findEntry(es []*menuEntry, name string) *menuEntry {
+	for _, me := range es {
+		if me.name() == name {
+			return me
+		}
+
+		if fnd := findEntry(me.kids, name); fnd != nil {
+			return fnd
+		}
+	}
+
+	return nil
+}
+
+// The game window is the original's with what the port adds: a Search
+// Again button in the Battle Arena, F3 for Search for a POKéMON, and Go!
+// as the default button, taller, in room the arena's frame makes in the
+// window's margins.
+func Test_mainLayout(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the game window is made, should hide Search Again in the Battle Arena, ending where Go! ends", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+		btn, goRect, gauge := mf.searchButton, mf.goButton.rect, mf.ownGauge.rect
+
+		assert.Contains(t, mf.arena.kids, widget(btn))
+		assert.False(t, btn.visible, "Search Again shows")
+		assert.Equal(t, goRect.Max.X, btn.rect.Max.X, "the right edges")
+		assert.Equal(t, goRect.Min.Y, btn.rect.Min.Y, "the tops")
+		assert.Equal(t, goRect.Dy(), btn.rect.Dy(), "the heights")
+		assert.Less(t, btn.font.width("Search Again"), btn.rect.Dx(), "the caption's width")
+		assert.Less(t, btn.rect.Max.Y, gauge.Min.Y, "Search Again reaches the gauge")
+	})
+
+	t.Run("when the game window is made, should give Go! room below the frame and above the gauges, ending with them", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+		goRect, gauge := mf.goButton.rect, mf.ownGauge.rect
+		inside := mf.arena.font.height()/2 + 1 // the first row inside the arena's frame
+
+		assert.Equal(t, 22, goRect.Dy(), "the height")
+		assert.Equal(t, 6, goRect.Min.Y-inside, "the rows below the frame")
+		assert.Equal(t, 5, gauge.Min.Y-goRect.Max.Y, "the rows above the gauge")
+		assert.Equal(t, gauge.Max.X, goRect.Max.X, "the right edges")
+	})
+
+	t.Run("when the game window is made, should stretch the Battle Arena's frame into the window's margins and leave the window its size", func(t *testing.T) {
+		t.Parallel()
+
+		mf := newTestApp(t).main
+		arena, box := mf.arena.rect, mf.enemyAttacks.rect
+
+		assert.Equal(t, image.Rect(120, 6, 459, 263), arena, "the arena's frame")
+		assert.Equal(t, 8, arena.Dy()-box.Max.Y, "the rows below the enemy's attacks, as in the original")
+		assert.Equal(t, image.Pt(422+arenaExtra, 270), mf.wdw.client, "the client area")
+	})
+
+	t.Run("when the screen is filled, should show Search Again where Go! ends", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+		ta.fightWild()
+
+		goRect := ta.main.goButton.rect
+
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		btn := ta.main.searchButton
+		require.True(t, btn.shown(), "no Search Again")
+		assert.Equal(t, goRect.Max.X, btn.rect.Max.X, "the right edges")
+		assert.Equal(t, goRect.Min.Y, btn.rect.Min.Y, "the tops")
+		ta.shot("fill-search-again")
+	})
+
+	t.Run("when the menu is made, should give Search for a POKéMON the F3 shortcut", func(t *testing.T) {
+		t.Parallel()
+
+		bar := newTestApp(t).main.wdw.menu
+		ent := findEntry(bar.entries, "FindPKMN1")
+
+		require.NotNil(t, ent, "no Search for a POKéMON")
+		assert.Equal(t, "F3", ent.shortcut)
+		assert.Equal(t, ebiten.KeyF3, ent.key)
+	})
+
+	t.Run("when the game window is made, should make Go! the default button", func(t *testing.T) {
+		t.Parallel()
+
+		assert.True(t, newTestApp(t).main.goButton.isDefault)
+	})
+
+	t.Run("when the game window is made, should leave the original's layout as it was", func(t *testing.T) {
+		t.Parallel()
+
+		newTestApp(t)
+
+		frm := &layout.Form4
+
+		assert.Nil(t, frm.Find("SearchAgainButton"))
+		assert.Nil(t, frm.Find("FindPKMN1").Props)
+		assert.NotContains(t, frm.Find("Button1").Props, "Default")
+		assert.Equal(t, layout.Rect{X: 248, Y: 8, W: 43, H: 15}, frm.Find("Button1").Bounds, "Go!")
+		assert.Equal(t, layout.Rect{X: 120, Y: 16, W: 297, H: 241}, frm.Find("GroupBox1").Bounds, "the arena")
+		assert.Equal(t, 24, frm.Find("Gauge1").Bounds.Y, "the gauge's top")
+	})
+}
+
 // The loading screen is AutoSize: it grows to its title, a pixel wider in
 // Arial than the form, after Position centred it, and the labels anchored
 // to its right move with it.
@@ -418,4 +633,273 @@ func pickCharmander(t *testing.T, ta *testApp) {
 	drop := cb.dropped.rect
 	ta.click(drop.Min.Add(image.Pt(5, 1+3*cb.itemHeight+cb.itemHeight/2)))
 	ta.wait(1)
+}
+
+func Test_logStyle(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name  string
+		kinds []game.LineKind
+		ink   logInk
+	}{
+		{
+			name:  "when a line tells good news, should draw it green",
+			kinds: []game.LineKind{game.DamageDealt, game.CriticalDealt, game.EnemyFainted, game.Caught},
+			ink:   inkGreen,
+		},
+		{
+			name: "when a line tells bad news, should draw it red",
+			kinds: []game.LineKind{
+				game.DamageTaken,
+				game.CriticalTaken,
+				game.OwnFainted,
+				game.MoneyLost,
+				game.ExperienceLost,
+				game.LevelLost,
+			},
+			ink: inkRed,
+		},
+		{
+			name:  "when a line tells of experience, should draw it blue",
+			kinds: []game.LineKind{game.ExperienceGained, game.LevelUp},
+			ink:   inkBlue,
+		},
+		{
+			name:  "when a line tells of prize money or a shiny, should draw it gold",
+			kinds: []game.LineKind{game.PrizeMoney, game.Shiny},
+			ink:   inkGold,
+		},
+		{
+			name:  "when a line tells of a Potion, should draw it teal",
+			kinds: []game.LineKind{game.Healed},
+			ink:   inkTeal,
+		},
+		{
+			name:  "when a line tells of the POKéDEX, should draw it purple",
+			kinds: []game.LineKind{game.Registered},
+			ink:   inkPurple,
+		},
+		{
+			name:  "when a line is plain, should draw it black",
+			kinds: []game.LineKind{game.Plain},
+			ink: logInk{
+				grey:  colText,
+				white: colText,
+			},
+		},
+	}
+
+	for _, cas := range cases {
+		t.Run(cas.name, func(t *testing.T) {
+			t.Parallel()
+
+			for _, kind := range cas.kinds {
+				assert.Equal(t, cas.ink.grey, logStyle(kind, false).color, "kind %d on grey", kind)
+				assert.Equal(t, cas.ink.white, logStyle(kind, true).color, "kind %d on white", kind)
+			}
+		})
+	}
+
+	t.Run("when a line is a milestone or a critical hit, should draw it bold, and no other", func(t *testing.T) {
+		t.Parallel()
+
+		bold := []game.LineKind{
+			game.LevelUp,
+			game.Caught,
+			game.EnemyFainted,
+			game.OwnFainted,
+			game.Shiny,
+			game.CriticalDealt,
+			game.CriticalTaken,
+		}
+
+		for kind := game.Plain; kind <= game.Shiny; kind++ { // Shiny is the last kind
+			assert.Equal(t, slices.Contains(bold, kind), logStyle(kind, false).bold, "kind %d", kind)
+		}
+	})
+}
+
+func Test_logStyles(t *testing.T) {
+	t.Parallel()
+
+	kinds := []game.LineKind{game.Plain, game.DamageDealt}
+
+	t.Run("when the colours are off, should give no styles", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Nil(t, logStyles(kinds, preferences{}))
+	})
+
+	t.Run("when they are on, should give each line its kind's style on the background", func(t *testing.T) {
+		t.Parallel()
+
+		prf := preferences{
+			colourMessages:  true,
+			whiteBackground: true,
+		}
+		want := []lineStyle{
+			{
+				color: colText,
+			},
+			{
+				color: inkGreen.white,
+			},
+		}
+
+		assert.Equal(t, want, logStyles(kinds, prf))
+	})
+}
+
+// colouredApp is a test app with Battle Info's colours on, on a white
+// background if white.
+func colouredApp(t *testing.T, white bool) *testApp {
+	t.Helper()
+
+	data := "[Graphics]\nAnimatedSprites=0\n"
+
+	if white {
+		data += "\n[BattleInfo]\nWhiteBackground=1\n"
+	}
+
+	settings := &memorySettings{
+		data: []byte(data),
+	}
+
+	return newTestAppWith(t, t.TempDir(), nil, settings)
+}
+
+// fightTurn plays up to a battle Search for a POKéMON found and clicks Go!
+// with Charmander's first attack, which the enemy survives.
+func fightTurn(ta *testApp) {
+	ta.startGame()
+	ta.fightWild()
+	ta.clickAttack(0)
+	ta.clickOn(ta.main.wdw, "Button1")
+	ta.wait(1)
+}
+
+// criticalTurn plays fightTurn's turn with the generator at seed when Go!
+// is clicked: 29 gives Charmander's attack a critical hit, and 10 the
+// enemy's.
+func criticalTurn(ta *testApp, seed uint32) {
+	ta.startGame()
+	ta.fightWild()
+	ta.clickAttack(0)
+
+	ta.game.Rand.Seed = seed
+
+	ta.clickOn(ta.main.wdw, "Button1")
+	ta.wait(1)
+}
+
+// rowOf returns the index of the first of mem's rows with txt in it.
+func rowOf(t *testing.T, mem *memo, txt string) int {
+	t.Helper()
+
+	idx := slices.IndexFunc(mem.rows, func(row memoRow) bool {
+		return strings.Contains(row.text, txt)
+	})
+	require.GreaterOrEqual(t, idx, 0, "no row has %q", txt)
+
+	return idx
+}
+
+// Battle Info colours its lines by what they tell, which the original
+// doesn't: on its grey or on white, as the preferences have it.
+func Test_infoForm(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when the colours are on, should draw the damage dealt green, the damage taken red and the rest black, on grey", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		fightTurn(ta)
+
+		mem := ta.info.memo
+		ta.shot("battle-info-coloured")
+
+		assert.Equal(t, colFace, mem.color, "Battle Info isn't grey")
+		assert.Equal(t, []color.RGBA{inkGreen.grey}, rowInks(mem, rowOf(t, mem, "points of damage to enemy")), "the damage dealt")
+		assert.Equal(t, []color.RGBA{inkRed.grey}, rowInks(mem, rowOf(t, mem, "points of damage to Charmander")), "the damage taken")
+		assert.Equal(t, []color.RGBA{colText}, rowInks(mem, rowOf(t, mem, "Charmander used")), "the attack")
+	})
+
+	t.Run("when the background is white, should fill Battle Info white and draw in the white inks", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, true)
+		fightTurn(ta)
+
+		mem := ta.info.memo
+		ta.shot("battle-info-white")
+
+		assert.Equal(t, colWindow, mem.color, "Battle Info isn't white")
+		assert.Equal(t, []color.RGBA{inkGreen.white}, rowInks(mem, rowOf(t, mem, "points of damage to enemy")), "the damage dealt")
+		assert.Equal(t, []color.RGBA{inkRed.white}, rowInks(mem, rowOf(t, mem, "points of damage to Charmander")), "the damage taken")
+	})
+
+	t.Run("when the enemy faints, should draw the faint in bold green, the experience blue and the money gold", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		mem := ta.info.memo
+		fainted := rowOf(t, mem, "fainted!")
+		gained := rowOf(t, mem, "experience points!")
+
+		assert.Equal(t, []color.RGBA{inkGreen.grey}, rowInks(mem, fainted), "the faint")
+		assert.True(t, mem.styles[mem.rows[fainted].line].bold, "the faint isn't bold")
+		assert.Equal(t, []color.RGBA{inkBlue.grey}, rowInks(mem, gained), "the experience")
+		assert.False(t, mem.styles[mem.rows[gained].line].bold, "the experience is bold")
+		assert.Equal(t, []color.RGBA{inkGold.grey}, rowInks(mem, rowOf(t, mem, "You got")), "the money")
+	})
+
+	t.Run("when the fighter lands a critical hit, should draw it in bold green", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		criticalTurn(ta, 29)
+
+		mem := ta.info.memo
+		critical := rowOf(t, mem, "Critical hit!")
+
+		assert.Contains(t, mem.rows[critical-1].text, "Charmander used", "not Charmander's critical hit")
+		assert.Equal(t, []color.RGBA{inkGreen.grey}, rowInks(mem, critical), "the critical hit")
+		assert.True(t, mem.styles[mem.rows[critical].line].bold, "the critical hit isn't bold")
+	})
+
+	t.Run("when the enemy lands a critical hit, should draw it in bold red", func(t *testing.T) {
+		t.Parallel()
+
+		ta := colouredApp(t, false)
+		criticalTurn(ta, 10)
+
+		mem := ta.info.memo
+		critical := rowOf(t, mem, "Critical hit!")
+
+		assert.Contains(t, mem.rows[critical-1].text, "Enemy", "not the enemy's critical hit")
+		assert.Equal(t, []color.RGBA{inkRed.grey}, rowInks(mem, critical), "the critical hit")
+		assert.True(t, mem.styles[mem.rows[critical].line].bold, "the critical hit isn't bold")
+	})
+
+	t.Run("when the colours are off, should draw every line black on grey, as the original", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		fightTurn(ta)
+
+		mem := ta.info.memo
+
+		assert.Nil(t, mem.styles, "Battle Info is coloured")
+		assert.Equal(t, colFace, mem.color, "Battle Info isn't grey")
+
+		for i, row := range mem.rows {
+			assert.Equal(t, []color.RGBA{colText}, rowInks(mem, i), "row %q", row.text)
+		}
+	})
 }

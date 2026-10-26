@@ -95,6 +95,11 @@ type Game struct {
 	EnemyShiny                                  bool
 	MinLevel, MaxLevel                          uint8 // the levels allowed against trainers
 
+	// Search Again's: how the wild battle was found, and whether the one
+	// starting is its own, whose fighter comes out with no prompt.
+	search search
+	again  bool
+
 	TournamentTrainers [8]uint8 // 1-based indexes into Data.TrainerNames
 	TournamentSpecies  [8]int
 	TournamentLevels   [8]uint8
@@ -227,10 +232,36 @@ type StatsWindow struct {
 	ItemEnabled  [6]bool
 }
 
+// LineKind is what a line of Battle Info tells, which the port colours it
+// by; the original's lines all look alike.
+type LineKind int
+
+// The kinds of Battle Info's lines.
+const (
+	Plain            LineKind = iota // the rest: who comes out, the moves and how effective they are, the balls
+	DamageDealt                      // the fighter's damage to the enemy
+	DamageTaken                      // the enemy's damage to the fighter
+	CriticalDealt                    // the fighter's critical hit
+	CriticalTaken                    // the enemy's critical hit
+	EnemyFainted                     // the enemy fainting
+	OwnFainted                       // the fighter fainting
+	ExperienceGained                 // a win's experience
+	LevelUp                          // a level a win gives
+	PrizeMoney                       // a win's money
+	MoneyLost                        // a loss's money
+	ExperienceLost                   // quitting a tournament
+	LevelLost                        // a level that quitting a tournament takes
+	Caught                           // a ball catching the enemy
+	Registered                       // a species added to the POKéDEX
+	Healed                           // a Potion's HP
+	Shiny                            // "It's a shiny POKéMON!"
+)
+
 // InfoWindow is Battle Info (Form7), the battle log.
 type InfoWindow struct {
 	Visible bool
 	Lines   []string
+	Kinds   []LineKind // each line's, as long as Lines
 }
 
 // Party returns the party's members, as the Statistics window lists them.
@@ -263,6 +294,7 @@ func New(data *gamedata.Data, ui UI) *Game {
 	gam.Stats.ItemEnabled = [6]bool{true, true, true, true, true, true}
 
 	gam.Info.Lines = []string{""} // Memo1's design-time text
+	gam.Info.Kinds = []LineKind{Plain}
 
 	gam.Pokedex.Index = -1
 	gam.Pokemart.Item = -1
@@ -293,17 +325,18 @@ func (g *Game) member(i int) *save.Slot {
 	return &g.Owned[i-1]
 }
 
-// log adds a line to Battle Info.
-func (g *Game) log(line string) {
+// log adds a line of kind kind to Battle Info.
+func (g *Game) log(kind LineKind, line string) {
 	g.Info.Lines = append(g.Info.Lines, line)
+	g.Info.Kinds = append(g.Info.Kinds, kind)
 
 	if g.OnLog != nil {
 		g.OnLog(line)
 	}
 }
 
-func (g *Game) logf(format string, a ...any) {
-	g.log(fmt.Sprintf(format, a...))
+func (g *Game) logf(kind LineKind, format string, a ...any) {
+	g.log(kind, fmt.Sprintf(format, a...))
 }
 
 // message shows a dialog with an OK button.
@@ -322,6 +355,7 @@ func (g *Game) showInfo() {
 	if !g.Info.Visible {
 		g.Info.Visible = true
 		g.Info.Lines = nil
+		g.Info.Kinds = nil
 	}
 
 	g.show(InfoForm)

@@ -42,14 +42,19 @@ func newTestApp(t *testing.T) *testApp {
 	return newTestAppIn(t, t.TempDir(), nil)
 }
 
+// offSettings are the test app's settings: the animations and Battle Info's
+// colours off.
+const offSettings string = "[Graphics]\nAnimatedSprites=0\n\n[BattleInfo]\nColourMessages=0\n"
+
 // newTestAppIn makes the user interface with the file dialogs in dir and
 // the command line's arguments args, and its settings turning the
-// animations off: the tests of the animations turn them on.
+// animations and Battle Info's colours off, as the original has neither:
+// the tests of each turn them on.
 func newTestAppIn(t *testing.T, dir string, args []string) *testApp {
 	t.Helper()
 
 	off := &memorySettings{
-		data: []byte("[Graphics]\nAnimatedSprites=0\n"),
+		data: []byte(offSettings),
 	}
 
 	return newTestAppWith(t, dir, args, off)
@@ -146,6 +151,21 @@ func (ta *testApp) click(pnt image.Point) {
 func (ta *testApp) doubleClick(pnt image.Point) {
 	ta.click(pnt)
 	ta.click(pnt)
+}
+
+// tap lands a finger at pnt on a touch screen and lifts it: the pointer
+// jumps there in the frame it lands.
+func (ta *testApp) tap(pnt image.Point) {
+	ta.mouse = pnt
+	ta.frame(input{
+		down:    true,
+		pressed: true,
+		touch:   true,
+	})
+	ta.frame(input{
+		released: true,
+		touch:    true,
+	})
 }
 
 // clickOn clicks the middle of a window's control.
@@ -264,14 +284,24 @@ func (ta *testApp) answer(want string) {
 
 // startGame plays up to the game window with a Charmander.
 func (ta *testApp) startGame() {
+	ta.chooseStarters()
+	ta.pickStarter(1)
+}
+
+// chooseStarters plays up to the starter choice.
+func (ta *testApp) chooseStarters() {
 	ta.wait(80)
 	ta.clickOn(ta.start.wdw, "NewButton")
 	ta.typeText("ash")
 	ta.key(ebiten.KeyEnter)
 	ta.typeText("Gary")
 	ta.key(ebiten.KeyEnter)
+	ta.wait(1)
+}
 
-	rect := ta.main.starters.itemRect(1)
+// pickStarter clicks starter idx.
+func (ta *testApp) pickStarter(idx int) {
+	rect := ta.main.starters.itemRect(idx)
 	ta.click(widgetOrigin(ta.main.starters).Add(rect.Min).Add(image.Pt(20, 20)))
 	ta.wait(1)
 }
@@ -498,6 +528,207 @@ func Test_WildBattle(t *testing.T) {
 	})
 }
 
+// fightWild plays from the game window to a battle Search for a POKéMON
+// found, with Charmander out.
+func (ta *testApp) fightWild() {
+	ta.t.Helper()
+
+	ta.menu("Action1", "FightWild1", "FindPKMN1")
+	ta.answer("Select a POKéMON from the Statistics Window")
+	ta.doubleClickParty(0)
+	ta.answer("# 004 Charmander")
+	ta.answer("Choose Charmander?")
+}
+
+// doubleClickParty double-clicks party member idx in the Statistics
+// window.
+func (ta *testApp) doubleClickParty(idx int) {
+	rect := ta.stats.party.itemRect(idx)
+	ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+}
+
+// clickAttack clicks attack idx in the Battle Arena.
+func (ta *testApp) clickAttack(idx int) {
+	attacks := ta.main.attacks
+	ta.click(widgetOrigin(attacks).Add(attacks.buttonRect(idx).Min).Add(image.Pt(20, 5)))
+}
+
+// winBattle wins the battle with the attack selected: the enemy has 1 HP
+// left, and Go! is clicked.
+func (ta *testApp) winBattle() {
+	ta.t.Helper()
+
+	ta.game.EnemyHP = 1
+
+	ta.clickOn(ta.main.wdw, "Button1")
+	ta.wait(1)
+	require.True(ta.t, ta.game.Main.EndFight, "the battle goes on")
+}
+
+// Search Again, which the original doesn't have, ends a battle a search
+// found and searches again, with the same fighter, which another party
+// member can replace until it acts. F3 is Search for a POKéMON's
+// shortcut, and Search Again's once the battle is over. Go! has the focus
+// whenever a fighter comes out, and Enter presses it.
+func Test_SearchAgain(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a fighter comes out, should give Go! the focus, with the game window active", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+
+		assert.Same(t, ta.main.wdw, ta.desk.active, "the active window")
+		assert.Same(t, ta.main.goButton, ta.main.wdw.focus, "the focus")
+	})
+
+	t.Run("when an attack has the focus, should attack with Enter", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		require.Same(t, ta.main.attacks, ta.main.wdw.focus, "the attacks don't have the focus")
+
+		lines := len(ta.game.Info.Lines)
+
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+		require.Greater(t, len(ta.game.Info.Lines), lines, "Enter didn't attack")
+		assert.Equal(t, "Charmander used Scratch!", ta.game.Info.Lines[lines])
+		ta.shot("go-default")
+	})
+
+	t.Run("when a battle a search found is over, should show Search Again where Go! was, and start the next battle at a click with the same fighter and attack", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(1)
+		ta.winBattle()
+
+		require.True(t, ta.main.searchButton.shown(), "no Search Again")
+		assert.False(t, ta.main.goButton.shown(), "Go! shows")
+		assert.True(t, ta.main.endButton.shown(), "no End Fight")
+		ta.shot("search-again")
+
+		mgw := &ta.game.Main
+		appeared := mgw.Appeared
+
+		ta.clickOn(ta.main.wdw, "SearchAgainButton")
+		ta.wait(1)
+		assert.Nil(t, ta.desk.topModal(), "a dialog shows")
+		assert.Equal(t, appeared+1, mgw.Appeared, "no wild POKéMON appeared")
+		assert.Equal(t, 4, mgw.Own.Species, "the fighter")
+		assert.Equal(t, 1, ta.main.attacks.index, "the attack selected")
+		assert.Same(t, ta.main.goButton, ta.main.wdw.focus, "the focus")
+		assert.False(t, ta.main.searchButton.shown(), "Search Again shows in the battle")
+	})
+
+	t.Run("when F3 is pressed with the battle over, should search again", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		appeared := ta.game.Main.Appeared
+
+		ta.key(ebiten.KeyF3)
+		ta.wait(1)
+		assert.Nil(t, ta.desk.topModal(), "a dialog shows")
+		assert.Equal(t, appeared+1, ta.game.Main.Appeared, "no wild POKéMON appeared")
+		assert.True(t, ta.main.goButton.shown(), "no Go!")
+	})
+
+	t.Run("when Ctrl+F3 is pressed with the battle over, should do nothing", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+
+		appeared := ta.game.Main.Appeared
+
+		ta.frame(input{
+			keys: []ebiten.Key{ebiten.KeyF3},
+			mods: mods{
+				ctrl: true,
+			},
+		})
+		ta.frame(input{
+			keysUp: []ebiten.Key{ebiten.KeyF3},
+		})
+		ta.wait(1)
+		assert.Equal(t, appeared, ta.game.Main.Appeared, "a wild POKéMON appeared")
+		assert.True(t, ta.main.searchButton.shown(), "no Search Again")
+	})
+
+	t.Run("when F3 is pressed in the game window with no battle, should search for a POKéMON", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.desk.activate(ta.main.wdw)
+		ta.key(ebiten.KeyF3)
+		ta.wait(1)
+		ta.answer("Select a POKéMON from the Statistics Window")
+
+		assert.True(t, ta.game.InWildBattle)
+	})
+
+	t.Run("when F3 is pressed during a battle, should do nothing", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+		ta.fightWild()
+
+		appeared := ta.game.Main.Appeared
+
+		ta.key(ebiten.KeyF3)
+		ta.wait(1)
+		assert.Nil(t, ta.desk.topModal(), "a dialog shows")
+		assert.Equal(t, appeared, ta.game.Main.Appeared, "a wild POKéMON appeared")
+		assert.True(t, ta.main.goButton.shown(), "the battle is over")
+	})
+
+	t.Run("when Search Again has sent the fighter out, should send another party member double-clicked before it acts", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+
+		ta.game.InPokedex[25] = true // so no POKéDEX opens over the party
+
+		ta.game.AddPKMN(25, "Pikachu", 50, false)
+		ta.wait(1)
+		ta.fightWild()
+		ta.clickAttack(0)
+		ta.winBattle()
+		ta.clickOn(ta.main.wdw, "SearchAgainButton")
+		ta.wait(1)
+		ta.doubleClickParty(1)
+		ta.answer("# 025 Pikachu")
+		ta.answer("Choose Pikachu?")
+
+		mgw := &ta.game.Main
+		assert.Equal(t, 25, mgw.Own.Species, "the fighter")
+		assert.Equal(t, -1, ta.main.attacks.index, "the attack selected")
+		assert.Same(t, ta.main.wdw, ta.desk.active, "the active window")
+		assert.Same(t, ta.main.goButton, ta.main.wdw.focus, "the focus")
+		ta.shot("search-again-swapped")
+	})
+}
+
 // wildBattle starts a wild battle, at the game window, as a game handler.
 func wildBattle(ta *testApp) {
 	ta.call(func() {
@@ -654,7 +885,7 @@ func Test_CatchSaveLoad(t *testing.T) {
 		assert.False(t, tb.start.wdw.visible, "the start screen still shows")
 		assert.True(t, tb.main.wdw.visible, "the game window doesn't show")
 		assert.True(t, tb.stats.wdw.visible, "the Statistics window doesn't show")
-		assert.Equal(t, image.Pt(95, 54), tb.main.wdw.pos, "the game window's position")
+		assert.Equal(t, image.Pt(74, 54), tb.main.wdw.pos, "the game window's position")
 	})
 }
 
@@ -915,5 +1146,179 @@ func Test_MenuKeys(t *testing.T) {
 		top := ta.desk.topModal()
 		require.NotNil(t, top, "no Open dialog")
 		require.Equal(t, "Open", top.caption, "the top dialog")
+	})
+}
+
+// drag drags with the mouse from one point of the screen to another.
+func (ta *testApp) drag(from, to image.Point) {
+	ta.mouse = from
+	ta.frame(input{
+		down:    true,
+		pressed: true,
+	})
+
+	ta.mouse = to
+	ta.frame(input{
+		down: true,
+	})
+	ta.frame(input{
+		released: true,
+	})
+}
+
+// fillApp is a test app whose preferences fill the screen.
+func fillApp(t *testing.T) *testApp {
+	t.Helper()
+
+	ta := newTestApp(t)
+	ta.preferences.fillScreen = true
+
+	return ta
+}
+
+// Filling the screen docks the game, Statistics and Battle Info windows
+// edge to edge over the 800×600 screen; the separate windows have their
+// own sizes, side by side.
+func Test_Application_placeWindows(t *testing.T) {
+	t.Parallel()
+
+	for _, cas := range []struct {
+		name   string
+		window func(ta *testApp) *window
+		want   image.Rectangle
+	}{
+		{
+			name: "when the screen is filled, should dock Statistics down the right edge",
+			window: func(ta *testApp) *window {
+				return ta.stats.wdw
+			},
+			want: image.Rect(617, 0, 800, 600),
+		},
+		{
+			name: "when the screen is filled, should dock Battle Info along the bottom, against Statistics",
+			window: func(ta *testApp) *window {
+				return ta.info.wdw
+			},
+			want: image.Rect(0, 416, 617, 600),
+		},
+		{
+			name: "when the screen is filled, should give the game window the rest",
+			window: func(ta *testApp) *window {
+				return ta.main.wdw
+			},
+			want: image.Rect(0, 0, 617, 416),
+		},
+	} {
+		t.Run(cas.name, func(t *testing.T) {
+			t.Parallel()
+
+			ta := fillApp(t)
+			ta.startGame()
+
+			assert.Equal(t, cas.want, cas.window(ta).rect())
+		})
+	}
+
+	t.Run("when the screen is filled, should stretch the arena's frame and keep its contents at their size, centred", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.startGame()
+
+		arena := ta.main.arena.rect
+		before := map[string]image.Rectangle{}
+
+		for _, wgt := range ta.main.arena.kids {
+			before[wgt.base().name] = wgt.base().rect
+		}
+
+		ta.preferences.fillScreen = true
+		ta.placeWindows(246)
+
+		assert.Equal(t, image.Rect(120, 6, 606, 365), ta.main.arena.rect, "the arena's frame, from %v", arena)
+
+		for _, wgt := range ta.main.arena.kids {
+			ctl := wgt.base()
+			assert.Equal(t, before[ctl.name].Add(image.Pt(73, 51)), ctl.rect, ctl.name)
+		}
+	})
+
+	t.Run("when the screen is filled, should grow the party list and the battle log with their windows", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+
+		assert.Equal(t, image.Rect(0, 248, 177, 575), ta.stats.party.rect, "the party list")
+		assert.Equal(t, image.Rect(0, 0, 611, 159), ta.info.memo.rect, "the battle log")
+	})
+
+	t.Run("when the screen is filled, should keep a window in place when its caption is dragged", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+
+		wdw := ta.main.wdw
+		from := wdw.captionRect().Min.Add(image.Pt(100, 5))
+		ta.drag(from, from.Add(image.Pt(50, 40)))
+
+		assert.Equal(t, image.Point{}, wdw.pos, "the pinned window")
+
+		wdw.pinned = false
+
+		ta.drag(from, from.Add(image.Pt(50, 40)))
+
+		assert.Equal(t, image.Pt(50, 40), wdw.pos, "the same drag on the window unpinned")
+	})
+
+	t.Run("when the starter choice shows with the screen filled, should keep the game window in its place and centre the list", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.chooseStarters()
+
+		assert.Equal(t, image.Rect(0, 0, 617, 416), ta.main.wdw.rect(), "the game window")
+		assert.Equal(t, image.Rect(241, 83, 374, 300), ta.main.starters.rect, "the starter list")
+		ta.shot("fill-starters")
+
+		ta.pickStarter(0)
+
+		assert.Equal(t, image.Point{}, ta.main.wdw.pos, "the game window after the choice")
+	})
+
+	t.Run("when the layout goes back to separate windows, should give the windows their own sizes and places", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+
+		ta.preferences.fillScreen = false
+		ta.placeWindows(246)
+
+		assert.Equal(t, image.Pt(74, 54), ta.main.wdw.pos, "the game window's place")
+		assert.Equal(t, image.Pt(464, 270), ta.main.wdw.client, "the game window's size")
+		assert.Equal(t, image.Pt(177, 473), ta.stats.wdw.client, "Statistics' size")
+		assert.Equal(t, image.Pt(464, 159), ta.info.wdw.client, "Battle Info's size")
+		assert.Equal(t, image.Rect(0, 248, 177, 473), ta.stats.party.rect, "the party list")
+		assert.Equal(t, image.Rect(120, 6, 459, 263), ta.main.arena.rect, "the arena's frame")
+		assert.False(t, ta.main.wdw.pinned, "the game window is still pinned")
+	})
+
+	t.Run("when a battle shows with the screen filled, should look docked", func(t *testing.T) {
+		t.Parallel()
+
+		ta := fillApp(t)
+		ta.startGame()
+		ta.menu("Action1", "FightWild1", "FindPKMN1")
+		ta.answer("Select a POKéMON from the Statistics Window")
+
+		rect := ta.stats.party.itemRect(0)
+		ta.doubleClick(widgetOrigin(ta.stats.party).Add(rect.Min).Add(image.Pt(10, 10)))
+		ta.answer("# 004 Charmander")
+		ta.answer("Choose Charmander?")
+
+		assert.True(t, ta.info.wdw.visible, "Battle Info doesn't show")
+		ta.shot("fill-battle")
 	})
 }

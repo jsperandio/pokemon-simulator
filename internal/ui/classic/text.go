@@ -52,6 +52,19 @@ func (bf bitmapFace) draw(cv canvas, x, y int, txt string, clr color.RGBA) int {
 	return bf.fnt.Draw(cv.img, cv.clip, pnt.X, pnt.Y, txt, clr, bf.bold) - cv.org.X
 }
 
+// boldFace returns fnt in bold: a bitmap font synthesized, as Windows does
+// it; any other face as it is.
+func boldFace(fnt face) face {
+	bf, ok := fnt.(bitmapFace)
+	if !ok {
+		return fnt
+	}
+
+	bf.bold = true
+
+	return bf
+}
+
 // trueTypeFace is a TrueType font at a pixel size, with GDI's metrics: the
 // ascent and descent are rounded up, and glyphs advance by whole pixels,
 // without kerning.

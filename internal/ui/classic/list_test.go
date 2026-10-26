@@ -118,3 +118,53 @@ func Test_listBox(t *testing.T) {
 		assert.Equal(t, -1, lbx.selected)
 	})
 }
+
+// listViewWindow shows a window with a list view of ten items, 140×60.
+func listViewWindow(ta *testApp) *listView {
+	items := make([]layout.ListItem, 10)
+	for i := range items {
+		items[i] = layout.ListItem{
+			Caption: "Item " + strconv.Itoa(i),
+		}
+	}
+
+	wdw := ta.showWindow(&layout.Component{
+		Class: "TForm",
+		Name:  "ListViewForm",
+		Props: map[string]string{
+			"ClientHeight": "200",
+			"ClientWidth":  "160",
+		},
+		Children: []layout.Component{
+			{
+				Class:  "TListView",
+				Name:   "List",
+				Bounds: layout.Rect{X: 0, Y: 0, W: 140, H: 60},
+				List:   items,
+			},
+		},
+	})
+
+	return get[*listView](wdw, "List")
+}
+
+func Test_listView_resized(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a list view grows tall enough for its items, should lay them out in one column without a scroll bar", func(t *testing.T) {
+		t.Parallel()
+
+		lv := listViewWindow(newTestApp(t))
+		_, _, perCol := lv.metrics()
+
+		require.Less(t, perCol, len(lv.items), "the items fit in one column already")
+		require.False(t, lv.scroll.rect.Empty(), "no scroll bar to begin with")
+
+		lv.setBounds(image.Rect(0, 0, 140, 190))
+
+		_, _, perCol = lv.metrics()
+
+		assert.GreaterOrEqual(t, perCol, len(lv.items), "the items per column")
+		assert.True(t, lv.scroll.rect.Empty(), "the scroll bar still shows")
+	})
+}

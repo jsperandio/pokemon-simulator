@@ -70,6 +70,7 @@ type Application struct {
 	screen *ebiten.Image // the screen Draw drew on last
 	shown  ebiten.CursorShapeType
 	wheel  float64 // the wheel's movement not yet a whole notch
+	finger finger  // a touch screen's left button
 	pace   *pacer
 
 	settings    settingsStore
@@ -91,6 +92,7 @@ type Application struct {
 	helpWindow *helpWindow // the manual, once opened
 	music      musicPlayer
 	xfer       transfers   // the browser's uploads and downloads, on the web
+	keyboard   *keyboard   // the keyboard a touch screen shows, on the web
 	fileDialog *fileDialog // the file dialog that shows, if one does
 	draws      *drawShow   // the Game Corner's draws, while they show
 
@@ -124,6 +126,7 @@ func NewApplication(data *gamedata.Data, files storage, settings settingsStore, 
 		music:    &audio.Music{},
 		pace:     newPacer(),
 		settings: settings,
+		keyboard: newKeyboard(),
 	}
 
 	// Settings that can't be read leave the defaults.
@@ -181,14 +184,53 @@ func (app *Application) buildForms() {
 	app.prefsForm = newPreferencesForm(app)
 }
 
-// placeWindows puts the game, Statistics and Battle Info windows side by
-// side around the screen's centre, as a new game (dy 236) or a loaded one
-// (dy 246) does.
+// placeWindows puts the game, Statistics and Battle Info windows as the
+// preferences lay them out: filling the screen, or side by side around
+// the screen's centre with their own sizes, as a new game (dy 236) or a
+// loaded one (dy 246) does. The original's left edge, Screen.Width div 2
+// − 305, is half the screen less half the two windows' width.
 func (app *Application) placeWindows(dy int) {
-	x, y := screenWidth/2-305, screenHeight/2-dy
+	if app.preferences.fillScreen {
+		app.fillScreen()
+
+		return
+	}
+
+	for _, wdw := range []*window{app.main.wdw, app.stats.wdw, app.info.wdw} {
+		wdw.pinned = false
+		wdw.resize(wdw.design)
+	}
+
+	mainSize, statsSize := app.main.wdw.size(), app.stats.wdw.size()
+	x, y := screenWidth/2-(mainSize.X+statsSize.X)/2, screenHeight/2-dy
 	app.main.wdw.pos = image.Pt(x, y)
-	app.stats.wdw.pos = image.Pt(x+428, y)
-	app.info.wdw.pos = image.Pt(x, y+314)
+	app.stats.wdw.pos = image.Pt(x+mainSize.X, y)
+	app.info.wdw.pos = image.Pt(x, y+mainSize.Y)
+	app.desk.dirty = true
+}
+
+// fillScreen docks the game, Statistics and Battle Info windows edge to
+// edge over the screen, where they can't be dragged: Statistics down the
+// right edge, with its own width, Battle Info along the bottom of the
+// rest, with its own height, and the game window above it. A hidden one
+// leaves its place empty.
+func (app *Application) fillScreen() {
+	mainWdw, statsWdw, infoWdw := app.main.wdw, app.stats.wdw, app.info.wdw
+	side := statsWdw.design.X + statsWdw.nonClient().X
+	bottom := infoWdw.design.Y + infoWdw.nonClient().Y
+
+	statsWdw.resize(image.Pt(statsWdw.design.X, screenHeight-statsWdw.nonClient().Y))
+	infoWdw.resize(image.Pt(screenWidth-side-infoWdw.nonClient().X, infoWdw.design.Y))
+	mainWdw.resize(image.Pt(screenWidth-side, screenHeight-bottom).Sub(mainWdw.nonClient()))
+
+	statsWdw.pos = image.Pt(screenWidth-side, 0)
+	infoWdw.pos = image.Pt(0, screenHeight-bottom)
+	mainWdw.pos = image.Point{}
+
+	for _, wdw := range []*window{mainWdw, statsWdw, infoWdw} {
+		wdw.pinned = true
+	}
+
 	app.desk.dirty = true
 }
 
@@ -205,12 +247,20 @@ func (app *Application) showPreferences() {
 }
 
 // setPreferences makes prf the player's preferences, which take effect at
-// once: animations turned off stop, and the lists with shiny POKéMON show
-// the mark chosen.
+// once: animations turned off stop, the lists with shiny POKéMON show the
+// mark chosen, and the game's windows take the layout chosen, side by side
+// as a loaded game has them, or filling the screen.
 func (app *Application) setPreferences(prf preferences) {
+	relayout := prf.fillScreen != app.preferences.fillScreen
 	app.preferences = prf
+
+	if relayout && app.main.wdw.visible {
+		app.placeWindows(246)
+	}
+
 	app.stats.party.invalidate()
 	app.main.starters.invalidate()
+	app.info.sync()
 
 	if !prf.animatedSprites {
 		app.main.stopAnimations()
@@ -481,7 +531,9 @@ func (app *Application) Update() error {
 		return ebiten.Termination
 	}
 
-	app.pace.next(&in, app.desk.dirty, app.music.Playing(), now)
+	// The keyboard's text area wakes no frames, so frames run while it is up.
+	typing := app.keyboard != nil && app.keyboard.isOpen()
+	app.pace.next(&in, app.desk.dirty || typing, app.music.Playing(), now)
 
 	return nil
 }
@@ -494,7 +546,16 @@ func (app *Application) step(in input, now time.Time) {
 		return
 	}
 
+	if app.keyboard != nil {
+		app.keyboard.commits(&in)
+	}
+
 	app.desk.update(&in, now)
+
+	if app.keyboard != nil {
+		app.keyboard.follow(app.desk, &in)
+	}
+
 	app.main.animate(now)
 	app.pokedex.animate(now)
 	app.load.tick()
@@ -528,6 +589,7 @@ func (app *Application) input() input {
 	in.down = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 	in.pressed = inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 	in.released = inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft)
+	app.finger.read(&in, ebitenTouches{})
 
 	_, dy := ebiten.Wheel()
 	app.wheel += dy

@@ -183,3 +183,33 @@ func Test_Component_Find(t *testing.T) {
 		assert.Nil(t, Form4.Find("NoSuchComponent"))
 	})
 }
+
+func Test_Component_Clone(t *testing.T) {
+	t.Parallel()
+
+	t.Run("when a form is cloned, should give an equal one", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, Form4, Form4.Clone())
+	})
+
+	t.Run("when the clone is changed, should leave the form as it was", func(t *testing.T) {
+		t.Parallel()
+
+		cln := Form4.Clone()
+		arena := cln.Find("GroupBox1")
+		arena.Children = append(arena.Children, Component{
+			Name: "Extra",
+		})
+		cln.Find("Button1").Props["TabOrder"] = "9"
+		cln.Find("RadioGroup1").Items[0] = "Tackle"
+		cln.Find("ListView1").List[0].Caption = "Pikachu"
+		cln.Find("FindPKMN1").Events["OnClick"] = ""
+
+		assert.Nil(t, Form4.Find("Extra"))
+		assert.Equal(t, "1", Form4.Find("Button1").Props["TabOrder"])
+		assert.Equal(t, "Attack #1", Form4.Find("RadioGroup1").Items[0])
+		assert.Equal(t, "Bulbasaur", Form4.Find("ListView1").List[0].Caption)
+		assert.Equal(t, "FindPKMN1Click", Form4.Find("FindPKMN1").Events["OnClick"])
+	})
+}

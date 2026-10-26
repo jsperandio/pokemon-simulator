@@ -4,10 +4,12 @@ package classic
 
 import (
 	"image"
+	"image/color"
 	"slices"
 	"strconv"
 	"time"
 
+	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
@@ -32,6 +34,9 @@ func newStatsForm(app *Application) *statsForm {
 		counts: map[string]*label{},
 	}
 	sf.party = get[*listView](wdw, "ListView1")
+	// The party list grows with the window when the screen is filled.
+	sf.party.setAnchors(akLeft | akTop | akRight | akBottom)
+
 	sf.party.mark = func(cv canvas, x, y int) {
 		app.preferences.shinyMark.draw(cv, x, y)
 	}
@@ -180,7 +185,128 @@ func (stf *statsForm) wantsFocusBack() bool {
 	return nothingFocused && app.main.wdw.visible && app.desk.topModal() == nil
 }
 
-// infoForm is Battle Info (TForm7).
+// logInk is the colour of a meaning in Battle Info, which the original
+// doesn't have: on its grey, and on white.
+type logInk struct {
+	grey  color.RGBA
+	white color.RGBA
+}
+
+// The meanings' inks. The grey ones are darker: pure red and green are
+// hard to read on clBtnFace, at a contrast of 2.2 and 2.8 to 1.
+var (
+	inkGreen = logInk{
+		grey:  rgb(0x006400),
+		white: rgb(0x008000),
+	}
+	inkRed = logInk{
+		grey:  rgb(0xB00000),
+		white: rgb(0xD00000),
+	}
+	inkBlue = logInk{
+		grey:  rgb(0x0000C0),
+		white: rgb(0x0000FF),
+	}
+	inkGold = logInk{
+		grey:  rgb(0x705000),
+		white: rgb(0x9A6A00),
+	}
+	inkTeal = logInk{
+		grey:  rgb(0x006060),
+		white: rgb(0x007070),
+	}
+	inkPurple = logInk{
+		grey:  rgb(0x800080),
+		white: rgb(0x9000A0),
+	}
+)
+
+// highlights are the kinds of lines Battle Info shows in bold: a battle's
+// milestones (a level up, a catch, either side fainting, a shiny) and the
+// critical hits.
+var highlights = []game.LineKind{
+	game.LevelUp,
+	game.Caught,
+	game.EnemyFainted,
+	game.OwnFainted,
+	game.Shiny,
+	game.CriticalDealt,
+	game.CriticalTaken,
+}
+
+// inkOf returns the ink of a kind of line, and whether it has one: green
+// for good news, red for bad news, blue for experience, gold for money and
+// a shiny, teal for a Potion, purple for the POKéDEX. A critical hit takes
+// its side's: green for the fighter's, red for the enemy's. The rest is
+// plain.
+func inkOf(kind game.LineKind) (logInk, bool) {
+	switch kind {
+	case game.DamageDealt, game.CriticalDealt, game.EnemyFainted, game.Caught:
+		return inkGreen, true
+	case game.DamageTaken, game.CriticalTaken, game.OwnFainted, game.MoneyLost, game.ExperienceLost, game.LevelLost:
+		return inkRed, true
+	case game.ExperienceGained, game.LevelUp:
+		return inkBlue, true
+	case game.PrizeMoney, game.Shiny:
+		return inkGold, true
+	case game.Healed:
+		return inkTeal, true
+	case game.Registered:
+		return inkPurple, true
+	default:
+		return logInk{}, false
+	}
+}
+
+// logStyle returns how Battle Info draws a line of kind kind in colour, on
+// white or on grey: in its ink, bold for a highlight, or plain black.
+func logStyle(kind game.LineKind, white bool) lineStyle {
+	li, ok := inkOf(kind)
+	if !ok {
+		return lineStyle{
+			color: colText,
+		}
+	}
+
+	clr := li.grey
+	if white {
+		clr = li.white
+	}
+
+	return lineStyle{
+		color: clr,
+		bold:  slices.Contains(highlights, kind),
+	}
+}
+
+// logStyles returns the styles of Battle Info's lines of kinds kinds, as
+// prf has them: none without the colours, so all are the font's.
+func logStyles(kinds []game.LineKind, prf preferences) []lineStyle {
+	if !prf.colourMessages {
+		return nil
+	}
+
+	styles := make([]lineStyle, len(kinds))
+
+	for i, kind := range kinds {
+		styles[i] = logStyle(kind, prf.whiteBackground)
+	}
+
+	return styles
+}
+
+// logBackground returns Battle Info's background: the original's
+// clBtnFace, or white.
+func logBackground(white bool) color.RGBA {
+	if white {
+		return colWindow
+	}
+
+	return colFace
+}
+
+// infoForm is Battle Info (TForm7). The port colours its lines by their
+// kinds, on its grey or on white, as the preferences have it.
 type infoForm struct {
 	app  *Application
 	wdw  *window
@@ -193,6 +319,11 @@ func newInfoForm(app *Application) *infoForm {
 		wdw: newWindow(app.desk, &layout.Form7),
 	}
 	inf.memo = get[*memo](inf.wdw, "Memo1")
+	// The log grows with the window: as wide as the game window above it,
+	// and more when the screen is filled.
+	inf.memo.setAnchors(akLeft | akTop | akRight | akBottom)
+	inf.wdw.widen(arenaExtra)
+
 	inf.wdw.onClose = func() { // Alt+F4
 		app.game.CloseInfo()
 	}
@@ -202,8 +333,10 @@ func newInfoForm(app *Application) *infoForm {
 }
 
 func (inf *infoForm) sync() {
-	gam := inf.app.game
-	inf.memo.setLines(gam.Info.Lines)
+	gam, prf := inf.app.game, inf.app.preferences
+
+	inf.memo.setColor(logBackground(prf.whiteBackground))
+	inf.memo.setLines(gam.Info.Lines, logStyles(gam.Info.Kinds, prf))
 }
 
 // pokedexForm is the POKéDEX (TForm8).

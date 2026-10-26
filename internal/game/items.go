@@ -36,8 +36,9 @@ func (g *Game) UseItem(k int) {
 	case UltraBall:
 		g.throwBall("an Ultra Ball", &g.UltraBalls, 250)
 	case MasterBall:
-		g.log("You threw a Master Ball.")
-		g.log("You caught " + g.name(g.EnemySpecies) + "!")
+		g.lockFighter()
+		g.log(Plain, "You threw a Master Ball.")
+		g.log(Caught, "You caught "+g.name(g.EnemySpecies)+"!")
 		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel, g.EnemyShiny)
 
 		g.MasterBalls--
@@ -54,12 +55,13 @@ func (g *Game) UseItem(k int) {
 // throwBall throws a ball that catches when Random(bound) ≥ the enemy's
 // HP + 2; a miss gives the enemy a free attack.
 func (g *Game) throwBall(ball string, count *uint32, bound int) {
-	g.log("You threw " + ball + ".")
+	g.lockFighter()
+	g.log(Plain, "You threw "+ball+".")
 
 	*count--
 	// Int(r − (EnemyHP + 0.5)) > 0 in Extended: r ≥ EnemyHP + 2.
 	if r := g.Rand.Random(bound); r >= g.EnemyHP+2 {
-		g.log("You caught " + g.name(g.EnemySpecies) + "!")
+		g.log(Caught, "You caught "+g.name(g.EnemySpecies)+"!")
 		g.AddPKMN(g.EnemySpecies, g.name(g.EnemySpecies), g.EnemyLevel, g.EnemyShiny)
 
 		g.BattleType = 1
@@ -67,7 +69,7 @@ func (g *Game) throwBall(ball string, count *uint32, bound int) {
 	}
 
 	if !g.Main.EndFight {
-		g.log("Sorry, " + g.name(g.EnemySpecies) + " wasn't caught.")
+		g.log(Plain, "Sorry, "+g.name(g.EnemySpecies)+" wasn't caught.")
 		g.oppAttack()
 	}
 
@@ -81,7 +83,7 @@ func (g *Game) potion(count *uint32, heal int) {
 	full := int(g.member(g.OwnIndex).Level) * 10
 
 	if g.OwnHP == full {
-		g.log("It won't have any effect.")
+		g.log(Plain, "It won't have any effect.")
 	}
 
 	if g.OwnHP < full {
@@ -90,7 +92,7 @@ func (g *Game) potion(count *uint32, heal int) {
 		g.enableItems()
 
 		g.OwnHP = min(g.OwnHP, full)
-		g.logf("%s recovered %d HP!", g.name(int(g.member(g.OwnIndex).Species)), g.OwnHP-before)
+		g.logf(Healed, "%s recovered %d HP!", g.name(int(g.member(g.OwnIndex).Species)), g.OwnHP-before)
 		g.oppAttack()
 	}
 }

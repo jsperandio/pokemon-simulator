@@ -33,7 +33,7 @@ func (g *Game) AddPKMN(species int, name string, level uint8, shiny bool) {
 	}
 
 	if !g.InPokedex[species] {
-		g.log(name + " has been added to the POKéDEX!")
+		g.log(Registered, name+" has been added to the POKéDEX!")
 
 		g.InPokedex[species] = true
 		g.ShowPokedex(species - 1) // registered first: the POKéDEX shows its attacks

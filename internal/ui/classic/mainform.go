@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/jsperandio/pokemon-simulator/internal/audio"
 	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
@@ -24,6 +26,8 @@ type mainForm struct {
 
 	starterLabel *label
 	starters     *listView
+	starterSpot  image.Point // where the starter choice centred the window
+	gameSpot     image.Point // where the window goes once a starter is chosen
 
 	evolveChoice *radioGroup
 	evolveButton *button
@@ -44,17 +48,82 @@ type mainForm struct {
 	enemyAttacks   *groupBox
 	enemyMoves     [4]*label // Label4–7
 	goButton       *button
+	chosen         int       // the fighters sent out at the last sync: a new one takes Go!'s focus
 	ownImage       *listView // ListView2
 	enemyImage     *listView // ListView3
 	endButton      *button
+	searchButton   *button    // SearchAgainButton
 	enemyAppear    appearance // the wild POKéMON's, over ListView3
 	ownAppear      appearance // the player's fighter's, over ListView2
 	enemySparkle   sparkle    // the wild POKéMON's stars when it is shiny
 	ownSparkle     sparkle    // the player's fighter's stars when it is shiny
 }
 
+// searchAgainButton is the Battle Arena's Search Again button, which the
+// original doesn't have: once a battle a search found is over, it shows in
+// Go!'s place, as high as Go!, and ends where Go! ends.
+var searchAgainButton = layout.Component{
+	Class:   "TButton",
+	Name:    "SearchAgainButton",
+	Bounds:  layout.Rect{X: 214, Y: 13, W: 75, H: 22},
+	Caption: "Search Again",
+	Hidden:  true,
+	Props: map[string]string{
+		"TabOrder": "6",
+	},
+}
+
+// searchShortcut is Search for a POKéMON's shortcut, which the original
+// doesn't have: F3, as a TShortCut.
+const searchShortcut string = "114"
+
+// goBounds is Go!'s place in the Battle Arena, in the room arenaRise and
+// arenaDrop make: 22 pixels high, 6 below the arena's frame and 5 above
+// the gauges, and ending with the gauges and the attack boxes. The
+// original's Go! was 15 high, with no room above or below it, and ended 2
+// pixels further right.
+var goBounds = layout.Rect{X: 246, Y: 13, W: 43, H: 22}
+
+// arenaRise and arenaDrop are how much further up and down the game window
+// the Battle Arena's frame reaches than the original's, into the window's
+// margins, so the window keeps its size. The arena's contents move down by
+// both, which leaves room above the gauges for goBounds.
+const (
+	arenaRise int = 10
+	arenaDrop int = 6
+)
+
+// mainLayout is the original's game window with the port's changes. The
+// Battle Arena's frame reaches arenaRise further up and arenaDrop further
+// down, and its contents move down by both. Go! is at goBounds, and is the
+// default button, so Enter presses it even when an attack has the focus.
+// The arena has searchAgainButton, and Search for a POKéMON has
+// searchShortcut.
+func mainLayout() *layout.Component {
+	frm := layout.Form4.Clone()
+	arena := frm.Find("GroupBox1")
+	arena.Bounds.Y -= arenaRise
+	arena.Bounds.H += arenaRise + arenaDrop
+
+	for i := range arena.Children {
+		arena.Children[i].Bounds.Y += arenaRise + arenaDrop
+	}
+
+	arena.Children = append(arena.Children, searchAgainButton)
+	frm.Find("FindPKMN1").Props = map[string]string{
+		"ShortCut": searchShortcut,
+	}
+
+	goButton := frm.Find("Button1")
+	goButton.Bounds = goBounds
+	goButton.Props["Default"] = "True"
+
+	return &frm
+}
+
 func newMainForm(app *Application) *mainForm {
-	wdw := newWindow(app.desk, &layout.Form4)
+	lay := mainLayout()
+	wdw := newWindow(app.desk, lay)
 	mf := &mainForm{
 		app: app,
 		wdw: wdw,
@@ -104,6 +173,11 @@ func newMainForm(app *Application) *mainForm {
 	mf.ownImage.showOnly = true
 	mf.enemyImage.showOnly = true
 	mf.endButton = get[*button](wdw, "EndButton")
+	mf.searchButton = get[*button](wdw, "SearchAgainButton")
+	mf.widenArena()
+	mf.placeGauges()
+	mf.anchorForFill()
+
 	mf.arena.over = func(cv canvas) {
 		enemy, own := mf.enemyImage.rect.Min, mf.ownImage.rect.Min
 		mf.enemyAppear.paint(cv, enemy)
@@ -149,9 +223,13 @@ func newMainForm(app *Application) *mainForm {
 	mf.endButton.onClick = func() {
 		app.call(gam.EndFight)
 	}
+	mf.searchButton.onClick = func() {
+		app.call(gam.SearchAgain)
+	}
 	wdw.onClose = mf.formClose
+	wdw.onKey = mf.key
 
-	mb := newMenuBar(wdw, gam.Menu, layout.Form4.Find("MainMenu1"), map[string]*game.MenuItem{
+	mb := newMenuBar(wdw, gam.Menu, lay.Find("MainMenu1"), map[string]*game.MenuItem{
 		"Quit1": {
 			Name:    "Preferences1",
 			Caption: "Preferences...",
@@ -176,7 +254,65 @@ func (mf *mainForm) starterClick() {
 	app := mf.app
 	app.call(func() {
 		app.game.ChooseStarter(idx)
+		mf.leaveCentre()
 	})
+}
+
+// anchorForFill sets the anchors that fill the screen with the window: the
+// Battle Arena's frame stretches, and its contents, the starter list and
+// its caption keep their size, centred. The other controls stay at the
+// top left. The layout's anchors are the original's defaults, which the
+// separate windows keep, as they never resize.
+func (mf *mainForm) anchorForFill() {
+	mf.arena.setAnchors(akLeft | akTop | akRight | akBottom)
+
+	for _, wgt := range mf.arena.kids {
+		wgt.base().setAnchors(0)
+	}
+
+	mf.starterLabel.setAnchors(0)
+	mf.starters.setAnchors(0)
+}
+
+// centreForStarters puts the window in the middle of the screen for the
+// starter choice, when it is the only one shown; the spot it held beside
+// the other windows waits for the choice. Filling the screen, the window
+// already has its place.
+func (mf *mainForm) centreForStarters() {
+	mf.gameSpot = mf.wdw.pos
+
+	if !mf.app.preferences.fillScreen {
+		mf.wdw.center()
+	}
+
+	mf.starterSpot = mf.wdw.pos
+	mf.app.desk.dirty = true
+}
+
+// leaveCentre moves the window from the middle of the screen to its place
+// beside the Statistics and Battle Info windows, once a starter is chosen,
+// unless the player has moved it.
+func (mf *mainForm) leaveCentre() {
+	mgw := &mf.app.game.Main
+	if mgw.Starters || mf.wdw.pos != mf.starterSpot {
+		return
+	}
+
+	mf.wdw.pos = mf.gameSpot
+	mf.app.desk.dirty = true
+}
+
+// key is the game window's own key: F3 is Search Again once a battle a
+// search found is over, as the menu that has it for Search for a POKéMON
+// is disabled then.
+func (mf *mainForm) key(key ebiten.Key, mds mods) bool {
+	if key != ebiten.KeyF3 || mds != (mods{}) {
+		return false
+	}
+
+	mf.searchButton.click()
+
+	return true
 }
 
 // menuCommand runs a menu item: the user interface's own, or the game's.
@@ -347,9 +483,18 @@ func (mf *mainForm) sync() {
 	mf.arena.setVisible(mgw.Battle)
 	mf.goButton.setVisible(mgw.Go)
 	mf.endButton.setVisible(mgw.EndFight)
+	mf.searchButton.setVisible(gam.CanSearchAgain())
 	mf.attacks.setVisible(mgw.Attacks)
 	mf.attacks.setIndex(mgw.AttackIndex)
 	mf.pokeball.setVisible(mgw.Pokeball)
+
+	if mgw.Chosen != mf.chosen && mgw.Go {
+		// A fighter has come out: Enter attacks from the first turn.
+		mf.wdw.setFocus(mf.goButton, false)
+		app.desk.activate(mf.wdw)
+	}
+
+	mf.chosen = mgw.Chosen
 
 	play := app.preferences.animatedSprites
 	mf.enemyAppear.arm(mgw.Appeared, mgw.EnemyImage+1, mgw.Enemy.Shiny, play)
@@ -374,9 +519,6 @@ func (mf *mainForm) sync() {
 				lbl.setCaption(mv.Name)
 			}
 		}
-
-		// Gauge2 sits after Label3, as that fighter's caption sized it.
-		mf.placeGauge(mf.enemyGauge, "Enemy "+sp.Name+" L."+strconv.Itoa(enm.Level))
 	}
 
 	own := mgw.Own
@@ -393,7 +535,6 @@ func (mf *mainForm) sync() {
 	mf.ownLabel.setCaption(sp.Name + " L." + strconv.Itoa(own.Level))
 	mf.ownHP.setCaption(strconv.Itoa(own.HP) + "/" + strconv.Itoa(own.Level) + "0")
 	mf.ownGauge.set(own.Level*10, own.HP, gaugeColors[mgw.OwnColor])
-	mf.placeGauge(mf.ownGauge, sp.Name+" L."+strconv.Itoa(own.Level))
 	mf.attacks.setCaption(sp.Name + "'s attacks:")
 
 	items := make([]string, 0, 5)
@@ -490,10 +631,52 @@ func (mf *mainForm) animate(now time.Time) {
 	}
 }
 
-// placeGauge puts a gauge after its label's caption: Left = the label's
-// width + 80, and Width = 289 − Left.
-func (mf *mainForm) placeGauge(gge *gauge, caption string) {
-	left := mf.enemyLabel.font.width(caption) + 80
-	rect := gge.rect
-	gge.setBounds(image.Rect(left, rect.Min.Y, 289, rect.Max.Y))
+// arenaExtra is the width the port adds to the game window, the Battle
+// Arena and Battle Info, for HP gauges half as long again as the 84 pixels
+// the widest caption leaves in the original's arena.
+const arenaExtra int = 42
+
+// widenArena makes the window arenaExtra wider than the original's: the
+// Battle Arena, its attack boxes and its gauges grow to the right, the Go!
+// and Search Again buttons move with them, and the starter choice stays
+// centred. The layout's anchors are still the defaults, so the resize
+// moves nothing.
+func (mf *mainForm) widenArena() {
+	mf.wdw.widen(arenaExtra)
+
+	for _, ctl := range []*control{&mf.arena.control, &mf.attacks.control, &mf.enemyAttacks.control} {
+		rect := ctl.rect
+		rect.Max.X += arenaExtra
+		ctl.setBounds(rect)
+	}
+
+	for _, btn := range []*button{mf.goButton, mf.searchButton} {
+		btn.setBounds(btn.rect.Add(image.Pt(arenaExtra, 0)))
+	}
+
+	for _, ctl := range []*control{&mf.starterLabel.control, &mf.starters.control} {
+		ctl.setBounds(ctl.rect.Add(image.Pt(arenaExtra/2, 0)))
+	}
+}
+
+// placeGauges puts both HP gauges after the widest caption a fighter can
+// have, "Enemy " + the longest species name + " L.100": Left = its width
+// + 80, and the gauges end with the attack boxes, as the original's do at
+// 289. The original put each gauge after its own fighter's caption, so the
+// two were seldom the same width.
+func (mf *mainForm) placeGauges() {
+	gam := mf.app.game
+
+	wid := 0
+	for _, sp := range gam.Data.Species {
+		wid = max(wid, mf.enemyLabel.font.width("Enemy "+sp.Name+" L.100"))
+	}
+
+	box := mf.attacks.rect
+	left, right := wid+80, box.Max.X
+
+	for _, gge := range []*gauge{mf.ownGauge, mf.enemyGauge} {
+		rect := gge.rect
+		gge.setBounds(image.Rect(left, rect.Min.Y, right, rect.Max.Y))
+	}
 }

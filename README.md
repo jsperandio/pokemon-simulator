@@ -8,9 +8,9 @@ A cross-platform port of **POKéMON Simulator V4.5** to [Go](https://go.dev) and
 
 The original only runs on Windows, or on other systems through Wine. This port makes it playable again on Linux, Windows, macOS and in the browser, with the same rules, data and look, and adds a few [improvements](#improvements) of its own.
 
-> **The original, as it was:** [v4.5.0](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.0) is the faithful port, with nothing added. Take its archives, or [play it in the browser](https://jsperandio.github.io/pokemon-simulator-web/v4.5.0/), to have the game exactly as Michael Madsen made it.
+> **The original, as it was:** [v4.5.1](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.1) is the faithful port, with nothing added. Take its archives, or [play it in the browser](https://jsperandio.github.io/pokemon-simulator-web/v4.5.1/), to have the game exactly as Michael Madsen made it.
 
-> **Status:** the port is complete. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays the whole game on the desktop and in the browser, with the manual and the music. The versions after v4.5.0 add improvements on top.
+> **Status:** the port is complete. The game's rules are done: the tests replay recordings of the original game and get the same results, draw for draw. The classic interface plays the whole game on the desktop and in the browser, with the manual and the music. The versions from 4.6 on add improvements on top.
 
 ## Play in the browser
 
@@ -18,7 +18,7 @@ Each link opens that version's game, with nothing to download:
 
 | Version | | What it is | Notes |
 |---|---|---|---|
-| [v4.5.0](https://jsperandio.github.io/pokemon-simulator-web/v4.5.0/) | Original | the 2004 game, as Michael Madsen made it | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.0) · [BirdieSoft's page](https://birdiesoft.dk/software.php?id=2) |
+| [v4.5.1](https://jsperandio.github.io/pokemon-simulator-web/v4.5.1/) | Original | the 2004 game, as Michael Madsen made it | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.1) · [BirdieSoft's page](https://birdiesoft.dk/software.php?id=2) |
 
 [Playing](#playing) says how the game keeps its files in the browser.
 
@@ -46,7 +46,8 @@ The game plays as the original did, apart from the [improvements](#improvements)
 - **Music.** Music → Open file... plays MP3, Ogg Vorbis and WAV files. The original played what Windows Media Player could, but WMA, MIDI and video files aren't supported. On Linux, music needs a PulseAudio or PipeWire sound server, as desktop distributions have.
 - **On Linux with GNOME 44 or later,** the game's window gets its title bar from a GNOME helper, `mutter-x11-frames`, as every X11 program's does. If that helper has stopped, GNOME shows none of these windows. The game notices after a few seconds and starts again without a title bar, and a notification says so: move the window with the Super key and the mouse, and close it with Alt+F4 or File → Quit. Logging out and in again brings the title bars back.
 - **If the game can't start,** it says why in a notification or a message box, as there may be no terminal to read it in.
-- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. The versions after v4.5.0 keep their files apart from v4.5.0's: to carry a save over, Download it in one and Upload it in the other. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab. The game needs WebGL 2, which current browsers have.
+- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. The versions from 4.6 on keep their files apart from v4.5's: to carry a save over, Download it in one and Upload it in the other. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab. The game needs WebGL 2, which current browsers have.
+- **On a phone or a tablet,** a tap is a click, and two quick taps on one spot are a double click. Tapping a text box, such as the file name in Save As, brings up the keyboard, whose Enter key works as Enter does; the word being typed shows underlined until the keyboard types it in. The game's 800×600 screen is easier to play with the device held sideways.
 
 ## Improvements
 
@@ -55,6 +56,10 @@ The original doesn't have these:
 - Animated sprites
 - Shiny POKéMON
 - Don't show this message again
+- Fill the screen
+- Search Again
+- Coloured Battle Info
+- Small interface changes
 
 More details: [docs/improvements.md](docs/improvements.md).
 
@@ -71,7 +76,7 @@ You need Go 1.26 or later. No C compiler is needed, because every build uses `CG
 | `make web` | Build only the WebAssembly version into `dist/web/` |
 | `make serve` | Build and serve the WebAssembly version at http://localhost:8080 (needs Python 3) |
 
-`make dist` names the archives after the latest `v*` tag, such as `v4.5.0`, which also goes into the Windows program's properties. It needs GNU tar and zip, and network access the first time, to fetch [go-winres](https://github.com/tc-hib/go-winres), which gives the Windows program its icon.
+`make dist` names the archives after the latest `v*` tag, such as `v4.5.1`, which also goes into the Windows program's properties. It needs GNU tar and zip, and network access the first time, to fetch [go-winres](https://github.com/tc-hib/go-winres), which gives the Windows program its icon.
 
 On Linux, the game loads the system's graphics and audio libraries at runtime. Desktop distributions already include them.
 
