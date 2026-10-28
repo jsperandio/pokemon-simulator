@@ -252,9 +252,9 @@ func Test_mainForm_showStarters(t *testing.T) {
 		}
 		ta.wait(80)
 		ta.clickOn(ta.start.wdw, "NewButton")
-		ta.typeText("ash")
-		ta.key(ebiten.KeyEnter)
 		ta.typeText("Gary")
+		ta.key(ebiten.KeyEnter)
+		ta.typeText("ash")
 		ta.key(ebiten.KeyEnter)
 		ta.wait(1)
 

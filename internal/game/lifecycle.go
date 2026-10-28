@@ -13,7 +13,7 @@ import (
 var Starters = [3]int{1, 4, 7} // Bulbasaur, Charmander, Squirtle
 
 // NewGame is the start screen's "Start a new game!", once the player has
-// chosen the save file and closed the name dialog. With OK (ok), the name
+// closed the name dialog and chosen the save file. With OK (ok), the name
 // typed is the player's, "Ash" if empty. Closed with Alt+F4, the dialog
 // sets nothing: the player has no name, and the game window keeps its
 // caption. The player picks a starter next, each of which may be shiny.
@@ -42,13 +42,20 @@ func (g *Game) NewGame(file, name string, ok bool) {
 
 // setPlayer is the name dialog's OK (TOKRightDlg.OKBtnClick).
 func (g *Game) setPlayer(name string) {
-	if name == "" {
-		name = "Ash"
-	}
-
+	name = NameFor(name)
 	g.PlayerName = name
 	g.Main.Caption = version.Title() + " - " + name + " [" + fileName(g.SaveFile) + "]"
 	g.Stats.Name = name
+}
+
+// NameFor is the player's name for the name typed in the name dialog:
+// "Ash" if it is empty.
+func NameFor(typed string) string {
+	if typed == "" {
+		return "Ash"
+	}
+
+	return typed
 }
 
 // ChooseStarter is a click on starter k (0-based, in Starters).

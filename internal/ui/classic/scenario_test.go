@@ -502,10 +502,6 @@ func (ud *uiDriver) New(file, name string, ok bool) error {
 	ud.press(ta.start.wdw, ta.start.wdw.find("NewButton"))
 	ud.settle()
 
-	if err := ud.fileDialog("Save As", winBase(file)); err != nil {
-		return err
-	}
-
 	if ta.desk.topModal() != ta.name.wdw {
 		return errors.New("no name dialog")
 	}
@@ -516,14 +512,14 @@ func (ud *uiDriver) New(file, name string, ok bool) error {
 		ud.ta.altF4()
 		ud.settle()
 
-		return nil
+		return ud.fileDialog("Save As", winBase(file))
 	}
 
 	ta.typeText(name) // over "Ash", all selected
 	ta.key(ebiten.KeyEnter)
 	ud.settle()
 
-	return nil
+	return ud.fileDialog("Save As", winBase(file)) // over the name suggested, all selected
 }
 
 func (ud *uiDriver) Load(file string, save []byte) error {

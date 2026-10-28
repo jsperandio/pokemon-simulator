@@ -293,9 +293,9 @@ func (ta *testApp) startGame() {
 func (ta *testApp) chooseStarters() {
 	ta.wait(80)
 	ta.clickOn(ta.start.wdw, "NewButton")
-	ta.typeText("ash")
-	ta.key(ebiten.KeyEnter)
 	ta.typeText("Gary")
+	ta.key(ebiten.KeyEnter)
+	ta.typeText("ash")
 	ta.key(ebiten.KeyEnter)
 	ta.wait(1)
 }
@@ -394,7 +394,7 @@ func (ta *testApp) menuEffects() menuEffects {
 }
 
 // Test_NewGame plays the start of a game: loading, the start screen, the
-// save file, the name and the starter.
+// name, the save file and the starter.
 func Test_NewGame(t *testing.T) {
 	t.Parallel()
 
@@ -415,20 +415,21 @@ func Test_NewGame(t *testing.T) {
 		ta.shot("02-start")
 		ta.clickOn(ta.start.wdw, "NewButton")
 		ta.wait(1)
-		ta.shot("03-save-dialog")
-
-		top := ta.desk.topModal()
-		require.NotNil(t, top, "no save dialog")
-		require.Equal(t, "Save As", top.caption, "the top dialog")
-
-		ta.typeText("ash")
-		ta.key(ebiten.KeyEnter)
-		ta.wait(1)
-		ta.shot("04-name")
+		ta.shot("03-name")
 
 		require.Same(t, ta.name.wdw, ta.desk.topModal(), "no name dialog")
 
 		ta.typeText("Gary")
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+		ta.shot("04-save-dialog")
+
+		top := ta.desk.topModal()
+		require.NotNil(t, top, "no save dialog")
+		require.Equal(t, "Save As", top.caption, "the top dialog")
+		assert.Equal(t, "Gary.pgs", ta.fileDialog.name.text(), "the file name suggested")
+
+		ta.typeText("ash") // over the name suggested, all selected
 		ta.key(ebiten.KeyEnter)
 		ta.wait(1)
 		ta.shot("05-starters")
@@ -455,6 +456,63 @@ func Test_NewGame(t *testing.T) {
 		ta.shot("07-game")
 
 		assert.True(t, strings.HasSuffix(ta.game.SaveFile, "ash.pgs"), "save file %q", ta.game.SaveFile)
+	})
+
+	t.Run("when the folder has saves named after the player, should suggest the first number none has, in any case", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+
+		for _, nam := range []string{"Gary.pgs", "GARY2.PGS"} {
+			require.NoError(t, os.WriteFile(filepath.Join(ta.dir, nam), nil, 0o600))
+		}
+
+		ta.wait(80)
+		ta.clickOn(ta.start.wdw, "NewButton")
+		ta.typeText("Gary")
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+
+		require.NotNil(t, ta.fileDialog, "no Save As")
+		assert.Equal(t, "Gary3.pgs", ta.fileDialog.name.text(), "the file name suggested")
+
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+
+		assert.Equal(t, filepath.Join(ta.dir, "Gary3.pgs"), ta.game.SaveFile, "the save file")
+	})
+
+	t.Run("when the name dialog closes with Alt+F4, should suggest no file name", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.wait(80)
+		ta.clickOn(ta.start.wdw, "NewButton")
+		ta.altF4()
+		ta.wait(1)
+
+		require.NotNil(t, ta.fileDialog, "no Save As")
+		assert.Empty(t, ta.fileDialog.name.text(), "the file name box")
+	})
+
+	t.Run("when Save As is cancelled, should stay at the start screen", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.wait(80)
+		ta.clickOn(ta.start.wdw, "NewButton")
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+
+		require.NotNil(t, ta.fileDialog, "no Save As")
+
+		ta.key(ebiten.KeyEscape)
+		ta.wait(1)
+
+		assert.Nil(t, ta.fileDialog, "Save As still shows")
+		assert.True(t, ta.start.wdw.visible, "the start screen doesn't show")
+		assert.False(t, ta.main.wdw.visible, "the game window shows")
+		assert.Empty(t, ta.game.SaveFile, "the save file")
 	})
 }
 

@@ -3,6 +3,9 @@
 package classic
 
 import (
+	"strings"
+
+	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic/layout"
 )
 
@@ -188,29 +191,56 @@ func newStartForm(app *Application) *startForm {
 // saveFilter is the save dialogs' filter.
 const saveFilter string = "Saved Games (*.PGS)|*.pgs"
 
-// newButtonClick is "Start a new game!": the save file first, then the
-// name, then the starter.
+// newButtonClick is "Start a new game!": the name first, then the save
+// file, which Save As names after the player, then the starter. The
+// original asked for the file before the name.
 func (sf *startForm) newButtonClick() {
 	app := sf.app
 	app.call(func() {
+		name, named := app.name.ask()
+
 		file, ok := app.openFile(fileOptions{
 			save:       true,
 			filter:     saveFilter,
 			defaultExt: "pgs",
 			overwrite:  true,
+			fileName:   saveName(name, named),
 		})
 		if !ok {
 			return
 		}
 
 		app.desk.hide(sf.wdw)
-
-		name, ok := app.name.ask()
-		app.game.NewGame(file, name, ok)
+		app.game.NewGame(file, name, named)
 		app.sync()
 		app.placeWindows(236)
 		app.main.centreForStarters()
 	})
+}
+
+// saveName is the save file Save As suggests for the name typed: the
+// player's name, without the characters a file name can't have, and the
+// save's extension. There is none when the name dialog closed with Alt+F4,
+// which names no one, or when nothing is left of the name.
+func saveName(name string, named bool) string {
+	if !named {
+		return ""
+	}
+
+	nam := strings.Map(func(chr rune) rune {
+		if chr < ' ' || strings.ContainsRune(`<>:"/\|?*`, chr) {
+			return -1
+		}
+
+		return chr
+	}, game.NameFor(name))
+	nam = strings.Trim(nam, ". ")
+
+	if nam == "" {
+		return ""
+	}
+
+	return nam + ".pgs"
 }
 
 // loadButtonClick is "Load a saved game...".
