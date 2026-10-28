@@ -20,7 +20,7 @@ Each link opens that version's game, with nothing to download:
 |---|---|---|---|
 | [v4.5.1](https://jsperandio.github.io/pokemon-simulator-web/v4.5.1/) | Original | the 2004 game, as Michael Madsen made it | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.1) · [BirdieSoft's page](https://birdiesoft.dk/software.php?id=2) |
 
-[Playing](#playing) says how the game keeps its files in the browser.
+[Playing in the browser](docs/playing.md#in-the-browser) says where the game keeps your files.
 
 ## Download
 
@@ -40,14 +40,16 @@ The Linux archive has two optional scripts for the desktop's menu and taskbar, w
 
 ## Playing
 
-The game plays as the original did, apart from the [improvements](#improvements), and its manual is under Help → Contents (F1). A few things differ by platform:
+The game plays as the original did, apart from the [improvements](#improvements). Its manual is under Help → Contents (F1).
 
-- **Saving.** As in the original, you choose a save file when you start a new game, and the game saves when you quit (File → Quit, or closing the window).
-- **Music.** Music → Open file... plays MP3, Ogg Vorbis and WAV files. The original played what Windows Media Player could, but WMA, MIDI and video files aren't supported. On Linux, music needs a PulseAudio or PipeWire sound server, as desktop distributions have.
-- **On Linux with GNOME 44 or later,** the game's window gets its title bar from a GNOME helper, `mutter-x11-frames`, as every X11 program's does. If that helper has stopped, GNOME shows none of these windows. The game notices after a few seconds and starts again without a title bar, and a notification says so: move the window with the Super key and the mouse, and close it with Alt+F4 or File → Quit. Logging out and in again brings the title bars back.
-- **If the game can't start,** it says why in a notification or a message box, as there may be no terminal to read it in.
-- **In the browser,** the game keeps its files in the browser's storage, where they stay between visits. The file dialogs have two extra buttons, next to Up One Level: **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. The versions from 4.6 on keep their files apart from v4.5's: to carry a save over, Download it in one and Upload it in the other. Closing or reloading the page doesn't save, so the browser asks first while a game is open; use File → Quit. Exported pages open in a new tab. The game needs WebGL 2, which current browsers have.
-- **On a phone or a tablet,** a tap is a click, and two quick taps on one spot are a double click. Tapping a text box, such as the file name in Save As, brings up the keyboard, whose Enter key works as Enter does; the word being typed shows underlined until the keyboard types it in. The game's 800×600 screen is easier to play with the device held sideways.
+- **Saving:** choose a file for a new game; the game saves when you quit.
+- **Music:** Music → Open file... plays MP3, Ogg Vorbis and WAV.
+- **In the browser:** files stay in the browser; Upload and Download move them.
+- **On a phone or a tablet:** a tap is a click; hold the device sideways.
+- **On Linux with GNOME:** if GNOME's title bar helper stops, the game starts without one.
+- **If the game can't start,** it says why in a message box.
+
+More details: [docs/playing.md](docs/playing.md).
 
 ## Improvements
 
