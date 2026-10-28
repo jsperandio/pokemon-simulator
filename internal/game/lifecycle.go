@@ -2,7 +2,10 @@
 
 package game
 
-import "github.com/jsperandio/pokemon-simulator/internal/save"
+import (
+	"github.com/jsperandio/pokemon-simulator/internal/save"
+	"github.com/jsperandio/pokemon-simulator/internal/version"
+)
 
 // Starting, loading and quitting.
 
@@ -44,7 +47,7 @@ func (g *Game) setPlayer(name string) {
 	}
 
 	g.PlayerName = name
-	g.Main.Caption = Title + " - " + name + " [" + fileName(g.SaveFile) + "]"
+	g.Main.Caption = version.Title() + " - " + name + " [" + fileName(g.SaveFile) + "]"
 	g.Stats.Name = name
 }
 
@@ -82,7 +85,7 @@ func (g *Game) Load(file string, b []byte) error {
 	g.MinLevel, g.MaxLevel = 2, 100
 	g.SaveFile = file
 	g.File = *f
-	g.Main.Caption = Title + " - " + g.PlayerName + " [" + fileName(file) + "]"
+	g.Main.Caption = version.Title() + " - " + g.PlayerName + " [" + fileName(file) + "]"
 	g.Stats.Name = g.PlayerName
 	g.unlockAll()
 

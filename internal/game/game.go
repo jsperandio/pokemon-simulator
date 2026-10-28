@@ -21,11 +21,8 @@ import (
 	"github.com/jsperandio/pokemon-simulator/internal/delphi"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/save"
+	"github.com/jsperandio/pokemon-simulator/internal/version"
 )
-
-// Title is the start screen's caption; the game window adds the player's
-// name and save file to it.
-const Title string = "POKéMON Simulator V4.5"
 
 // ShinyOdds is the chance of a shiny POKéMON, 1 in ShinyOdds: the games'
 // since POKéMON X and Y. The original has no shinies.
@@ -284,7 +281,7 @@ func New(data *gamedata.Data, ui UI) *Game {
 	gam.Start.Visible = true
 
 	gam.Main = MainWindow{
-		Caption:     Title,
+		Caption:     version.Title(),
 		AttackIndex: -1,
 		PickSpecies: -1,
 		PickLevel:   100,

@@ -4,12 +4,14 @@
 
 package layout
 
-// AboutBox is TAboutBox ("POKéMON Simulator V4.5"), the About box.
+import "github.com/jsperandio/pokemon-simulator/internal/version"
+
+// AboutBox is TAboutBox (the program's title), the About box.
 var AboutBox = Component{
 	Class:   "TAboutBox",
 	Name:    "AboutBox",
 	Bounds:  Rect{200, 108, 0, 0},
-	Caption: "POKéMON Simulator V4.5",
+	Caption: version.Title(),
 	Props: map[string]string{
 		"AutoSize":     "True",
 		"BorderIcons":  "[]",
@@ -56,7 +58,7 @@ var AboutBox = Component{
 					Class:   "TLabel",
 					Name:    "Version",
 					Bounds:  Rect{50, 26, 88, 13},
-					Caption: "Version 4.5 (32-bit)",
+					Caption: "Version " + version.Number(),
 				},
 				{
 					Class:  "TImage",

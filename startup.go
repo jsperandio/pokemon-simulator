@@ -12,9 +12,9 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic"
+	"github.com/jsperandio/pokemon-simulator/internal/version"
 )
 
 // A GNOME desktop shows the game's window only once its helper for the
@@ -62,7 +62,7 @@ func watchWindow(app *classic.Application) ebiten.Game {
 	if restarted {
 		ebiten.SetWindowDecorated(false)
 
-		go platform.Alert(game.Title, noFrameText)
+		go platform.Alert(version.Title(), noFrameText)
 	}
 
 	go watch(w.shown, showTimeout, !restarted && platform.GNOMEFrames(), restart)

@@ -3,14 +3,16 @@ export CGO_ENABLED := 0
 
 BINARY    := pokemon-simulator
 DIST      := dist
-LDFLAGS   := -s -w
 PLATFORMS := linux/amd64 linux/arm64 windows/amd64 darwin/amd64 darwin/arm64
 
-# VERSION names the release archives and goes into the Windows build's
-# properties: the latest v* tag as git describe gives it, or v0.0.0 and the
-# commit while there is no tag.
+# VERSION names the release archives, goes into the Windows build's
+# properties and into the program, which shows it: the latest v* tag as git
+# describe gives it, or v0.0.0 and the commit while there is no tag.
 DESCRIBE := $(shell git describe --tags --match 'v[0-9]*' --always --dirty 2>/dev/null)
 VERSION  ?= $(if $(filter v%,$(DESCRIBE)),$(DESCRIBE),v0.0.0-$(or $(DESCRIBE),unknown))
+
+# LDFLAGS strips the binaries and gives the program its VERSION.
+LDFLAGS := -s -w -X github.com/jsperandio/pokemon-simulator/internal/version.tag=$(VERSION)
 
 # WINRES makes the Windows build's icon, manifest and properties from winres/.
 WINRES := go run github.com/tc-hib/go-winres@v0.3.3
@@ -53,7 +55,7 @@ endef
 .PHONY: run test vet lint build dist web serve clean $(PLATFORMS)
 
 run:
-	go run .
+	go run -ldflags "$(LDFLAGS)" .
 
 test:
 	go test ./...

@@ -15,10 +15,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/jsperandio/pokemon-simulator/assets"
-	"github.com/jsperandio/pokemon-simulator/internal/game"
 	"github.com/jsperandio/pokemon-simulator/internal/gamedata"
 	"github.com/jsperandio/pokemon-simulator/internal/platform"
 	"github.com/jsperandio/pokemon-simulator/internal/ui/classic"
+	"github.com/jsperandio/pokemon-simulator/internal/version"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 	}
 
 	ebiten.SetWindowSize(classic.WindowSize())
-	ebiten.SetWindowTitle(game.Title)
+	ebiten.SetWindowTitle(version.Title())
 	ebiten.SetWindowIcon([]image.Image{app.Icon()})
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowClosingHandled(true)
@@ -60,6 +60,6 @@ func main() {
 // fail tells the player why the game stopped, also where there is no
 // terminal to read it in, as when it was started from an icon, and ends it.
 func fail(err error) {
-	platform.Alert(game.Title, "The game stopped because of an error:\n\n"+err.Error())
+	platform.Alert(version.Title(), "The game stopped because of an error:\n\n"+err.Error())
 	log.Fatal(err)
 }
