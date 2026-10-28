@@ -9,6 +9,7 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -95,5 +96,38 @@ func Test_Transfers(t *testing.T) {
 		assert.Equal(t, "OggS", string(dat), "the dropped file's content")
 
 		ta.shot("51-dropped")
+	})
+
+	t.Run("when a new game's Save As shows, should offer Download alone, beside Up One Level, and ignore files dropped on the game", func(t *testing.T) {
+		t.Parallel()
+
+		ta := newTestApp(t)
+		ta.xfer = &fakeTransfers{
+			files:     ta.files,
+			downloads: map[string]string{},
+		}
+		ta.wait(80)
+		ta.clickOn(ta.start.wdw, "NewButton")
+		ta.key(ebiten.KeyEnter)
+		ta.wait(1)
+
+		fd := ta.fileDialog
+		require.NotNil(t, fd, "no Save As")
+		require.NotNil(t, fd.downloadButton, "no download button")
+
+		ta.shot("53-new-save")
+
+		assert.Nil(t, fd.uploadButton, "the upload button")
+		assert.Equal(t, image.Rect(304, 4, 327, 26), fd.downloadButton.rect, "the download button")
+
+		ta.frame(input{
+			dropped: fstest.MapFS{
+				"song.ogg": {Data: []byte("OggS")},
+			},
+		})
+
+		_, err := ta.files.ReadFile(ta.files.Join(fd.dir, "song.ogg"))
+		assert.Error(t, err, "the dropped file")
+		assert.Equal(t, "Ash.pgs", fd.name.text(), "the name box after the drop")
 	})
 }

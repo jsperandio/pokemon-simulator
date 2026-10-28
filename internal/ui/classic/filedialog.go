@@ -27,6 +27,8 @@ type fileOptions struct {
 	defaultExt string // added to a name without an extension
 	overwrite  bool   // ofOverwritePrompt
 	mustExist  bool   // ofFileMustExist
+	fileName   string // FileName: the name box's first text, which Save As numbers if the folder has it
+	noUpload   bool   // on the web, no Upload button, and files dropped on the game are ignored
 }
 
 // fileFilter is one of a dialog's file types.
@@ -249,6 +251,14 @@ func newFileDialog(app *Application, opts fileOptions) *fileDialog {
 
 	fd.navigate(dir)
 
+	if nam := opts.fileName; nam != "" {
+		if opts.save {
+			nam = fd.unusedName(nam)
+		}
+
+		fd.name.setText(nam)
+	}
+
 	wdw.focus = fd.name
 	app.desk.add(wdw)
 
@@ -368,6 +378,27 @@ func (fd *fileDialog) list() {
 	fd.view.scroll.pos = 0
 	fd.view.laid = false
 	fd.view.invalidate()
+}
+
+// unusedName is name, or, if a file or folder in the folder shown has it
+// in any case, the first of name2, name3... (before its extension) that
+// none has.
+func (fd *fileDialog) unusedName(name string) string {
+	entries, _ := fd.files.List(fd.dir)
+	used := func(nam string) bool {
+		return slices.ContainsFunc(entries, func(ent platform.Entry) bool {
+			return strings.EqualFold(ent.Name, nam)
+		})
+	}
+	ext := path.Ext(name)
+	stem := strings.TrimSuffix(name, ext)
+	nam := name
+
+	for n := 2; used(nam); n++ {
+		nam = stem + strconv.Itoa(n) + ext
+	}
+
+	return nam
 }
 
 func (fd *fileDialog) selectedEntry() (platform.Entry, bool) {
@@ -542,19 +573,26 @@ kkkkkkkkkkkkk
 `
 )
 
-// addTransfers adds the Upload and Download buttons after Up One Level.
+// addTransfers adds the Upload and Download buttons after Up One Level,
+// or Download alone when the dialog takes no uploads.
 func (fd *fileDialog) addTransfers() {
-	fd.uploadButton = &toolButton{
-		glyph:   glyphUpload,
-		onPress: fd.upload,
+	rect := image.Rect(304, 4, 327, 26)
+
+	if !fd.opts.noUpload {
+		fd.uploadButton = &toolButton{
+			glyph:   glyphUpload,
+			onPress: fd.upload,
+		}
+		addWidget(fd.wdw, fd.uploadButton, rect)
+
+		rect = rect.Add(image.Pt(24, 0))
 	}
-	addWidget(fd.wdw, fd.uploadButton, image.Rect(304, 4, 327, 26))
 
 	fd.downloadButton = &toolButton{
 		glyph:   glyphDownload,
 		onPress: fd.download,
 	}
-	addWidget(fd.wdw, fd.downloadButton, image.Rect(328, 4, 351, 26))
+	addWidget(fd.wdw, fd.downloadButton, rect)
 }
 
 // upload asks for files to put in the folder shown.

@@ -87,7 +87,8 @@ func withKeyboard(ta *testApp) *fakeIME {
 	return fi
 }
 
-// newSaveAs shows Save As, its file name focused, on a touch screen.
+// newSaveAs shows Save As, its file name focused and empty, on a touch
+// screen.
 func newSaveAs(t *testing.T) (*testApp, *fakeIME) {
 	t.Helper()
 
@@ -95,8 +96,12 @@ func newSaveAs(t *testing.T) (*testApp, *fakeIME) {
 	fi := withKeyboard(ta)
 	ta.wait(80)
 	ta.clickOn(ta.start.wdw, "NewButton")
+	ta.key(ebiten.KeyEnter)
+	ta.wait(1)
 
 	require.NotNil(t, ta.fileDialog, "no Save As")
+
+	ta.fileDialog.name.setText("")
 
 	return ta, fi
 }
@@ -145,13 +150,9 @@ func Test_keyboard(t *testing.T) {
 		}
 
 		ta.key(ebiten.KeyEnter)
-
-		assert.Nil(t, ta.fileDialog, "Save As still shows")
-		assert.True(t, ta.name.wdw.visible, "the name dialog doesn't show")
-
-		ta.key(ebiten.KeyEnter)
 		ta.wait(1)
 
+		assert.Nil(t, ta.fileDialog, "Save As still shows")
 		assert.True(t, strings.HasSuffix(ta.game.SaveFile, "web.pgs"), "the save file %q", ta.game.SaveFile)
 	})
 

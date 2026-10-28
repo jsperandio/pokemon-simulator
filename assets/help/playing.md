@@ -8,7 +8,7 @@ You have 5 choices here: starting a new game, loading a previously saved game, s
 
 When you load a game, you will see a dialog box asking which file to open. This works just like any other open dialog. Just double-click your saved game, and it will be opened instantly.
 
-Clicking "Start a new game..." will ask you to save your game. This is supposed to happen, as the game will automatically save for you when you quit. After you have done that, you will be asked to enter your name. This can be up to 15 characters long. The default is Ash.
+Clicking "Start a new game..." will ask you to enter your name. This can be up to 15 characters long. The default is Ash. After you have done that, you will be asked to save your game, in a file named after you unless you type another name. This is supposed to happen, as the game will automatically save for you when you quit.
 
 You will then see this screen:
 
