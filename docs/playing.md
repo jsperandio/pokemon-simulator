@@ -11,7 +11,7 @@ The game plays as the original did, apart from the [improvements](improvements.m
 
 ## Saving
 
-As in the original, you choose a save file when you start a new game, and the game saves when you quit (File → Quit, or closing the window).
+You choose a save file when you start a new game, after your name, and Save As suggests one named after you. The game saves when you quit (File → Quit, or closing the window).
 
 ## Music
 
@@ -21,7 +21,7 @@ Music → Open file... plays MP3, Ogg Vorbis and WAV files. The original played 
 
 The game keeps its files in the browser's storage, where they stay between visits. It needs WebGL 2, which current browsers have.
 
-- **Upload and Download.** The file dialogs have two extra buttons, next to Up One Level. **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too.
+- **Upload and Download.** The file dialogs have two extra buttons, next to Up One Level. **Upload** copies files from your computer, such as saves from the original or music, and **Download** gives you a copy of the file you choose. Files you drop on the game are uploaded too. A new game's Save As has Download alone and takes no dropped files, since a new game starts afresh: upload a save in Load a saved game.
 - **Saves between versions.** The versions from 4.6 on keep their files apart from v4.5's. To carry a save over, Download it in one and Upload it in the other.
 - **Quitting.** Closing or reloading the page doesn't save, so the browser asks first while a game is open. Use File → Quit.
 - **Exported pages** open in a new tab.

@@ -72,6 +72,7 @@ In File → Preferences..., under Battle Info, clear Colour the messages to turn
 
 ## Small interface changes
 
+- **A new game** asks for your name first. Save As then suggests a file named after you: `Gary.pgs`, or `Gary2.pgs` if the folder already has a `Gary.pgs`. The original asked for the file first, with an empty name box.
 - **The starter choice** opens in the middle of the screen. Once you choose, the game window moves beside the Statistics and Battle Info windows, unless you moved it yourself.
 - **The HP bars** in the Battle Arena are the same width for both POKéMON, and longer: the game window and Battle Info are 42 pixels wider to make room. The original started each bar after its POKéMON's name, so the enemy's, with "Enemy" before the name, was usually the shorter.
 - **Go!** is 22 pixels high instead of 15, with room above and below it, and lines up with the HP bars. Search Again, in its place, is as high. To make room, the Battle Arena's frame reaches further into the game window's margins, so the window keeps its size.
