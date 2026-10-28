@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
-// Command pokemon-simulator is a port of POKéMON Simulator V4.5
-// (BirdieSoft, 2002–2004) to Go and Ebitengine.
+// Command pokemon-simulator is a port of POKéMON Simulator (BirdieSoft,
+// 2002–2004) to Go and Ebitengine.
 //
 // A save file given on the command line is loaded at start-up, as the
 // original loaded one opened from Explorer.
