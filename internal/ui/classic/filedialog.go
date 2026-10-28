@@ -28,6 +28,7 @@ type fileOptions struct {
 	overwrite  bool   // ofOverwritePrompt
 	mustExist  bool   // ofFileMustExist
 	fileName   string // FileName: the name box's first text, which Save As numbers if the folder has it
+	noUpload   bool   // on the web, no Upload button, and files dropped on the game are ignored
 }
 
 // fileFilter is one of a dialog's file types.
@@ -572,19 +573,26 @@ kkkkkkkkkkkkk
 `
 )
 
-// addTransfers adds the Upload and Download buttons after Up One Level.
+// addTransfers adds the Upload and Download buttons after Up One Level,
+// or Download alone when the dialog takes no uploads.
 func (fd *fileDialog) addTransfers() {
-	fd.uploadButton = &toolButton{
-		glyph:   glyphUpload,
-		onPress: fd.upload,
+	rect := image.Rect(304, 4, 327, 26)
+
+	if !fd.opts.noUpload {
+		fd.uploadButton = &toolButton{
+			glyph:   glyphUpload,
+			onPress: fd.upload,
+		}
+		addWidget(fd.wdw, fd.uploadButton, rect)
+
+		rect = rect.Add(image.Pt(24, 0))
 	}
-	addWidget(fd.wdw, fd.uploadButton, image.Rect(304, 4, 327, 26))
 
 	fd.downloadButton = &toolButton{
 		glyph:   glyphDownload,
 		onPress: fd.download,
 	}
-	addWidget(fd.wdw, fd.downloadButton, image.Rect(328, 4, 351, 26))
+	addWidget(fd.wdw, fd.downloadButton, rect)
 }
 
 // upload asks for files to put in the folder shown.

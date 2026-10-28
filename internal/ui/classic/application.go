@@ -620,16 +620,22 @@ func (app *Application) input() input {
 }
 
 // importDropped uploads the files dropped on the game into the folder the
-// file dialog shows, or else the home folder.
+// file dialog shows, or else the home folder; a dialog that takes no
+// uploads ignores them.
 func (app *Application) importDropped(fsys fs.FS) {
+	fd := app.fileDialog
+	if fd != nil && fd.opts.noUpload {
+		return
+	}
+
 	entries, err := fs.ReadDir(fsys, ".")
 	if err != nil {
 		return
 	}
 
 	dir := app.files.Home()
-	if app.fileDialog != nil {
-		dir = app.fileDialog.dir
+	if fd != nil {
+		dir = fd.dir
 	}
 
 	var names []string
@@ -649,8 +655,8 @@ func (app *Application) importDropped(fsys fs.FS) {
 		}
 	}
 
-	if app.fileDialog != nil && len(names) > 0 {
-		app.fileDialog.uploaded(names)
+	if fd != nil && len(names) > 0 {
+		fd.uploaded(names)
 	}
 }
 

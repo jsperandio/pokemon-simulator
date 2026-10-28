@@ -205,6 +205,8 @@ func (sf *startForm) newButtonClick() {
 			defaultExt: "pgs",
 			overwrite:  true,
 			fileName:   saveName(name, named),
+			// A new game is always new: saves come in with Load a saved game.
+			noUpload: true,
 		})
 		if !ok {
 			return
