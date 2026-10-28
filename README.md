@@ -18,13 +18,14 @@ Each link opens that version's game, with nothing to download:
 
 | Version | | What it is | Notes |
 |---|---|---|---|
+| [v4.6.0](https://jsperandio.github.io/pokemon-simulator-web/v4.6.0/) | Improved | the original with the [improvements](#improvements) | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.6.0) |
 | [v4.5.1](https://jsperandio.github.io/pokemon-simulator-web/v4.5.1/) | Original | the 2004 game, as Michael Madsen made it | [release notes](https://github.com/jsperandio/pokemon-simulator/releases/tag/v4.5.1) · [BirdieSoft's page](https://birdiesoft.dk/software.php?id=2) |
 
 [Playing in the browser](docs/playing.md#in-the-browser) says where the game keeps your files.
 
 ## Download
 
-Each release has an archive per system on the repository's Releases page. Nothing needs installing: extract the archive and run the program in it. The programs aren't signed, so Windows and macOS warn about them the first time.
+Each release has an archive per system on the repository's [Releases page](https://github.com/jsperandio/pokemon-simulator/releases). Nothing needs installing: extract the archive and run the program in it. The programs aren't signed, so Windows and macOS warn about them the first time.
 
 - **Windows** (`windows-amd64.zip`): run `pokemon-simulator.exe`. If SmartScreen says it protected your PC, choose More info, then Run anyway.
 - **macOS** (`macos-arm64.zip` for Apple silicon, `macos-amd64.zip` for Intel): macOS won't open the program until you allow it. Either run `xattr -d com.apple.quarantine pokemon-simulator` in Terminal, in its folder, or try to open it once and then choose Open Anyway in System Settings → Privacy & Security. It runs in a Terminal window, beside the game's.
