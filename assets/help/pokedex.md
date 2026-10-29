@@ -8,7 +8,7 @@ As the picture above shows, you can see the POKéMON's name, number, appearance,
 
 To see what a POKéMON looks like when it's shiny, check the Shiny box below its picture. This works for every POKéMON, even those you haven't caught yet.
 
-When you select a POKéMON, it will first play its animation from POKéMON Emerald. If you'd rather not see it, it can be turned off in File|Preferences.
+When you select a POKéMON, it will first play its animation from POKéMON Emerald. If you'd rather not see it, it can be turned off in [Preferences](preferences.md).
 
 You can see how many POKéMON have their attacks in the POKéDEX in the [Statistics](statistics.md) window.
 

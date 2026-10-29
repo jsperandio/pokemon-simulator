@@ -6,6 +6,7 @@ First-time players: Read the "Playing the Game" section first. Also check this s
 
 [Playing the Game](playing.md)\
 [Menu Items](menus.md)\
+[Preferences](preferences.md)\
 [Tournaments](tournaments.md)\
 [Music](music.md)\
 [Evolution](evolution.md)\

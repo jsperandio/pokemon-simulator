@@ -28,7 +28,7 @@ Once you start a battle, you must select a POKéMON to fight with by double-clic
 
 When fighting a wild POKéMON, a POKéBALL will show below its hit points if it is already in your POKéDEX.
 
-The Battle Info window (which is only visible during battles) will then show some text telling what happened in that turn. Its lines are coloured by what they tell: the damage your POKéMON deals in green, the damage it takes in red, the experience it gains in blue, and the money you win in gold. Critical hits are in bold: green when your POKéMON lands one, red when the enemy does. You can turn the colours off in File|Preferences, under Battle Info (see [Menu Items](menus.md)). There is a 10% chance of getting a critical hit, which doubles the amount of damage dealt to the opponent.
+The Battle Info window (which is only visible during battles) will then show some text telling what happened in that turn. Its lines are coloured by what they tell: the damage your POKéMON deals in green, the damage it takes in red, the experience it gains in blue, and the money you win in gold. Critical hits are in bold: green when your POKéMON lands one, red when the enemy does. You can turn the colours off in File|Preferences, under Battle Info (see [Preferences](preferences.md)). There is a 10% chance of getting a critical hit, which doubles the amount of damage dealt to the opponent.
 
 Once the battle has been finished, a button labeled "End Fight" appears. This button appears once the outcome of the fight has been decided. While the button is visible, the "Go!" button will be hidden, and you have a chance to review the battle. Click the button to fully end the fight.
 
@@ -67,7 +67,7 @@ You'll know when you have found one: Battle Info will say "It's a shiny POKéMON
 
 ![](bm23.png)
 
-If you catch it, it stays shiny, even when it evolves. In the [Statistics](statistics.md) window, it has "(shiny)" after its name and a small mark on its icon, like the Charmander in the picture above. You can choose another mark, or none at all, in File|Preferences, under Graphics.
+If you catch it, it stays shiny, even when it evolves. In the [Statistics](statistics.md) window, it has "(shiny)" after its name and a small mark on its icon, like the Charmander in the picture above. You can choose another mark, or none at all, in [Preferences](preferences.md).
 
 The following POKéMON have special rules in comparison to the original Game Boy games:
 
