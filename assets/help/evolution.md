@@ -10,3 +10,5 @@ Evolving your POKéMON is quite simple. You select Actions|Evolve a POKéMON, an
 Depending on your selection, you will receive one of these two types of messages: ![](bm9.png) if you chose not to evolve it after all, or ![](bm10.png) if you evolved it into Vileplume.
 
 Note: In this game, POKéMON can only evolve when they reach a certain level.
+
+A shiny POKéMON stays shiny when it evolves.
