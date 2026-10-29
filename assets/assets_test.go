@@ -24,10 +24,10 @@ func Test_FS(t *testing.T) {
 	pages, err := fs.Glob(FS, "help/*.md")
 	require.NoError(t, err)
 
-	t.Run("when the help folder is listed, should hold the manual's 14 pages", func(t *testing.T) {
+	t.Run("when the help folder is listed, should hold the manual's 15 pages", func(t *testing.T) {
 		t.Parallel()
 
-		assert.Len(t, pages, 14)
+		assert.Len(t, pages, 15)
 	})
 
 	t.Run("when a help page is read, should start with a title", func(t *testing.T) {

@@ -16,3 +16,5 @@ The window shows the following things:
 When battling, the item names will change to buttons. Clicking on one of these will use the item.
 
 When clicking on one of your POKéMON, you will see its level and experience.
+
+Shiny POKéMON have "(shiny)" written after their name and a small mark on their icon, so they're easy to spot in the list. You can choose another mark, or none at all, in [Preferences](preferences.md).
